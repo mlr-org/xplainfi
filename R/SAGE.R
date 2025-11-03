@@ -40,17 +40,16 @@ SAGE = R6Class(
 		#' @description
 		#' Creates a new instance of the SAGE class.
 		#' @param task,learner,measure,resampling,features Passed to FeatureImportanceMethod.
-		#' @param n_permutations (`integer(1)`: `10L`) Number of permutations _per coalition_ to sample for Shapley value estimation.
+		#' @param n_permutations (`integer(1)`: `10L`) Number of permutations to sample for SAGE value estimation.
 		#'   The total number of evaluated coalitions is `1 (empty) + n_permutations * n_features`.
 		#' @param batch_size (`integer(1)`: `5000L`) Maximum number of observations to process in a single prediction call.
 		#' @param n_samples (`integer(1)`: `100L`) Number of samples to use for marginalizing out-of-coalition features.
 		#'   For [MarginalSAGE], this is the number of marginal data samples ("background data" in other implementations).
 		#'   For [ConditionalSAGE], this is the number of conditional samples per test instance retrieved from `sampler`.
-		#' @param early_stopping (`logical(1)`: `FALSE`) Whether to enable early stopping based on convergence detection.
-		#' @param convergence_threshold (`numeric(1)`: `0.01`) Relative change threshold for convergence detection.
-		#' @param se_threshold (`numeric(1)`: `Inf`) Standard error threshold for convergence detection.
-		#' @param min_permutations (`integer(1)`: `10L`) Minimum permutations before checking convergence.
-		#' @param check_interval (`integer(1)`: `2L`) Check convergence every N permutations.
+		#' @param early_stopping (`logical(1)`: `TRUE`) Whether to enable early stopping based on convergence detection.
+		#' @param se_threshold (`numeric(1)`: `0.01`) Standard error threshold for convergence detection (1% by default).
+		#' @param min_permutations (`integer(1)`: `3L`) Minimum permutations before checking for convergence.
+		#' @param check_interval (`integer(1)`: `1L`) Check convergence every N permutations.
 		initialize = function(
 			task,
 			learner,
@@ -60,11 +59,10 @@ SAGE = R6Class(
 			n_permutations = 10L,
 			batch_size = 5000L,
 			n_samples = 100L,
-			early_stopping = FALSE,
-			convergence_threshold = 0.01,
-			se_threshold = Inf,
-			min_permutations = 10L,
-			check_interval = 2L
+			early_stopping = TRUE,
+			se_threshold = 0.01,
+			min_permutations = 3L,
+			check_interval = 1L
 		) {
 			super$initialize(
 				task = task,
@@ -93,16 +91,14 @@ SAGE = R6Class(
 				batch_size = paradox::p_int(lower = 1L, default = 5000L),
 				n_samples = paradox::p_int(lower = 1L, default = 100L),
 				early_stopping = paradox::p_lgl(default = FALSE),
-				convergence_threshold = paradox::p_dbl(lower = 0, upper = 1, default = 0.01),
-				se_threshold = paradox::p_dbl(lower = 0, default = Inf),
-				min_permutations = paradox::p_int(lower = 5L, default = 10L),
-				check_interval = paradox::p_int(lower = 1L, default = 2L)
+				se_threshold = paradox::p_dbl(lower = 0, upper = 1, default = 0.01),
+				min_permutations = paradox::p_int(lower = 1L, default = 3L),
+				check_interval = paradox::p_int(lower = 1L, default = 1L)
 			)
 			ps$values$n_permutations = n_permutations
 			ps$values$batch_size = batch_size
 			ps$values$n_samples = n_samples
 			ps$values$early_stopping = early_stopping
-			ps$values$convergence_threshold = convergence_threshold
 			ps$values$se_threshold = se_threshold
 			ps$values$min_permutations = min_permutations
 			ps$values$check_interval = check_interval
@@ -111,10 +107,9 @@ SAGE = R6Class(
 
 		#' @description
 		#' Compute SAGE values.
-		#' @param store_backends (`logical(1)`) Whether to store backends.
+		#' @param store_backends (`logical(1)`) Whether to store data backends.
 		#' @param batch_size (`integer(1)`: `5000L`) Maximum number of observations to process in a single prediction call.
 		#' @param early_stopping (`logical(1)`) Whether to check for convergence and stop early.
-		#' @param convergence_threshold (`numeric(1)`) Relative change threshold for convergence detection.
 		#' @param se_threshold (`numeric(1)`) Standard error threshold for convergence detection.
 		#' @param min_permutations (`integer(1)`) Minimum permutations before checking convergence.
 		#' @param check_interval (`integer(1)`) Check convergence every N permutations.
@@ -122,7 +117,6 @@ SAGE = R6Class(
 			store_backends = TRUE,
 			batch_size = NULL,
 			early_stopping = NULL,
-			convergence_threshold = NULL,
 			se_threshold = NULL,
 			min_permutations = NULL,
 			check_interval = NULL
@@ -137,24 +131,19 @@ SAGE = R6Class(
 			early_stopping = resolve_param(
 				early_stopping,
 				self$param_set$values$early_stopping,
-				FALSE
-			)
-			convergence_threshold = resolve_param(
-				convergence_threshold,
-				self$param_set$values$convergence_threshold,
-				0.01
+				TRUE
 			)
 			se_threshold = resolve_param(
 				se_threshold,
 				self$param_set$values$se_threshold,
-				Inf
+				0.01
 			)
 			min_permutations = resolve_param(
 				min_permutations,
 				self$param_set$values$min_permutations,
-				10L
+				3L
 			)
-			check_interval = resolve_param(check_interval, self$param_set$values$check_interval, 5L)
+			check_interval = resolve_param(check_interval, self$param_set$values$check_interval, 1L)
 
 			# Initial resampling to get trained learners
 			rr = resample(
@@ -178,7 +167,6 @@ SAGE = R6Class(
 				n_permutations = self$n_permutations,
 				batch_size = batch_size,
 				early_stopping = early_stopping,
-				convergence_threshold = convergence_threshold,
 				se_threshold = se_threshold,
 				min_permutations = min_permutations,
 				check_interval = check_interval
@@ -288,10 +276,9 @@ SAGE = R6Class(
 			n_permutations,
 			batch_size = NULL,
 			early_stopping = FALSE,
-			convergence_threshold = 0.01,
-			se_threshold = Inf,
-			min_permutations = 10L,
-			check_interval = 5L
+			se_threshold = 0.01,
+			min_permutations = 3L,
+			check_interval = 1L
 		) {
 			# Initialize numeric vectors to store marginal contributions and their squares for variance calculation.
 			# We track both sum and sum of squares to calculate running variance and standard errors.
@@ -457,47 +444,22 @@ SAGE = R6Class(
 
 				# Check for convergence if early stopping is enabled and enough permutations have been processed.
 				if (early_stopping && n_completed >= min_permutations && length(convergence_history) > 1) {
-					# Get SAGE values from the previous and current checkpoints.
-					prev_checkpoint = convergence_history[[length(convergence_history) - 1]]
+					# Get SAGE values from the current checkpoint.
 					curr_checkpoint = convergence_history[[length(convergence_history)]]
 
 					# Ensure features are in the same order for comparison.
-					prev_values = copy(prev_checkpoint)[order(feature)]$importance
-					curr_values = copy(curr_checkpoint)[order(feature)]$importance
 					curr_se_values = copy(curr_checkpoint)[order(feature)]$se
-
-					# Calculate the maximum relative change between current and previous SAGE values.
-					# A small max_change indicates convergence.
-					rel_changes = abs(curr_values - prev_values) / (abs(prev_values) + 1e-8) # Add epsilon to avoid division by zero
-					max_change = max(rel_changes, na.rm = TRUE)
 
 					# Calculate maximum standard error across features.
 					max_se = max(curr_se_values, na.rm = TRUE)
 
-					# SE threshold is already resolved as a parameter to this function
-
-					# Check both relative change and standard error convergence criteria.
-					rel_change_converged = is.finite(max_change) && max_change < convergence_threshold
-					se_converged = is.finite(max_se) && max_se < se_threshold
-
-					# Convergence requires both criteria to be met (when SE threshold is finite)
-					if (is.finite(se_threshold)) {
-						converged = rel_change_converged && se_converged
-						convergence_msg = c(
-							"v" = "SAGE converged after {.val {n_completed}} permutations",
-							"i" = "Maximum relative change: {.val {round(max_change, 4)}} (threshold: {.val {convergence_threshold}})",
-							"i" = "Maximum standard error: {.val {round(max_se, 4)}} (threshold: {.val {se_threshold}})",
-							"i" = "Saved {.val {n_permutations - n_completed}} permutations"
-						)
-					} else {
-						# If SE threshold is infinite, only check relative change
-						converged = rel_change_converged
-						convergence_msg = c(
-							"v" = "SAGE converged after {.val {n_completed}} permutations",
-							"i" = "Maximum relative change: {.val {round(max_change, 4)}}",
-							"i" = "Saved {.val {n_permutations - n_completed}} permutations"
-						)
-					}
+					# Check convergence: SE below threshold
+					converged = is.finite(max_se) && max_se < se_threshold
+					convergence_msg = c(
+						"v" = "SAGE converged after {.val {n_completed}} permutations",
+						"i" = "Maximum standard error: {.val {round(max_se, 4)}} (threshold: {.val {se_threshold}})",
+						"i" = "Saved {.val {n_permutations - n_completed}} permutations"
+					)
 
 					if (converged) {
 						cli::cli_inform(convergence_msg)
