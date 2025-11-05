@@ -138,6 +138,35 @@ We can also keep track of the SAGE value approximation across permutations:
 marginal_sage$plot_convergence()
 ```
 
+### Early Stopping Based on Convergence
+
+SAGE supports early stopping to save computation time when the importance values have converged. By default, early stopping is enabled with `early_stopping = TRUE`. Convergence is detected by monitoring the standard error (SE) of the SAGE value estimates in the first resampling iteration.
+
+**Convergence criterion**: SAGE normalizes the SE by the range of their values (max - min) to make convergence detection scale-invariant across different loss metrics. Convergence is detected when:
+
+$$\max_j \left(\frac{SE_j}{\max_i(\text{SAGE}_i) - \min_i(\text{SAGE}_i)}\right) < \text{threshold}$$
+
+The default threshold is `se_threshold = 0.01` (1%), meaning convergence occurs when the relative SE is below 1% of the importance range for all features.
+
+You can customize convergence detection in `$compute()`:
+
+```r
+# More strict convergence (requires more permutations)
+sage$compute(early_stopping = TRUE, se_threshold = 0.005, min_permutations = 5L)
+
+# Disable early stopping to always run all permutations
+sage$compute(early_stopping = FALSE)
+```
+
+After computation, you can check convergence status:
+
+```r
+marginal_sage$converged  # TRUE if converged early
+marginal_sage$n_permutations_used  # Actual permutations used
+```
+
+If a resampling with multiple iterations (i.e., not holdout) is supplied, the value of `n_permutations_used` will be set as the value for `n_permutations` in all subsequent iterations to avoid some computational overhead.
+
 ## Conditional SAGE
 
 Conditional SAGE uses conditional sampling (via ARF by default) to marginalize features while preserving dependencies between the remaining features. This can provide different insights, especially when features are correlated.

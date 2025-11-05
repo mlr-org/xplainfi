@@ -82,11 +82,10 @@ Creates a new instance of the SAGE class.
   n_permutations = 10L,
   batch_size = 5000L,
   n_samples = 100L,
-  early_stopping = FALSE,
-  convergence_threshold = 0.01,
-  se_threshold = Inf,
-  min_permutations = 10L,
-  check_interval = 2L
+  early_stopping = TRUE,
+  se_threshold = 0.01,
+  min_permutations = 3L,
+  check_interval = 1L
 )}\if{html}{\out{</div>}}
 }
 
@@ -95,7 +94,7 @@ Creates a new instance of the SAGE class.
 \describe{
 \item{\code{task, learner, measure, resampling, features}}{Passed to FeatureImportanceMethod.}
 
-\item{\code{n_permutations}}{(\code{integer(1)}: \code{10L}) Number of permutations \emph{per coalition} to sample for Shapley value estimation.
+\item{\code{n_permutations}}{(\code{integer(1)}: \code{10L}) Number of permutations to sample for SAGE value estimation.
 The total number of evaluated coalitions is \code{1 (empty) + n_permutations * n_features}.}
 
 \item{\code{batch_size}}{(\code{integer(1)}: \code{5000L}) Maximum number of observations to process in a single prediction call.}
@@ -104,15 +103,13 @@ The total number of evaluated coalitions is \code{1 (empty) + n_permutations * n
 For \link{MarginalSAGE}, this is the number of marginal data samples ("background data" in other implementations).
 For \link{ConditionalSAGE}, this is the number of conditional samples per test instance retrieved from \code{sampler}.}
 
-\item{\code{early_stopping}}{(\code{logical(1)}: \code{FALSE}) Whether to enable early stopping based on convergence detection.}
+\item{\code{early_stopping}}{(\code{logical(1)}: \code{TRUE}) Whether to enable early stopping based on convergence detection.}
 
-\item{\code{convergence_threshold}}{(\code{numeric(1)}: \code{0.01}) Relative change threshold for convergence detection.}
+\item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.01}) Standard error threshold for convergence detection (1\% by default).}
 
-\item{\code{se_threshold}}{(\code{numeric(1)}: \code{Inf}) Standard error threshold for convergence detection.}
+\item{\code{min_permutations}}{(\code{integer(1)}: \code{3L}) Minimum permutations before checking for convergence.}
 
-\item{\code{min_permutations}}{(\code{integer(1)}: \code{10L}) Minimum permutations before checking convergence.}
-
-\item{\code{check_interval}}{(\code{integer(1)}: \code{2L}) Check convergence every N permutations.}
+\item{\code{check_interval}}{(\code{integer(1)}: \code{1L}) Check convergence every N permutations.}
 }
 \if{html}{\out{</div>}}
 }
@@ -127,7 +124,6 @@ Compute SAGE values.
   store_backends = TRUE,
   batch_size = NULL,
   early_stopping = NULL,
-  convergence_threshold = NULL,
   se_threshold = NULL,
   min_permutations = NULL,
   check_interval = NULL
@@ -137,13 +133,11 @@ Compute SAGE values.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{store_backends}}{(\code{logical(1)}) Whether to store backends.}
+\item{\code{store_backends}}{(\code{logical(1)}) Whether to store data backends.}
 
 \item{\code{batch_size}}{(\code{integer(1)}: \code{5000L}) Maximum number of observations to process in a single prediction call.}
 
 \item{\code{early_stopping}}{(\code{logical(1)}) Whether to check for convergence and stop early.}
-
-\item{\code{convergence_threshold}}{(\code{numeric(1)}) Relative change threshold for convergence detection.}
 
 \item{\code{se_threshold}}{(\code{numeric(1)}) Standard error threshold for convergence detection.}
 

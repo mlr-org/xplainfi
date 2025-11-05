@@ -101,7 +101,7 @@ grViz(
     X4 [fillcolor='lightgray', label='X₄\n(β=0)'];
     Y [fillcolor='greenyellow', label='Y', width=1.5];
     
-    X1 -> X2 [color=red, style=bold, label='≈1.0'];
+    X1 -> X2 [color=red, style=bold, label='r≈0.9'];
     X1 -> Y [label='2.0'];
     X2 -> Y [style=dashed, color=gray, label='0'];
     X3 -> Y [label='1.0'];

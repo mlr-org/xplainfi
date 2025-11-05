@@ -90,17 +90,16 @@ Creates a new instance of the ConditionalSAGE class.
   batch_size = 5000L,
   n_samples = 100L,
   early_stopping = FALSE,
-  convergence_threshold = 0.01,
-  se_threshold = Inf,
-  min_permutations = 10L,
-  check_interval = 2L
+  se_threshold = 0.01,
+  min_permutations = 3L,
+  check_interval = 1L
 )}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{task, learner, measure, resampling, features, n_permutations, batch_size, n_samples, early_stopping, convergence_threshold, se_threshold, min_permutations, check_interval}}{Passed to \link{SAGE}.}
+\item{\code{task, learner, measure, resampling, features, n_permutations, batch_size, n_samples, early_stopping, se_threshold, min_permutations, check_interval}}{Passed to \link{SAGE}.}
 
 \item{\code{sampler}}{(\link{ConditionalSampler}) Optional custom sampler. Defaults to \link{ConditionalARFSampler}.}
 }
