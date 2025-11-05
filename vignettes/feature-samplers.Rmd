@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-Feature samplers are a core component of perturbation-based feature importance methods (PFI, CFI, RFI) and other methods based on some form of marginilization (SAGE).
+Feature samplers are a core component of perturbation-based feature importance methods (PFI, CFI, RFI) and any other methods based on some form of marginilization (SAGE).
 They determine how features are replaced or perturbed when evaluating feature importance. 
 This vignette introduces the different types of feature samplers available in xplainfi and demonstrates their use.
 

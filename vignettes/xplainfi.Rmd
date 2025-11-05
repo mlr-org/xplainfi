@@ -207,3 +207,64 @@ In the resulting table we see
 Note that not all measures have a `Measure$obs_loss()`:
 Some measures like `msr("classif.auc")` are not decomposable, so observation-wise loss values are not available.  
 In other cases, the corresponding `obs_loss()` is just not yet implemented in [`mlr3measures`](https://cran.r-project.org/web/packages/mlr3measures/index.html), but will likely be in the future.
+
+## Parallelization
+
+Both PFI/CFI/RFI and LOCO/WVIM support parallel execution to speed up computation when working with multiple features or expensive learners. The parallelization follows mlr3's approach, allowing users to choose between `mirai` and `future` backends.
+
+### Example with future
+
+The `future` package provides a simple interface for parallel and distributed computing:
+
+```{r parallel-future, eval = FALSE}
+library(future)
+plan("multisession", workers = 2)
+
+# PFI with parallelization across features
+pfi_parallel = PFI$new(
+  task,
+  learner = lrn("regr.ranger"),
+  measure = msr("regr.mse"),
+  n_repeats = 10
+)
+pfi_parallel$compute()
+pfi_parallel$importance()
+
+# LOCO with parallelization (uses mlr3fselect internally)
+loco_parallel = LOCO$new(
+  task,
+  learner = lrn("regr.ranger"),
+  measure = msr("regr.mse")
+)
+loco_parallel$compute()
+loco_parallel$importance()
+```
+
+### Example with mirai
+
+The `mirai` package offers a modern alternative for parallel computing:
+
+```{r parallel-mirai, eval = FALSE}
+library(mirai)
+daemons(n = 2)
+
+# Same PFI/LOCO code works with mirai backend
+pfi_parallel = PFI$new(
+  task,
+  learner = lrn("regr.ranger"),
+  measure = msr("regr.mse"),
+  n_repeats = 10
+)
+pfi_parallel$compute()
+pfi_parallel$importance()
+
+# Clean up daemons when done
+daemons(0)
+```
+
+### Notes
+
+- **SAGE**: Currently does not support parallelization and will always run sequentially
+- **Performance**: Parallelization is most beneficial with multiple features, large datasets, or expensive learners
+- **Backend choice**: Use either `future::plan()` or `mirai::daemons()` - both work with the same code
+- **Consistency**: Both PerturbationImportance (PFI/CFI/RFI) and WVIM (LOCO) use the same mlr3 parallelization infrastructure

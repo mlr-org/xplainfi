@@ -115,9 +115,9 @@ ConditionalSAGE = R6Class(
 						each = self$param_set$values$n_samples
 					)]
 
-					# Sample conditionally using the conditional sampler
-					# Returns test_dt with marginalized features replaced by conditional samples
-					# ARF sampler: P(marginalize_features | coalition_features)
+					# Sample conditionally using a sampler
+					# Returns test_dt with "marginalized" features replaced by conditional samples
+					# sampler: P(marginalize_features | coalition_features)
 					marginalized_test = self$sampler$sample_newdata(
 						feature = marginalize_features,
 						newdata = test_dt_expanded,

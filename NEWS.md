@@ -1,4 +1,4 @@
-# xplainfi 0.1.0.9004
+# xplainfi 0.1.0.9006
 
 This turns out to be still a period of major changes in the early phase, so, uhm, well.
 
@@ -35,8 +35,13 @@ This turns out to be still a period of major changes in the early phase, so, uhm
 ### `PerturbationImportance`
 
 - Streamline and speedup `PerturbationImportance` implementation, also by using `learner$predict_newdata_fast()` (#39), bumping the mlr3 dependency >= 1.1.0.
-- Now batches `iter_repeats` internally to reduce the number of calls to `sampler$sample()`. 
+- Now batches `iter_repeats` internally to reduce the number of calls to `sampler$sample()`.
   - May need further adjustment in case of large data / large `n_repeats` as intermediate data could grow too large
+- **Parallelization support**: PFI, CFI, and RFI now support parallel execution via `mirai` or `future` backends:
+  - Uses the same parallelization infrastructure as mlr3 for consistency with WVIM/LOCO
+  - Set up daemons with `mirai::daemons()` or configure a future plan with `future::plan()`
+  - Parallelizes across features within each resampling iteration
+  - See the main vignette for examples
 
 ### Feature Samplers
 
