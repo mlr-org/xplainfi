@@ -17,7 +17,7 @@ This is an abstract class - use MarginalSAGE or ConditionalSAGE."><script defer 
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9005</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -182,7 +182,11 @@ For <a href="ConditionalSAGE.html">ConditionalSAGE</a>, this is the number of co
 
 
 <dt><code>se_threshold</code></dt>
-<dd><p>(<code>numeric(1)</code>: <code>0.01</code>) Standard error threshold for convergence detection (1% by default).</p></dd>
+<dd><p>(<code>numeric(1)</code>: <code>0.01</code>) Convergence threshold for relative standard error.
+Convergence is detected when the maximum relative SE across all features falls below this threshold.
+Relative SE is calculated as SE divided by the range of importance values (max - min),
+making it scale-invariant across different loss metrics.
+Default of <code>0.01</code> means convergence when relative SE is below 1% of the importance range.</p></dd>
 
 
 <dt><code>min_permutations</code></dt>
@@ -221,19 +225,21 @@ For <a href="ConditionalSAGE.html">ConditionalSAGE</a>, this is the number of co
 
 
 <dt><code>early_stopping</code></dt>
-<dd><p>(<code>logical(1)</code>) Whether to check for convergence and stop early.</p></dd>
+<dd><p>(<code>logical(1)</code>: <code>TRUE</code>) Whether to check for convergence and stop early.</p></dd>
 
 
 <dt><code>se_threshold</code></dt>
-<dd><p>(<code>numeric(1)</code>) Standard error threshold for convergence detection.</p></dd>
+<dd><p>(<code>numeric(1)</code>: <code>0.01</code>) Convergence threshold for relative standard error.
+SE is normalized by the range of importance values (max - min) to make convergence
+detection scale-invariant. Default <code>0.01</code> means convergence when relative SE &lt; 1%.</p></dd>
 
 
 <dt><code>min_permutations</code></dt>
-<dd><p>(<code>integer(1)</code>) Minimum permutations before checking convergence.</p></dd>
+<dd><p>(<code>integer(1)</code>: <code>3L</code>) Minimum permutations before checking convergence.</p></dd>
 
 
 <dt><code>check_interval</code></dt>
-<dd><p>(<code>integer(1)</code>) Check convergence every N permutations.</p></dd>
+<dd><p>(<code>integer(1)</code>: <code>1L</code>) Check convergence every N permutations.</p></dd>
 
 
 </dl><p></p></div>
