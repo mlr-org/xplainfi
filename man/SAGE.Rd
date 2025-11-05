@@ -105,7 +105,11 @@ For \link{ConditionalSAGE}, this is the number of conditional samples per test i
 
 \item{\code{early_stopping}}{(\code{logical(1)}: \code{TRUE}) Whether to enable early stopping based on convergence detection.}
 
-\item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.01}) Standard error threshold for convergence detection (1\% by default).}
+\item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.01}) Convergence threshold for relative standard error.
+Convergence is detected when the maximum relative SE across all features falls below this threshold.
+Relative SE is calculated as SE divided by the range of importance values (max - min),
+making it scale-invariant across different loss metrics.
+Default of \code{0.01} means convergence when relative SE is below 1\% of the importance range.}
 
 \item{\code{min_permutations}}{(\code{integer(1)}: \code{3L}) Minimum permutations before checking for convergence.}
 
@@ -137,13 +141,15 @@ Compute SAGE values.
 
 \item{\code{batch_size}}{(\code{integer(1)}: \code{5000L}) Maximum number of observations to process in a single prediction call.}
 
-\item{\code{early_stopping}}{(\code{logical(1)}) Whether to check for convergence and stop early.}
+\item{\code{early_stopping}}{(\code{logical(1)}: \code{TRUE}) Whether to check for convergence and stop early.}
 
-\item{\code{se_threshold}}{(\code{numeric(1)}) Standard error threshold for convergence detection.}
+\item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.01}) Convergence threshold for relative standard error.
+SE is normalized by the range of importance values (max - min) to make convergence
+detection scale-invariant. Default \code{0.01} means convergence when relative SE < 1\%.}
 
-\item{\code{min_permutations}}{(\code{integer(1)}) Minimum permutations before checking convergence.}
+\item{\code{min_permutations}}{(\code{integer(1)}: \code{3L}) Minimum permutations before checking convergence.}
 
-\item{\code{check_interval}}{(\code{integer(1)}) Check convergence every N permutations.}
+\item{\code{check_interval}}{(\code{integer(1)}: \code{1L}) Check convergence every N permutations.}
 }
 \if{html}{\out{</div>}}
 }
