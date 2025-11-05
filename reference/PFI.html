@@ -19,7 +19,7 @@ the feature and the target variable."><script defer src="https://umami.jemu.name
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -130,22 +130,15 @@ Strobl C, Boulesteix A, Kneib T, Augustin T, Zeileis A (2008).
 <span>  features <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  groups <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  relation <span class="op">=</span> <span class="st">"difference"</span>,</span>
-<span>  n_repeats <span class="op">=</span> <span class="fl">1L</span></span>
+<span>  n_repeats <span class="op">=</span> <span class="fl">1L</span>,</span>
+<span>  batch_size <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>task, learner, measure, resampling, features, groups</code></dt>
+<p></p><div class="arguments"><dl><dt><code>task, learner, measure, resampling, features, groups, relation, n_repeats, batch_size</code></dt>
 <dd><p>Passed to <a href="PerturbationImportance.html">PerturbationImportance</a></p></dd>
-
-
-<dt><code>relation</code></dt>
-<dd><p>(c<code>haracter(1)</code>: "<code>difference</code>") How to relate perturbed scores to originals. Can be overridden in <code>$compute()</code>.</p></dd>
-
-
-<dt><code>n_repeats</code></dt>
-<dd><p>(<code>integer(1)</code>: <code>1L</code>) Number of permutation iterations. Can be overridden in <code>$compute()</code>.</p></dd>
 
 
 </dl><p></p></div>
@@ -155,13 +148,22 @@ Strobl C, Boulesteix A, Kneib T, Augustin T, Zeileis A (2008).
 <h3 id="method-compute-">Method <code>compute()</code><a class="anchor" aria-label="anchor" href="#method-compute-"></a></h3>
 <p>Compute PFI scores</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PFI</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span>n_repeats <span class="op">=</span> <span class="cn">NULL</span>, store_models <span class="op">=</span> <span class="cn">TRUE</span>, store_backends <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PFI</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span></span>
+<span>  n_repeats <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  batch_size <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  store_models <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  store_backends <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>n_repeats</code></dt>
 <dd><p>(<code>integer(1)</code>; <code>NULL</code>) Number of permutation iterations. If <code>NULL</code>, uses stored value.</p></dd>
+
+
+<dt><code>batch_size</code></dt>
+<dd><p>(<code>integer(1)</code> | <code>NULL</code>: <code>NULL</code>) Maximum number of rows to predict at once. If <code>NULL</code>, uses stored value.</p></dd>
 
 
 <dt><code>store_models, store_backends</code></dt>
@@ -209,11 +211,11 @@ This may be required for certain measures and is recommended to leave enabled un
 <span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;feature&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    feature importance</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;char&gt;      &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:      x1 0.01366607</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:      x2 0.04367201</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:      x3 0.05694197</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:      x4 0.06694395</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:      x5 0.04733611</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:      x1 0.02376708</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:      x2 0.04693999</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:      x3 0.04684096</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:      x4 0.07021192</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:      x5 0.03693801</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -197,16 +197,16 @@ per resampling fold:</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;          feature  importance</span></span>
 <span><span class="co">#&gt;           &lt;char&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  5.33911229</span></span>
-<span><span class="co">#&gt;  2:   important2  7.05857192</span></span>
-<span><span class="co">#&gt;  3:   important3  1.05836425</span></span>
-<span><span class="co">#&gt;  4:   important4 13.82458524</span></span>
-<span><span class="co">#&gt;  5:   important5  1.87787034</span></span>
-<span><span class="co">#&gt;  6: unimportant1 -0.03467317</span></span>
-<span><span class="co">#&gt;  7: unimportant2  0.02760776</span></span>
-<span><span class="co">#&gt;  8: unimportant3  0.07803544</span></span>
-<span><span class="co">#&gt;  9: unimportant4  0.03031981</span></span>
-<span><span class="co">#&gt; 10: unimportant5 -0.03469244</span></span></code></pre></div>
+<span><span class="co">#&gt;  1:   important1  5.49350314</span></span>
+<span><span class="co">#&gt;  2:   important2  8.27127962</span></span>
+<span><span class="co">#&gt;  3:   important3  1.03112448</span></span>
+<span><span class="co">#&gt;  4:   important4 13.70049092</span></span>
+<span><span class="co">#&gt;  5:   important5  1.89032663</span></span>
+<span><span class="co">#&gt;  6: unimportant1 -0.01291604</span></span>
+<span><span class="co">#&gt;  7: unimportant2 -0.01881439</span></span>
+<span><span class="co">#&gt;  8: unimportant3  0.05705810</span></span>
+<span><span class="co">#&gt;  9: unimportant4  0.05613447</span></span>
+<span><span class="co">#&gt; 10: unimportant5 -0.04811418</span></span></code></pre></div>
 <p>We can also use ratio instead of difference for the importance
 calculation, meaning that an unimportant feature is now expected to get
 an importance score of 1 rather than 0:</p>
@@ -215,16 +215,16 @@ an importance score of 1 rather than 0:</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;          feature importance</span></span>
 <span><span class="co">#&gt;           &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  1.8111892</span></span>
-<span><span class="co">#&gt;  2:   important2  2.0655617</span></span>
-<span><span class="co">#&gt;  3:   important3  1.1602020</span></span>
-<span><span class="co">#&gt;  4:   important4  3.0854616</span></span>
-<span><span class="co">#&gt;  5:   important5  1.2852320</span></span>
-<span><span class="co">#&gt;  6: unimportant1  0.9943552</span></span>
-<span><span class="co">#&gt;  7: unimportant2  1.0039539</span></span>
-<span><span class="co">#&gt;  8: unimportant3  1.0101863</span></span>
-<span><span class="co">#&gt;  9: unimportant4  1.0042183</span></span>
-<span><span class="co">#&gt; 10: unimportant5  0.9945303</span></span></code></pre></div>
+<span><span class="co">#&gt;  1:   important1  1.8332042</span></span>
+<span><span class="co">#&gt;  2:   important2  2.2611905</span></span>
+<span><span class="co">#&gt;  3:   important3  1.1565258</span></span>
+<span><span class="co">#&gt;  4:   important4  3.0682785</span></span>
+<span><span class="co">#&gt;  5:   important5  1.2869951</span></span>
+<span><span class="co">#&gt;  6: unimportant1  0.9979419</span></span>
+<span><span class="co">#&gt;  7: unimportant2  0.9974654</span></span>
+<span><span class="co">#&gt;  8: unimportant3  1.0073128</span></span>
+<span><span class="co">#&gt;  9: unimportant4  1.0086097</span></span>
+<span><span class="co">#&gt; 10: unimportant5  0.9923926</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="leave-one-covariate-out-loco">Leave-One-Covariate-Out (LOCO)<a class="anchor" aria-label="anchor" href="#leave-one-covariate-out-loco"></a>
@@ -245,16 +245,16 @@ of each feature when all other features are present.</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;          feature importance</span></span>
 <span><span class="co">#&gt;           &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  3.4140568</span></span>
-<span><span class="co">#&gt;  2:   important2  5.7771305</span></span>
-<span><span class="co">#&gt;  3:   important3  0.8518190</span></span>
-<span><span class="co">#&gt;  4:   important4  7.4712326</span></span>
-<span><span class="co">#&gt;  5:   important5  0.6982960</span></span>
-<span><span class="co">#&gt;  6: unimportant1 -0.3671644</span></span>
-<span><span class="co">#&gt;  7: unimportant2 -0.2105410</span></span>
-<span><span class="co">#&gt;  8: unimportant3 -0.2953192</span></span>
-<span><span class="co">#&gt;  9: unimportant4 -0.4608305</span></span>
-<span><span class="co">#&gt; 10: unimportant5 -0.3506712</span></span></code></pre></div>
+<span><span class="co">#&gt;  1:   important1  3.1047926</span></span>
+<span><span class="co">#&gt;  2:   important2  5.1216809</span></span>
+<span><span class="co">#&gt;  3:   important3  0.4987575</span></span>
+<span><span class="co">#&gt;  4:   important4  7.7615133</span></span>
+<span><span class="co">#&gt;  5:   important5  0.6788951</span></span>
+<span><span class="co">#&gt;  6: unimportant1 -0.7586142</span></span>
+<span><span class="co">#&gt;  7: unimportant2 -0.1510810</span></span>
+<span><span class="co">#&gt;  8: unimportant3 -0.5204418</span></span>
+<span><span class="co">#&gt;  9: unimportant4 -0.4949344</span></span>
+<span><span class="co">#&gt; 10: unimportant5 -0.4696825</span></span></code></pre></div>
 <p>LOCO is computationally expensive (requires retraining for each
 feature) but provides clear interpretation: higher values mean larger
 performance drop when the feature is removed. <strong>Important
@@ -302,13 +302,13 @@ given the values of <code>important2</code> and
 <span><span class="co">#&gt; 4:  0.8830174 0.729390652  0.3184946</span></span>
 <span><span class="co">#&gt; 5:  0.9404673 0.630131853  0.1739838</span></span>
 <span><span class="va">sampled_conditional</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">important1</span>, <span class="va">important2</span>, <span class="va">important3</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt;    important1  important2 important3</span></span>
-<span><span class="co">#&gt;         &lt;num&gt;       &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  0.3878425 0.784575267  0.2372297</span></span>
-<span><span class="co">#&gt; 2:  0.7904428 0.009429905  0.6864904</span></span>
-<span><span class="co">#&gt; 3:  0.3423671 0.779065883  0.2258184</span></span>
-<span><span class="co">#&gt; 4:  0.4486994 0.729390652  0.3184946</span></span>
-<span><span class="co">#&gt; 5:  0.7623094 0.630131853  0.1739838</span></span></code></pre></div>
+<span><span class="co">#&gt;       important1  important2 important3</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;       &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  0.3341964978 0.784575267  0.2372297</span></span>
+<span><span class="co">#&gt; 2:  0.1788524898 0.009429905  0.6864904</span></span>
+<span><span class="co">#&gt; 3:  0.6858777217 0.779065883  0.2258184</span></span>
+<span><span class="co">#&gt; 4:  0.9572636532 0.729390652  0.3184946</span></span>
+<span><span class="co">#&gt; 5: -0.0008153241 0.630131853  0.1739838</span></span></code></pre></div>
 <p>This conditional sampling is essential for methods like CFI and RFI
 that need to preserve feature dependencies. See
 <code>vignette("perturbation-importance")</code> for detailed
@@ -634,6 +634,84 @@ so observation-wise loss values are not available.<br>
 In other cases, the corresponding <code>obs_loss()</code> is just not
 yet implemented in <a href="https://cran.r-project.org/web/packages/mlr3measures/index.html" class="external-link"><code>mlr3measures</code></a>,
 but will likely be in the future.</p>
+</div>
+<div class="section level2">
+<h2 id="parallelization">Parallelization<a class="anchor" aria-label="anchor" href="#parallelization"></a>
+</h2>
+<p>Both PFI/CFI/RFI and LOCO/WVIM support parallel execution to speed up
+computation when working with multiple features or expensive learners.
+The parallelization follows mlr3’s approach, allowing users to choose
+between <code>mirai</code> and <code>future</code> backends.</p>
+<div class="section level3">
+<h3 id="example-with-future">Example with future<a class="anchor" aria-label="anchor" href="#example-with-future"></a>
+</h3>
+<p>The <code>future</code> package provides a simple interface for
+parallel and distributed computing:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="st">"multisession"</span>, workers <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># PFI with parallelization across features</span></span>
+<span><span class="va">pfi_parallel</span> <span class="op">=</span> <span class="va"><a href="../reference/PFI.html">PFI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  <span class="va">task</span>,</span>
+<span>  learner <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.ranger"</span><span class="op">)</span>,</span>
+<span>  measure <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span>,</span>
+<span>  n_repeats <span class="op">=</span> <span class="fl">10</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">pfi_parallel</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">pfi_parallel</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># LOCO with parallelization (uses mlr3fselect internally)</span></span>
+<span><span class="va">loco_parallel</span> <span class="op">=</span> <span class="va"><a href="../reference/LOCO.html">LOCO</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  <span class="va">task</span>,</span>
+<span>  learner <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.ranger"</span><span class="op">)</span>,</span>
+<span>  measure <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">loco_parallel</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">loco_parallel</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="example-with-mirai">Example with mirai<a class="anchor" aria-label="anchor" href="#example-with-mirai"></a>
+</h3>
+<p>The <code>mirai</code> package offers a modern alternative for
+parallel computing:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mirai.r-lib.org" class="external-link">mirai</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://mirai.r-lib.org/reference/daemons.html" class="external-link">daemons</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Same PFI/LOCO code works with mirai backend</span></span>
+<span><span class="va">pfi_parallel</span> <span class="op">=</span> <span class="va"><a href="../reference/PFI.html">PFI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  <span class="va">task</span>,</span>
+<span>  learner <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.ranger"</span><span class="op">)</span>,</span>
+<span>  measure <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span>,</span>
+<span>  n_repeats <span class="op">=</span> <span class="fl">10</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">pfi_parallel</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">pfi_parallel</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Clean up daemons when done</span></span>
+<span><span class="fu"><a href="https://mirai.r-lib.org/reference/daemons.html" class="external-link">daemons</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="notes">Notes<a class="anchor" aria-label="anchor" href="#notes"></a>
+</h3>
+<ul>
+<li>
+<strong>SAGE</strong>: Currently does not support parallelization
+and will always run sequentially</li>
+<li>
+<strong>Performance</strong>: Parallelization is most beneficial
+with multiple features, large datasets, or expensive learners</li>
+<li>
+<strong>Backend choice</strong>: Use either
+<code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">future::plan()</a></code> or <code><a href="https://mirai.r-lib.org/reference/daemons.html" class="external-link">mirai::daemons()</a></code> - both work
+with the same code</li>
+<li>
+<strong>Consistency</strong>: Both PerturbationImportance
+(PFI/CFI/RFI) and WVIM (LOCO) use the same mlr3 parallelization
+infrastructure</li>
+</ul>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -162,11 +162,11 @@ destroys the crucial interaction term.</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature  importance</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  noise1 0.008879842</span></span>
-<span><span class="co">#&gt; 2:  noise2 0.007115779</span></span>
-<span><span class="co">#&gt; 3:      x1 2.199752631</span></span>
-<span><span class="co">#&gt; 4:      x2 2.101568951</span></span>
-<span><span class="co">#&gt; 5:      x3 2.127262071</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:  noise1 0.003847893</span></span>
+<span><span class="co">#&gt; 2:  noise2 0.020582945</span></span>
+<span><span class="co">#&gt; 3:      x1 2.278858182</span></span>
+<span><span class="co">#&gt; 4:      x2 2.001683415</span></span>
+<span><span class="co">#&gt; 5:      x3 1.935324704</span></span></code></pre></div>
 <p>Expected: x1 and x2 will show high importance with PFI because
 permuting either feature destroys the interaction term x1×x2, which is
 crucial for prediction. This demonstrates a key limitation of PFI with
@@ -194,13 +194,13 @@ interaction effect:</p>
 <span><span class="va">cfi_int</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">cfi_int</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>relation <span class="op">=</span> <span class="st">"difference"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature  importance</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  noise1 -0.01008822</span></span>
-<span><span class="co">#&gt; 2:  noise2 -0.00445328</span></span>
-<span><span class="co">#&gt; 3:      x1  1.97689298</span></span>
-<span><span class="co">#&gt; 4:      x2  1.69636639</span></span>
-<span><span class="co">#&gt; 5:      x3  1.82532166</span></span></code></pre></div>
+<span><span class="co">#&gt;    feature importance</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  noise1 0.02435625</span></span>
+<span><span class="co">#&gt; 2:  noise2 0.02051248</span></span>
+<span><span class="co">#&gt; 3:      x1 2.03202059</span></span>
+<span><span class="co">#&gt; 4:      x2 1.69961194</span></span>
+<span><span class="co">#&gt; 5:      x3 1.96597388</span></span></code></pre></div>
 <p>Expected: CFI should show somewhat lower importance for x1 and x2
 compared to PFI because it better preserves the interaction structure
 during conditional sampling, providing a more nuanced importance
@@ -238,14 +238,14 @@ Let’s explore what happens when we condition on different features:</p>
 <p><strong>RFI Results:</strong></p>
 <ul>
 <li>
-<strong>x1 given x2</strong>: 2.071 (How important is x1 when we
+<strong>x1 given x2</strong>: 2.170 (How important is x1 when we
 condition on x2)</li>
 <li>
-<strong>x2 given x1</strong>: 1.913 (How important is x2 when we
+<strong>x2 given x1</strong>: 1.579 (How important is x2 when we
 condition on x1)<br>
 </li>
 <li>
-<strong>x3 given x2</strong>: 2.001 (How important is x3 when we
+<strong>x3 given x2</strong>: 1.979 (How important is x3 when we
 condition on x2)</li>
 </ul>
 <p><strong>Key insight</strong>: In the pure interaction case (y =
@@ -260,8 +260,8 @@ already know x2, how much does x1 add?”</p>
 <p>Let’s compare how the methods handle the interaction:</p>
 <p><img src="perturbation-importance_files/figure-html/compare-interactions-1.png" width="768"><img src="perturbation-importance_files/figure-html/compare-interactions-2.png" width="768"></p>
 <p><strong>RFI Conditional Summary</strong>: x1 given x2 has importance
-2.071, x2 given x1 has importance 1.913, and x3 given x2 has importance
-2.001. This shows how RFI reveals the conditional dependencies that pure
+2.170, x2 given x1 has importance 1.579, and x3 given x2 has importance
+1.979. This shows how RFI reveals the conditional dependencies that pure
 marginal methods miss.</p>
 </div>
 </div>
@@ -296,15 +296,15 @@ marginal methods miss.</p>
 <tbody>
 <tr class="odd">
 <td align="left">x1</td>
-<td align="right">1.977</td>
-<td align="right">2.200</td>
-<td align="right">0.899</td>
+<td align="right">2.032</td>
+<td align="right">2.279</td>
+<td align="right">0.892</td>
 </tr>
 <tr class="even">
 <td align="left">x2</td>
-<td align="right">1.696</td>
-<td align="right">2.102</td>
-<td align="right">0.807</td>
+<td align="right">1.700</td>
+<td align="right">2.002</td>
+<td align="right">0.849</td>
 </tr>
 </tbody>
 </table>
@@ -366,10 +366,10 @@ affects both features and the outcome.</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;        feature importance</span></span>
 <span><span class="co">#&gt;         &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: independent   1.554255</span></span>
-<span><span class="co">#&gt; 2:       proxy   0.323109</span></span>
-<span><span class="co">#&gt; 3:          x1   1.463147</span></span>
-<span><span class="co">#&gt; 4:          x2   1.702810</span></span></code></pre></div>
+<span><span class="co">#&gt; 1: independent  1.7588105</span></span>
+<span><span class="co">#&gt; 2:       proxy  0.3360139</span></span>
+<span><span class="co">#&gt; 3:          x1  1.6505836</span></span>
+<span><span class="co">#&gt; 4:          x2  1.6029499</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="rfi-conditioning-on-proxy">RFI Conditioning on Proxy<a class="anchor" aria-label="anchor" href="#rfi-conditioning-on-proxy"></a>
@@ -399,10 +399,10 @@ affects both features and the outcome.</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;        feature importance</span></span>
 <span><span class="co">#&gt;         &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: independent  1.5796629</span></span>
+<span><span class="co">#&gt; 1: independent  1.7574221</span></span>
 <span><span class="co">#&gt; 2:       proxy  0.0000000</span></span>
-<span><span class="co">#&gt; 3:          x1  0.5748967</span></span>
-<span><span class="co">#&gt; 4:          x2  0.6589536</span></span></code></pre></div>
+<span><span class="co">#&gt; 3:          x1  0.6433989</span></span>
+<span><span class="co">#&gt; 4:          x2  0.5369630</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="also-trying-cfi-for-comparison">Also trying CFI for comparison<a class="anchor" aria-label="anchor" href="#also-trying-cfi-for-comparison"></a>
@@ -425,10 +425,10 @@ affects both features and the outcome.</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;        feature importance</span></span>
 <span><span class="co">#&gt;         &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: independent 1.50758052</span></span>
-<span><span class="co">#&gt; 2:       proxy 0.08119333</span></span>
-<span><span class="co">#&gt; 3:          x1 0.41999106</span></span>
-<span><span class="co">#&gt; 4:          x2 0.56474791</span></span></code></pre></div>
+<span><span class="co">#&gt; 1: independent 1.72496053</span></span>
+<span><span class="co">#&gt; 2:       proxy 0.09094521</span></span>
+<span><span class="co">#&gt; 3:          x1 0.43930950</span></span>
+<span><span class="co">#&gt; 4:          x2 0.44986449</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="observable-confounder-scenario">Observable Confounder Scenario<a class="anchor" aria-label="anchor" href="#observable-confounder-scenario"></a>
@@ -461,13 +461,13 @@ performs when we can condition directly on the true confounder:</p>
 <span><span class="va">rfi_conf_obs</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">rfi_conf_obs</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;        feature  importance</span></span>
-<span><span class="co">#&gt;         &lt;char&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  confounder  0.00000000</span></span>
-<span><span class="co">#&gt; 2: independent  1.36911697</span></span>
-<span><span class="co">#&gt; 3:       proxy -0.00342213</span></span>
-<span><span class="co">#&gt; 4:          x1  0.11714637</span></span>
-<span><span class="co">#&gt; 5:          x2  0.13905430</span></span>
+<span><span class="co">#&gt;        feature   importance</span></span>
+<span><span class="co">#&gt;         &lt;char&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  confounder  0.000000000</span></span>
+<span><span class="co">#&gt; 2: independent  1.505882357</span></span>
+<span><span class="co">#&gt; 3:       proxy -0.002632966</span></span>
+<span><span class="co">#&gt; 4:          x1  0.145499529</span></span>
+<span><span class="co">#&gt; 5:          x2  0.129506185</span></span>
 <span></span>
 <span><span class="co"># Compare with PFI on the same data</span></span>
 <span><span class="va">pfi_conf_obs</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/PFI.html">PFI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -482,23 +482,23 @@ performs when we can condition directly on the true confounder:</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;        feature importance</span></span>
 <span><span class="co">#&gt;         &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  confounder 2.07586766</span></span>
-<span><span class="co">#&gt; 2: independent 1.41575093</span></span>
-<span><span class="co">#&gt; 3:       proxy 0.05561869</span></span>
-<span><span class="co">#&gt; 4:          x1 0.58641584</span></span>
-<span><span class="co">#&gt; 5:          x2 0.55868275</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:  confounder  1.8933373</span></span>
+<span><span class="co">#&gt; 2: independent  1.5326938</span></span>
+<span><span class="co">#&gt; 3:       proxy  0.0440442</span></span>
+<span><span class="co">#&gt; 4:          x1  0.5432167</span></span>
+<span><span class="co">#&gt; 5:          x2  0.4801977</span></span></code></pre></div>
 <p><strong>Key Results:</strong></p>
 <ul>
 <li>
-<strong>x1 importance</strong>: PFI = 0.586, RFI|confounder =
-0.117</li>
+<strong>x1 importance</strong>: PFI = 0.543, RFI|confounder =
+0.145</li>
 <li>
-<strong>x2 importance</strong>: PFI = 0.559, RFI|confounder =
-0.139<br>
+<strong>x2 importance</strong>: PFI = 0.480, RFI|confounder =
+0.130<br>
 </li>
 <li>
-<strong>independent importance</strong>: PFI = 1.416, RFI|confounder
-= 1.369</li>
+<strong>independent importance</strong>: PFI = 1.533, RFI|confounder
+= 1.506</li>
 </ul>
 <p><strong>Insight</strong>: When conditioning on the true confounder,
 RFI should show reduced importance for x1 and x2 (since much of their
@@ -549,31 +549,31 @@ Scenario</caption>
 <tbody>
 <tr class="odd">
 <td align="left">independent</td>
-<td align="right">1.554</td>
-<td align="right">1.508</td>
-<td align="right">1.580</td>
-<td align="right">-0.025</td>
+<td align="right">1.759</td>
+<td align="right">1.725</td>
+<td align="right">1.757</td>
+<td align="right">0.001</td>
 </tr>
 <tr class="even">
 <td align="left">proxy</td>
-<td align="right">0.323</td>
-<td align="right">0.081</td>
+<td align="right">0.336</td>
+<td align="right">0.091</td>
 <td align="right">0.000</td>
-<td align="right">0.323</td>
+<td align="right">0.336</td>
 </tr>
 <tr class="odd">
 <td align="left">x1</td>
-<td align="right">1.463</td>
-<td align="right">0.420</td>
-<td align="right">0.575</td>
-<td align="right">0.888</td>
+<td align="right">1.651</td>
+<td align="right">0.439</td>
+<td align="right">0.643</td>
+<td align="right">1.007</td>
 </tr>
 <tr class="even">
 <td align="left">x2</td>
-<td align="right">1.703</td>
-<td align="right">0.565</td>
-<td align="right">0.659</td>
-<td align="right">1.044</td>
+<td align="right">1.603</td>
+<td align="right">0.450</td>
+<td align="right">0.537</td>
+<td align="right">1.066</td>
 </tr>
 </tbody>
 </table>
@@ -633,12 +633,12 @@ features:</p>
 <span><span class="va">pfi_cor</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">pfi_cor</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature    importance</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  4.6867344142</span></span>
-<span><span class="co">#&gt; 2:      x2  0.3840787294</span></span>
-<span><span class="co">#&gt; 3:      x3  1.6274358912</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.0008064345</span></span></code></pre></div>
+<span><span class="co">#&gt;    feature   importance</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1 4.918236e+00</span></span>
+<span><span class="co">#&gt; 2:      x2 4.724544e-01</span></span>
+<span><span class="co">#&gt; 3:      x3 1.562375e+00</span></span>
+<span><span class="co">#&gt; 4:      x4 6.134446e-05</span></span></code></pre></div>
 <p>Expected: PFI will show high importance for BOTH x1 and x2, even
 though only x1 has a true causal effect. This happens because x2 is
 highly correlated with x1, so permuting x2 destroys predictive
@@ -663,12 +663,12 @@ information about x1.</p>
 <span><span class="va">cfi_cor</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">cfi_cor</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature importance</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1 1.62917751</span></span>
-<span><span class="co">#&gt; 2:      x2 0.05588043</span></span>
-<span><span class="co">#&gt; 3:      x3 1.54564759</span></span>
-<span><span class="co">#&gt; 4:      x4 0.00280003</span></span></code></pre></div>
+<span><span class="co">#&gt;    feature   importance</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  1.991509588</span></span>
+<span><span class="co">#&gt; 2:      x2  0.059714810</span></span>
+<span><span class="co">#&gt; 3:      x3  1.530595970</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.001862186</span></span></code></pre></div>
 <p>Expected: CFI should show high importance for x1 (the true causal
 feature) but near-zero importance for x2 (the spurious correlated
 feature) because conditional sampling preserves the correlation
@@ -702,9 +702,9 @@ predictors.</p>
 <span>    sampler <span class="op">=</span> <span class="va">sampler_cor</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">rfi_cor_x2</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><strong>RFI Results:</strong> - <strong>x2 given x1</strong>: 0.037
+<p><strong>RFI Results:</strong> - <strong>x2 given x1</strong>: 0.069
 (How much does x2 add when we already know x1?) - <strong>x1 given
-x2</strong>: 1.673 (How much does x1 add when we already know x2?)</p>
+x2</strong>: 2.101 (How much does x1 add when we already know x2?)</p>
 <p>Expected: When conditioning on x1, the importance of x2 should be
 near zero (and vice versa) because they’re almost identical - knowing
 one tells you almost everything about the other.</p>
@@ -735,15 +735,15 @@ one tells you almost everything about the other.</p>
 <tbody>
 <tr class="odd">
 <td align="left">x1</td>
-<td align="right">1.629</td>
-<td align="right">4.687</td>
-<td align="right">0.348</td>
+<td align="right">1.992</td>
+<td align="right">4.918</td>
+<td align="right">0.405</td>
 </tr>
 <tr class="even">
 <td align="left">x2</td>
-<td align="right">0.056</td>
-<td align="right">0.384</td>
-<td align="right">0.145</td>
+<td align="right">0.060</td>
+<td align="right">0.472</td>
+<td align="right">0.126</td>
 </tr>
 </tbody>
 </table>
@@ -860,32 +860,32 @@ different sampler:</p>
 <tbody>
 <tr class="odd">
 <td align="left">important1</td>
-<td align="right">6.381</td>
-<td align="right">0.070</td>
-<td align="left">High</td>
+<td align="right">7.562</td>
+<td align="right">0.255</td>
+<td align="left">Low</td>
 </tr>
 <tr class="even">
 <td align="left">important2</td>
-<td align="right">1.505</td>
-<td align="right">0.024</td>
+<td align="right">1.509</td>
+<td align="right">0.016</td>
 <td align="left">High</td>
 </tr>
 <tr class="odd">
 <td align="left">important3</td>
-<td align="right">0.387</td>
-<td align="right">0.204</td>
-<td align="left">Low</td>
+<td align="right">0.295</td>
+<td align="right">0.136</td>
+<td align="left">Moderate</td>
 </tr>
 <tr class="even">
 <td align="left">unimportant1</td>
-<td align="right">-0.002</td>
-<td align="right">-1.795</td>
-<td align="left">High</td>
+<td align="right">0.003</td>
+<td align="right">2.398</td>
+<td align="left">Low</td>
 </tr>
 <tr class="odd">
 <td align="left">unimportant2</td>
-<td align="right">-0.003</td>
-<td align="right">-0.909</td>
+<td align="right">-0.002</td>
+<td align="right">-1.464</td>
 <td align="left">High</td>
 </tr>
 </tbody>
@@ -945,16 +945,16 @@ observations appear in multiple resampling folds.</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;       feature importance conf_lower conf_upper</span></span>
 <span><span class="co">#&gt;        &lt;char&gt;      &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: important1  5.7729103  5.2509557  6.2948650</span></span>
-<span><span class="co">#&gt; 2: important2  1.6695225  1.3058947  2.0331503</span></span>
-<span><span class="co">#&gt; 3: important3  0.2888848  0.2469061  0.3308635</span></span>
+<span><span class="co">#&gt; 1: important1  7.2270451  6.4864376  7.9676525</span></span>
+<span><span class="co">#&gt; 2: important2  1.8302705  1.6503263  2.0102147</span></span>
+<span><span class="co">#&gt; 3: important3  0.2434416  0.2029428  0.2839405</span></span>
 <span><span class="va">imp_corrected</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^important"</span>, <span class="va">feature</span><span class="op">)</span>, <span class="fu">.</span><span class="op">(</span><span class="va">feature</span>, <span class="va">importance</span>, <span class="va">conf_lower</span>, <span class="va">conf_upper</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;       feature importance conf_lower conf_upper</span></span>
 <span><span class="co">#&gt;        &lt;char&gt;      &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: important1  5.7729103  4.7964226  6.7493981</span></span>
-<span><span class="co">#&gt; 2: important2  1.6695225  0.9892371  2.3498078</span></span>
-<span><span class="co">#&gt; 3: important3  0.2888848  0.2103498  0.3674197</span></span></code></pre></div>
+<span><span class="co">#&gt; 1: important1  7.2270451  5.8414954  8.6125948</span></span>
+<span><span class="co">#&gt; 2: important2  1.8302705  1.4936257  2.1669153</span></span>
+<span><span class="co">#&gt; 3: important3  0.2434416  0.1676752  0.3192081</span></span></code></pre></div>
 <p><img src="perturbation-importance_files/figure-html/variance-comparison-plot-1.png" width="768"></p>
 </div>
 <div class="section level3">

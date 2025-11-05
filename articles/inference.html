@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -156,10 +156,10 @@ resamplings (<code>iter_repeat</code> here).</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature   importance</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  6.444709393</span></span>
-<span><span class="co">#&gt; 2:      x2  0.097777103</span></span>
-<span><span class="co">#&gt; 3:      x3  1.801488945</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.001099328</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:      x1  6.451498301</span></span>
+<span><span class="co">#&gt; 2:      x2  0.094961175</span></span>
+<span><span class="co">#&gt; 3:      x3  1.801051193</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.001016452</span></span></code></pre></div>
 <p>If we want <strong>unadjusted</strong> confidence intervals based on
 a t-distribution, we can ask for them, but note these are too narrow /
 optimistic and hence invalid for inference:</p>
@@ -167,12 +167,12 @@ optimistic and hence invalid for inference:</p>
 <code class="sourceCode R"><span><span class="va">pfi_ci_raw</span> <span class="op">=</span> <span class="va">pfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"raw"</span><span class="op">)</span></span>
 <span><span class="va">pfi_ci_raw</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature   importance           se   conf_lower   conf_upper</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;        &lt;num&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  6.444709393 0.0710846455  6.292247992  6.597170794</span></span>
-<span><span class="co">#&gt; 2:      x2  0.097777103 0.0040374343  0.089117668  0.106436538</span></span>
-<span><span class="co">#&gt; 3:      x3  1.801488945 0.0163236399  1.766478220  1.836499671</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.001099328 0.0003169572 -0.001779133 -0.000419522</span></span></code></pre></div>
+<span><span class="co">#&gt;    feature   importance           se   conf_lower    conf_upper</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;        &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  6.451498301 0.0777539664  6.284732629  6.6182639734</span></span>
+<span><span class="co">#&gt; 2:      x2  0.094961175 0.0041677716  0.086022194  0.1039001566</span></span>
+<span><span class="co">#&gt; 3:      x3  1.801051193 0.0157425383  1.767286806  1.8348155792</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.001016452 0.0003145202 -0.001691031 -0.0003418737</span></span></code></pre></div>
 <p>Analogously we can retrieve the <strong>Nadeau &amp;
 Bengio</strong>-adjusted standard errors and derived confidence
 intervals which were demonstrated to have better (but still imperfect)
@@ -181,12 +181,12 @@ coverage:</p>
 <code class="sourceCode R"><span><span class="va">pfi_ci_corrected</span> <span class="op">=</span> <span class="va">pfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"nadeau_bengio"</span><span class="op">)</span></span>
 <span><span class="va">pfi_ci_corrected</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature   importance           se  conf_lower   conf_upper</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;       &lt;num&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  6.444709393 0.2073141539  6.00006476 6.8893540305</span></span>
-<span><span class="co">#&gt; 2:      x2  0.097777103 0.0117749378  0.07252237 0.1230318328</span></span>
-<span><span class="co">#&gt; 3:      x3  1.801488945 0.0476069279  1.69938224 1.9035956504</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.001099328 0.0009243869 -0.00308194 0.0008832851</span></span></code></pre></div>
+<span><span class="co">#&gt;    feature   importance           se   conf_lower   conf_upper</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;        &lt;num&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  6.451498301 0.2267648327  5.965136107 6.9378604959</span></span>
+<span><span class="co">#&gt; 2:      x2  0.094961175 0.0121550589  0.068891167 0.1210311840</span></span>
+<span><span class="co">#&gt; 3:      x3  1.801051193 0.0459121794  1.702579361 1.8995230240</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.001016452 0.0009172796 -0.002983821 0.0009509165</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="empirical-quantiles">Empirical quantiles<a class="anchor" aria-label="anchor" href="#empirical-quantiles"></a>
@@ -202,10 +202,10 @@ without any coverage guarantees.</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature   importance   conf_lower   conf_upper</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  6.444709393  5.981573776 6.8770935941</span></span>
-<span><span class="co">#&gt; 2:      x2  0.097777103  0.075868045 0.1226624975</span></span>
-<span><span class="co">#&gt; 3:      x3  1.801488945  1.692275614 1.8953539522</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.001099328 -0.003684845 0.0005401245</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:      x1  6.451498301  5.953713874 6.9244524536</span></span>
+<span><span class="co">#&gt; 2:      x2  0.094961175  0.074956969 0.1216748325</span></span>
+<span><span class="co">#&gt; 3:      x3  1.801051193  1.695615492 1.9012580196</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.001016452 -0.003636112 0.0005228665</span></span></code></pre></div>
 <p>To highlight the differences between parametric and empirical
 approaches, we visualize all methods:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -262,18 +262,18 @@ looks like this:</p>
 <span><span class="va">cpi_res</span><span class="op">[</span>, <span class="va">method</span> <span class="op">:=</span> <span class="st">"CPI"</span><span class="op">]</span></span>
 <span></span>
 <span><span class="va">cpi_res</span></span>
-<span><span class="co">#&gt;    feature           CPI           SE   test statistic      estimate</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt;        &lt;num&gt; &lt;char&gt;     &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  4.4905247594 0.1393416714      t 32.226718  4.4905247594</span></span>
-<span><span class="co">#&gt; 2:      x2 -0.0026748965 0.0023132871      t -1.156318 -0.0026748965</span></span>
-<span><span class="co">#&gt; 3:      x3  1.7350915247 0.0551007024      t 31.489463  1.7350915247</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.0009994758 0.0009142715      t -1.093194 -0.0009994758</span></span>
+<span><span class="co">#&gt;    feature          CPI          SE   test   statistic     estimate</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;       &lt;num&gt; &lt;char&gt;       &lt;num&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1 4.554770e+00 0.142063012      t 32.06161590 4.554770e+00</span></span>
+<span><span class="co">#&gt; 2:      x2 2.479253e-03 0.003012508      t  0.82298643 2.479253e-03</span></span>
+<span><span class="co">#&gt; 3:      x3 1.848159e+00 0.058189043      t 31.76129690 1.848159e+00</span></span>
+<span><span class="co">#&gt; 4:      x4 4.283886e-05 0.000696889      t  0.06147158 4.283886e-05</span></span>
 <span><span class="co">#&gt;          p.value        ci.lo method</span></span>
 <span><span class="co">#&gt;            &lt;num&gt;        &lt;num&gt; &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1: 3.644769e-184  4.261221841    CPI</span></span>
-<span><span class="co">#&gt; 2:  8.761554e-01 -0.006481679    CPI</span></span>
-<span><span class="co">#&gt; 3: 2.156035e-177  1.644416914    CPI</span></span>
-<span><span class="co">#&gt; 4:  8.627797e-01 -0.002504016    CPI</span></span></code></pre></div>
+<span><span class="co">#&gt; 1: 1.209450e-182  4.320988517    CPI</span></span>
+<span><span class="co">#&gt; 2:  2.053069e-01 -0.002478179    CPI</span></span>
+<span><span class="co">#&gt; 3: 6.961317e-180  1.752402643    CPI</span></span>
+<span><span class="co">#&gt; 4:  4.754949e-01 -0.001103973    CPI</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="cpi-with-knockoffs">CPI with knockoffs<a class="anchor" aria-label="anchor" href="#cpi-with-knockoffs"></a>
 </h3>
@@ -302,12 +302,12 @@ directly via <code>ci_method = "cpi"</code>:</p>
 <span><span class="va">cfi_cpi_res</span> <span class="op">=</span> <span class="va">cfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"cpi"</span><span class="op">)</span></span>
 <span><span class="va">cfi_cpi_res</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature    importance           se   statistic       p.value   conf_lower</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt;        &lt;num&gt;       &lt;num&gt;         &lt;num&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  4.6485211373 0.1412096720 32.91928289 1.430822e-190  4.416144207</span></span>
-<span><span class="co">#&gt; 2:      x2 -0.0002372201 0.0029839960 -0.07949746  5.316775e-01 -0.005147732</span></span>
-<span><span class="co">#&gt; 3:      x3  1.8639780917 0.0561726066 33.18304428 5.072022e-193  1.771539538</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.0002621368 0.0007881572 -0.33259452  6.302624e-01 -0.001559141</span></span>
+<span><span class="co">#&gt;    feature    importance           se  statistic       p.value   conf_lower</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt;        &lt;num&gt;      &lt;num&gt;         &lt;num&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  4.6427559476 0.1478836872 31.3946456 1.587955e-176  4.399396149</span></span>
+<span><span class="co">#&gt; 2:      x2  0.0026423506 0.0033612948  0.7861109  2.159478e-01 -0.002889051</span></span>
+<span><span class="co">#&gt; 3:      x3  1.7620712330 0.0582790374 30.2350779 5.393726e-166  1.666166302</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.0002589976 0.0007047195 -0.3675188  6.433645e-01 -0.001418696</span></span>
 <span><span class="co">#&gt;    conf_upper</span></span>
 <span><span class="co">#&gt;         &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1:        Inf</span></span>
@@ -370,10 +370,10 @@ than knockoffs (CITE cARFi), which we can perform analogously:</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature   importance           se statistic       p.value    conf_lower</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;     &lt;num&gt;         &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  4.149913006 0.1377986710 30.115769 6.416347e-165  3.9231492740</span></span>
-<span><span class="co">#&gt; 2:      x2  0.005623742 0.0036623984  1.535535  6.240533e-02 -0.0004031606</span></span>
-<span><span class="co">#&gt; 3:      x3  1.703418858 0.0547593855 31.107341 6.653459e-174  1.6133059238</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.002416235 0.0007663808 -3.152786  9.991794e-01 -0.0036774039</span></span>
+<span><span class="co">#&gt; 1:      x1  4.030582334 0.1301510177 30.968504 1.222410e-172  3.8164037048</span></span>
+<span><span class="co">#&gt; 2:      x2  0.004954503 0.0032955819  1.503377  6.644987e-02 -0.0004687601</span></span>
+<span><span class="co">#&gt; 3:      x3  1.709224166 0.0535822827 31.899055 3.781474e-181  1.6210482908</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.001110782 0.0007197487 -1.543292  9.385409e-01 -0.0022952124</span></span>
 <span><span class="co">#&gt;    conf_upper</span></span>
 <span><span class="co">#&gt;         &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1:        Inf</span></span>
@@ -416,10 +416,10 @@ specifically the Wilcoxon-, Fisher-, or binomial test:</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature   importance           se statistic       p.value    conf_lower</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;     &lt;num&gt;         &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  4.149913006 0.1377986710   1953168 3.197552e-300  2.5735972794</span></span>
-<span><span class="co">#&gt; 2:      x2  0.005623742 0.0036623984    996111  4.596996e-01 -0.0007400569</span></span>
-<span><span class="co">#&gt; 3:      x3  1.703418858 0.0547593855   1920472 3.391302e-281  1.1199481160</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.002416235 0.0007663808    925012  9.969228e-01 -0.0010816297</span></span>
+<span><span class="co">#&gt; 1:      x1  4.030582334 0.1301510177   1967386 3.716827e-309  2.5659825422</span></span>
+<span><span class="co">#&gt; 2:      x2  0.004954503 0.0032955819    992983  5.390444e-01 -0.0008211084</span></span>
+<span><span class="co">#&gt; 3:      x3  1.709224166 0.0535822827   1929081 1.697037e-288  1.1465162882</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.001110782 0.0007197487    964259  8.802801e-01 -0.0005923333</span></span>
 <span><span class="co">#&gt;    conf_upper</span></span>
 <span><span class="co">#&gt;         &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1:        Inf</span></span>
@@ -431,18 +431,18 @@ specifically the Wilcoxon-, Fisher-, or binomial test:</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature   importance           se p.value    conf_lower conf_upper</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;   &lt;num&gt;         &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  4.149913006 0.1377986710  0.0005  3.8780286017        Inf</span></span>
-<span><span class="co">#&gt; 2:      x2  0.005623742 0.0036623984  0.0610 -0.0002858068        Inf</span></span>
-<span><span class="co">#&gt; 3:      x3  1.703418858 0.0547593855  0.0005  1.5933941551        Inf</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.002416235 0.0007663808  0.9990 -0.0036882231        Inf</span></span>
+<span><span class="co">#&gt; 1:      x1  4.030582334 0.1301510177  0.0005  3.7836382934        Inf</span></span>
+<span><span class="co">#&gt; 2:      x2  0.004954503 0.0032955819  0.0750 -0.0006203853        Inf</span></span>
+<span><span class="co">#&gt; 3:      x3  1.709224166 0.0535822827  0.0005  1.5992602629        Inf</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.001110782 0.0007197487  0.9320 -0.0023060964        Inf</span></span>
 <span><span class="op">(</span><span class="va">cpi_res_binom</span> <span class="op">=</span> <span class="va">cfi_arf</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"cpi"</span>, test <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature   importance           se statistic       p.value conf_lower</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;     &lt;num&gt;         &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  4.149913006 0.1377986710      1814  0.000000e+00  0.8956202</span></span>
-<span><span class="co">#&gt; 2:      x2  0.005623742 0.0036623984       997  5.621878e-01  0.4798705</span></span>
-<span><span class="co">#&gt; 3:      x3  1.703418858 0.0547593855      1751 7.085586e-278  0.8626974</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.002416235 0.0007663808       962  9.574574e-01  0.4624027</span></span>
+<span><span class="co">#&gt; 1:      x1  4.030582334 0.1301510177      1861  0.000000e+00  0.9204192</span></span>
+<span><span class="co">#&gt; 2:      x2  0.004954503 0.0032955819       991  6.645228e-01  0.4768744</span></span>
+<span><span class="co">#&gt; 3:      x3  1.709224166 0.0535822827      1781 3.333550e-304  0.8783373</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.001110782 0.0007197487       962  9.574574e-01  0.4624027</span></span>
 <span><span class="co">#&gt;    conf_upper</span></span>
 <span><span class="co">#&gt;         &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1:        Inf</span></span>
@@ -509,10 +509,10 @@ though:</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature importance</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1 1.04706532</span></span>
-<span><span class="co">#&gt; 2:      x2 0.04357239</span></span>
-<span><span class="co">#&gt; 3:      x3 0.62369361</span></span>
-<span><span class="co">#&gt; 4:      x4 0.05797203</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:      x1 0.98148070</span></span>
+<span><span class="co">#&gt; 2:      x2 0.05038684</span></span>
+<span><span class="co">#&gt; 3:      x3 0.62258117</span></span>
+<span><span class="co">#&gt; 4:      x4 0.05334160</span></span></code></pre></div>
 <p>This is <strong>not</strong> exactly what the authors propose,
 because <code>$score()</code> calculates the aggregation function
 (<code>median</code>) for each resampling iteration first, and takes the
@@ -530,22 +530,14 @@ the differences, but using the median it does.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">loco_obsloss</span> <span class="op">=</span> <span class="va">loco</span><span class="op">$</span><span class="fu">obs_loss</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">loco_obsloss</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    feature iter_rsmp iter_repeat row_ids loss_baseline  loss_post</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;     &lt;int&gt;       &lt;num&gt;   &lt;int&gt;         &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1         1           1       7    0.27047880 0.72892873</span></span>
-<span><span class="co">#&gt; 2:      x1         1           1      10    0.03289251 1.13795078</span></span>
-<span><span class="co">#&gt; 3:      x1         1           1      20    0.26357922 0.03211115</span></span>
-<span><span class="co">#&gt; 4:      x1         1           1      22    0.08341048 3.20233998</span></span>
-<span><span class="co">#&gt; 5:      x1         1           1      23    0.02031366 2.56714641</span></span>
-<span><span class="co">#&gt; 6:      x1         1           1      33    0.28275621 2.63031393</span></span>
-<span><span class="co">#&gt;    obs_importance</span></span>
-<span><span class="co">#&gt;             &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      0.4584499</span></span>
-<span><span class="co">#&gt; 2:      1.1050583</span></span>
-<span><span class="co">#&gt; 3:     -0.2314681</span></span>
-<span><span class="co">#&gt; 4:      3.1189295</span></span>
-<span><span class="co">#&gt; 5:      2.5468327</span></span>
-<span><span class="co">#&gt; 6:      2.3475577</span></span></code></pre></div>
+<span><span class="co">#&gt;    feature iter_rsmp iter_repeat row_ids loss_baseline loss_post obs_importance</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;     &lt;int&gt;       &lt;num&gt;   &lt;int&gt;         &lt;num&gt;     &lt;num&gt;          &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1         1           1       4    0.11147320 1.0227631     0.91128990</span></span>
+<span><span class="co">#&gt; 2:      x1         1           1       7    0.30561825 0.8431147     0.53749646</span></span>
+<span><span class="co">#&gt; 3:      x1         1           1      15    0.23994174 2.5361659     2.29622412</span></span>
+<span><span class="co">#&gt; 4:      x1         1           1      20    0.21063594 0.1680135    -0.04262239</span></span>
+<span><span class="co">#&gt; 5:      x1         1           1      22    0.07570713 2.9775583     2.90185118</span></span>
+<span><span class="co">#&gt; 6:      x1         1           1      23    0.02199827 2.5518444     2.52984614</span></span></code></pre></div>
 <p><code>obs_importance</code> here refers to the difference
 <code>loss_post - loss_baseline</code>, so</p>
 <ul>
@@ -564,10 +556,10 @@ proposed, for each set <span class="math inline">\(D_k\)</span> where
 <span><span class="va">loco_thetas</span></span>
 <span><span class="co">#&gt;    feature      theta</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1 0.88578537</span></span>
-<span><span class="co">#&gt; 2:      x2 0.02302372</span></span>
-<span><span class="co">#&gt; 3:      x3 0.56083787</span></span>
-<span><span class="co">#&gt; 4:      x4 0.02958038</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:      x1 0.83911185</span></span>
+<span><span class="co">#&gt; 2:      x2 0.02684860</span></span>
+<span><span class="co">#&gt; 3:      x3 0.51935341</span></span>
+<span><span class="co">#&gt; 4:      x4 0.03344017</span></span></code></pre></div>
 <p>The authors then propose to construct distribution-free confidence
 intervals, e.g. using a sign- or Wilcoxon test We can for example use
 [wilcoxon.test] to compute confidence intervals around the estimated
@@ -594,10 +586,10 @@ pseudo-median:</p>
 <span><span class="va">loco_wilcox_ci</span></span>
 <span><span class="co">#&gt;    feature statistic   estimate      p.value conf_lower conf_upper</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;     &lt;num&gt;      &lt;num&gt;        &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1    216376 0.98333174 1.012597e-98 0.91080095 1.05819652</span></span>
-<span><span class="co">#&gt; 2:      x2    136782 0.02720829 3.386197e-07 0.01699831 0.03800531</span></span>
-<span><span class="co">#&gt; 3:      x3    211844 0.60057964 1.520715e-90 0.55405041 0.64783349</span></span>
-<span><span class="co">#&gt; 4:      x4    156376 0.04125450 1.618979e-19 0.03204118 0.05082657</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:      x1    216917 0.91943944 1.012455e-99 0.85057682 0.98969443</span></span>
+<span><span class="co">#&gt; 2:      x2    144722 0.03419386 2.149646e-11 0.02424473 0.04449679</span></span>
+<span><span class="co">#&gt; 3:      x3    213532 0.59231575 1.508448e-93 0.54444761 0.64071906</span></span>
+<span><span class="co">#&gt; 4:      x4    162767 0.04423316 5.712254e-25 0.03565144 0.05305982</span></span></code></pre></div>
 <p><strong>Note</strong>: The above approach needs checking with the
 literature to ensure it’s actually corresponding to what was proposed
 and the results are valid.</p>
