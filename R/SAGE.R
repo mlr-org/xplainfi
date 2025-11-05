@@ -47,7 +47,11 @@ SAGE = R6Class(
 		#'   For [MarginalSAGE], this is the number of marginal data samples ("background data" in other implementations).
 		#'   For [ConditionalSAGE], this is the number of conditional samples per test instance retrieved from `sampler`.
 		#' @param early_stopping (`logical(1)`: `TRUE`) Whether to enable early stopping based on convergence detection.
-		#' @param se_threshold (`numeric(1)`: `0.01`) Standard error threshold for convergence detection (1% by default).
+		#' @param se_threshold (`numeric(1)`: `0.01`) Convergence threshold for relative standard error.
+		#'   Convergence is detected when the maximum relative SE across all features falls below this threshold.
+		#'   Relative SE is calculated as SE divided by the range of importance values (max - min),
+		#'   making it scale-invariant across different loss metrics.
+		#'   Default of `0.01` means convergence when relative SE is below 1% of the importance range.
 		#' @param min_permutations (`integer(1)`: `3L`) Minimum permutations before checking for convergence.
 		#' @param check_interval (`integer(1)`: `1L`) Check convergence every N permutations.
 		initialize = function(
@@ -90,7 +94,7 @@ SAGE = R6Class(
 				n_permutations = paradox::p_int(lower = 1L, default = 10L),
 				batch_size = paradox::p_int(lower = 1L, default = 5000L),
 				n_samples = paradox::p_int(lower = 1L, default = 100L),
-				early_stopping = paradox::p_lgl(default = FALSE),
+				early_stopping = paradox::p_lgl(default = TRUE),
 				se_threshold = paradox::p_dbl(lower = 0, upper = 1, default = 0.01),
 				min_permutations = paradox::p_int(lower = 1L, default = 3L),
 				check_interval = paradox::p_int(lower = 1L, default = 1L)
@@ -109,10 +113,12 @@ SAGE = R6Class(
 		#' Compute SAGE values.
 		#' @param store_backends (`logical(1)`) Whether to store data backends.
 		#' @param batch_size (`integer(1)`: `5000L`) Maximum number of observations to process in a single prediction call.
-		#' @param early_stopping (`logical(1)`) Whether to check for convergence and stop early.
-		#' @param se_threshold (`numeric(1)`) Standard error threshold for convergence detection.
-		#' @param min_permutations (`integer(1)`) Minimum permutations before checking convergence.
-		#' @param check_interval (`integer(1)`) Check convergence every N permutations.
+		#' @param early_stopping (`logical(1)`: `TRUE`) Whether to check for convergence and stop early.
+		#' @param se_threshold (`numeric(1)`: `0.01`) Convergence threshold for relative standard error.
+		#'   SE is normalized by the range of importance values (max - min) to make convergence
+		#'   detection scale-invariant. Default `0.01` means convergence when relative SE < 1%.
+		#' @param min_permutations (`integer(1)`: `3L`) Minimum permutations before checking convergence.
+		#' @param check_interval (`integer(1)`: `1L`) Check convergence every N permutations.
 		compute = function(
 			store_backends = TRUE,
 			batch_size = NULL,
@@ -448,16 +454,28 @@ SAGE = R6Class(
 					curr_checkpoint = convergence_history[[length(convergence_history)]]
 
 					# Ensure features are in the same order for comparison.
-					curr_se_values = copy(curr_checkpoint)[order(feature)]$se
+					curr_checkpoint_ordered = copy(curr_checkpoint)[order(feature)]
+					curr_importance_values = curr_checkpoint_ordered$importance
+					curr_se_values = curr_checkpoint_ordered$se
 
-					# Calculate maximum standard error across features.
-					max_se = max(curr_se_values, na.rm = TRUE)
+					# Calculate range of importance values across all features (matching fippy)
+					importance_range = max(curr_importance_values, na.rm = TRUE) - min(curr_importance_values, na.rm = TRUE)
 
-					# Check convergence: SE below threshold
-					converged = is.finite(max_se) && max_se < se_threshold
+					# Normalize SE by range to get relative SE (matching fippy's formula)
+					# fippy: ratio = SE / range, convergence if max(ratio) < threshold
+					if (importance_range > 0 && is.finite(importance_range)) {
+						relative_se_values = curr_se_values / importance_range
+						max_relative_se = max(relative_se_values, na.rm = TRUE)
+					} else {
+						# If range is 0 or invalid, use absolute SE (fallback)
+						max_relative_se = max(curr_se_values, na.rm = TRUE)
+					}
+
+					# Check convergence: max relative SE below threshold
+					converged = is.finite(max_relative_se) && max_relative_se < se_threshold
 					convergence_msg = c(
 						"v" = "SAGE converged after {.val {n_completed}} permutations",
-						"i" = "Maximum standard error: {.val {round(max_se, 4)}} (threshold: {.val {se_threshold}})",
+						"i" = "Maximum relative SE: {.val {round(max_relative_se, 4)}} (threshold: {.val {se_threshold}})",
 						"i" = "Saved {.val {n_permutations - n_completed}} permutations"
 					)
 

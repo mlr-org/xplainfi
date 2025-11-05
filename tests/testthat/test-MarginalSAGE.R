@@ -409,18 +409,17 @@ test_that("MarginalSAGE SE-based convergence detection", {
 		n_samples = 20L
 	)
 
-	# Test with very loose SE threshold (should not trigger convergence)
+	# Test with very loose SE threshold (should trigger convergence easily)
 	result_loose = sage$compute(
 		early_stopping = TRUE,
-		convergence_threshold = 0.001, # Very strict relative change
-		se_threshold = 100.0, # Very loose SE threshold
-		min_permutations = 10L,
-		check_interval = 2L
+		se_threshold = 100.0, # Very loose SE threshold (easy to meet)
+		min_permutations = 5L,
+		check_interval = 1L
 	)
 
-	# Should not converge early due to loose SE threshold
-	expect_false(sage$converged)
-	expect_equal(sage$n_permutations_used, 10L)
+	# Should converge early because SE will be well below 100.0
+	expect_true(sage$converged)
+	expect_lte(sage$n_permutations_used, 10L)
 
 	# Reset for next test
 	sage$reset()
@@ -428,25 +427,23 @@ test_that("MarginalSAGE SE-based convergence detection", {
 	# Test with very strict SE threshold (should trigger convergence quickly)
 	result_strict = sage$compute(
 		early_stopping = TRUE,
-		convergence_threshold = 1.0, # Very loose relative change
 		se_threshold = 0.001, # Very strict SE threshold
 		min_permutations = 5L,
-		check_interval = 2L
+		check_interval = 1L
 	)
 
 	# With very strict SE threshold, should not converge early
 	# (realistic SE values are usually larger than 0.001)
 	expect_false(sage$converged)
 
-	# Test with moderate thresholds where both criteria might be met
+	# Test with moderate SE threshold
 	sage$reset()
 
 	result_moderate = sage$compute(
 		early_stopping = TRUE,
-		convergence_threshold = 0.05, # Moderate relative change threshold
 		se_threshold = 0.1, # Moderate SE threshold
-		min_permutations = 6L,
-		check_interval = 2L
+		min_permutations = 5L,
+		check_interval = 1L
 	)
 
 	# Should have convergence history with SE tracking regardless of convergence
