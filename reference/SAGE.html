@@ -149,11 +149,10 @@ In <em>Advances in Neural Information Processing Systems</em>, volume 33, 17212â
 <span>  n_permutations <span class="op">=</span> <span class="fl">10L</span>,</span>
 <span>  batch_size <span class="op">=</span> <span class="fl">5000L</span>,</span>
 <span>  n_samples <span class="op">=</span> <span class="fl">100L</span>,</span>
-<span>  early_stopping <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  convergence_threshold <span class="op">=</span> <span class="fl">0.01</span>,</span>
-<span>  se_threshold <span class="op">=</span> <span class="cn">Inf</span>,</span>
-<span>  min_permutations <span class="op">=</span> <span class="fl">10L</span>,</span>
-<span>  check_interval <span class="op">=</span> <span class="fl">2L</span></span>
+<span>  early_stopping <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  se_threshold <span class="op">=</span> <span class="fl">0.01</span>,</span>
+<span>  min_permutations <span class="op">=</span> <span class="fl">3L</span>,</span>
+<span>  check_interval <span class="op">=</span> <span class="fl">1L</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -164,7 +163,7 @@ In <em>Advances in Neural Information Processing Systems</em>, volume 33, 17212â
 
 
 <dt><code>n_permutations</code></dt>
-<dd><p>(<code>integer(1)</code>: <code>10L</code>) Number of permutations <em>per coalition</em> to sample for Shapley value estimation.
+<dd><p>(<code>integer(1)</code>: <code>10L</code>) Number of permutations to sample for SAGE value estimation.
 The total number of evaluated coalitions is <code>1 (empty) + n_permutations * n_features</code>.</p></dd>
 
 
@@ -179,23 +178,19 @@ For <a href="ConditionalSAGE.html">ConditionalSAGE</a>, this is the number of co
 
 
 <dt><code>early_stopping</code></dt>
-<dd><p>(<code>logical(1)</code>: <code>FALSE</code>) Whether to enable early stopping based on convergence detection.</p></dd>
-
-
-<dt><code>convergence_threshold</code></dt>
-<dd><p>(<code>numeric(1)</code>: <code>0.01</code>) Relative change threshold for convergence detection.</p></dd>
+<dd><p>(<code>logical(1)</code>: <code>TRUE</code>) Whether to enable early stopping based on convergence detection.</p></dd>
 
 
 <dt><code>se_threshold</code></dt>
-<dd><p>(<code>numeric(1)</code>: <code>Inf</code>) Standard error threshold for convergence detection.</p></dd>
+<dd><p>(<code>numeric(1)</code>: <code>0.01</code>) Standard error threshold for convergence detection (1% by default).</p></dd>
 
 
 <dt><code>min_permutations</code></dt>
-<dd><p>(<code>integer(1)</code>: <code>10L</code>) Minimum permutations before checking convergence.</p></dd>
+<dd><p>(<code>integer(1)</code>: <code>3L</code>) Minimum permutations before checking for convergence.</p></dd>
 
 
 <dt><code>check_interval</code></dt>
-<dd><p>(<code>integer(1)</code>: <code>2L</code>) Check convergence every N permutations.</p></dd>
+<dd><p>(<code>integer(1)</code>: <code>1L</code>) Check convergence every N permutations.</p></dd>
 
 
 </dl><p></p></div>
@@ -209,7 +204,6 @@ For <a href="ConditionalSAGE.html">ConditionalSAGE</a>, this is the number of co
 <span>  store_backends <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  batch_size <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  early_stopping <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  convergence_threshold <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  se_threshold <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  min_permutations <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  check_interval <span class="op">=</span> <span class="cn">NULL</span></span>
@@ -219,7 +213,7 @@ For <a href="ConditionalSAGE.html">ConditionalSAGE</a>, this is the number of co
 <div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>store_backends</code></dt>
-<dd><p>(<code>logical(1)</code>) Whether to store backends.</p></dd>
+<dd><p>(<code>logical(1)</code>) Whether to store data backends.</p></dd>
 
 
 <dt><code>batch_size</code></dt>
@@ -228,10 +222,6 @@ For <a href="ConditionalSAGE.html">ConditionalSAGE</a>, this is the number of co
 
 <dt><code>early_stopping</code></dt>
 <dd><p>(<code>logical(1)</code>) Whether to check for convergence and stop early.</p></dd>
-
-
-<dt><code>convergence_threshold</code></dt>
-<dd><p>(<code>numeric(1)</code>) Relative change threshold for convergence detection.</p></dd>
 
 
 <dt><code>se_threshold</code></dt>

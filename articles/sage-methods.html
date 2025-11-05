@@ -209,6 +209,41 @@ permutations:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">marginal_sage</span><span class="op">$</span><span class="fu">plot_convergence</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="sage-methods_files/figure-html/convergance-marginal-1.png" width="768"></p>
+<div class="section level3">
+<h3 id="early-stopping-based-on-convergence">Early Stopping Based on Convergence<a class="anchor" aria-label="anchor" href="#early-stopping-based-on-convergence"></a>
+</h3>
+<p>SAGE supports early stopping to save computation time when the
+importance values have converged. By default, early stopping is enabled
+with <code>early_stopping = TRUE</code>. Convergence is detected by
+monitoring the standard error (SE) of the SAGE value estimates in the
+first resampling iteration.</p>
+<p><strong>Convergence criterion</strong>: SAGE normalizes the SE by the
+range of their values (max - min) to make convergence detection
+scale-invariant across different loss metrics. Convergence is detected
+when:</p>
+<p><span class="math display">\[\max_j
+\left(\frac{SE_j}{\max_i(\text{SAGE}_i) - \min_i(\text{SAGE}_i)}\right)
+&lt; \text{threshold}\]</span></p>
+<p>The default threshold is <code>se_threshold = 0.01</code> (1%),
+meaning convergence occurs when the relative SE is below 1% of the
+importance range for all features.</p>
+<p>You can customize convergence detection in
+<code>$compute()</code>:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># More strict convergence (requires more permutations)</span></span>
+<span><span class="va">sage</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span>early_stopping <span class="op">=</span> <span class="cn">TRUE</span>, se_threshold <span class="op">=</span> <span class="fl">0.005</span>, min_permutations <span class="op">=</span> <span class="fl">5L</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Disable early stopping to always run all permutations</span></span>
+<span><span class="va">sage</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span>early_stopping <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p>After computation, you can check convergence status:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">marginal_sage</span><span class="op">$</span><span class="va">converged</span>  <span class="co"># TRUE if converged early</span></span>
+<span><span class="va">marginal_sage</span><span class="op">$</span><span class="va">n_permutations_used</span>  <span class="co"># Actual permutations used</span></span></code></pre></div>
+<p>If a resampling with multiple iterations (i.e., not holdout) is
+supplied, the value of <code>n_permutations_used</code> will be set as
+the value for <code>n_permutations</code> in all subsequent iterations
+to avoid some computational overhead.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="conditional-sage">Conditional SAGE<a class="anchor" aria-label="anchor" href="#conditional-sage"></a>
@@ -217,7 +252,7 @@ permutations:</p>
 marginalize features while preserving dependencies between the remaining
 features. This can provide different insights, especially when features
 are correlated.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create Conditional SAGE instance using a conditional sampler</span></span>
 <span><span class="va">sampler_gaussian</span> <span class="op">=</span> <span class="va"><a href="../reference/ConditionalGaussianSampler.html">ConditionalGaussianSampler</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span>
 <span></span>
@@ -235,7 +270,7 @@ are correlated.</p>
 <span><span class="va">conditional_sage</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span>batch_size <span class="op">=</span> <span class="fl">5000L</span><span class="op">)</span></span></code></pre></div>
 <p>Let’s visualize the conditional SAGE results:</p>
 <p><img src="sage-methods_files/figure-html/conditional-sage-plot-1.png" width="768"></p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">conditional_sage</span><span class="op">$</span><span class="fu">plot_convergence</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="sage-methods_files/figure-html/convergance-conditional-1.png" width="768"></p>
 </div>
@@ -266,7 +301,7 @@ This pattern mirrors the difference between PFI and CFI: marginal methods show i
 </h2>
 <p>For reference, let’s compare SAGE methods with the analogous PFI and
 CFI methods on the same data:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Quick PFI and CFI comparison for context</span></span>
 <span><span class="va">pfi</span> <span class="op">=</span> <span class="va"><a href="../reference/PFI.html">PFI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">task</span>, <span class="va">learner</span>, <span class="va">measure</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> No <span style="color: #0000BB;">&lt;Resampling&gt;</span> provided</span></span>
