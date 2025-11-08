@@ -1,84 +1,106 @@
-# xplainfi 0.1.0.9006
+# xplainfi 0.2.0
 
-This turns out to be still a period of major changes in the early phase, so, uhm, well.
+## User-facing API improvements
 
-## General changes and improvements
+### Importance aggregation and confidence intervals
 
-- `$importance` becomes a function `$importance()` with arguments `standardize` and `ci_method` (#40):
-  - `"nadeau_bengio"` implements the correction method by Nadeau & Bengio (2003) recommended by Molnar et al. (2023).
-  - `"quantiles"` gives empirical quantiles covering `conf_level`.
-  - `"cpi"` implements CPI analogous to [cpi](https://bips-hb.github.io/cpi/articles/intro.html), supporting t-, Wilcoxon-, and Fisher tests.
-- `$scores` becomes `$scores()` for more fleixibility analogous to `$importance()`. Original scores are stored in `private$.scores` (for now).
-- Both `$importance()` and `$scores()` have argument `relation` defaulting to `"differrence"` which allows to calculate importances like PFI as either the difference or the ratio of baseline and post-modification loss. The argument is moved out of `$compute()` to avoid having to recompute any predictions or model refits.
-- Add `sim_dgp_ewald()` and other `sim_dgp_*()` helpers to simulate data (in `Task` form) with simple DGPs as used for illustration in Ewald et al. (2024) for example, which should make it easier to interpret the results of various importance methods.
+- `$importance()` gains `ci_method` parameter for variance estimation (#40):
+  - `"none"` (default): Simple aggregation without confidence intervals
+  - `"raw"`: Uncorrected variance estimates (informative only, CIs too narrow)
+  - `"nadeau_bengio"`: Variance correction by Nadeau & Bengio (2003) as recommended by Molnar et al. (2023)
+  - `"quantile"`: Empirical quantile-based confidence intervals
+  - `"cpi"`: Conditional Predictive Impact for perturbation methods (PFI/CFI/RFI), supporting t-, Wilcoxon-, Fisher-, and binomial tests
+- CPI is now properly scoped to `PerturbationImportance` methods only (not available for WVIM/LOCO or SAGE)
+- `$importance()` gains `standardize` parameter to normalize scores to [-1, 1] range
+- `$importance()` and `$scores()` gain `relation` parameter (default: `"difference"`) to compute importances as difference or ratio of baseline and post-modification loss
+  - Moved from `$compute()` to avoid recomputing predictions/refits when changing aggregation method
 
-### Observation-wise losses
+### Data simulation helpers
 
-- `$obs_loss()` analogously to `$scores()` computes observation-wise importance scores based on losses stored in `$.obs_losses` **if** `measure` has a `Measure$obs_loss()` function.
-- `$predictions` are kept for now just in case they're useful
+- Add focused simulation DGPs for testing importance methods:
+  - `sim_dgp_independent()`: Baseline with additive independent effects
+  - `sim_dgp_correlated()`: Highly correlated features (PFI fails, CFI succeeds)
+  - `sim_dgp_mediated()`: Mediation structure (total vs direct effects)
+  - `sim_dgp_confounded()`: Confounding structure
+  - `sim_dgp_interactions()`: Interaction effects between features
+- Each DGP illustrates specific methodological challenges for importance methods
 
-### Groups of features
+### Observation-wise losses and predictions
 
-- `PerturbationImportance` and `WVIM` gain `groups` argument which overrides `features` and enables the definition of groups of features
-- Example: `groups = list(effects = c("x1", "x2", "x3"), noise = c("noise1", "noise2"))`
-- In the output of `$importance()`, `$scores()`, `$obs_loss()` the `feature` column gets the name of the group, which effectively becomes a "meta feature" as far as the output is concerned.
+- `$obs_loss()` computes observation-wise importance scores when `measure` has a `Measure$obs_loss()` method
+- `$predictions` field stores prediction objects for further analysis
 
-## Method-specific changes
+### Grouped feature importance
 
-- Align `iters_perm` (PerturbationImportance) and `iters_refit` (WVIM) to `n_repeats` to be more clear about the meaning and consistent across methods.
+- `PerturbationImportance` and `WVIM` methods support `groups` parameter for grouped feature importance:
+  - Example: `groups = list(effects = c("x1", "x2", "x3"), noise = c("noise1", "noise2"))`
+  - In output, `feature` column contains group names instead of individual features
+  - Allows measuring importance of feature sets rather than individual features
 
-### `LeaveOutIn` -> `WVIM`
+## Method-specific improvements
 
-- Williamson's Variable Importance Measure (WVIM) generalizes LOCO / LOCI
-- New implementation built around `mlr3fselect`, greatly simplifying the internals
+### WVIM (Williamson's Variable Importance Measure)
 
-### `PerturbationImportance`
+- Generalizes LOCO (Leave-One-Covariate-Out) and LOCI (Leave-One-Covariate-In)
+- Implemented using `mlr3fselect` for cleaner internals
+- Parameter renamed: `iters_refit` → `n_repeats` for consistency
 
-- Streamline and speedup `PerturbationImportance` implementation, also by using `learner$predict_newdata_fast()` (#39), bumping the mlr3 dependency >= 1.1.0.
-- Now batches `iter_repeats` internally to reduce the number of calls to `sampler$sample()`.
-  - May need further adjustment in case of large data / large `n_repeats` as intermediate data could grow too large
-- **Parallelization support**: PFI, CFI, and RFI now support parallel execution via `mirai` or `future` backends:
-  - Uses the same parallelization infrastructure as mlr3 for consistency with WVIM/LOCO
-  - Set up daemons with `mirai::daemons()` or configure a future plan with `future::plan()`
+### PerturbationImportance (PFI, CFI, RFI)
+
+- **Performance improvements**:
+  - Uses `learner$predict_newdata_fast()` for faster predictions (requires mlr3 >= 1.1.0)
+  - Batches permutation iterations internally to reduce `sampler$sample()` calls
+  - New `batch_size` parameter to control memory usage with large datasets
+
+- **Parallelization support**:
+  - Parallel execution via `mirai` or `future` backends
+  - Set up with `mirai::daemons()` or `future::plan()`
   - Parallelizes across features within each resampling iteration
-  - See the main vignette for examples
+
+- Parameter renamed: `iters_perm` → `n_repeats` for consistency
 
 ### Feature Samplers
 
-- **Breaking**: Refactor `FeatureSampler` API to separate task-based and external data sampling (#49):
-  - `$sample(feature, row_ids = NULL)` now samples from stored task using row IDs
-  - `$sample_newdata(feature, newdata)` samples from external data (e.g., test set)
-- **Breaking**: Rename sampler classes for consistent hierarchical naming:
-  - `PermutationSampler` → `MarginalPermutationSampler`
-  - `ARFSampler` → `ConditionalARFSampler`
-  - `GaussianConditionalSampler` → `ConditionalGaussianSampler`
-  - `KNNConditionalSampler` → `ConditionalKNNSampler`
-  - `CtreeConditionalSampler` → `ConditionalCtreeSampler`
-- Add `MarginalSampler` base class for marginal sampling methods (no conditioning)
-- Add `MarginalReferenceSampler` that samples complete rows from reference data, preserving within-row dependencies. Implements SAGE's marginal sampling approach.
-- Refactor `MarginalPermutationSampler` to inherit from `MarginalSampler`
-- Extend `ConditionalARFSampler` to store more arguments on construction, making it easier to "preconfigure" the sampler via arguments used in `$sample()`.
-- Standardize on `conditioning_set` as the name for the character vector defining features to condition on in `ConditionalSampler` and `RFI`.
-- Add `KnockoffSampler` (#16 via @mnwright)
-  - Now supports `row_ids`-based sampling from stored task data
-  - Can be used with CFI (but not with RFI which requires `conditioning_set`) and not with SAGE with requires `sampel_newdarta()` (for now)
-  - Add convenience wrappers `KnockoffGaussianSampler` and `KnockoffSequentialSampler`
-  - Added `iters` param to create multiple `x_tilde` up front, which then allow repeated samplings, so you can get multiple different knockoff values per row id
+- **Breaking changes**:
+  - Refactored API separates task-based vs external data sampling (#49):
+    - `$sample(feature, row_ids)`: Samples from stored task using row IDs
+    - `$sample_newdata(feature, newdata)`: Samples from external data
+  - Renamed sampler classes for hierarchical consistency:
+    - `PermutationSampler` → `MarginalPermutationSampler`
+    - `ARFSampler` → `ConditionalARFSampler`
+    - `GaussianConditionalSampler` → `ConditionalGaussianSampler`
+    - `KNNConditionalSampler` → `ConditionalKNNSampler`
+    - `CtreeConditionalSampler` → `ConditionalCtreeSampler`
+  - Standardized parameter name: `conditioning_set` for features to condition on
 
-### `SAGE`
+- **New samplers**:
+  - `MarginalSampler`: Base class for marginal sampling methods
+  - `MarginalReferenceSampler`: Samples complete rows from reference data (for SAGE)
+  - `KnockoffSampler`: Knockoff-based sampling (#16 via @mnwright)
+    - Convenience wrappers: `KnockoffGaussianSampler`, `KnockoffSequentialSampler`
+    - Supports `row_ids`-based sampling
+    - `iters` parameter for multiple knockoff iterations
+    - Compatible with CFI (not RFI/SAGE)
 
-- Fix accidentally marginal `ConditionalSAGE`.
-- Also using `learner$predict_newdata_fast()` now  (#39)
-- `batch_size` controls number of observations used at once per `learner$predict_newdata_fast()` call (could lead to excessive RAM usage). 
-- convergence tracking if `early_stopping = TRUE` ([#29](https://github.com/jemus42/xplainfi/pull/29))
-  - Permutations are evaluated in steps of `check_interval` at a time, after each convergence is checked
-  - If values change by less than `convergence_threshold`, convergence is assumed
-  - A `$converged` field is set to `TRUE`
-  - At least `min_permutations` are perfomed in any case, and `$n_permutations_used` shows the number of performed permutations
-  - `$convergence_history` tracks convergence history and can be analyzed to see per-feature values after each checkpoint
-  -  `$plot_convergence_history()` plots convergence history per feature
-  -  Convergence is tracked only for first resampling iteration
-  -  Also add standard error tracking as part of the convergence history ([#33](https://github.com/jemus42/xplainfi/pull/33))
+### SAGE (Shapley Additive Global Importance)
+
+- **Bug fix**: `ConditionalSAGE` now properly uses conditional sampling (was accidentally using marginal sampling)
+
+- **Performance improvements**:
+  - Uses `learner$predict_newdata_fast()` for faster predictions
+  - `batch_size` parameter controls memory usage for large coalitions
+
+- **Convergence tracking** (#29, #33):
+  - Enable with `early_stopping = TRUE`
+  - Stops when relative standard error falls below `se_threshold` (default: 0.01)
+  - Requires at least `min_permutations` (default: 3)
+  - Checks convergence every `check_interval` permutations (default: 1)
+  - New fields:
+    - `$converged`: Boolean indicating if convergence was reached
+    - `$n_permutations_used`: Actual permutations used (may be less than requested)
+    - `$convergence_history`: Per-feature importance and SE over permutations
+  - `$plot_convergence()`: Visualize convergence curves
+  - Convergence tracked for first resampling iteration only
 
 
 # xplainfi 0.1.0
