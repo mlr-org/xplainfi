@@ -67,6 +67,78 @@ PerturbationImportance = R6Class(
 
 			# Add CPI to variance methods registry
 			private$.ci_methods = c(private$.ci_methods, "cpi")
+		},
+
+		#' @description
+		#' Get aggregated importance scores.
+		#' Extends the base `$importance()` method to support the additional `"cpi"` ci_method.
+		#' @param relation (`character(1)`) How to relate perturbed scores to originals ("difference" or "ratio"). If `NULL`, uses stored parameter value.
+		#' @param standardize (`logical(1)`: `FALSE`) If `TRUE`, importances are standardized by the highest score so all scores fall in `[-1, 1]`.
+		#' @param ci_method (`character(1)`: `"none"`) Variance estimation method. In addition to base methods (`"none"`, `"raw"`, `"nadeau_bengio"`, `"quantile"`),
+		#'   perturbation methods support `"cpi"` (Conditional Predictive Impact).
+		#'   CPI is specifically designed for [CFI] with knockoff samplers and uses one-sided hypothesis tests.
+		#' @param conf_level (`numeric(1)`: `0.95`) Confidence level for confidence intervals when `ci_method != "none"`.
+		#' @param test (`character(1)`: `"t"`) Test to use for CPI. One of `"t"`, `"wilcoxon"`, `"fisher"`, or `"binomial"`. Only used when `ci_method = "cpi"`.
+		#' @param B (`integer(1)`: `1999`) Number of replications for Fisher test. Only used when `ci_method = "cpi"` and `test = "fisher"`.
+		#' @param ... Additional arguments passed to the base method.
+		#' @return ([data.table][data.table::data.table]) Aggregated importance scores.
+		importance = function(
+			relation = NULL,
+			standardize = FALSE,
+			ci_method = c("none", "raw", "nadeau_bengio", "quantile", "cpi"),
+			conf_level = 0.95,
+			test = c("t", "wilcoxon", "fisher", "binomial"),
+			B = 1999,
+			...
+		) {
+			# Handle CPI separately, delegate rest to parent
+			if (length(ci_method) > 1) {
+				ci_method = ci_method[1]
+			}
+
+			if (ci_method == "cpi") {
+				# CPI requires special handling
+				if (is.null(private$.scores)) {
+					cli::cli_inform(c(
+						x = "No importances computed yet!"
+					))
+					return(invisible(NULL))
+				}
+
+				checkmate::assert_number(conf_level, lower = 0, upper = 1)
+
+				# Get aggregator and scores
+				aggregator = self$measure$aggregator %||% mean
+				scores = self$scores(relation = relation)
+
+				# Standardize first so variance calculations use standardized values
+				if (standardize) {
+					scores[, importance := importance / max(abs(importance), na.rm = TRUE)]
+				}
+
+				# Call CPI function
+				test = match.arg(test)
+				agg_importance = importance_cpi(
+					scores = scores,
+					aggregator = aggregator,
+					conf_level = conf_level,
+					test = test,
+					B = B,
+					method_obj = self
+				)
+
+				setkeyv(agg_importance, "feature")
+				return(agg_importance[])
+			} else {
+				# Delegate to parent for other methods
+				super$importance(
+					relation = relation,
+					standardize = standardize,
+					ci_method = ci_method,
+					conf_level = conf_level,
+					...
+				)
+			}
 		}
 	),
 
@@ -242,99 +314,6 @@ PerturbationImportance = R6Class(
 
 				private$.obs_losses = obs_loss_all
 			}
-		},
-
-		# Conditional Predictive Impact (CPI) using one-sided t-test
-		# CPI is specifically designed for CFI with knockoff samplers
-		# Based on Watson et al. (2021) and implemented in the cpi package
-		# @param scores data.table with feature and importance columns (not used, we use obs_loss directly)
-		# @param aggregator function (not used for CPI)
-		# @param conf_level confidence level for one-sided CI
-		# @test character(1) Type of test to perform. Fisher is recommended
-		# @param B integer(1) Number of replications for Fisher test.
-		.importance_cpi = function(
-			scores,
-			aggregator,
-			conf_level,
-			test = c("t", "wilcoxon", "fisher", "binomial"),
-			B = 1999
-		) {
-			# CPI requires observation-wise losses
-			if (is.null(private$.obs_losses)) {
-				cli::cli_abort(c(
-					"CPI requires observation-wise losses.",
-					i = "Ensure {.code measure} has an {.fun $obs_loss} method."
-				))
-			}
-			if (class(self)[[1]] != "CFI") {
-				cli::cli_warn(c(
-					"!" = "CPI is only known to yield valid inference for {.cls CFI}.",
-					x = "Inference with {.cls PFI} is known to be invalid and other methods are not studied yet."
-				))
-			}
-			# Get observation-wise importances (already computed as differences)
-			obs_loss_data = self$obs_loss(relation = "difference")
-			# We need **at most** one row per feature and row_id for valid inference
-			# so we aggregate over iter_rsmp
-			dupes = obs_loss_data[, .N, by = c("feature", "row_ids", "iter_repeat")][N > 1]
-
-			if (nrow(dupes) >= 1) {
-				cli::cli_warn(c(
-					"Resampling is of type {.val {self$resampling$id}} with {.val {self$resampling$iters}} iterations.",
-					"Found {.val {length(unique(dupes[, row_ids]))}} duplicated observation{?s} in test sets",
-					x = "Confidence intervals will have wrong coverage!",
-					i = "CPI requires each observation to appear {.emph at most once} in the test set(s)",
-					i = "Use holdout resampling to ensure valid inference"
-				))
-			}
-			# Aggregating here over n_repeats
-			obs_loss_agg = obs_loss_data[,
-				list(obs_importance = mean(obs_importance)),
-				by = c("row_ids", "feature")
-			]
-
-			test = match.arg(test)
-			test_function = switch(
-				test,
-				t = stats::t.test,
-				wilcoxon = stats::wilcox.test,
-				fisher = fisher_one_sided,
-				binomial = binom_one_sided
-			)
-			# For each feature, perform one-sided test (alternative = "greater")
-			# H0: importance <= 0, H1: importance > 0
-			result_list = lapply(unique(obs_loss_agg$feature), function(feat) {
-				feat_obs = obs_loss_agg[feature == feat, obs_importance]
-
-				if (mean(feat_obs) == 0) {
-					htest_result = list(
-						estimate = 0,
-						statistic = 0,
-						p.value = 1,
-						conf.int = 0
-					)
-				} else {
-					# One-sided test
-					htest_result = test_function(
-						feat_obs,
-						alternative = "greater",
-						conf.level = conf_level,
-						conf.int = TRUE
-					)
-				}
-
-				data.table(
-					feature = feat,
-					importance = mean(feat_obs),
-					se = sd(feat_obs) / sqrt(length(feat_obs)),
-					statistic = htest_result$statistic,
-					p.value = htest_result$p.value,
-					conf_lower = htest_result$conf.int[1],
-					conf_upper = Inf # One-sided test upper bound is infinity
-				)
-			})
-
-			rbindlist(result_list, fill = TRUE)
 		}
 	)
 )

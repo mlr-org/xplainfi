@@ -166,8 +166,7 @@ FeatureImportanceMethod = R6Class(
 				return(invisible(NULL))
 			}
 
-			# Use registry for validation instead of hardcoded match.arg
-			# This allows subclasses to add custom methods
+			# Validate ci_method
 			if (length(ci_method) > 1) {
 				ci_method = ci_method[1]
 			}
@@ -178,38 +177,28 @@ FeatureImportanceMethod = R6Class(
 			aggregator = self$measure$aggregator %||% mean
 			scores = self$scores(relation = relation)
 
-			# FIXME: This had to be disabled to allow CPI with 1 holdout and 1 iter
-			# But t-based tests now fail because we get df = self$resample_result$iters - 1 = 0
-			# Skip aggregation if only one row per feature anyway
-			# if (nrow(scores) == length(unique(scores$feature))) {
-			# 	res = scores[, list(feature, importance)]
-			# 	setkeyv(res, "feature")
-			# 	return(res)
-			# }
-
 			# Standardize first so variance calculations use standardized values
 			if (standardize) {
 				scores[, importance := importance / max(abs(importance), na.rm = TRUE)]
 			}
 
-			# Dispatch to appropriate variance method
-			# Check if method exists in registry (for extensibility)
-			method_name = glue::glue(".importance_{ci_method}")
-			available_methods = private$.ci_methods
-
-			if (!ci_method %in% available_methods) {
+			# Dispatch to appropriate aggregation function
+			agg_importance = switch(
+				ci_method,
+				none = importance_none(scores, aggregator, conf_level),
+				raw = importance_raw(scores, aggregator, conf_level, self$resample_result$iters),
+				nadeau_bengio = importance_nadeau_bengio(
+					scores,
+					aggregator,
+					conf_level,
+					self$resampling,
+					self$resample_result$iters
+				),
+				quantile = importance_quantile(scores, aggregator, conf_level),
 				cli::cli_abort(c(
 					"Variance method {.val {ci_method}} not found.",
-					i = "Available methods: {.val {available_methods}}"
+					i = "Available methods: {.val {private$.ci_methods}}"
 				))
-			}
-
-			# Call the appropriate private method
-			agg_importance = private[[method_name]](
-				scores = scores,
-				aggregator = aggregator,
-				conf_level = conf_level,
-				...
 			)
 
 			setkeyv(agg_importance, "feature")
@@ -378,151 +367,6 @@ FeatureImportanceMethod = R6Class(
 	private = list(
 		# Registry of available variance methods
 		.ci_methods = c("none", "raw", "nadeau_bengio", "quantile"),
-
-		# Variance estimation methods
-		# Each method takes scores, aggregator, and conf_level as parameters
-		# Returns a data.table with feature and importance columns
-		# plus optionally se, conf_lower, conf_upper
-
-		# No variance estimation - just aggregated performance
-		# @param scores data.table with feature and importance columns
-		# @param aggregator function to aggregate importance scores
-		# @param conf_level ignored for this method
-		.importance_none = function(scores, aggregator, conf_level) {
-			agg_importance = scores[,
-				list(importance = aggregator(importance)),
-				by = feature
-			]
-			agg_importance
-		},
-
-		# Raw variance estimation without correction (too narrow CIs)
-		# @param scores data.table with feature and importance columns
-		# @param aggregator function to aggregate importance scores
-		# @param conf_level confidence level for intervals
-		# TODO: the aggregator / mean inconsistency here is weird, maybe using the
-		# measure's aggregator is not a good idea because the measure is passed
-		# on initialization before $compute() but here, post-compute, we might want to change it
-		.importance_raw = function(scores, aggregator, conf_level) {
-			agg_importance = scores[,
-				list(importance = aggregator(importance)),
-				by = feature
-			]
-
-			# Aggregate within resamplings first to get one row per resampling iter
-			means_rsmp = scores[,
-				list(importance = mean(importance)),
-				by = c("iter_rsmp", "feature")
-			]
-
-			sds = means_rsmp[,
-				list(se = sqrt(var(importance) / self$resample_result$iters)),
-				by = feature
-			]
-
-			agg_importance = agg_importance[sds, on = "feature"]
-
-			alpha = 1 - conf_level
-			quant = qt(1 - alpha / 2, df = self$resample_result$iters - 1)
-
-			agg_importance[, let(
-				conf_lower = importance - quant * se,
-				conf_upper = importance + quant * se
-			)]
-
-			agg_importance
-		},
-
-		# Nadeau & Bengio (2003) corrected variance estimation
-		# @param scores data.table with feature and importance columns
-		# @param aggregator function to aggregate importance scores
-		# @param conf_level confidence level for intervals
-		.importance_nadeau_bengio = function(scores, aggregator, conf_level) {
-			# Validate resampling type
-			if (!(self$resampling$id %in% c("bootstrap", "subsampling")) | self$resampling$iters < 10) {
-				cli::cli_warn(c(
-					"Resampling is of type {.val {self$resampling$id}} with {.val {self$resampling$iters}} iterations.",
-					i = "The Nadeau & Bengio corrected t-test is recommended for resampling types {.val {c('bootstrap', 'subsampling')}} with >= 10 iterations"
-				))
-			}
-
-			if (self$resampling$id == "bootstrap") {
-				test_train_ratio = 0.632
-			} else {
-				# Calculate test/train ratio for subsampling
-				ratio = self$resampling$param_set$values$ratio
-				n = self$resampling$task_nrow
-				n1 = round(ratio * n)
-				n2 = n - n1
-				test_train_ratio = n2 / n1
-			}
-
-			# Nadeau & Bengio adjustment factor
-			adjustment_factor = 1 / self$resample_result$iters + test_train_ratio
-
-			agg_importance = scores[,
-				list(importance = aggregator(importance)),
-				by = feature
-			]
-
-			# Aggregate within resamplings first
-			means_rsmp = scores[,
-				list(importance = mean(importance)),
-				by = c("iter_rsmp", "feature")
-			]
-
-			sds = means_rsmp[,
-				list(se = sqrt(adjustment_factor * var(importance))),
-				by = feature
-			]
-
-			agg_importance = agg_importance[sds, on = "feature"]
-
-			alpha = 1 - conf_level
-			quant = qt(1 - alpha / 2, df = self$resample_result$iters - 1)
-
-			agg_importance[, let(
-				conf_lower = importance - quant * se,
-				conf_upper = importance + quant * se
-			)]
-
-			agg_importance
-		},
-
-		# Empirical quantile-based confidence intervals
-		# Uses quantile() to construct confidence-like intervals from resampling distribution
-		# @param scores data.table with feature and importance columns
-		# @param aggregator function to aggregate importance scores (used for point estimate)
-		# @param conf_level confidence level for intervals
-		.importance_quantile = function(scores, aggregator, conf_level) {
-			# Aggregate within resamplings first to get one value per resampling iteration
-			means_rsmp = scores[,
-				list(importance = aggregator(importance)),
-				by = c("iter_rsmp", "feature")
-			]
-
-			# For each feature, compute quantiles
-			result_list = lapply(unique(means_rsmp$feature), function(feat) {
-				feat_scores = means_rsmp[feature == feat, importance]
-
-				# Point estimate using aggregator
-				point_est = aggregator(feat_scores)
-
-				# Compute empirical quantiles for CI
-				alpha = 1 - conf_level
-				probs = c(alpha / 2, 1 - alpha / 2)
-				ci_vals = quantile(feat_scores, probs = probs, na.rm = TRUE)
-
-				data.table(
-					feature = feat,
-					importance = point_est,
-					conf_lower = ci_vals[1],
-					conf_upper = ci_vals[2]
-				)
-			})
-
-			rbindlist(result_list)
-		},
 
 		# Take the raw predictions as returned by $predict_newdata_fast and convert to Prediction object fitting the task type to simplify type-specific handling
 		# @param raw_prediction `list` with elements `reponse` (vector) or `prob` (matrix) depending on task type.
