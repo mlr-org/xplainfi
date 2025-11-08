@@ -85,9 +85,9 @@
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 
 <ul><li><p><a href="#method-PerturbationImportance-new"><code>PerturbationImportance$new()</code></a></p></li>
+<li><p><a href="#method-PerturbationImportance-importance"><code>PerturbationImportance$importance()</code></a></p></li>
 <li><p><a href="#method-PerturbationImportance-clone"><code>PerturbationImportance$clone()</code></a></p></li>
-</ul></div><p><details><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="compute"><a href="FeatureImportanceMethod.html#method-compute"><code>xplainfi::FeatureImportanceMethod$compute()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="importance"><a href="FeatureImportanceMethod.html#method-importance"><code>xplainfi::FeatureImportanceMethod$importance()</code></a></span></li>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="compute"><a href="FeatureImportanceMethod.html#method-compute"><code>xplainfi::FeatureImportanceMethod$compute()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href="FeatureImportanceMethod.html#method-obs_loss"><code>xplainfi::FeatureImportanceMethod$obs_loss()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href="FeatureImportanceMethod.html#method-print"><code>xplainfi::FeatureImportanceMethod$print()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href="FeatureImportanceMethod.html#method-reset"><code>xplainfi::FeatureImportanceMethod$reset()</code></a></span></li>
@@ -135,15 +135,70 @@
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-PerturbationImportance-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
-<p>The objects of this class are cloneable with this method.</p><div class="section">
+</div><p></p><hr><a id="method-PerturbationImportance-importance"></a><div class="section">
+<h3 id="method-importance-">Method <code>importance()</code><a class="anchor" aria-label="anchor" href="#method-importance-"></a></h3>
+<p>Get aggregated importance scores.
+Extends the base <code>$importance()</code> method to support the additional <code>"cpi"</code> ci_method.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PerturbationImportance</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PerturbationImportance</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span></span>
+<span>  relation <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  standardize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  ci_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"raw"</span>, <span class="st">"nadeau_bengio"</span>, <span class="st">"quantile"</span>, <span class="st">"cpi"</span><span class="op">)</span>,</span>
+<span>  conf_level <span class="op">=</span> <span class="fl">0.95</span>,</span>
+<span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t"</span>, <span class="st">"wilcoxon"</span>, <span class="st">"fisher"</span>, <span class="st">"binomial"</span><span class="op">)</span>,</span>
+<span>  B <span class="op">=</span> <span class="fl">1999</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>relation</code></dt>
+<dd><p>(<code>character(1)</code>) How to relate perturbed scores to originals ("difference" or "ratio"). If <code>NULL</code>, uses stored parameter value.</p></dd>
+
+
+<dt><code>standardize</code></dt>
+<dd><p>(<code>logical(1)</code>: <code>FALSE</code>) If <code>TRUE</code>, importances are standardized by the highest score so all scores fall in <code>[-1, 1]</code>.</p></dd>
+
+
+<dt><code>ci_method</code></dt>
+<dd><p>(<code>character(1)</code>: <code>"none"</code>) Variance estimation method. In addition to base methods (<code>"none"</code>, <code>"raw"</code>, <code>"nadeau_bengio"</code>, <code>"quantile"</code>),
+perturbation methods support <code>"cpi"</code> (Conditional Predictive Impact).
+CPI is specifically designed for <a href="CFI.html">CFI</a> with knockoff samplers and uses one-sided hypothesis tests.</p></dd>
+
+
+<dt><code>conf_level</code></dt>
+<dd><p>(<code>numeric(1)</code>: <code>0.95</code>) Confidence level for confidence intervals when <code>ci_method != "none"</code>.</p></dd>
+
+
+<dt><code>test</code></dt>
+<dd><p>(<code>character(1)</code>: <code>"t"</code>) Test to use for CPI. One of <code>"t"</code>, <code>"wilcoxon"</code>, <code>"fisher"</code>, or <code>"binomial"</code>. Only used when <code>ci_method = "cpi"</code>.</p></dd>
+
+
+<dt><code>B</code></dt>
+<dd><p>(<code>integer(1)</code>: <code>1999</code>) Number of replications for Fisher test. Only used when <code>ci_method = "cpi"</code> and <code>test = "fisher"</code>.</p></dd>
+
+
+<dt><code>...</code></dt>
+<dd><p>Additional arguments passed to the base method.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
+<p>(<a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a>) Aggregated importance scores.</p>
+</div>
+
+</div><p></p><hr><a id="method-PerturbationImportance-clone"></a><div class="section">
+<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+<p>The objects of this class are cloneable with this method.</p><div class="section">
+<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PerturbationImportance</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 

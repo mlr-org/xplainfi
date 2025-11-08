@@ -21,12 +21,13 @@ and RFI
 
 - [`PerturbationImportance$new()`](#method-PerturbationImportance-new)
 
+- [`PerturbationImportance$importance()`](#method-PerturbationImportance-importance)
+
 - [`PerturbationImportance$clone()`](#method-PerturbationImportance-clone)
 
 Inherited methods
 
 - [`xplainfi::FeatureImportanceMethod$compute()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-compute)
-- [`xplainfi::FeatureImportanceMethod$importance()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
 - [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
 - [`xplainfi::FeatureImportanceMethod$print()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
 - [`xplainfi::FeatureImportanceMethod$reset()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
@@ -81,6 +82,71 @@ Creates a new instance of the PerturbationImportance class
   once. When `NULL`, predicts all `test_size * n_repeats` rows in one
   call. Use smaller values to reduce memory usage at the cost of more
   prediction calls. Can be overridden in `$compute()`.
+
+------------------------------------------------------------------------
+
+### Method `importance()`
+
+Get aggregated importance scores. Extends the base `$importance()`
+method to support the additional `"cpi"` ci_method.
+
+#### Usage
+
+    PerturbationImportance$importance(
+      relation = NULL,
+      standardize = FALSE,
+      ci_method = c("none", "raw", "nadeau_bengio", "quantile", "cpi"),
+      conf_level = 0.95,
+      test = c("t", "wilcoxon", "fisher", "binomial"),
+      B = 1999,
+      ...
+    )
+
+#### Arguments
+
+- `relation`:
+
+  (`character(1)`) How to relate perturbed scores to originals
+  ("difference" or "ratio"). If `NULL`, uses stored parameter value.
+
+- `standardize`:
+
+  (`logical(1)`: `FALSE`) If `TRUE`, importances are standardized by the
+  highest score so all scores fall in `[-1, 1]`.
+
+- `ci_method`:
+
+  (`character(1)`: `"none"`) Variance estimation method. In addition to
+  base methods (`"none"`, `"raw"`, `"nadeau_bengio"`, `"quantile"`),
+  perturbation methods support `"cpi"` (Conditional Predictive Impact).
+  CPI is specifically designed for
+  [CFI](https://jemus42.github.io/xplainfi/reference/CFI.md) with
+  knockoff samplers and uses one-sided hypothesis tests.
+
+- `conf_level`:
+
+  (`numeric(1)`: `0.95`) Confidence level for confidence intervals when
+  `ci_method != "none"`.
+
+- `test`:
+
+  (`character(1)`: `"t"`) Test to use for CPI. One of `"t"`,
+  `"wilcoxon"`, `"fisher"`, or `"binomial"`. Only used when
+  `ci_method = "cpi"`.
+
+- `B`:
+
+  (`integer(1)`: `1999`) Number of replications for Fisher test. Only
+  used when `ci_method = "cpi"` and `test = "fisher"`.
+
+- `...`:
+
+  Additional arguments passed to the base method.
+
+#### Returns
+
+([data.table](https://rdatatable.gitlab.io/data.table/reference/data.table.html))
+Aggregated importance scores.
 
 ------------------------------------------------------------------------
 

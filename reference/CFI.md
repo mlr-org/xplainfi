@@ -30,11 +30,11 @@ Artificial Intelligence*, **39**(15), 15596–15604.
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$importance()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
 - [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
 - [`xplainfi::FeatureImportanceMethod$print()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
 - [`xplainfi::FeatureImportanceMethod$reset()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
 - [`xplainfi::FeatureImportanceMethod$scores()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`xplainfi::PerturbationImportance$importance()`](https://jemus42.github.io/xplainfi/reference/PerturbationImportance.html#method-importance)
 
 ------------------------------------------------------------------------
 
