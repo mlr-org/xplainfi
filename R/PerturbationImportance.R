@@ -107,20 +107,18 @@ PerturbationImportance = R6Class(
 
 				checkmate::assert_number(conf_level, lower = 0, upper = 1)
 
-				# Get aggregator and scores
-				aggregator = self$measure$aggregator %||% mean
-				scores = self$scores(relation = relation)
-
-				# Standardize first so variance calculations use standardized values
+				# CPI does not support standardization - it uses obs-wise losses for inference
 				if (standardize) {
-					scores[, importance := importance / max(abs(importance), na.rm = TRUE)]
+					cli::cli_warn(c(
+						"!" = "Standardization is not supported for CPI.",
+						"i" = "CPI uses observation-wise losses for statistical inference.",
+						"i" = "Ignoring {.code standardize = TRUE}."
+					))
 				}
 
 				# Call CPI function
 				test = match.arg(test)
 				agg_importance = importance_cpi(
-					scores = scores,
-					aggregator = aggregator,
 					conf_level = conf_level,
 					test = test,
 					B = B,
