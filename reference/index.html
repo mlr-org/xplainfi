@@ -64,8 +64,7 @@
 
       <div class="section-desc"><p>Base class</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -81,8 +80,7 @@
       <h3 id="perturbation-based-importance-measures">Perturbation-Based Importance Measures<a class="anchor" aria-label="anchor" href="#perturbation-based-importance-measures"></a></h3>
       <div class="section-desc"><p>Methods which perturb features of interest either marginally (PFI) or conditionally on all (CFI) or a subset of remaining features (RFI)</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -93,19 +91,22 @@
 
         </dt>
         <dd>Perturbation Feature Importance Base Class</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="PFI.html">PFI</a></code>
 
         </dt>
         <dd>Permutation Feature Importance</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="CFI.html">CFI</a></code>
 
         </dt>
         <dd>Conditional Feature Importance</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="RFI.html">RFI</a></code>
 
@@ -116,8 +117,7 @@
       <h3 id="model-refitting-measures">Model Refitting Measures<a class="anchor" aria-label="anchor" href="#model-refitting-measures"></a></h3>
       <div class="section-desc"><p>Methods which refit models with one (or more) features omitted (LOCO) or included (LOCI).</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -128,7 +128,8 @@
 
         </dt>
         <dd>Williamson's Variable Importance Measure (WVIM)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="LOCO.html">LOCO</a></code>
 
@@ -139,8 +140,7 @@
       <h3 id="shapley-based-approaches">Shapley-Based Approaches<a class="anchor" aria-label="anchor" href="#shapley-based-approaches"></a></h3>
       <div class="section-desc"><p>Shapley Additive Global Importance (SAGE) in marginal and conditional variants</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -151,13 +151,15 @@
 
         </dt>
         <dd>Shapley Additive Global Importance (SAGE) Base Class</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="MarginalSAGE.html">MarginalSAGE</a></code>
 
         </dt>
         <dd>Marginal SAGE</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="ConditionalSAGE.html">ConditionalSAGE</a></code>
 
@@ -168,14 +170,12 @@
 
       <div class="section-desc"><p>Base class and three families of samplers (Marginal, Conditional, Knockoff)</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
       <h3 id="base-classes">Base classes<a class="anchor" aria-label="anchor" href="#base-classes"></a></h3>
       <div class="section-desc"><p>Abstract base classes for the three sampler families. FeatureSampler is the top-level base class, MarginalSampler is for marginal sampling methods, and ConditionalSampler is for conditional sampling methods.</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -186,13 +186,15 @@
 
         </dt>
         <dd>Feature Sampler Class</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="MarginalSampler.html">MarginalSampler</a></code>
 
         </dt>
         <dd>Marginal Sampler Base Class</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="ConditionalSampler.html">ConditionalSampler</a></code>
 
@@ -203,8 +205,7 @@
       <h3 id="marginal-sampling-no-conditioning-">Marginal sampling (no conditioning)<a class="anchor" aria-label="anchor" href="#marginal-sampling-no-conditioning-"></a></h3>
       <div class="section-desc"><p>Samplers that draw from the marginal distribution P(X_S) without conditioning on other features.</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -215,7 +216,8 @@
 
         </dt>
         <dd>Marginal Permutation Sampler</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="MarginalReferenceSampler.html">MarginalReferenceSampler</a></code>
 
@@ -226,8 +228,7 @@
       <h3 id="conditional-sampling-with-conditioning-">Conditional sampling (with conditioning)<a class="anchor" aria-label="anchor" href="#conditional-sampling-with-conditioning-"></a></h3>
       <div class="section-desc"><p>Samplers that draw from the conditional distribution P(X_S | X_C) where X_C is an arbitrary conditioning set. The conditioning set can be specified via the <code>conditioning_set</code> parameter.</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -238,19 +239,22 @@
 
         </dt>
         <dd>ARF-based Conditional Sampler</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="ConditionalGaussianSampler.html">ConditionalGaussianSampler</a></code>
 
         </dt>
         <dd>Gaussian Conditional Sampler</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="ConditionalKNNSampler.html">ConditionalKNNSampler</a></code>
 
         </dt>
         <dd>k-Nearest Neighbors Conditional Sampler</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="ConditionalCtreeSampler.html">ConditionalCtreeSampler</a></code>
 
@@ -261,8 +265,7 @@
       <h3 id="knockoff-sampling">Knockoff sampling<a class="anchor" aria-label="anchor" href="#knockoff-sampling"></a></h3>
       <div class="section-desc"><p>Knockoffs satisfy certain theoretical properties that exceed those of the conditional samplers. They generate one (or more) knockoff matrix on construction, and sampling is always performed in reference to these. Unlike other samplers, they do not allow sampling from new data with <code>$sample_newdata()</code>, as that would require re-creating a knockoff matrix on the fly.</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -273,13 +276,15 @@
 
         </dt>
         <dd>Knockoff-based Conditional Sampler</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="KnockoffGaussianSampler.html">KnockoffGaussianSampler</a></code>
 
         </dt>
         <dd>Gaussian Knockoff Conditional Sampler</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="KnockoffSequentialSampler.html">KnockoffSequentialSampler</a></code>
 
@@ -290,8 +295,7 @@
 
 
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -302,13 +306,15 @@
 
         </dt>
         <dd>Create Feature Selection Design Matrix</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="check_groups.html">check_groups()</a></code>
 
         </dt>
         <dd>Check group specification</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="op-null-default.html">`%||%`</a></code>
 
@@ -319,8 +325,7 @@
 
 
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -331,7 +336,8 @@
 
         </dt>
         <dd>Simulate data as in Ewald et al. (2024)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="sim_dgp_scenarios.html">sim_dgp_correlated()</a></code> <code><a href="sim_dgp_scenarios.html">sim_dgp_mediated()</a></code> <code><a href="sim_dgp_scenarios.html">sim_dgp_confounded()</a></code> <code><a href="sim_dgp_scenarios.html">sim_dgp_interactions()</a></code> <code><a href="sim_dgp_scenarios.html">sim_dgp_independent()</a></code>
 
@@ -347,7 +353,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

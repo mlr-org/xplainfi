@@ -258,7 +258,7 @@ already know x2, how much does x1 add?”</p>
 <h4 id="comparing-methods-on-interactions">Comparing Methods on Interactions<a class="anchor" aria-label="anchor" href="#comparing-methods-on-interactions"></a>
 </h4>
 <p>Let’s compare how the methods handle the interaction:</p>
-<p><img src="perturbation-importance_files/figure-html/compare-interactions-1.png" width="768"><img src="perturbation-importance_files/figure-html/compare-interactions-2.png" width="768"></p>
+<p><img src="perturbation-importance_files/figure-html/compare-interactions-1.png" class="r-plt" width="768"><img src="perturbation-importance_files/figure-html/compare-interactions-2.png" class="r-plt" width="768"></p>
 <p><strong>RFI Conditional Summary</strong>: x1 given x2 has importance
 2.170, x2 given x1 has importance 1.579, and x3 given x2 has importance
 1.979. This shows how RFI reveals the conditional dependencies that pure
@@ -338,7 +338,7 @@ confounder.</p>
 <p>In the <strong>observable confounder scenario</strong> (used later),
 the confounder H would be included as a feature in the dataset, allowing
 direct conditioning rather than relying on the noisy proxy.</p>
-<p><img src="perturbation-importance_files/figure-html/viz-confounding-1.png" width="768"></p>
+<p><img src="perturbation-importance_files/figure-html/viz-confounding-1.png" class="r-plt" width="768"></p>
 <p><strong>Key insight</strong>: The hidden confounder creates spurious
 correlations between x1, x2, and y (red paths), making them appear more
 important than they truly are. RFI conditioning on the proxy (which
@@ -508,7 +508,7 @@ its importance (since it’s truly causally related to y).</p>
 <div class="section level4">
 <h4 id="comparing-methods-on-confounding">Comparing Methods on Confounding<a class="anchor" aria-label="anchor" href="#comparing-methods-on-confounding"></a>
 </h4>
-<p><img src="perturbation-importance_files/figure-html/compare-confounding-1.png" width="768"><img src="perturbation-importance_files/figure-html/compare-confounding-2.png" width="768"></p>
+<p><img src="perturbation-importance_files/figure-html/compare-confounding-1.png" class="r-plt" width="768"><img src="perturbation-importance_files/figure-html/compare-confounding-2.png" class="r-plt" width="768"></p>
 </div>
 </div>
 <div class="section level3">
@@ -712,7 +712,7 @@ one tells you almost everything about the other.</p>
 <div class="section level4">
 <h4 id="comparing-methods-on-correlated-features">Comparing Methods on Correlated Features<a class="anchor" aria-label="anchor" href="#comparing-methods-on-correlated-features"></a>
 </h4>
-<p><img src="perturbation-importance_files/figure-html/compare-correlated-1.png" width="768"></p>
+<p><img src="perturbation-importance_files/figure-html/compare-correlated-1.png" class="r-plt" width="768"></p>
 </div>
 </div>
 <div class="section level3">
@@ -822,7 +822,7 @@ different sampler:</p>
 <span><span class="op">)</span></span>
 <span><span class="va">rfi_ind</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>And now we visualize:</p>
-<p><img src="perturbation-importance_files/figure-html/combine-rf-plot-1.png" width="768"></p>
+<p><img src="perturbation-importance_files/figure-html/combine-rf-plot-1.png" class="r-plt" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="agreement-between-methods">Agreement Between Methods<a class="anchor" aria-label="anchor" href="#agreement-between-methods"></a>
@@ -955,7 +955,7 @@ observations appear in multiple resampling folds.</p>
 <span><span class="co">#&gt; 1: important1  7.2270451  5.8414954  8.6125948</span></span>
 <span><span class="co">#&gt; 2: important2  1.8302705  1.4936257  2.1669153</span></span>
 <span><span class="co">#&gt; 3: important3  0.2434416  0.1676752  0.3192081</span></span></code></pre></div>
-<p><img src="perturbation-importance_files/figure-html/variance-comparison-plot-1.png" width="768"></p>
+<p><img src="perturbation-importance_files/figure-html/variance-comparison-plot-1.png" class="r-plt" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="practical-recommendations">Practical Recommendations<a class="anchor" aria-label="anchor" href="#practical-recommendations"></a>
@@ -1045,7 +1045,7 @@ methods</li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
