@@ -459,7 +459,8 @@ SAGE = R6Class(
 					curr_se_values = curr_checkpoint_ordered$se
 
 					# Calculate range of importance values across all features (matching fippy)
-					importance_range = max(curr_importance_values, na.rm = TRUE) - min(curr_importance_values, na.rm = TRUE)
+					importance_range = max(curr_importance_values, na.rm = TRUE) -
+						min(curr_importance_values, na.rm = TRUE)
 
 					# Normalize SE by range to get relative SE (matching fippy's formula)
 					# fippy: ratio = SE / range, convergence if max(ratio) < threshold
@@ -521,8 +522,9 @@ SAGE = R6Class(
 			}
 
 			# STEP 1: Subclass-specific data expansion (abstract method)
+			# combined data has rows `n_samples * nrow(test_dt) * length(all_coalitions)`
+			# Full coalition -> return is just test_dt
 			combined_data = private$.expand_coalitions_data(test_dt, all_coalitions)
-
 			# STEPS 2-5: Shared processing pipeline using general utilities
 			predictions = sage_batch_predict(
 				learner,
