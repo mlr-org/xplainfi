@@ -42,7 +42,7 @@ Feature importance methods in xplainfi address different but related questions:
 
 All methods share a common interface built on [mlr3](https://mlr3.mlr-org.com/), making them easy to use with any task, learner, measure, and resampling strategy. 
 
-The general pattern is to call `$compute()` to calculate importance (which _always re-computes_), then `$importance()` to retrieve the aggregated results, with intermediate results available in `$scores`.
+The general pattern is to call `$compute()` to calculate importance (which _always re-computes_), then `$importance()` to retrieve the aggregated results, with intermediate results available in `$scores()` and, if the chosen measures supports it, `$obs_loss()`.
 
 ## Basic Example
 
@@ -78,7 +78,9 @@ pfi$importance()
 
 The `importance` column shows the performance difference when each feature is permuted. Higher values indicate more important features.
 
-For more stable estimates, we can use multiple permutation iterations per resampling fold:
+For more stable estimates, we can use multiple permutation iterations per resampling fold with `n_repeats`.
+Note that in this case "more is more", and while there is no clear "good enough" value, setting `n_repeats` to a small value like 1 will most definitely yield unreliable results.
+
 
 ```{r pfi-parameters}
 pfi_stable <- PFI$new(
@@ -86,7 +88,7 @@ pfi_stable <- PFI$new(
 	learner = learner,
 	measure = measure,
 	resampling = resampling,
-	n_repeats = 5
+	n_repeats = 50
 )
 
 pfi_stable$compute()
@@ -99,10 +101,10 @@ We can also use ratio instead of difference for the importance calculation, mean
 pfi_stable$importance(relation = "ratio")
 ```
 
-
 ## Leave-One-Covariate-Out (LOCO)
 
-LOCO measures importance by retraining the model without each feature and comparing performance to the full model. This shows the contribution of each feature when all other features are present.
+LOCO measures importance by retraining the model without each feature and comparing performance to the full model.
+This shows the contribution of each feature when all other features are present.
 
 ```{r loco-basic}
 loco <- LOCO$new(
@@ -116,11 +118,13 @@ loco$compute()
 loco$importance()
 ```
 
-LOCO is computationally expensive (requires retraining for each feature) but provides clear interpretation: higher values mean larger performance drop when the feature is removed. **Important limitation**: LOCO cannot distinguish between direct effects and indirect effects through correlated features.
+LOCO is computationally expensive as it requires retraining for each feature, but provides clear interpretation: higher values mean larger performance drop when the feature is removed.
+LOCO however cannot distinguish between direct effects and indirect effects through correlated features.
 
 ## Feature Samplers
 
-For advanced methods that account for feature dependencies, xplainfi provides different sampling strategies. While PFI uses simple permutation (marginal sampling), conditional samplers can preserve feature relationships.
+For advanced methods that account for feature dependencies, xplainfi provides different sampling strategies. 
+While PFI uses simple permutation (marginal sampling), conditional samplers can preserve feature relationships.
 
 Let's demonstrate conditional sampling using Adversarial Random Forests, which preserves relationships between features when sampling:
 
@@ -144,18 +148,8 @@ sample_data[, .(important1, important2, important3)]
 sampled_conditional[, .(important1, important2, important3)]
 ```
 
-This conditional sampling is essential for methods like CFI and RFI that need to preserve feature dependencies. See `vignette("perturbation-importance")` for detailed comparisons.
-
-## Advanced Features
-
-xplainfi supports many advanced features for robust importance estimation:
-
-- **Multiple resampling strategies**: Cross-validation, bootstrap, custom splits
-- **Multiple permutation/refit iterations**: For more stable estimates
-- **Feature grouping**: Compute importance for groups of related features
-- **Different relation types**: Difference vs. ratio scoring
-- **Conditional sampling**: Account for feature dependencies (see `vignette("perturbation-importance")`)
-- **SAGE methods**: Shapley-based approaches (see `vignette("sage-methods")`)
+This conditional sampling is essential for methods like CFI and RFI that need to preserve feature dependencies. 
+See `vignette("perturbation-importance")` for detailed comparisons `vignette("feature-samplers")` for more details on implemented samplers.
 
 ## Detailed Scoring Information
 
@@ -222,19 +216,19 @@ plan("multisession", workers = 2)
 
 # PFI with parallelization across features
 pfi_parallel = PFI$new(
-  task,
-  learner = lrn("regr.ranger"),
-  measure = msr("regr.mse"),
-  n_repeats = 10
+	task,
+	learner = lrn("regr.ranger"),
+	measure = msr("regr.mse"),
+	n_repeats = 10
 )
 pfi_parallel$compute()
 pfi_parallel$importance()
 
 # LOCO with parallelization (uses mlr3fselect internally)
 loco_parallel = LOCO$new(
-  task,
-  learner = lrn("regr.ranger"),
-  measure = msr("regr.mse")
+	task,
+	learner = lrn("regr.ranger"),
+	measure = msr("regr.mse")
 )
 loco_parallel$compute()
 loco_parallel$importance()
@@ -250,10 +244,10 @@ daemons(n = 2)
 
 # Same PFI/LOCO code works with mirai backend
 pfi_parallel = PFI$new(
-  task,
-  learner = lrn("regr.ranger"),
-  measure = msr("regr.mse"),
-  n_repeats = 10
+	task,
+	learner = lrn("regr.ranger"),
+	measure = msr("regr.mse"),
+	n_repeats = 10
 )
 pfi_parallel$compute()
 pfi_parallel$importance()
