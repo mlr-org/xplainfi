@@ -5,7 +5,6 @@
 #' @import data.table
 #' @importFrom checkmate %??%
 #' @importFrom cli cli
-#' @importFrom lgr get_logger
 #' @importFrom mlr3 resample
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom paradox ps
