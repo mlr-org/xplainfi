@@ -4,16 +4,16 @@
 \name{xplainfi-package}
 \alias{xplainfi}
 \alias{xplainfi-package}
-\title{xplainfi: Feature Importance Methods for Model Interpretability}
+\title{xplainfi: Feature Importance Methods for Global Explanations}
 \description{
-Provides a consistent interface for common feature importance methods, such as permutation feature importance, 'LOCO', and 'SAGE'.
+Provides a consistent interface for common feature importance methods, such as permutation feature importance ('PFI'), leave-one-covariate-out ('LOCO'), and 'Shapley Additive Global importancE' ('SAGE').
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://jemus42.github.io/xplainfi/}
-  \item \url{https://github.com/jemus42/xplainfi}
-  \item Report bugs at \url{https://github.com/jemus42/xplainfi/issues}
+  \item \url{https://mlr-org.github.io/xplainfi/}
+  \item \url{https://github.com/mlr-org/xplainfi}
+  \item Report bugs at \url{https://github.com/mlr-org/xplainfi/issues}
 }
 
 }

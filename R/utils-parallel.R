@@ -12,7 +12,7 @@
 #'
 #' @details
 #' Execution mode is determined automatically:
-#' 1. If `getOption("xplainfi.debug")` is TRUE, runs sequentially with mapply
+#' 1. If `getOption("xplainfi.sequential")` is TRUE, runs sequentially with mapply
 #' 2. If mirai daemons are set, uses mirai_map for parallel execution
 #' 3. If future plan is non-sequential, uses future.apply::future_mapply
 #' 4. Otherwise, uses base mapply for sequential execution
@@ -22,17 +22,17 @@
 #' @keywords internal
 #' @noRd
 xplainfi_map = function(n, .f, ..., .args = list()) {
-
 	# Debug mode: sequential execution
-	if (isTRUE(getOption("xplainfi.debug", FALSE))) {
+	if (xplain_opt("sequential")) {
 		return(mapply(.f, ..., MoreArgs = .args, SIMPLIFY = FALSE, USE.NAMES = TRUE))
 	}
 
 	# Mirai parallelization
 	# Use same option as mlr3 for consistency (WVIM uses mlr3fselect which uses mlr3's parallelization)
-	if (requireNamespace("mirai", quietly = TRUE) &&
-		mirai::daemons_set(.compute = getOption("mlr3.mirai_parallelization", "mlr3_parallelization"))) {
-
+	if (
+		requireNamespace("mirai", quietly = TRUE) &&
+			mirai::daemons_set(.compute = getOption("mlr3.mirai_parallelization", "mlr3_parallelization"))
+	) {
 		# Capture names from first varying argument
 		varying_args = list(...)
 		result_names = if (length(varying_args) > 0) names(varying_args[[1]]) else NULL
@@ -100,7 +100,7 @@ xplainfi_map = function(n, .f, ..., .args = list()) {
 				SIMPLIFY = FALSE,
 				USE.NAMES = FALSE,
 				future.globals = FALSE,
-				future.packages = character(0),  # Packages loaded explicitly in worker
+				future.packages = character(0), # Packages loaded explicitly in worker
 				future.seed = TRUE,
 				future.scheduling = scheduling,
 				future.chunk.size = chunk_size,
