@@ -145,7 +145,7 @@ WVIM = R6Class(
 				task = self$task,
 				learner = self$learner,
 				resampling = self$resampling,
-				measure = self$measure,
+				measures = self$measure,
 				store_models = store_models
 			)
 
