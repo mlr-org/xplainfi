@@ -8,7 +8,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/mlr-org/xplainfi/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/mlr-org/xplainfi/blob/v0.2.0/DESCRIPTION)
 
 Burk L (2025). *xplainfi: Feature Importance Methods for Global
 Explanations*. R package version 0.2.0,
