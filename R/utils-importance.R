@@ -8,9 +8,12 @@
 #' @param conf_level (`numeric(1)`) ignored for this method
 #' @noRd
 importance_none = function(scores, aggregator, conf_level) {
+	# The data.table NSE tax
+	importance <- NULL
+
 	agg_importance = scores[,
 		list(importance = aggregator(importance)),
-		by = feature
+		by = "feature"
 	]
 	agg_importance
 }
@@ -22,9 +25,11 @@ importance_none = function(scores, aggregator, conf_level) {
 #' @param n_iters (`integer(1)`) number of resampling iterations
 #' @noRd
 importance_raw = function(scores, aggregator, conf_level, n_iters) {
+	# The data.table NSE tax
+	importance <- se <- NULL
 	agg_importance = scores[,
 		list(importance = aggregator(importance)),
-		by = feature
+		by = "feature"
 	]
 
 	# Aggregate within resamplings first to get one row per resampling iter
@@ -34,14 +39,14 @@ importance_raw = function(scores, aggregator, conf_level, n_iters) {
 	]
 
 	sds = means_rsmp[,
-		list(se = sqrt(var(importance) / n_iters)),
-		by = feature
+		list(se = sqrt(stats::var(importance) / n_iters)),
+		by = "feature"
 	]
 
 	agg_importance = agg_importance[sds, on = "feature"]
 
 	alpha = 1 - conf_level
-	quant = qt(1 - alpha / 2, df = n_iters - 1)
+	quant = stats::qt(1 - alpha / 2, df = n_iters - 1)
 
 	agg_importance[, let(
 		conf_lower = importance - quant * se,
@@ -59,6 +64,9 @@ importance_raw = function(scores, aggregator, conf_level, n_iters) {
 #' @param n_iters (`integer(1)`) number of resampling iterations
 #' @noRd
 importance_nadeau_bengio = function(scores, aggregator, conf_level, resampling, n_iters) {
+	# The data.table NSE tax
+	importance <- se <- NULL
+
 	# Validate resampling type
 	if (!(resampling$id %in% c("bootstrap", "subsampling")) | resampling$iters < 10) {
 		cli::cli_warn(c(
@@ -83,7 +91,7 @@ importance_nadeau_bengio = function(scores, aggregator, conf_level, resampling, 
 
 	agg_importance = scores[,
 		list(importance = aggregator(importance)),
-		by = feature
+		by = "feature"
 	]
 
 	# Aggregate within resamplings first
@@ -93,14 +101,14 @@ importance_nadeau_bengio = function(scores, aggregator, conf_level, resampling, 
 	]
 
 	sds = means_rsmp[,
-		list(se = sqrt(adjustment_factor * var(importance))),
-		by = feature
+		list(se = sqrt(adjustment_factor * stats::var(importance))),
+		by = "feature"
 	]
 
 	agg_importance = agg_importance[sds, on = "feature"]
 
 	alpha = 1 - conf_level
-	quant = qt(1 - alpha / 2, df = n_iters - 1)
+	quant = stats::qt(1 - alpha / 2, df = n_iters - 1)
 
 	agg_importance[, let(
 		conf_lower = importance - quant * se,
@@ -117,6 +125,9 @@ importance_nadeau_bengio = function(scores, aggregator, conf_level, resampling, 
 #' @param conf_level (`numeric(1)`) confidence level for intervals
 #' @noRd
 importance_quantile = function(scores, aggregator, conf_level) {
+	# The data.table NSE tax
+	importance <- feature <- NULL
+
 	# Aggregate within resamplings first to get one value per resampling iteration
 	means_rsmp = scores[,
 		list(importance = aggregator(importance)),
@@ -160,6 +171,8 @@ importance_cpi = function(
 	B = 1999,
 	method_obj
 ) {
+	# The data.table NSE tax
+	N <- obs_importance <- feature <- sd <- NULL
 	# CPI requires observation-wise losses
 	if (is.null(method_obj$obs_loss())) {
 		cli::cli_abort(c(
