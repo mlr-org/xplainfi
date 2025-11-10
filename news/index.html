@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9006</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +41,7 @@
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/jemus42/xplainfi/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/mlr-org/xplainfi/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch"><li><button class="dropdown-item" data-bs-theme-value="light"><span class="fa fa-sun"></span> Light</button></li>
@@ -57,79 +57,106 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/jemus42/xplainfi/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/mlr-org/xplainfi/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.1.0.9006" id="xplainfi-0109006">xplainfi 0.1.0.9006<a class="anchor" aria-label="anchor" href="#xplainfi-0109006"></a></h2>
-<p>This turns out to be still a period of major changes in the early phase, so, uhm, well.</p>
+<h2 class="pkg-version" data-toc-text="0.2.0" id="xplainfi-020">xplainfi 0.2.0<a class="anchor" aria-label="anchor" href="#xplainfi-020"></a></h2>
 <div class="section level3">
-<h3 id="general-changes-and-improvements-0-1-0-9006">General changes and improvements<a class="anchor" aria-label="anchor" href="#general-changes-and-improvements-0-1-0-9006"></a></h3>
+<h3 id="user-facing-api-improvements-0-2-0">User-facing API improvements<a class="anchor" aria-label="anchor" href="#user-facing-api-improvements-0-2-0"></a></h3>
+<div class="section level4">
+<h4 id="importance-aggregation-and-confidence-intervals-0-2-0">Importance aggregation and confidence intervals<a class="anchor" aria-label="anchor" href="#importance-aggregation-and-confidence-intervals-0-2-0"></a></h4>
 <ul><li>
-<code>$importance</code> becomes a function <code>$importance()</code> with arguments <code>standardize</code> and <code>ci_method</code> (<a href="https://github.com/jemus42/xplainfi/issues/40" class="external-link">#40</a>):
+<code>$importance()</code> gains <code>ci_method</code> parameter for variance estimation (<a href="https://github.com/mlr-org/xplainfi/issues/40" class="external-link">#40</a>):
 <ul><li>
-<code>"nadeau_bengio"</code> implements the correction method by Nadeau &amp; Bengio (2003) recommended by Molnar et al. (2023).</li>
+<code>"none"</code> (default): Simple aggregation without confidence intervals</li>
 <li>
-<code>"quantiles"</code> gives empirical quantiles covering <code>conf_level</code>.</li>
+<code>"raw"</code>: Uncorrected variance estimates (informative only, CIs too narrow)</li>
 <li>
-<code>"cpi"</code> implements CPI analogous to <a href="https://bips-hb.github.io/cpi/articles/intro.html" class="external-link">cpi</a>, supporting t-, Wilcoxon-, and Fisher tests.</li>
+<code>"nadeau_bengio"</code>: Variance correction by Nadeau &amp; Bengio (2003) as recommended by Molnar et al. (2023)</li>
+<li>
+<code>"quantile"</code>: Empirical quantile-based confidence intervals</li>
+<li>
+<code>"cpi"</code>: Conditional Predictive Impact for perturbation methods (PFI/CFI/RFI), supporting t-, Wilcoxon-, Fisher-, and binomial tests</li>
 </ul></li>
+<li>CPI is now properly scoped to <code>PerturbationImportance</code> methods only (not available for WVIM/LOCO or SAGE)</li>
 <li>
-<code>$scores</code> becomes <code>$scores()</code> for more fleixibility analogous to <code>$importance()</code>. Original scores are stored in <code>private$.scores</code> (for now).</li>
-<li>Both <code>$importance()</code> and <code>$scores()</code> have argument <code>relation</code> defaulting to <code>"differrence"</code> which allows to calculate importances like PFI as either the difference or the ratio of baseline and post-modification loss. The argument is moved out of <code>$compute()</code> to avoid having to recompute any predictions or model refits.</li>
-<li>Add <code><a href="../reference/sim_dgp_ewald.html">sim_dgp_ewald()</a></code> and other <code>sim_dgp_*()</code> helpers to simulate data (in <code>Task</code> form) with simple DGPs as used for illustration in Ewald et al. (2024) for example, which should make it easier to interpret the results of various importance methods.</li>
-</ul><div class="section level4">
-<h4 id="observation-wise-losses-0-1-0-9006">Observation-wise losses<a class="anchor" aria-label="anchor" href="#observation-wise-losses-0-1-0-9006"></a></h4>
-<ul><li>
-<code>$obs_loss()</code> analogously to <code>$scores()</code> computes observation-wise importance scores based on losses stored in <code>$.obs_losses</code> <strong>if</strong> <code>measure</code> has a <code>Measure$obs_loss()</code> function.</li>
+<code>$importance()</code> gains <code>standardize</code> parameter to normalize scores to [-1, 1] range</li>
 <li>
-<code>$predictions</code> are kept for now just in case they’re useful</li>
+<code>$importance()</code> and <code>$scores()</code> gain <code>relation</code> parameter (default: <code>"difference"</code>) to compute importances as difference or ratio of baseline and post-modification loss
+<ul><li>Moved from <code>$compute()</code> to avoid recomputing predictions/refits when changing aggregation method</li>
+</ul></li>
 </ul></div>
 <div class="section level4">
-<h4 id="groups-of-features-0-1-0-9006">Groups of features<a class="anchor" aria-label="anchor" href="#groups-of-features-0-1-0-9006"></a></h4>
+<h4 id="data-simulation-helpers-0-2-0">Data simulation helpers<a class="anchor" aria-label="anchor" href="#data-simulation-helpers-0-2-0"></a></h4>
+<ul><li>Add focused simulation DGPs for testing importance methods:
 <ul><li>
-<code>PerturbationImportance</code> and <code>WVIM</code> gain <code>groups</code> argument which overrides <code>features</code> and enables the definition of groups of features</li>
-<li>Example: <code>groups = list(effects = c("x1", "x2", "x3"), noise = c("noise1", "noise2"))</code>
+<code><a href="../reference/sim_dgp_scenarios.html">sim_dgp_independent()</a></code>: Baseline with additive independent effects</li>
+<li>
+<code><a href="../reference/sim_dgp_scenarios.html">sim_dgp_correlated()</a></code>: Highly correlated features (PFI fails, CFI succeeds)</li>
+<li>
+<code><a href="../reference/sim_dgp_scenarios.html">sim_dgp_mediated()</a></code>: Mediation structure (total vs direct effects)</li>
+<li>
+<code><a href="../reference/sim_dgp_scenarios.html">sim_dgp_confounded()</a></code>: Confounding structure</li>
+<li>
+<code><a href="../reference/sim_dgp_scenarios.html">sim_dgp_interactions()</a></code>: Interaction effects between features</li>
+</ul></li>
+<li>Each DGP illustrates specific methodological challenges for importance methods</li>
+</ul></div>
+<div class="section level4">
+<h4 id="observation-wise-losses-and-predictions-0-2-0">Observation-wise losses and predictions<a class="anchor" aria-label="anchor" href="#observation-wise-losses-and-predictions-0-2-0"></a></h4>
+<ul><li>
+<code>$obs_loss()</code> computes observation-wise importance scores when <code>measure</code> has a <code>Measure$obs_loss()</code> method</li>
+<li>
+<code>$predictions</code> field stores prediction objects for further analysis</li>
+</ul></div>
+<div class="section level4">
+<h4 id="grouped-feature-importance-0-2-0">Grouped feature importance<a class="anchor" aria-label="anchor" href="#grouped-feature-importance-0-2-0"></a></h4>
+<ul><li>
+<code>PerturbationImportance</code> and <code>WVIM</code> methods support <code>groups</code> parameter for grouped feature importance:
+<ul><li>Example: <code>groups = list(effects = c("x1", "x2", "x3"), noise = c("noise1", "noise2"))</code>
 </li>
-<li>In the output of <code>$importance()</code>, <code>$scores()</code>, <code>$obs_loss()</code> the <code>feature</code> column gets the name of the group, which effectively becomes a “meta feature” as far as the output is concerned.</li>
+<li>In output, <code>feature</code> column contains group names instead of individual features</li>
+<li>Allows measuring importance of feature sets rather than individual features</li>
+</ul></li>
 </ul></div>
 </div>
 <div class="section level3">
-<h3 id="method-specific-changes-0-1-0-9006">Method-specific changes<a class="anchor" aria-label="anchor" href="#method-specific-changes-0-1-0-9006"></a></h3>
-<ul><li>Align <code>iters_perm</code> (PerturbationImportance) and <code>iters_refit</code> (WVIM) to <code>n_repeats</code> to be more clear about the meaning and consistent across methods.</li>
-</ul><div class="section level4">
-<h4 id="leaveoutin---wvim-0-1-0-9006">
-<code>LeaveOutIn</code> -&gt; <code>WVIM</code>
-<a class="anchor" aria-label="anchor" href="#leaveoutin---wvim-0-1-0-9006"></a></h4>
-<ul><li>Williamson’s Variable Importance Measure (WVIM) generalizes LOCO / LOCI</li>
-<li>New implementation built around <code>mlr3fselect</code>, greatly simplifying the internals</li>
+<h3 id="method-specific-improvements-0-2-0">Method-specific improvements<a class="anchor" aria-label="anchor" href="#method-specific-improvements-0-2-0"></a></h3>
+<div class="section level4">
+<h4 id="wvim-williamsons-variable-importance-measure-0-2-0">WVIM (Williamson’s Variable Importance Measure)<a class="anchor" aria-label="anchor" href="#wvim-williamsons-variable-importance-measure-0-2-0"></a></h4>
+<ul><li>Generalizes LOCO (Leave-One-Covariate-Out) and LOCI (Leave-One-Covariate-In)</li>
+<li>Implemented using <code>mlr3fselect</code> for cleaner internals</li>
+<li>Parameter renamed: <code>iters_refit</code> → <code>n_repeats</code> for consistency</li>
 </ul></div>
 <div class="section level4">
-<h4 id="perturbationimportance-0-1-0-9006"><code>PerturbationImportance</code><a class="anchor" aria-label="anchor" href="#perturbationimportance-0-1-0-9006"></a></h4>
-<ul><li>Streamline and speedup <code>PerturbationImportance</code> implementation, also by using <code>learner$predict_newdata_fast()</code> (<a href="https://github.com/jemus42/xplainfi/issues/39" class="external-link">#39</a>), bumping the mlr3 dependency &gt;= 1.1.0.</li>
-<li>Now batches <code>iter_repeats</code> internally to reduce the number of calls to <code>sampler$sample()</code>.
-<ul><li>May need further adjustment in case of large data / large <code>n_repeats</code> as intermediate data could grow too large</li>
+<h4 id="perturbationimportance-pfi-cfi-rfi-0-2-0">PerturbationImportance (PFI, CFI, RFI)<a class="anchor" aria-label="anchor" href="#perturbationimportance-pfi-cfi-rfi-0-2-0"></a></h4>
+<ul><li>
+<strong>Performance improvements</strong>:
+<ul><li>Uses <code>learner$predict_newdata_fast()</code> for faster predictions (requires mlr3 &gt;= 1.1.0)</li>
+<li>Batches permutation iterations internally to reduce <code>sampler$sample()</code> calls</li>
+<li>New <code>batch_size</code> parameter to control memory usage with large datasets</li>
 </ul></li>
 <li>
-<strong>Parallelization support</strong>: PFI, CFI, and RFI now support parallel execution via <code>mirai</code> or <code>future</code> backends:
-<ul><li>Uses the same parallelization infrastructure as mlr3 for consistency with WVIM/LOCO</li>
-<li>Set up daemons with <code><a href="https://mirai.r-lib.org/reference/daemons.html" class="external-link">mirai::daemons()</a></code> or configure a future plan with <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">future::plan()</a></code>
+<strong>Parallelization support</strong>:
+<ul><li>Parallel execution via <code>mirai</code> or <code>future</code> backends</li>
+<li>Set up with <code><a href="https://mirai.r-lib.org/reference/daemons.html" class="external-link">mirai::daemons()</a></code> or <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">future::plan()</a></code>
 </li>
 <li>Parallelizes across features within each resampling iteration</li>
-<li>See the main vignette for examples</li>
 </ul></li>
+<li>Parameter renamed: <code>iters_perm</code> → <code>n_repeats</code> for consistency</li>
 </ul></div>
 <div class="section level4">
-<h4 id="feature-samplers-0-1-0-9006">Feature Samplers<a class="anchor" aria-label="anchor" href="#feature-samplers-0-1-0-9006"></a></h4>
+<h4 id="feature-samplers-0-2-0">Feature Samplers<a class="anchor" aria-label="anchor" href="#feature-samplers-0-2-0"></a></h4>
 <ul><li>
-<strong>Breaking</strong>: Refactor <code>FeatureSampler</code> API to separate task-based and external data sampling (<a href="https://github.com/jemus42/xplainfi/issues/49" class="external-link">#49</a>):
+<strong>Breaking changes</strong>:
+<ul><li>Refactored API separates task-based vs external data sampling (<a href="https://github.com/mlr-org/xplainfi/issues/49" class="external-link">#49</a>):
 <ul><li>
-<code>$sample(feature, row_ids = NULL)</code> now samples from stored task using row IDs</li>
+<code>$sample(feature, row_ids)</code>: Samples from stored task using row IDs</li>
 <li>
-<code>$sample_newdata(feature, newdata)</code> samples from external data (e.g., test set)</li>
+<code>$sample_newdata(feature, newdata)</code>: Samples from external data</li>
 </ul></li>
-<li>
-<strong>Breaking</strong>: Rename sampler classes for consistent hierarchical naming:
+<li>Renamed sampler classes for hierarchical consistency:
 <ul><li>
 <code>PermutationSampler</code> → <code>MarginalPermutationSampler</code>
 </li>
@@ -146,38 +173,52 @@
 <code>CtreeConditionalSampler</code> → <code>ConditionalCtreeSampler</code>
 </li>
 </ul></li>
-<li>Add <code>MarginalSampler</code> base class for marginal sampling methods (no conditioning)</li>
-<li>Add <code>MarginalReferenceSampler</code> that samples complete rows from reference data, preserving within-row dependencies. Implements SAGE’s marginal sampling approach.</li>
-<li>Refactor <code>MarginalPermutationSampler</code> to inherit from <code>MarginalSampler</code>
+<li>Standardized parameter name: <code>conditioning_set</code> for features to condition on</li>
+</ul></li>
+<li>
+<strong>New samplers</strong>:
+<ul><li>
+<code>MarginalSampler</code>: Base class for marginal sampling methods</li>
+<li>
+<code>MarginalReferenceSampler</code>: Samples complete rows from reference data (for SAGE)</li>
+<li>
+<code>KnockoffSampler</code>: Knockoff-based sampling (<a href="https://github.com/mlr-org/xplainfi/issues/16" class="external-link">#16</a> via <a href="https://github.com/mnwright" class="external-link">@mnwright</a>)
+<ul><li>Convenience wrappers: <code>KnockoffGaussianSampler</code>, <code>KnockoffSequentialSampler</code>
 </li>
-<li>Extend <code>ConditionalARFSampler</code> to store more arguments on construction, making it easier to “preconfigure” the sampler via arguments used in <code>$sample()</code>.</li>
-<li>Standardize on <code>conditioning_set</code> as the name for the character vector defining features to condition on in <code>ConditionalSampler</code> and <code>RFI</code>.</li>
-<li>Add <code>KnockoffSampler</code> (<a href="https://github.com/jemus42/xplainfi/issues/16" class="external-link">#16</a> via <a href="https://github.com/mnwright" class="external-link">@mnwright</a>)
-<ul><li>Now supports <code>row_ids</code>-based sampling from stored task data</li>
-<li>Can be used with CFI (but not with RFI which requires <code>conditioning_set</code>) and not with SAGE with requires <code>sampel_newdarta()</code> (for now)</li>
-<li>Add convenience wrappers <code>KnockoffGaussianSampler</code> and <code>KnockoffSequentialSampler</code>
-</li>
-<li>Added <code>iters</code> param to create multiple <code>x_tilde</code> up front, which then allow repeated samplings, so you can get multiple different knockoff values per row id</li>
+<li>Supports <code>row_ids</code>-based sampling</li>
+<li>
+<code>iters</code> parameter for multiple knockoff iterations</li>
+<li>Compatible with CFI (not RFI/SAGE)</li>
+</ul></li>
 </ul></li>
 </ul></div>
 <div class="section level4">
-<h4 id="sage-0-1-0-9006"><code>SAGE</code><a class="anchor" aria-label="anchor" href="#sage-0-1-0-9006"></a></h4>
-<ul><li>Fix accidentally marginal <code>ConditionalSAGE</code>.</li>
-<li>Also using <code>learner$predict_newdata_fast()</code> now (<a href="https://github.com/jemus42/xplainfi/issues/39" class="external-link">#39</a>)</li>
+<h4 id="sage-shapley-additive-global-importance-0-2-0">SAGE (Shapley Additive Global Importance)<a class="anchor" aria-label="anchor" href="#sage-shapley-additive-global-importance-0-2-0"></a></h4>
+<ul><li><p><strong>Bug fix</strong>: <code>ConditionalSAGE</code> now properly uses conditional sampling (was accidentally using marginal sampling)</p></li>
 <li>
-<code>batch_size</code> controls number of observations used at once per <code>learner$predict_newdata_fast()</code> call (could lead to excessive RAM usage).</li>
-<li>convergence tracking if <code>early_stopping = TRUE</code> (<a href="https://github.com/jemus42/xplainfi/pull/29" class="external-link">#29</a>)
-<ul><li>Permutations are evaluated in steps of <code>check_interval</code> at a time, after each convergence is checked</li>
-<li>If values change by less than <code>convergence_threshold</code>, convergence is assumed</li>
-<li>A <code>$converged</code> field is set to <code>TRUE</code>
+<p><strong>Performance improvements</strong>:</p>
+<ul><li>Uses <code>learner$predict_newdata_fast()</code> for faster predictions</li>
+<li>
+<code>batch_size</code> parameter controls memory usage for large coalitions</li>
+</ul></li>
+<li>
+<p><strong>Convergence tracking</strong> (<a href="https://github.com/mlr-org/xplainfi/issues/29" class="external-link">#29</a>, <a href="https://github.com/mlr-org/xplainfi/issues/33" class="external-link">#33</a>):</p>
+<ul><li>Enable with <code>early_stopping = TRUE</code>
 </li>
-<li>At least <code>min_permutations</code> are perfomed in any case, and <code>$n_permutations_used</code> shows the number of performed permutations</li>
+<li>Stops when relative standard error falls below <code>se_threshold</code> (default: 0.01)</li>
+<li>Requires at least <code>min_permutations</code> (default: 3)</li>
+<li>Checks convergence every <code>check_interval</code> permutations (default: 1)</li>
+<li>New fields:
+<ul><li>
+<code>$converged</code>: Boolean indicating if convergence was reached</li>
 <li>
-<code>$convergence_history</code> tracks convergence history and can be analyzed to see per-feature values after each checkpoint</li>
+<code>$n_permutations_used</code>: Actual permutations used (may be less than requested)</li>
 <li>
-<code>$plot_convergence_history()</code> plots convergence history per feature</li>
-<li>Convergence is tracked only for first resampling iteration</li>
-<li>Also add standard error tracking as part of the convergence history (<a href="https://github.com/jemus42/xplainfi/pull/33" class="external-link">#33</a>)</li>
+<code>$convergence_history</code>: Per-feature importance and SE over permutations</li>
+</ul></li>
+<li>
+<code>$plot_convergence()</code>: Visualize convergence curves</li>
+<li>Convergence tracked for first resampling iteration only</li>
 </ul></li>
 </ul></div>
 </div>

@@ -8,16 +8,16 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/jemus42/xplainfi/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/mlr-org/xplainfi/blob/main/DESCRIPTION)
 
-Burk L (2025). *xplainfi: Feature Importance Methods for Model
-Interpretability*. R package version 0.1.0.9006,
-<https://jemus42.github.io/xplainfi/>.
+Burk L (2025). *xplainfi: Feature Importance Methods for Global
+Explanations*. R package version 0.2.0,
+<https://mlr-org.github.io/xplainfi/>.
 
     @Manual{,
-      title = {xplainfi: Feature Importance Methods for Model Interpretability},
+      title = {xplainfi: Feature Importance Methods for Global Explanations},
       author = {Lukas Burk},
       year = {2025},
-      note = {R package version 0.1.0.9006},
-      url = {https://jemus42.github.io/xplainfi/},
+      note = {R package version 0.2.0},
+      url = {https://mlr-org.github.io/xplainfi/},
     }

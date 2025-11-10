@@ -31,7 +31,8 @@ task, learner, measure, and resampling strategy.
 
 The general pattern is to call `$compute()` to calculate importance
 (which *always re-computes*), then `$importance()` to retrieve the
-aggregated results, with intermediate results available in `$scores`.
+aggregated results, with intermediate results available in `$scores()`
+and, if the chosen measures supports it, `$obs_loss()`.
 
 ## Basic Example
 
@@ -89,7 +90,10 @@ The `importance` column shows the performance difference when each
 feature is permuted. Higher values indicate more important features.
 
 For more stable estimates, we can use multiple permutation iterations
-per resampling fold:
+per resampling fold with `n_repeats`. Note that in this case “more is
+more”, and while there is no clear “good enough” value, setting
+`n_repeats` to a small value like 1 will most definitely yield
+unreliable results.
 
 ``` r
 pfi_stable <- PFI$new(
@@ -97,24 +101,24 @@ pfi_stable <- PFI$new(
     learner = learner,
     measure = measure,
     resampling = resampling,
-    n_repeats = 5
+    n_repeats = 50
 )
 
 pfi_stable$compute()
 pfi_stable$importance()
 #> Key: <feature>
-#>          feature  importance
-#>           <char>       <num>
-#>  1:   important1  5.49350314
-#>  2:   important2  8.27127962
-#>  3:   important3  1.03112448
-#>  4:   important4 13.70049092
-#>  5:   important5  1.89032663
-#>  6: unimportant1 -0.01291604
-#>  7: unimportant2 -0.01881439
-#>  8: unimportant3  0.05705810
-#>  9: unimportant4  0.05613447
-#> 10: unimportant5 -0.04811418
+#>          feature   importance
+#>           <char>        <num>
+#>  1:   important1  5.632865193
+#>  2:   important2  8.217424105
+#>  3:   important3  1.127171028
+#>  4:   important4 12.610746815
+#>  5:   important5  2.156205784
+#>  6: unimportant1 -0.002932088
+#>  7: unimportant2  0.004595318
+#>  8: unimportant3  0.052577152
+#>  9: unimportant4  0.066657519
+#> 10: unimportant5 -0.035436306
 ```
 
 We can also use ratio instead of difference for the importance
@@ -126,16 +130,16 @@ pfi_stable$importance(relation = "ratio")
 #> Key: <feature>
 #>          feature importance
 #>           <char>      <num>
-#>  1:   important1  1.8332042
-#>  2:   important2  2.2611905
-#>  3:   important3  1.1565258
-#>  4:   important4  3.0682785
-#>  5:   important5  1.2869951
-#>  6: unimportant1  0.9979419
-#>  7: unimportant2  0.9974654
-#>  8: unimportant3  1.0073128
-#>  9: unimportant4  1.0086097
-#> 10: unimportant5  0.9923926
+#>  1:   important1  1.8557162
+#>  2:   important2  2.2483409
+#>  3:   important3  1.1709915
+#>  4:   important4  2.9043526
+#>  5:   important5  1.3261294
+#>  6: unimportant1  0.9993403
+#>  7: unimportant2  1.0008185
+#>  8: unimportant3  1.0065982
+#>  9: unimportant4  1.0098395
+#> 10: unimportant5  0.9945623
 ```
 
 ## Leave-One-Covariate-Out (LOCO)
@@ -157,21 +161,21 @@ loco$importance()
 #> Key: <feature>
 #>          feature importance
 #>           <char>      <num>
-#>  1:   important1  3.1047926
-#>  2:   important2  5.1216809
-#>  3:   important3  0.4987575
-#>  4:   important4  7.7615133
-#>  5:   important5  0.6788951
-#>  6: unimportant1 -0.7586142
-#>  7: unimportant2 -0.1510810
-#>  8: unimportant3 -0.5204418
-#>  9: unimportant4 -0.4949344
-#> 10: unimportant5 -0.4696825
+#>  1:   important1  3.2146916
+#>  2:   important2  5.2024952
+#>  3:   important3  0.4812675
+#>  4:   important4  7.2416733
+#>  5:   important5  0.3338383
+#>  6: unimportant1 -0.6559862
+#>  7: unimportant2 -0.5292880
+#>  8: unimportant3 -0.7172825
+#>  9: unimportant4 -0.3425903
+#> 10: unimportant5 -0.5959717
 ```
 
-LOCO is computationally expensive (requires retraining for each feature)
-but provides clear interpretation: higher values mean larger performance
-drop when the feature is removed. **Important limitation**: LOCO cannot
+LOCO is computationally expensive as it requires retraining for each
+feature, but provides clear interpretation: higher values mean larger
+performance drop when the feature is removed. LOCO however cannot
 distinguish between direct effects and indirect effects through
 correlated features.
 
@@ -218,34 +222,20 @@ sample_data[, .(important1, important2, important3)]
 #> 4:  0.8830174 0.729390652  0.3184946
 #> 5:  0.9404673 0.630131853  0.1739838
 sampled_conditional[, .(important1, important2, important3)]
-#>       important1  important2 important3
-#>            <num>       <num>      <num>
-#> 1:  0.3341964978 0.784575267  0.2372297
-#> 2:  0.1788524898 0.009429905  0.6864904
-#> 3:  0.6858777217 0.779065883  0.2258184
-#> 4:  0.9572636532 0.729390652  0.3184946
-#> 5: -0.0008153241 0.630131853  0.1739838
+#>    important1  important2 important3
+#>         <num>       <num>      <num>
+#> 1:  0.2436298 0.784575267  0.2372297
+#> 2:  0.4299974 0.009429905  0.6864904
+#> 3:  0.8416970 0.779065883  0.2258184
+#> 4:  0.8402944 0.729390652  0.3184946
+#> 5:  0.3115287 0.630131853  0.1739838
 ```
 
 This conditional sampling is essential for methods like CFI and RFI that
 need to preserve feature dependencies. See
-`vignette("perturbation-importance")` for detailed comparisons.
-
-## Advanced Features
-
-xplainfi supports many advanced features for robust importance
-estimation:
-
-- **Multiple resampling strategies**: Cross-validation, bootstrap,
-  custom splits
-- **Multiple permutation/refit iterations**: For more stable estimates
-- **Feature grouping**: Compute importance for groups of related
-  features
-- **Different relation types**: Difference vs. ratio scoring
-- **Conditional sampling**: Account for feature dependencies (see
-  `vignette("perturbation-importance")`)
-- **SAGE methods**: Shapley-based approaches (see
-  `vignette("sage-methods")`)
+`vignette("perturbation-importance")` for detailed comparisons
+[`vignette("feature-samplers")`](https://jemus42.github.io/xplainfi/articles/feature-samplers.md)
+for more details on implemented samplers.
 
 ## Detailed Scoring Information
 
@@ -392,19 +382,19 @@ plan("multisession", workers = 2)
 
 # PFI with parallelization across features
 pfi_parallel = PFI$new(
-  task,
-  learner = lrn("regr.ranger"),
-  measure = msr("regr.mse"),
-  n_repeats = 10
+    task,
+    learner = lrn("regr.ranger"),
+    measure = msr("regr.mse"),
+    n_repeats = 10
 )
 pfi_parallel$compute()
 pfi_parallel$importance()
 
 # LOCO with parallelization (uses mlr3fselect internally)
 loco_parallel = LOCO$new(
-  task,
-  learner = lrn("regr.ranger"),
-  measure = msr("regr.mse")
+    task,
+    learner = lrn("regr.ranger"),
+    measure = msr("regr.mse")
 )
 loco_parallel$compute()
 loco_parallel$importance()
@@ -420,10 +410,10 @@ daemons(n = 2)
 
 # Same PFI/LOCO code works with mirai backend
 pfi_parallel = PFI$new(
-  task,
-  learner = lrn("regr.ranger"),
-  measure = msr("regr.mse"),
-  n_repeats = 10
+    task,
+    learner = lrn("regr.ranger"),
+    measure = msr("regr.mse"),
+    n_repeats = 10
 )
 pfi_parallel$compute()
 pfi_parallel$importance()

@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9006</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,7 +64,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/jemus42/xplainfi/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/mlr-org/xplainfi/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch">
@@ -89,14 +89,14 @@
       <h1>Getting Started with xplainfi</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/jemus42/xplainfi/blob/main/vignettes/xplainfi.Rmd" class="external-link"><code>vignettes/xplainfi.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/mlr-org/xplainfi/blob/main/vignettes/xplainfi.Rmd" class="external-link"><code>vignettes/xplainfi.Rmd</code></a></small>
       <div class="d-none name"><code>xplainfi.Rmd</code></div>
     </div>
 
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jemus42.github.io/xplainfi/">xplainfi</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr-org.github.io/xplainfi/" class="external-link">xplainfi</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3.mlr-org.com" class="external-link">mlr3</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3learners.mlr-org.com" class="external-link">mlr3learners</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
@@ -127,7 +127,8 @@ any task, learner, measure, and resampling strategy.</p>
 <p>The general pattern is to call <code>$compute()</code> to calculate
 importance (which <em>always re-computes</em>), then
 <code>$importance()</code> to retrieve the aggregated results, with
-intermediate results available in <code>$scores</code>.</p>
+intermediate results available in <code>$scores()</code> and, if the
+chosen measures supports it, <code>$obs_loss()</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="basic-example">Basic Example<a class="anchor" aria-label="anchor" href="#basic-example"></a>
@@ -182,31 +183,34 @@ when shuffled.</p>
 when each feature is permuted. Higher values indicate more important
 features.</p>
 <p>For more stable estimates, we can use multiple permutation iterations
-per resampling fold:</p>
+per resampling fold with <code>n_repeats</code>. Note that in this case
+“more is more”, and while there is no clear “good enough” value, setting
+<code>n_repeats</code> to a small value like 1 will most definitely
+yield unreliable results.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfi_stable</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/PFI.html">PFI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>    task <span class="op">=</span> <span class="va">task</span>,</span>
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span></span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">50</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pfi_stable</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">pfi_stable</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;          feature  importance</span></span>
-<span><span class="co">#&gt;           &lt;char&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  5.49350314</span></span>
-<span><span class="co">#&gt;  2:   important2  8.27127962</span></span>
-<span><span class="co">#&gt;  3:   important3  1.03112448</span></span>
-<span><span class="co">#&gt;  4:   important4 13.70049092</span></span>
-<span><span class="co">#&gt;  5:   important5  1.89032663</span></span>
-<span><span class="co">#&gt;  6: unimportant1 -0.01291604</span></span>
-<span><span class="co">#&gt;  7: unimportant2 -0.01881439</span></span>
-<span><span class="co">#&gt;  8: unimportant3  0.05705810</span></span>
-<span><span class="co">#&gt;  9: unimportant4  0.05613447</span></span>
-<span><span class="co">#&gt; 10: unimportant5 -0.04811418</span></span></code></pre></div>
+<span><span class="co">#&gt;          feature   importance</span></span>
+<span><span class="co">#&gt;           &lt;char&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:   important1  5.632865193</span></span>
+<span><span class="co">#&gt;  2:   important2  8.217424105</span></span>
+<span><span class="co">#&gt;  3:   important3  1.127171028</span></span>
+<span><span class="co">#&gt;  4:   important4 12.610746815</span></span>
+<span><span class="co">#&gt;  5:   important5  2.156205784</span></span>
+<span><span class="co">#&gt;  6: unimportant1 -0.002932088</span></span>
+<span><span class="co">#&gt;  7: unimportant2  0.004595318</span></span>
+<span><span class="co">#&gt;  8: unimportant3  0.052577152</span></span>
+<span><span class="co">#&gt;  9: unimportant4  0.066657519</span></span>
+<span><span class="co">#&gt; 10: unimportant5 -0.035436306</span></span></code></pre></div>
 <p>We can also use ratio instead of difference for the importance
 calculation, meaning that an unimportant feature is now expected to get
 an importance score of 1 rather than 0:</p>
@@ -215,16 +219,16 @@ an importance score of 1 rather than 0:</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;          feature importance</span></span>
 <span><span class="co">#&gt;           &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  1.8332042</span></span>
-<span><span class="co">#&gt;  2:   important2  2.2611905</span></span>
-<span><span class="co">#&gt;  3:   important3  1.1565258</span></span>
-<span><span class="co">#&gt;  4:   important4  3.0682785</span></span>
-<span><span class="co">#&gt;  5:   important5  1.2869951</span></span>
-<span><span class="co">#&gt;  6: unimportant1  0.9979419</span></span>
-<span><span class="co">#&gt;  7: unimportant2  0.9974654</span></span>
-<span><span class="co">#&gt;  8: unimportant3  1.0073128</span></span>
-<span><span class="co">#&gt;  9: unimportant4  1.0086097</span></span>
-<span><span class="co">#&gt; 10: unimportant5  0.9923926</span></span></code></pre></div>
+<span><span class="co">#&gt;  1:   important1  1.8557162</span></span>
+<span><span class="co">#&gt;  2:   important2  2.2483409</span></span>
+<span><span class="co">#&gt;  3:   important3  1.1709915</span></span>
+<span><span class="co">#&gt;  4:   important4  2.9043526</span></span>
+<span><span class="co">#&gt;  5:   important5  1.3261294</span></span>
+<span><span class="co">#&gt;  6: unimportant1  0.9993403</span></span>
+<span><span class="co">#&gt;  7: unimportant2  1.0008185</span></span>
+<span><span class="co">#&gt;  8: unimportant3  1.0065982</span></span>
+<span><span class="co">#&gt;  9: unimportant4  1.0098395</span></span>
+<span><span class="co">#&gt; 10: unimportant5  0.9945623</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="leave-one-covariate-out-loco">Leave-One-Covariate-Out (LOCO)<a class="anchor" aria-label="anchor" href="#leave-one-covariate-out-loco"></a>
@@ -245,21 +249,21 @@ of each feature when all other features are present.</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;          feature importance</span></span>
 <span><span class="co">#&gt;           &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  3.1047926</span></span>
-<span><span class="co">#&gt;  2:   important2  5.1216809</span></span>
-<span><span class="co">#&gt;  3:   important3  0.4987575</span></span>
-<span><span class="co">#&gt;  4:   important4  7.7615133</span></span>
-<span><span class="co">#&gt;  5:   important5  0.6788951</span></span>
-<span><span class="co">#&gt;  6: unimportant1 -0.7586142</span></span>
-<span><span class="co">#&gt;  7: unimportant2 -0.1510810</span></span>
-<span><span class="co">#&gt;  8: unimportant3 -0.5204418</span></span>
-<span><span class="co">#&gt;  9: unimportant4 -0.4949344</span></span>
-<span><span class="co">#&gt; 10: unimportant5 -0.4696825</span></span></code></pre></div>
-<p>LOCO is computationally expensive (requires retraining for each
-feature) but provides clear interpretation: higher values mean larger
-performance drop when the feature is removed. <strong>Important
-limitation</strong>: LOCO cannot distinguish between direct effects and
-indirect effects through correlated features.</p>
+<span><span class="co">#&gt;  1:   important1  3.2146916</span></span>
+<span><span class="co">#&gt;  2:   important2  5.2024952</span></span>
+<span><span class="co">#&gt;  3:   important3  0.4812675</span></span>
+<span><span class="co">#&gt;  4:   important4  7.2416733</span></span>
+<span><span class="co">#&gt;  5:   important5  0.3338383</span></span>
+<span><span class="co">#&gt;  6: unimportant1 -0.6559862</span></span>
+<span><span class="co">#&gt;  7: unimportant2 -0.5292880</span></span>
+<span><span class="co">#&gt;  8: unimportant3 -0.7172825</span></span>
+<span><span class="co">#&gt;  9: unimportant4 -0.3425903</span></span>
+<span><span class="co">#&gt; 10: unimportant5 -0.5959717</span></span></code></pre></div>
+<p>LOCO is computationally expensive as it requires retraining for each
+feature, but provides clear interpretation: higher values mean larger
+performance drop when the feature is removed. LOCO however cannot
+distinguish between direct effects and indirect effects through
+correlated features.</p>
 </div>
 <div class="section level2">
 <h2 id="feature-samplers">Feature Samplers<a class="anchor" aria-label="anchor" href="#feature-samplers"></a>
@@ -302,43 +306,18 @@ given the values of <code>important2</code> and
 <span><span class="co">#&gt; 4:  0.8830174 0.729390652  0.3184946</span></span>
 <span><span class="co">#&gt; 5:  0.9404673 0.630131853  0.1739838</span></span>
 <span><span class="va">sampled_conditional</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">important1</span>, <span class="va">important2</span>, <span class="va">important3</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt;       important1  important2 important3</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;       &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  0.3341964978 0.784575267  0.2372297</span></span>
-<span><span class="co">#&gt; 2:  0.1788524898 0.009429905  0.6864904</span></span>
-<span><span class="co">#&gt; 3:  0.6858777217 0.779065883  0.2258184</span></span>
-<span><span class="co">#&gt; 4:  0.9572636532 0.729390652  0.3184946</span></span>
-<span><span class="co">#&gt; 5: -0.0008153241 0.630131853  0.1739838</span></span></code></pre></div>
+<span><span class="co">#&gt;    important1  important2 important3</span></span>
+<span><span class="co">#&gt;         &lt;num&gt;       &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  0.2436298 0.784575267  0.2372297</span></span>
+<span><span class="co">#&gt; 2:  0.4299974 0.009429905  0.6864904</span></span>
+<span><span class="co">#&gt; 3:  0.8416970 0.779065883  0.2258184</span></span>
+<span><span class="co">#&gt; 4:  0.8402944 0.729390652  0.3184946</span></span>
+<span><span class="co">#&gt; 5:  0.3115287 0.630131853  0.1739838</span></span></code></pre></div>
 <p>This conditional sampling is essential for methods like CFI and RFI
 that need to preserve feature dependencies. See
 <code>vignette("perturbation-importance")</code> for detailed
-comparisons.</p>
-</div>
-<div class="section level2">
-<h2 id="advanced-features">Advanced Features<a class="anchor" aria-label="anchor" href="#advanced-features"></a>
-</h2>
-<p>xplainfi supports many advanced features for robust importance
-estimation:</p>
-<ul>
-<li>
-<strong>Multiple resampling strategies</strong>: Cross-validation,
-bootstrap, custom splits</li>
-<li>
-<strong>Multiple permutation/refit iterations</strong>: For more
-stable estimates</li>
-<li>
-<strong>Feature grouping</strong>: Compute importance for groups of
-related features</li>
-<li>
-<strong>Different relation types</strong>: Difference vs. ratio
-scoring</li>
-<li>
-<strong>Conditional sampling</strong>: Account for feature
-dependencies (see <code>vignette("perturbation-importance")</code>)</li>
-<li>
-<strong>SAGE methods</strong>: Shapley-based approaches (see
-<code>vignette("sage-methods")</code>)</li>
-</ul>
+comparisons <code><a href="../articles/feature-samplers.html">vignette("feature-samplers")</a></code> for more details
+on implemented samplers.</p>
 </div>
 <div class="section level2">
 <h2 id="detailed-scoring-information">Detailed Scoring Information<a class="anchor" aria-label="anchor" href="#detailed-scoring-information"></a>
@@ -653,19 +632,19 @@ parallel and distributed computing:</p>
 <span></span>
 <span><span class="co"># PFI with parallelization across features</span></span>
 <span><span class="va">pfi_parallel</span> <span class="op">=</span> <span class="va"><a href="../reference/PFI.html">PFI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
-<span>  <span class="va">task</span>,</span>
-<span>  learner <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.ranger"</span><span class="op">)</span>,</span>
-<span>  measure <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span>,</span>
-<span>  n_repeats <span class="op">=</span> <span class="fl">10</span></span>
+<span>    <span class="va">task</span>,</span>
+<span>    learner <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.ranger"</span><span class="op">)</span>,</span>
+<span>    measure <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span>,</span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">10</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">pfi_parallel</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">pfi_parallel</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># LOCO with parallelization (uses mlr3fselect internally)</span></span>
 <span><span class="va">loco_parallel</span> <span class="op">=</span> <span class="va"><a href="../reference/LOCO.html">LOCO</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
-<span>  <span class="va">task</span>,</span>
-<span>  learner <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.ranger"</span><span class="op">)</span>,</span>
-<span>  measure <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span></span>
+<span>    <span class="va">task</span>,</span>
+<span>    learner <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.ranger"</span><span class="op">)</span>,</span>
+<span>    measure <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">loco_parallel</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">loco_parallel</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -681,10 +660,10 @@ parallel computing:</p>
 <span></span>
 <span><span class="co"># Same PFI/LOCO code works with mirai backend</span></span>
 <span><span class="va">pfi_parallel</span> <span class="op">=</span> <span class="va"><a href="../reference/PFI.html">PFI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
-<span>  <span class="va">task</span>,</span>
-<span>  learner <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.ranger"</span><span class="op">)</span>,</span>
-<span>  measure <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span>,</span>
-<span>  n_repeats <span class="op">=</span> <span class="fl">10</span></span>
+<span>    <span class="va">task</span>,</span>
+<span>    learner <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.ranger"</span><span class="op">)</span>,</span>
+<span>    measure <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span>,</span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">10</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">pfi_parallel</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">pfi_parallel</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>

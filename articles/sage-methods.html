@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9006</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,7 +64,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/jemus42/xplainfi/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/mlr-org/xplainfi/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch">
@@ -89,14 +89,14 @@
       <h1>Shapley Additive Global Importance (SAGE)</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/jemus42/xplainfi/blob/main/vignettes/articles/sage-methods.Rmd" class="external-link"><code>vignettes/articles/sage-methods.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/mlr-org/xplainfi/blob/main/vignettes/articles/sage-methods.Rmd" class="external-link"><code>vignettes/articles/sage-methods.Rmd</code></a></small>
       <div class="d-none name"><code>sage-methods.Rmd</code></div>
     </div>
 
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jemus42.github.io/xplainfi/">xplainfi</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr-org.github.io/xplainfi/" class="external-link">xplainfi</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3.mlr-org.com" class="external-link">mlr3</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3learners.mlr-org.com" class="external-link">mlr3learners</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
@@ -104,25 +104,42 @@
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
 <p>Shapley Additive Global Importance (SAGE) is a feature importance
-method based on cooperative game theory that uses Shapley values to
-fairly distribute the total prediction performance among all features.
-Unlike permutation-based methods that measure the drop in performance
-when features are perturbed, SAGE measures how much each feature
-contributes to the model’s overall performance by marginalizing
-(removing) features.</p>
-<p>The key insight of SAGE is that it provides a complete decomposition
-of the model’s performance: the sum of all SAGE values equals the
-difference between the model’s performance and the performance when all
-features are marginalized.</p>
-<p><strong>xplainfi</strong> provides two implementations of SAGE:</p>
+method based on cooperative game theory. It uses Shapley values to
+distribute the model’s total prediction performance among features.
+Unlike perturbation-based methods (PFI/CFI) that measure performance
+degradation when features are perturbed, SAGE measures each feature’s
+contribution through marginalization.</p>
+<p>A key property of SAGE is that it provides a complete decomposition:
+the sum of all SAGE values equals the difference between the model’s
+performance and the performance when all features are marginalized.</p>
+<p><strong>xplainfi</strong> provides two implementations:</p>
 <ul>
 <li>
 <strong>MarginalSAGE</strong>: Marginalizes features independently
-(standard SAGE)</li>
+(standard SAGE implementation)</li>
 <li>
-<strong>ConditionalSAGE</strong>: Marginalizes features
-conditionally using ARF sampling</li>
+<strong>ConditionalSAGE</strong>: Marginalizes features using
+conditional sampling</li>
 </ul>
+<p><strong>Note on interpretation</strong>: SAGE’s theoretical
+properties and interpretation differ from perturbation-based methods.
+While PFI/CFI have clearer interpretations in terms of predictive
+performance, SAGE’s results can be more challenging to interpret,
+particularly when using conditional sampling. The choice of conditional
+sampler can significantly affect results, and there is limited empirical
+guidance on best practices. This vignette focuses on demonstrating the
+methods rather than making strong interpretive claims.</p>
+<p><strong>The SAGE estimator</strong> implemented here is what is
+referred to as the “permutation estimator” in other implementations. It
+works by first building up <code>n_permutations</code> permutations of
+the feature vector and then successively evaluating prefixes of the
+sequence from left to right as coalitions to evaluated. If a task has
+features <code>(x1, x2, x3)</code>, one permutation could be
+<code>(x2, x1, x3)</code>, resulting in these coalitions to be
+evaluated: <code>(x2)</code>, <code>(x2, x1)</code>, and
+<code>(x2, x1, x3)</code>. The empty coalition will always be evaluated,
+resulting in a total number of evaluations of
+<code>n_permutations * n_features + 1</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="demonstration-with-correlated-features">Demonstration with Correlated Features<a class="anchor" aria-label="anchor" href="#demonstration-with-correlated-features"></a>
@@ -139,15 +156,15 @@ N(0,1)\]</span> <span class="math display">\[Y = 2 \cdot X_1 + X_3 +
 \varepsilon\]</span></p>
 <p>where <span class="math inline">\(\varepsilon \sim N(0,
 0.2^2)\)</span>.</p>
-<p><strong>Key properties:</strong></p>
+<p><strong>Data generating process:</strong></p>
 <ul>
 <li>
-<code>x1</code> has a direct causal effect on y (β=2.0)</li>
+<code>x1</code> has a direct effect on y (β=2.0)</li>
 <li>
-<code>x2</code> is correlated with x1 (r = 0.5 from MVN) but has
-<strong>no causal effect</strong> on y</li>
+<code>x2</code> is correlated with x1 (r = 0.5) but has no direct
+effect on y</li>
 <li>
-<code>x3</code> is independent with a causal effect (β=1.0)</li>
+<code>x3</code> is independent with a direct effect (β=1.0)</li>
 <li>
 <code>x4</code> is independent noise (β=0)</li>
 </ul>
@@ -164,17 +181,9 @@ N(0,1)\]</span> <span class="math display">\[Y = 2 \cdot X_1 + X_3 +
 <span><span class="co">#&gt; x2  0.447  1.000 -0.049 -0.054</span></span>
 <span><span class="co">#&gt; x3 -0.005 -0.049  1.000  0.051</span></span>
 <span><span class="co">#&gt; x4 -0.048 -0.054  0.051  1.000</span></span></code></pre></div>
-<p><strong>Expected behavior:</strong></p>
-<ul>
-<li>
-<strong>Marginal SAGE</strong>: Should show high importance for both
-x1 and x2 due to their correlation, even though x2 has no causal
-effect</li>
-<li>
-<strong>Conditional SAGE</strong>: Should show high importance for
-x1 but near-zero importance for x2 (correctly identifying the spurious
-predictor)</li>
-</ul>
+<p>This DGP allows us to observe how the two SAGE variants handle
+correlated features with different roles in the data generating
+process.</p>
 <p>Let’s set up our learner and measure. We’ll use a random forest and
 instantiate a resampling to ensure both methods see the same data:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -187,8 +196,10 @@ instantiate a resampling to ensure both methods see the same data:</p>
 <h2 id="marginal-sage">Marginal SAGE<a class="anchor" aria-label="anchor" href="#marginal-sage"></a>
 </h2>
 <p>Marginal SAGE marginalizes features independently by averaging
-predictions over a reference dataset. This is the standard SAGE
-implementation described in the original paper.</p>
+predictions over a subset of <code>n_samples</code> obervations drawn
+from the test dataset. We use 15 permutations of the feature vector to
+build coalitions, resulting in 61 evaluated coalitions
+(<code>15 * 4 + 1</code>).</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create Marginal SAGE instance</span></span>
 <span><span class="va">marginal_sage</span> <span class="op">=</span> <span class="va"><a href="../reference/MarginalSAGE.html">MarginalSAGE</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -226,7 +237,8 @@ when:</p>
 &lt; \text{threshold}\]</span></p>
 <p>The default threshold is <code>se_threshold = 0.01</code> (1%),
 meaning convergence occurs when the relative SE is below 1% of the
-importance range for all features.</p>
+importance range for all features, which is equivalent to the approach
+in the Python implementation in the <code>fippy</code> package.</p>
 <p>You can customize convergence detection in
 <code>$compute()</code>:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -280,20 +292,24 @@ are correlated.</p>
 <p>Let’s compare the two SAGE methods side by side:</p>
 <p><img src="sage-methods_files/figure-html/comparison-1.png" class="r-plt" width="768"></p>
 <div class="section level3">
-<h3 id="interpretation">Interpretation<a class="anchor" aria-label="anchor" href="#interpretation"></a>
+<h3 id="methodological-notes">Methodological Notes<a class="anchor" aria-label="anchor" href="#methodological-notes"></a>
 </h3>
-<!-- ((This explanation is wrong and doesn't match what we observe and needs to be corrected (and substantiated))) -->
-<!-- The results demonstrate the difference between marginal and conditional SAGE:
-
-1. **Marginal SAGE** treats each feature independently, so highly correlated features x1 and x2 both receive substantial importance scores reflecting their individual marginal contributions.
-
-2. **Conditional SAGE** accounts for feature dependencies through conditional sampling. When marginalizing x1, it conditions on x2 (and vice versa), leading to lower importance scores for the correlated features since they provide redundant information.
-
-3. **Independent feature x3** shows similar importance in both methods since it doesn't depend on other features.
-
-4. **Noise feature x4** correctly receives near-zero importance in both methods.
-
-This pattern mirrors the difference between PFI and CFI: marginal methods show inflated importance for correlated features, while conditional methods provide a more accurate assessment of each feature's unique contribution. -->
+<p>The key difference between the two methods:</p>
+<ul>
+<li><p><strong>MarginalSAGE</strong>: Marginalizes all out-of-coalition
+features simultaneously by sampling from the marginal distribution, but
+does not account for conditional dependencies between in-coalition and
+out-of-coalition features.</p></li>
+<li><p><strong>ConditionalSAGE</strong>: Uses conditional sampling to
+“marginalize” out-of-coalition features while preserving the conditional
+dependency structure between in-coalition and out-of-coalition
+features.</p></li>
+</ul>
+<p>The interpretation of SAGE values, particularly for ConditionalSAGE,
+can be affected by the specific conditional sampler used and the nature
+of feature dependencies in the data. The choice of sampler can
+significantly affect results, and there is currently limited empirical
+guidance on best practices for different settings.</p>
 </div>
 </div>
 <div class="section level2">
@@ -349,16 +365,6 @@ CFI methods on the same data:</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">45</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="sage-methods_files/figure-html/pfi-cfi-comparison-1.png" class="r-plt" width="768"></p>
-<!-- ((This similarly needs to be corrected))
-
-**Key Observations:**
-
-- **Marginal methods** (PFI, Marginal SAGE) both assign high importance to correlated features x1 and x2
-- **Conditional methods** (CFI, Conditional SAGE) both reduce importance for correlated features, accounting for redundancy
-- **Independent feature x3** receives consistent importance across all methods
-- **Noise feature x4** is correctly identified as unimportant by all methods
-
-This demonstrates that the marginal vs conditional distinction is a fundamental concept that applies across different importance method families. -->
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

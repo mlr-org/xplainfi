@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9006</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,7 +68,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/jemus42/xplainfi/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/mlr-org/xplainfi/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch">
@@ -95,20 +95,20 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of <code>xplainfi</code> like so:</p>
+<p>You can install the development version of <code>xplainfi</code> like using <code>pak</code>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages(pak)</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"jemus42/xplainfi"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"mlr-org/xplainfi"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="example-pfi">Example: PFI<a class="anchor" aria-label="anchor" href="#example-pfi"></a>
 </h2>
-<p>Here is a basic example on how to calculate PFI for a given learner and task, using repeated cross-validation as resampling strategy and computing PFI within each resampling 5 times on the <code>friedman1</code> task (see <code><a href="https://rdrr.io/pkg/mlbench/man/mlbench.friedman1.html" class="external-link">?mlbench::mlbench.friedman1</a></code>).</p>
+<p>Here is a basic example on how to calculate PFI for a given learner and task, using repeated cross-validation as resampling strategy and computing PFI within each resampling 10 times on the <code>friedman1</code> task (see <code><a href="https://rdrr.io/pkg/mlbench/man/mlbench.friedman1.html" class="external-link">?mlbench::mlbench.friedman1</a></code>).</p>
 <p>The <code>friedman1</code> task has the following structure:</p>
 <p><span class="math display">\[y = 10 \sin(\pi x_1 x_2) + 20(x_3 - 0.5)^2 + 10x_4 + 5x_5 + \varepsilon\]</span></p>
 <p>Where <span class="math inline">\(x_{1,2,3,4,5}\)</span> are named <code>important1</code> through <code>important5</code> in the <code>Task</code>, with additional numbered <code>unimportant</code> features without effect on <span class="math inline">\(y\)</span>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jemus42.github.io/xplainfi/">xplainfi</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr-org.github.io/xplainfi/" class="external-link">xplainfi</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3learners.mlr-org.com" class="external-link">mlr3learners</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: mlr3</span></span>
 <span></span>
@@ -121,51 +121,51 @@
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">rsmp</a></span><span class="op">(</span><span class="st">"cv"</span>, folds <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span></span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">10</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Compute and print PFI scores:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfi</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">pfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;          feature   importance</span></span>
-<span><span class="co">#&gt;           &lt;char&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  7.647695981</span></span>
-<span><span class="co">#&gt;  2:   important2  8.221675536</span></span>
-<span><span class="co">#&gt;  3:   important3  1.864822092</span></span>
-<span><span class="co">#&gt;  4:   important4 13.471577093</span></span>
-<span><span class="co">#&gt;  5:   important5  2.368559017</span></span>
-<span><span class="co">#&gt;  6: unimportant1 -0.015980444</span></span>
-<span><span class="co">#&gt;  7: unimportant2  0.007477719</span></span>
-<span><span class="co">#&gt;  8: unimportant3  0.004806562</span></span>
-<span><span class="co">#&gt;  9: unimportant4  0.019497114</span></span>
-<span><span class="co">#&gt; 10: unimportant5  0.001911799</span></span></code></pre></div>
+<span><span class="co">#&gt;          feature  importance</span></span>
+<span><span class="co">#&gt;           &lt;char&gt;       &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:   important1  8.26830487</span></span>
+<span><span class="co">#&gt;  2:   important2  7.56661552</span></span>
+<span><span class="co">#&gt;  3:   important3  1.54377613</span></span>
+<span><span class="co">#&gt;  4:   important4 12.60915426</span></span>
+<span><span class="co">#&gt;  5:   important5  2.71382429</span></span>
+<span><span class="co">#&gt;  6: unimportant1  0.02113506</span></span>
+<span><span class="co">#&gt;  7: unimportant2 -0.01250122</span></span>
+<span><span class="co">#&gt;  8: unimportant3 -0.04414584</span></span>
+<span><span class="co">#&gt;  9: unimportant4 -0.05157362</span></span>
+<span><span class="co">#&gt; 10: unimportant5  0.04819212</span></span></code></pre></div>
 <p>If it aides interpretation, importances can also be calculates as the <em>ratio</em> rather then the <em>difference</em> between the baseline and post-permutation losses:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>relation <span class="op">=</span> <span class="st">"ratio"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;          feature importance</span></span>
 <span><span class="co">#&gt;           &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  2.5799596</span></span>
-<span><span class="co">#&gt;  2:   important2  2.7087461</span></span>
-<span><span class="co">#&gt;  3:   important3  1.3877158</span></span>
-<span><span class="co">#&gt;  4:   important4  3.7800743</span></span>
-<span><span class="co">#&gt;  5:   important5  1.4901341</span></span>
-<span><span class="co">#&gt;  6: unimportant1  0.9963189</span></span>
-<span><span class="co">#&gt;  7: unimportant2  1.0013810</span></span>
-<span><span class="co">#&gt;  8: unimportant3  1.0014155</span></span>
-<span><span class="co">#&gt;  9: unimportant4  1.0037671</span></span>
-<span><span class="co">#&gt; 10: unimportant5  0.9999717</span></span></code></pre></div>
+<span><span class="co">#&gt;  1:   important1  2.7167932</span></span>
+<span><span class="co">#&gt;  2:   important2  2.5798917</span></span>
+<span><span class="co">#&gt;  3:   important3  1.3234729</span></span>
+<span><span class="co">#&gt;  4:   important4  3.6334554</span></span>
+<span><span class="co">#&gt;  5:   important5  1.5680305</span></span>
+<span><span class="co">#&gt;  6: unimportant1  1.0047822</span></span>
+<span><span class="co">#&gt;  7: unimportant2  0.9972307</span></span>
+<span><span class="co">#&gt;  8: unimportant3  0.9907595</span></span>
+<span><span class="co">#&gt;  9: unimportant4  0.9890062</span></span>
+<span><span class="co">#&gt; 10: unimportant5  1.0100964</span></span></code></pre></div>
 <p>When PFI is computed based on resampling with multiple iterations, and / or multiple permutation iterations, the individual scores can be retrieved as a <code>data.table</code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">pfi</span><span class="op">$</span><span class="fu">scores</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Classes 'data.table' and 'data.frame':   150 obs. of  6 variables:</span></span>
+<span><span class="co">#&gt; Classes 'data.table' and 'data.frame':   300 obs. of  6 variables:</span></span>
 <span><span class="co">#&gt;  $ feature          : chr  "important1" "important1" "important1" "important1" ...</span></span>
 <span><span class="co">#&gt;  $ iter_rsmp        : int  1 1 1 1 1 1 1 1 1 1 ...</span></span>
-<span><span class="co">#&gt;  $ iter_repeat      : int  1 2 3 4 5 1 2 3 4 5 ...</span></span>
-<span><span class="co">#&gt;  $ regr.mse_baseline: num  5.3 5.3 5.3 5.3 5.3 ...</span></span>
-<span><span class="co">#&gt;  $ regr.mse_post    : num  13.1 12.7 13.1 14.3 12.8 ...</span></span>
-<span><span class="co">#&gt;  $ importance       : num  7.79 7.44 7.85 9.02 7.52 ...</span></span>
+<span><span class="co">#&gt;  $ iter_repeat      : int  1 2 3 4 5 6 7 8 9 10 ...</span></span>
+<span><span class="co">#&gt;  $ regr.mse_baseline: num  4.56 4.56 4.56 4.56 4.56 ...</span></span>
+<span><span class="co">#&gt;  $ regr.mse_post    : num  11.4 11.5 12.7 12.9 10.7 ...</span></span>
+<span><span class="co">#&gt;  $ importance       : num  6.83 6.96 8.15 8.35 6.09 ...</span></span>
 <span><span class="co">#&gt;  - attr(*, ".internal.selfref")=&lt;externalptr&gt;</span></span></code></pre></div>
 <p>Where <code>iter_rsmp</code> corresponds to the resampling iteration, i.e., 3 for 3-fold cross-validation, and <code>iter_repeat</code> corresponds to the permutation iteration within each resampling iteration, 5 in this case. While <code>pfi$importance()</code> contains the means across all iterations, <code>pfi$scores()</code> allows you to manually visualize or aggregate them in any way you see fit.</p>
 <p>For example:</p>
@@ -204,24 +204,24 @@
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;          feature    importance</span></span>
 <span><span class="co">#&gt;           &lt;char&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  0.2705871350</span></span>
-<span><span class="co">#&gt;  2:   important2  0.3035832691</span></span>
-<span><span class="co">#&gt;  3:   important3  0.0640029372</span></span>
-<span><span class="co">#&gt;  4:   important4  0.4860720486</span></span>
-<span><span class="co">#&gt;  5:   important5  0.0720620500</span></span>
-<span><span class="co">#&gt;  6: unimportant1 -0.0022247186</span></span>
-<span><span class="co">#&gt;  7: unimportant2  0.0022554009</span></span>
-<span><span class="co">#&gt;  8: unimportant3 -0.0028430988</span></span>
-<span><span class="co">#&gt;  9: unimportant4 -0.0008701439</span></span>
-<span><span class="co">#&gt; 10: unimportant5 -0.0015809452</span></span></code></pre></div>
+<span><span class="co">#&gt;  1:   important1  0.3538670264</span></span>
+<span><span class="co">#&gt;  2:   important2  0.3078201501</span></span>
+<span><span class="co">#&gt;  3:   important3  0.0684752046</span></span>
+<span><span class="co">#&gt;  4:   important4  0.5509192405</span></span>
+<span><span class="co">#&gt;  5:   important5  0.1324330936</span></span>
+<span><span class="co">#&gt;  6: unimportant1 -0.0033190271</span></span>
+<span><span class="co">#&gt;  7: unimportant2  0.0002369042</span></span>
+<span><span class="co">#&gt;  8: unimportant3 -0.0020602383</span></span>
+<span><span class="co">#&gt;  9: unimportant4 -0.0016842988</span></span>
+<span><span class="co">#&gt; 10: unimportant5 -0.0007178819</span></span></code></pre></div>
 <p>See <code><a href="articles/xplainfi.html">vignette("xplainfi")</a></code> for more examples.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/jemus42/xplainfi/" class="external-link">Browse source code</a></li>
-<li><a href="https://github.com/jemus42/xplainfi/issues" class="external-link">Report a bug</a></li>
+<li><a href="https://github.com/mlr-org/xplainfi/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/mlr-org/xplainfi/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
 

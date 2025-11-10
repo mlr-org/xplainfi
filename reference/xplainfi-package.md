@@ -1,17 +1,18 @@
-# xplainfi: Feature Importance Methods for Model Interpretability
+# xplainfi: Feature Importance Methods for Global Explanations
 
 Provides a consistent interface for common feature importance methods,
-such as permutation feature importance, 'LOCO', and 'SAGE'.
+such as permutation feature importance ('PFI'), leave-one-covariate-out
+('LOCO'), and 'Shapley Additive Global importancE' ('SAGE').
 
 ## See also
 
 Useful links:
 
-- <https://jemus42.github.io/xplainfi/>
+- <https://mlr-org.github.io/xplainfi/>
 
-- <https://github.com/jemus42/xplainfi>
+- <https://github.com/mlr-org/xplainfi>
 
-- Report bugs at <https://github.com/jemus42/xplainfi/issues>
+- Report bugs at <https://github.com/mlr-org/xplainfi/issues>
 
 ## Author
 

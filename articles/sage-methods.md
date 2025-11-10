@@ -10,22 +10,40 @@ library(ggplot2)
 ## Introduction
 
 Shapley Additive Global Importance (SAGE) is a feature importance method
-based on cooperative game theory that uses Shapley values to fairly
-distribute the total prediction performance among all features. Unlike
-permutation-based methods that measure the drop in performance when
-features are perturbed, SAGE measures how much each feature contributes
-to the model’s overall performance by marginalizing (removing) features.
+based on cooperative game theory. It uses Shapley values to distribute
+the model’s total prediction performance among features. Unlike
+perturbation-based methods (PFI/CFI) that measure performance
+degradation when features are perturbed, SAGE measures each feature’s
+contribution through marginalization.
 
-The key insight of SAGE is that it provides a complete decomposition of
-the model’s performance: the sum of all SAGE values equals the
-difference between the model’s performance and the performance when all
-features are marginalized.
+A key property of SAGE is that it provides a complete decomposition: the
+sum of all SAGE values equals the difference between the model’s
+performance and the performance when all features are marginalized.
 
-**xplainfi** provides two implementations of SAGE:
+**xplainfi** provides two implementations:
 
-- **MarginalSAGE**: Marginalizes features independently (standard SAGE)
-- **ConditionalSAGE**: Marginalizes features conditionally using ARF
-  sampling
+- **MarginalSAGE**: Marginalizes features independently (standard SAGE
+  implementation)
+- **ConditionalSAGE**: Marginalizes features using conditional sampling
+
+**Note on interpretation**: SAGE’s theoretical properties and
+interpretation differ from perturbation-based methods. While PFI/CFI
+have clearer interpretations in terms of predictive performance, SAGE’s
+results can be more challenging to interpret, particularly when using
+conditional sampling. The choice of conditional sampler can
+significantly affect results, and there is limited empirical guidance on
+best practices. This vignette focuses on demonstrating the methods
+rather than making strong interpretive claims.
+
+**The SAGE estimator** implemented here is what is referred to as the
+“permutation estimator” in other implementations. It works by first
+building up `n_permutations` permutations of the feature vector and then
+successively evaluating prefixes of the sequence from left to right as
+coalitions to evaluated. If a task has features `(x1, x2, x3)`, one
+permutation could be `(x2, x1, x3)`, resulting in these coalitions to be
+evaluated: `(x2)`, `(x2, x1)`, and `(x2, x1, x3)`. The empty coalition
+will always be evaluated, resulting in a total number of evaluations of
+`n_permutations * n_features + 1`.
 
 ## Demonstration with Correlated Features
 
@@ -44,12 +62,11 @@ correlation \\r\\ (default 0.5) on the off-diagonal.
 
 where \\\varepsilon \sim N(0, 0.2^2)\\.
 
-**Key properties:**
+**Data generating process:**
 
-- `x1` has a direct causal effect on y (β=2.0)
-- `x2` is correlated with x1 (r = 0.5 from MVN) but has **no causal
-  effect** on y
-- `x3` is independent with a causal effect (β=1.0)
+- `x1` has a direct effect on y (β=2.0)
+- `x2` is correlated with x1 (r = 0.5) but has no direct effect on y
+- `x3` is independent with a direct effect (β=1.0)
 - `x4` is independent noise (β=0)
 
 ``` r
@@ -67,12 +84,8 @@ round(correlation_matrix, 3)
 #> x4 -0.048 -0.054  0.051  1.000
 ```
 
-**Expected behavior:**
-
-- **Marginal SAGE**: Should show high importance for both x1 and x2 due
-  to their correlation, even though x2 has no causal effect
-- **Conditional SAGE**: Should show high importance for x1 but near-zero
-  importance for x2 (correctly identifying the spurious predictor)
+This DGP allows us to observe how the two SAGE variants handle
+correlated features with different roles in the data generating process.
 
 Let’s set up our learner and measure. We’ll use a random forest and
 instantiate a resampling to ensure both methods see the same data:
@@ -87,8 +100,9 @@ resampling$instantiate(task)
 ## Marginal SAGE
 
 Marginal SAGE marginalizes features independently by averaging
-predictions over a reference dataset. This is the standard SAGE
-implementation described in the original paper.
+predictions over a subset of `n_samples` obervations drawn from the test
+dataset. We use 15 permutations of the feature vector to build
+coalitions, resulting in 61 evaluated coalitions (`15 * 4 + 1`).
 
 ``` r
 # Create Marginal SAGE instance
@@ -135,7 +149,8 @@ different loss metrics. Convergence is detected when:
 
 The default threshold is `se_threshold = 0.01` (1%), meaning convergence
 occurs when the relative SE is below 1% of the importance range for all
-features.
+features, which is equivalent to the approach in the Python
+implementation in the `fippy` package.
 
 You can customize convergence detection in `$compute()`:
 
@@ -200,7 +215,24 @@ Let’s compare the two SAGE methods side by side:
 
 ![](sage-methods_files/figure-html/comparison-1.png)
 
-### Interpretation
+### Methodological Notes
+
+The key difference between the two methods:
+
+- **MarginalSAGE**: Marginalizes all out-of-coalition features
+  simultaneously by sampling from the marginal distribution, but does
+  not account for conditional dependencies between in-coalition and
+  out-of-coalition features.
+
+- **ConditionalSAGE**: Uses conditional sampling to “marginalize”
+  out-of-coalition features while preserving the conditional dependency
+  structure between in-coalition and out-of-coalition features.
+
+The interpretation of SAGE values, particularly for ConditionalSAGE, can
+be affected by the specific conditional sampler used and the nature of
+feature dependencies in the data. The choice of sampler can
+significantly affect results, and there is currently limited empirical
+guidance on best practices for different settings.
 
 ## Comparison with PFI and CFI
 
