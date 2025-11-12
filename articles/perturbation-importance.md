@@ -220,7 +220,7 @@ data_conf <- task_conf$data()
 **Causal Structure:**
 
 The **red arrows** show the confounding paths: the hidden confounder
-creates spurious correlations between x1, x2, proxy, and y. The **blue
+creates spurious correlations between x1, proxy, and y. The **blue
 arrows** show true direct causal effects. Note that `independent` is
 truly independent (no confounding) while `proxy` provides a noisy
 measurement of the confounder.
@@ -232,9 +232,9 @@ conditioning rather than relying on the noisy proxy.
 ![](perturbation-importance_files/figure-html/viz-confounding-1.png)
 
 **Key insight**: The hidden confounder creates spurious correlations
-between x1, x2, and y (red paths), making them appear more important
-than they truly are. RFI conditioning on the proxy (which measures the
-confounder) should help isolate the true direct effects (blue paths).
+between x1 and y (red paths), making x1 appear more important than its
+true direct effect. RFI conditioning on the proxy (which measures the
+confounder) should help isolate the true direct effect (blue path).
 
 ### Analysis
 
@@ -257,10 +257,9 @@ pfi_conf$importance()
 #> Key: <feature>
 #>        feature importance
 #>         <char>      <num>
-#> 1: independent  1.7588105
-#> 2:       proxy  0.3360139
-#> 3:          x1  1.6505836
-#> 4:          x2  1.6029499
+#> 1: independent   1.571777
+#> 2:       proxy   1.289117
+#> 3:          x1   3.586063
 ```
 
 #### RFI Conditioning on Proxy
@@ -291,10 +290,9 @@ rfi_conf$importance()
 #> Key: <feature>
 #>        feature importance
 #>         <char>      <num>
-#> 1: independent  1.7574221
-#> 2:       proxy  0.0000000
-#> 3:          x1  0.6433989
-#> 4:          x2  0.5369630
+#> 1: independent   1.622194
+#> 2:       proxy   0.000000
+#> 3:          x1   1.749965
 ```
 
 #### Also trying CFI for comparison
@@ -317,10 +315,9 @@ cfi_conf$importance()
 #> Key: <feature>
 #>        feature importance
 #>         <char>      <num>
-#> 1: independent 1.72496053
-#> 2:       proxy 0.09094521
-#> 3:          x1 0.43930950
-#> 4:          x2 0.44986449
+#> 1: independent  1.5586791
+#> 2:       proxy  0.2084425
+#> 3:          x1  1.6674019
 ```
 
 #### Observable Confounder Scenario
@@ -357,10 +354,9 @@ rfi_conf_obs$importance()
 #>        feature   importance
 #>         <char>        <num>
 #> 1:  confounder  0.000000000
-#> 2: independent  1.505882357
-#> 3:       proxy -0.002632966
-#> 4:          x1  0.145499529
-#> 5:          x2  0.129506185
+#> 2: independent  1.539426725
+#> 3:       proxy -0.002651167
+#> 4:          x1  0.549141497
 
 # Compare with PFI on the same data
 pfi_conf_obs <- PFI$new(
@@ -375,23 +371,21 @@ pfi_conf_obs$importance()
 #> Key: <feature>
 #>        feature importance
 #>         <char>      <num>
-#> 1:  confounder  1.8933373
-#> 2: independent  1.5326938
-#> 3:       proxy  0.0440442
-#> 4:          x1  0.5432167
-#> 5:          x2  0.4801977
+#> 1:  confounder 1.62325668
+#> 2: independent 1.62540310
+#> 3:       proxy 0.05759922
+#> 4:          x1 2.18558022
 ```
 
 **Key Results:**
 
-- **x1 importance**: PFI = 0.543, RFI\|confounder = 0.145
-- **x2 importance**: PFI = 0.480, RFI\|confounder = 0.130  
-- **independent importance**: PFI = 1.533, RFI\|confounder = 1.506
+- **x1 importance**: PFI = 2.186, RFI\|confounder = 0.549
+- **independent importance**: PFI = 1.625, RFI\|confounder = 1.539
 
 **Insight**: When conditioning on the true confounder, RFI should show
-reduced importance for x1 and x2 (since much of their apparent
-importance was due to confounding) while independent maintains its
-importance (since it’s truly causally related to y).
+reduced importance for x1 (since much of its apparent importance was due
+to confounding) while independent maintains its importance (since it’s
+truly causally related to y).
 
 #### Comparing Methods on Confounding
 
@@ -418,18 +412,17 @@ conf_summary |>
 
 | feature     | pfi_importance | cfi_importance | rfi_proxy_importance | pfi_rfi_diff |
 |:------------|---------------:|---------------:|---------------------:|-------------:|
-| independent |          1.759 |          1.725 |                1.757 |        0.001 |
-| proxy       |          0.336 |          0.091 |                0.000 |        0.336 |
-| x1          |          1.651 |          0.439 |                0.643 |        1.007 |
-| x2          |          1.603 |          0.450 |                0.537 |        1.066 |
+| independent |          1.572 |          1.559 |                1.622 |       -0.050 |
+| proxy       |          1.289 |          0.208 |                0.000 |        1.289 |
+| x1          |          3.586 |          1.667 |                1.750 |        1.836 |
 
 Effect of Conditioning on Proxy in Confounded Scenario
 
 In the confounding scenario, we observed:
 
 1.  **PFI shows confounded effects**: Without accounting for
-    confounders, PFI overestimates the importance of x1 and x2 due to
-    their spurious correlation with y through the hidden confounder.
+    confounders, PFI overestimates the importance of x1 due to its
+    spurious correlation with y through the hidden confounder.
 
 2.  **RFI conditioning on proxy reduces bias**: By conditioning on the
     proxy (noisy measurement of the confounder), RFI can partially
@@ -438,8 +431,8 @@ In the confounding scenario, we observed:
 
 3.  **RFI conditioning on true confounder removes bias**: When the
     confounder is observable and we can condition directly on it, RFI
-    dramatically reduces the apparent importance of x1 and x2, revealing
-    their true direct effects.
+    dramatically reduces the apparent importance of x1, revealing its
+    true direct effect.
 
 4.  **CFI partially accounts for confounding**: Through its conditional
     sampling, CFI captures some of the confounding structure but cannot
@@ -482,10 +475,10 @@ pfi_cor$importance()
 #> Key: <feature>
 #>    feature   importance
 #>     <char>        <num>
-#> 1:      x1 4.918236e+00
-#> 2:      x2 4.724544e-01
-#> 3:      x3 1.562375e+00
-#> 4:      x4 6.134446e-05
+#> 1:      x1  5.156513945
+#> 2:      x2  0.521717907
+#> 3:      x3  1.683942121
+#> 4:      x4 -0.001536471
 ```
 
 Expected: PFI will show high importance for BOTH x1 and x2, even though
@@ -513,10 +506,10 @@ cfi_cor$importance()
 #> Key: <feature>
 #>    feature   importance
 #>     <char>        <num>
-#> 1:      x1  1.991509588
-#> 2:      x2  0.059714810
-#> 3:      x3  1.530595970
-#> 4:      x4 -0.001862186
+#> 1:      x1  2.040455912
+#> 2:      x2  0.101151870
+#> 3:      x3  1.638895975
+#> 4:      x4 -0.001503762
 ```
 
 Expected: CFI should show high importance for x1 (the true causal
@@ -552,8 +545,8 @@ rfi_cor_x2 <- RFI$new(
 rfi_cor_x2$compute()
 ```
 
-**RFI Results:** - **x2 given x1**: 0.069 (How much does x2 add when we
-already know x1?) - **x1 given x2**: 2.101 (How much does x1 add when we
+**RFI Results:** - **x2 given x1**: 0.083 (How much does x2 add when we
+already know x1?) - **x1 given x2**: 1.962 (How much does x1 add when we
 already know x2?)
 
 Expected: When conditioning on x1, the importance of x2 should be near
@@ -576,8 +569,8 @@ cor_ratio |>
 
 | feature |   CFI |   PFI | cfi_pfi_ratio |
 |:--------|------:|------:|--------------:|
-| x1      | 1.992 | 4.918 |         0.405 |
-| x2      | 0.060 | 0.472 |         0.126 |
+| x1      | 2.040 | 5.157 |         0.396 |
+| x2      | 0.101 | 0.522 |         0.194 |
 
 CFI vs PFI for Highly Correlated Features
 
@@ -697,11 +690,11 @@ comp_ind_wide[, .(
 
 | Feature      | Mean Importance | Coef. of Variation | Agreement Level |
 |:-------------|----------------:|-------------------:|:----------------|
-| important1   |           7.562 |              0.255 | Low             |
-| important2   |           1.509 |              0.016 | High            |
-| important3   |           0.295 |              0.136 | Moderate        |
-| unimportant1 |           0.003 |              2.398 | Low             |
-| unimportant2 |          -0.002 |             -1.464 | High            |
+| important1   |           6.362 |              0.055 | High            |
+| important2   |           1.759 |              0.288 | Low             |
+| important3   |           0.292 |              0.073 | High            |
+| unimportant1 |          -0.003 |             -1.190 | High            |
+| unimportant2 |          -0.003 |             -0.301 | High            |
 
 Method Agreement on Independent Features
 
@@ -757,16 +750,16 @@ imp_raw[grepl("^important", feature), .(feature, importance, conf_lower, conf_up
 #> Key: <feature>
 #>       feature importance conf_lower conf_upper
 #>        <char>      <num>      <num>      <num>
-#> 1: important1  7.2270451  6.4864376  7.9676525
-#> 2: important2  1.8302705  1.6503263  2.0102147
-#> 3: important3  0.2434416  0.2029428  0.2839405
+#> 1: important1  7.5285208  6.7936479  8.2633937
+#> 2: important2  1.4363782  1.3240233  1.5487331
+#> 3: important3  0.1954965  0.1533125  0.2376805
 imp_corrected[grepl("^important", feature), .(feature, importance, conf_lower, conf_upper)]
 #> Key: <feature>
 #>       feature importance conf_lower conf_upper
 #>        <char>      <num>      <num>      <num>
-#> 1: important1  7.2270451  5.8414954  8.6125948
-#> 2: important2  1.8302705  1.4936257  2.1669153
-#> 3: important3  0.2434416  0.1676752  0.3192081
+#> 1: important1  7.5285208  6.1536995  8.9033422
+#> 2: important2  1.4363782  1.2261814  1.6465750
+#> 3: important3  0.1954965  0.1165775  0.2744156
 ```
 
 ![](perturbation-importance_files/figure-html/variance-comparison-plot-1.png)

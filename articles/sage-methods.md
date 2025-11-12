@@ -279,7 +279,7 @@ ggplot(method_comparison, aes(x = feature, y = importance, fill = method)) +
     ) +
     labs(
         title = "Comparison: PFI/CFI vs Marginal/Conditional SAGE",
-        subtitle = "Both pairs show similar patterns: marginal methods inflate correlated feature importance",
+        subtitle = "Comparing perturbation-based and Shapley-based importance methods",
         x = "Features",
         y = "Importance Value",
         fill = "Method"
@@ -289,3 +289,15 @@ ggplot(method_comparison, aes(x = feature, y = importance, fill = method)) +
 ```
 
 ![](sage-methods_files/figure-html/pfi-cfi-comparison-1.png)
+
+**Note on comparison**: While both PFI/CFI and
+MarginalSAGE/ConditionalSAGE distinguish between marginal and
+conditional approaches, these method families measure fundamentally
+different quantities. PFI and CFI measure the drop in predictive
+performance when features are perturbed, making their interpretation in
+terms of prediction loss relatively straightforward. SAGE methods
+measure each feature’s contribution to overall performance through
+Shapley value decomposition, which involves a different theoretical
+framework. The results shown here demonstrate the methods on the same
+data, but direct comparisons of the numerical values should be made with
+these methodological differences in mind.

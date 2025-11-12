@@ -113,38 +113,37 @@ where \\\varepsilon_m \sim N(0, 0.3^2)\\ and \\\varepsilon \sim N(0,
 
 - **RFI with mediator**: Should show direct effects similar to CFI
 
-**Confounding DGP:** This DGP includes a confounder that affects both
-features and the outcome. Uses simple coefficients for easy
+**Confounding DGP:** This DGP includes a confounder that affects both a
+feature and the outcome. Uses simple coefficients for easy
 interpretation.
 
 **Mathematical Model:** \$\$H \sim N(0,1)\$\$ \$\$X_1 = H +
-\varepsilon_1, \quad X_2 = H + \varepsilon_2\$\$ \$\$\text{proxy} = H +
-\varepsilon_p, \quad \text{independent} \sim N(0,1)\$\$ \$\$Y = H + 0.5
-\cdot X_1 + 0.5 \cdot X_2 + \text{independent} + \varepsilon\$\$ where
-all \\\varepsilon \sim N(0, 0.5^2)\\ independently.
+\varepsilon_1\$\$ \$\$\text{proxy} = H + \varepsilon_p, \quad
+\text{independent} \sim N(0,1)\$\$ \$\$Y = H + X_1 +
+\text{independent} + \varepsilon\$\$ where all \\\varepsilon \sim N(0,
+0.5^2)\\ independently.
 
 **Model Structure:**
 
-- Confounder H ~ N(0,1) (dashed red node = potentially unobserved)
+- Confounder H ~ N(0,1) (potentially unobserved)
 
-- x1 = H + noise, x2 = H + noise (both affected by confounder)
+- x1 = H + noise (affected by confounder)
 
 - proxy = H + noise (noisy measurement of confounder)
 
 - independent ~ N(0,1) (truly independent)
 
-- y = H + 0.5*x1 + 0.5*x2 + independent + noise
+- y = H + x1 + independent + noise
 
 **Expected Behavior:**
 
-- **PFI**: Will show inflated importance for x1 and x2 due to
-  confounding
+- **PFI**: Will show inflated importance for x1 due to confounding
 
 - **CFI**: Should partially account for confounding through conditional
   sampling
 
-- **RFI conditioning on confounder/proxy**: Should reduce confounding
-  bias
+- **RFI conditioning on proxy**: Should reduce confounding bias by
+  conditioning on proxy
 
 **Interaction Effects DGP:** This DGP demonstrates a pure interaction
 effect where features have no main effects.
@@ -259,40 +258,40 @@ task$data()
 # Hidden confounder scenario (traditional)
 task_hidden = sim_dgp_confounded(200, hidden = TRUE)
 task_hidden$feature_names  # proxy available but not confounder
-#> [1] "independent" "proxy"       "x1"          "x2"         
+#> [1] "independent" "proxy"       "x1"         
 
 # Observable confounder scenario
 task_observed = sim_dgp_confounded(200, hidden = FALSE)
 task_observed$feature_names  # both confounder and proxy available
-#> [1] "confounder"  "independent" "proxy"       "x1"          "x2"         
+#> [1] "confounder"  "independent" "proxy"       "x1"         
 task = sim_dgp_interactions(200)
 task$data()
-#>               y      noise1     noise2          x1          x2          x3
-#>           <num>       <num>      <num>       <num>       <num>       <num>
-#>   1:  0.3702838  1.09726700 -0.1482168 -0.48773366 -0.65909883  0.21143414
-#>   2: -0.6603968 -0.92805678 -1.0490663  0.43572042 -1.06133274  0.46526820
-#>   3: -2.0215177 -0.86411314  1.4225055 -0.77746083  1.05451614 -0.85174449
-#>   4:  2.2882911  0.70519657 -0.4122975  0.88867049  1.01159373  0.05395737
-#>   5: -2.8142512 -1.18876700 -0.1941624 -0.89042561  0.19451762 -1.75853410
+#>               y      noise1      noise2         x1          x2          x3
+#>           <num>       <num>       <num>      <num>       <num>       <num>
+#>   1:  0.1052359 -0.65909883  0.21143414  1.0731843  0.02065633 -0.48773366
+#>   2: -0.3101191 -1.06133274  0.46526820  1.2174555 -0.11573776  0.43572042
+#>   3: -1.9750370  1.05451614 -0.85174449 -0.3272769  1.16952895 -0.77746083
+#>   4:  1.9205948  1.01159373  0.05395737 -1.8729982 -0.18134721  0.88867049
+#>   5: -0.9264540  0.19451762 -1.75853410  0.6436678  0.43372926 -0.89042561
 #>  ---                                                                      
-#> 196: -0.8848654 -1.12768301 -0.6445021  0.04127531 -0.08919244 -0.75033289
-#> 197: -0.4227505 -0.27429857  1.8564388 -0.48437807  1.27261174  0.60500856
-#> 198:  1.1226935  0.36435379 -1.1628908 -0.08846544 -0.41302836  1.58817180
-#> 199:  2.2185754 -1.10889783  1.1644645 -0.85098146 -1.20418123 -0.28535013
-#> 200:  2.1503364 -0.02198702 -1.5712366 -1.07168946 -1.08940994 -0.08000474
+#> 196: -0.5861379 -0.08919244 -0.75033289 -0.5104026  0.06227604  0.04127531
+#> 197: -1.1227129  1.27261174  0.60500856 -0.9114021  0.27495308 -0.48437807
+#> 198: -0.2070160 -0.41302836  1.58817180 -0.4819472  0.31199214 -0.08846544
+#> 199: -2.0405295 -1.20418123 -0.28535013  0.9466497 -0.33544568 -0.85098146
+#> 200: -1.3674926 -1.08940994 -0.08000474 -0.2999553  0.47475332 -1.07168946
 task = sim_dgp_independent(200)
 task$data()
-#>               y  important1 important2 important3 unimportant1 unimportant2
-#>           <num>       <num>      <num>      <num>        <num>        <num>
-#>   1:  1.0296136  0.41001493  0.5564233 -0.7875845  -0.01423991   -0.6016868
-#>   2: -2.1068332 -1.37946409  0.3293214  0.8204012  -0.03011941    0.1861375
-#>   3: -0.4260024 -0.23626963  0.7050078 -1.9056293   0.58426366   -0.9728800
-#>   4:  3.3660421  2.50302744 -1.4828280 -0.4903590  -0.57076054    0.4182434
-#>   5: -1.1713961 -1.07771653  0.4035265  0.8896244  -0.74320322   -0.9850990
-#>  ---                                                                       
-#> 196: -0.9292161  0.06484215 -0.5464436 -0.2989333  -0.16788292   -0.1329817
-#> 197: -0.3583036 -1.15787063  1.5452606  0.7546928  -0.51552403    1.1236513
-#> 198:  1.6371828  0.30775885  0.7747423  0.3765775  -0.58464043   -0.5688275
-#> 199:  0.5824053  0.22025260  0.4048971 -0.6765147  -0.75253159    0.9035895
-#> 200:  4.9929395  1.68417425  1.0620308  0.6310499  -1.07261305   -0.5641664
+#>              y important1 important2  important3 unimportant1 unimportant2
+#>          <num>      <num>      <num>       <num>        <num>        <num>
+#>   1: -1.062434 -0.1482168 -0.9681594  0.41001493    0.5564233   -0.7875845
+#>   2: -3.195441 -1.0490663 -0.4015526 -1.37946409    0.3293214    0.8204012
+#>   3:  3.783562  1.4225055  0.9398335 -0.23626963    0.7050078   -1.9056293
+#>   4:  1.185540 -0.4122975  0.8727734  2.50302744   -1.4828280   -0.4903590
+#>   5: -2.494444 -0.1941624 -1.4186204 -1.07771653    0.4035265    0.8896244
+#>  ---                                                                      
+#> 196: -1.544499 -0.6445021 -0.2543392  0.06484215   -0.5464436   -0.2989333
+#> 197:  3.441020  1.8564388  0.4101827 -1.15787063    1.5452606    0.7546928
+#> 198: -3.365942 -1.1628908 -1.0771115  0.30775885    0.7747423    0.3765775
+#> 199:  3.197456  1.1644645  0.9089074  0.22025260    0.4048971   -0.6765147
+#> 200: -2.724263 -1.5712366 -0.2093543  1.68417425    1.0620308    0.6310499
 ```

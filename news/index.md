@@ -1,5 +1,10 @@
 # Changelog
 
+## xplainfi 0.2.1
+
+- Simplify `sim_dgp_confounded`, removing `x2` which doesn’t add
+  anything interesting over `x1`.
+
 ## xplainfi 0.2.0
 
 ### User-facing API improvements

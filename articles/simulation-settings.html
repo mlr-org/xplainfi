@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +90,7 @@
       <h1>Simulation Settings for Feature Importance Methods</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/mlr-org/xplainfi/blob/v0.2.0/vignettes/simulation-settings.Rmd" class="external-link"><code>vignettes/simulation-settings.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/mlr-org/xplainfi/blob/main/vignettes/simulation-settings.Rmd" class="external-link"><code>vignettes/simulation-settings.Rmd</code></a></small>
       <div class="d-none name"><code>simulation-settings.Rmd</code></div>
     </div>
 
@@ -292,16 +292,15 @@ similar to CFI</li>
 <div class="section level2">
 <h2 id="confounding-dgp">3. Confounding DGP<a class="anchor" aria-label="anchor" href="#confounding-dgp"></a>
 </h2>
-<p>This DGP includes a confounder that affects both features and the
+<p>This DGP includes a confounder that affects both a feature and the
 outcome.</p>
 <div class="section level3">
 <h3 id="mathematical-model-2">Mathematical Model<a class="anchor" aria-label="anchor" href="#mathematical-model-2"></a>
 </h3>
 <p><span class="math display">\[H \sim N(0,1) \quad
 \text{(confounder)}\]</span> <span class="math display">\[X_1 = H +
-\varepsilon_1, \quad X_2 = H + \varepsilon_2\]</span> <span class="math display">\[\text{proxy} = H + \varepsilon_p, \quad
-\text{independent} \sim N(0,1)\]</span> <span class="math display">\[Y =
-H + 0.5 \cdot X_1 + 0.5 \cdot X_2 + \text{independent} +
+\varepsilon_1\]</span> <span class="math display">\[\text{proxy} = H +
+\varepsilon_p, \quad \text{independent} \sim N(0,1)\]</span> <span class="math display">\[Y = H + X_1 + \text{independent} +
 \varepsilon\]</span></p>
 <p>where all <span class="math inline">\(\varepsilon \sim N(0,
 0.5^2)\)</span> independently.</p>
@@ -311,7 +310,7 @@ H + 0.5 \cdot X_1 + 0.5 \cdot X_2 + \text{independent} +
 </h3>
 <div class="figure">
 <div class="grViz html-widget html-fill-item" id="htmlwidget-36aa3d2a04d42bbc2145" style="width:960px;height:480px;"></div>
-<script type="application/json" data-for="htmlwidget-36aa3d2a04d42bbc2145">{"x":{"diagram":"\n  digraph Confounded {\n    rankdir=LR;\n    graph [ranksep=1.2, nodesep=0.8];\n    node [shape=circle, style=filled, fontsize=14, width=1.2];\n    \n    H [fillcolor=\"red\", label=\"H\n(Confounder)\", style=\"filled,dashed\"];\n    X1 [fillcolor=\"lightcoral\", label=\"X₁\n(β=0.5)\"];\n    X2 [fillcolor=\"lightcoral\", label=\"X₂\n(β=0.5)\"];\n    P [fillcolor=\"pink\", label=\"Proxy\n(β=0)\"];\n    I [fillcolor=\"lightblue\", label=\"Independent\n(β=1.0)\"];\n    Y [fillcolor=\"greenyellow\", label=\"Y\", width=1.5];\n    \n    H -> X1 [color=red, label=\"1.0\"];\n    H -> X2 [color=red, label=\"1.0\"];\n    H -> P [color=red, style=dashed, label=\"1.0\"];\n    H -> Y [color=red, label=\"1.0\", penwidth=2];\n    X1 -> Y [label=\"0.5\"];\n    X2 -> Y [label=\"0.5\"];\n    I -> Y [label=\"1.0\"];\n    \n    {rank=source; H}\n    {rank=same; X1; X2; P; I}\n    {rank=sink; Y}\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p class="caption">
+<script type="application/json" data-for="htmlwidget-36aa3d2a04d42bbc2145">{"x":{"diagram":"\n  digraph Confounded {\n    rankdir=LR;\n    graph [ranksep=1.2, nodesep=0.8];\n    node [shape=circle, style=filled, fontsize=14, width=1.2];\n\n    H [fillcolor=\"red\", label=\"H\n(Confounder)\", style=\"filled,dashed\"];\n    X1 [fillcolor=\"lightcoral\", label=\"X₁\n(β=1.0)\"];\n    P [fillcolor=\"pink\", label=\"Proxy\n(β=0)\"];\n    I [fillcolor=\"lightblue\", label=\"Independent\n(β=1.0)\"];\n    Y [fillcolor=\"greenyellow\", label=\"Y\", width=1.5];\n\n    H -> X1 [color=red, label=\"1.0\"];\n    H -> P [color=red, style=dashed, label=\"1.0\"];\n    H -> Y [color=red, label=\"1.0\", penwidth=2];\n    X1 -> Y [label=\"1.0\"];\n    I -> Y [label=\"1.0\"];\n\n    {rank=source; H}\n    {rank=same; X1; P; I}\n    {rank=sink; Y}\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p class="caption">
 DAG for confounding DGP
 </p>
 </div>
@@ -324,26 +323,28 @@ DAG for confounding DGP
 <span><span class="co"># Hidden confounder scenario (default)</span></span>
 <span><span class="va">task_hidden</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_dgp_scenarios.html">sim_dgp_confounded</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">500</span>, hidden <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">task_hidden</span><span class="op">$</span><span class="va">feature_names</span> <span class="co"># proxy available but not confounder</span></span>
-<span><span class="co">#&gt; [1] "independent" "proxy"       "x1"          "x2"</span></span>
+<span><span class="co">#&gt; [1] "independent" "proxy"       "x1"</span></span>
 <span></span>
 <span><span class="co"># Observable confounder scenario</span></span>
 <span><span class="va">task_observed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_dgp_scenarios.html">sim_dgp_confounded</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">500</span>, hidden <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">task_observed</span><span class="op">$</span><span class="va">feature_names</span> <span class="co"># both confounder and proxy available</span></span>
-<span><span class="co">#&gt; [1] "confounder"  "independent" "proxy"       "x1"          "x2"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "confounder"  "independent" "proxy"       "x1"</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="expected-behavior-2">Expected Behavior<a class="anchor" aria-label="anchor" href="#expected-behavior-2"></a>
 </h3>
 <ul>
 <li>
-<strong>PFI</strong>: Will show inflated importance for x1 and x2
-due to confounding</li>
+<strong>PFI</strong>: Will show inflated importance for x1 due to
+confounding (the confounder H contributes to x1’s predictive power
+beyond its direct effect)</li>
 <li>
 <strong>CFI</strong>: Should partially account for confounding
 through conditional sampling</li>
 <li>
 <strong>RFI conditioning on proxy</strong>: Should reduce
-confounding bias</li>
+confounding bias by conditioning on the noisy measurement of the
+confounder</li>
 </ul>
 </div>
 </div>

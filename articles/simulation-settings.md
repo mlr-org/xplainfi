@@ -122,15 +122,14 @@ task <- sim_dgp_mediated(n = 500)
 
 ## 3. Confounding DGP
 
-This DGP includes a confounder that affects both features and the
+This DGP includes a confounder that affects both a feature and the
 outcome.
 
 ### Mathematical Model
 
-\\H \sim N(0,1) \quad \text{(confounder)}\\ \\X_1 = H + \varepsilon_1,
-\quad X_2 = H + \varepsilon_2\\ \\\text{proxy} = H + \varepsilon_p,
-\quad \text{independent} \sim N(0,1)\\ \\Y = H + 0.5 \cdot X_1 + 0.5
-\cdot X_2 + \text{independent} + \varepsilon\\
+\\H \sim N(0,1) \quad \text{(confounder)}\\ \\X_1 = H + \varepsilon_1\\
+\\\text{proxy} = H + \varepsilon_p, \quad \text{independent} \sim
+N(0,1)\\ \\Y = H + X_1 + \text{independent} + \varepsilon\\
 
 where all \\\varepsilon \sim N(0, 0.5^2)\\ independently.
 
@@ -145,21 +144,23 @@ set.seed(123)
 # Hidden confounder scenario (default)
 task_hidden <- sim_dgp_confounded(n = 500, hidden = TRUE)
 task_hidden$feature_names # proxy available but not confounder
-#> [1] "independent" "proxy"       "x1"          "x2"
+#> [1] "independent" "proxy"       "x1"
 
 # Observable confounder scenario
 task_observed <- sim_dgp_confounded(n = 500, hidden = FALSE)
 task_observed$feature_names # both confounder and proxy available
-#> [1] "confounder"  "independent" "proxy"       "x1"          "x2"
+#> [1] "confounder"  "independent" "proxy"       "x1"
 ```
 
 ### Expected Behavior
 
-- **PFI**: Will show inflated importance for x1 and x2 due to
-  confounding
+- **PFI**: Will show inflated importance for x1 due to confounding (the
+  confounder H contributes to x1’s predictive power beyond its direct
+  effect)
 - **CFI**: Should partially account for confounding through conditional
   sampling
-- **RFI conditioning on proxy**: Should reduce confounding bias
+- **RFI conditioning on proxy**: Should reduce confounding bias by
+  conditioning on the noisy measurement of the confounder
 
 ## 4. Interaction Effects DGP
 
