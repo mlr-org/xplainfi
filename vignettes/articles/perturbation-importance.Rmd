@@ -282,45 +282,42 @@ grViz(
 digraph confounding_dag {
   rankdir=TB;
   node [shape=circle, style=filled, fontname='Arial', fontsize=12];
-  
+
   # Hidden confounder
   H [fillcolor='red', label='Hidden\\nConfounder', fontcolor='white'];
-  
+
   # Observed features
   x1 [fillcolor='lightblue', label='x1'];
-  x2 [fillcolor='lightblue', label='x2'];
   proxy [fillcolor='orange', label='proxy'];
   independent [fillcolor='lightblue', label='independent'];
-  
+
   # Outcome
   y [fillcolor='greenyellow', label='y'];
-  
+
   # Confounding paths (creating spurious correlations)
   H -> x1 [label='1.0', color='red'];
-  H -> x2 [label='1.0', color='red'];
   H -> proxy [label='1.0', color='red'];
   H -> y [label='1.0', color='red', penwidth=2];
-  
+
   # Direct causal effects
-  x1 -> y [label='0.5', color='blue'];
-  x2 -> y [label='0.5', color='blue'];
+  x1 -> y [label='1.0', color='blue'];
   independent -> y [label='1.0', color='blue'];
-  
+
   # Layout
-  {rank=same; x1, x2, proxy, independent}
+  {rank=same; x1, proxy, independent}
 }
 "
 )
 ```
 
-The **red arrows** show the confounding paths: the hidden confounder creates spurious correlations between x1, x2, proxy, and y. The **blue arrows** show true direct causal effects. Note that `independent` is truly independent (no confounding) while `proxy` provides a noisy measurement of the confounder.
+The **red arrows** show the confounding paths: the hidden confounder creates spurious correlations between x1, proxy, and y. The **blue arrows** show true direct causal effects. Note that `independent` is truly independent (no confounding) while `proxy` provides a noisy measurement of the confounder.
 
 In the **observable confounder scenario** (used later), the confounder H would be included as a feature in the dataset, allowing direct conditioning rather than relying on the noisy proxy.
 
 ```{r viz-confounding}
 #| echo: false
 # Visualize confounding structure
-cor_data <- cor(data_conf[, .(x1, x2, proxy, independent, y)])
+cor_data <- cor(data_conf[, .(x1, proxy, independent, y)])
 # Convert correlation matrix to long format for ggplot
 cor_df <- data.table(
 	var1 = rep(rownames(cor_data), each = ncol(cor_data)),
@@ -334,13 +331,13 @@ ggplot(cor_df, aes(x = var1, y = var2, fill = correlation)) +
 	scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0) +
 	labs(
 		title = "Correlation Structure with Hidden Confounder",
-		subtitle = "Note high correlations between x1, x2, and proxy due to confounder"
+		subtitle = "Note high correlations between x1 and proxy due to confounder"
 	) +
 	theme_minimal() +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-**Key insight**: The hidden confounder creates spurious correlations between x1, x2, and y (red paths), making them appear more important than they truly are. RFI conditioning on the proxy (which measures the confounder) should help isolate the true direct effects (blue paths).
+**Key insight**: The hidden confounder creates spurious correlations between x1 and y (red paths), making x1 appear more important than its true direct effect. RFI conditioning on the proxy (which measures the confounder) should help isolate the true direct effect (blue path).
 
 ### Analysis
 
@@ -452,10 +449,9 @@ pfi_conf_obs$importance()
 **Key Results:**
 
 - **x1 importance**: PFI = `r sprintf("%.3f", pfi_conf_obs$importance()[feature == "x1", importance])`, RFI|confounder = `r sprintf("%.3f", rfi_conf_obs$importance()[feature == "x1", importance])`
-- **x2 importance**: PFI = `r sprintf("%.3f", pfi_conf_obs$importance()[feature == "x2", importance])`, RFI|confounder = `r sprintf("%.3f", rfi_conf_obs$importance()[feature == "x2", importance])`  
 - **independent importance**: PFI = `r sprintf("%.3f", pfi_conf_obs$importance()[feature == "independent", importance])`, RFI|confounder = `r sprintf("%.3f", rfi_conf_obs$importance()[feature == "independent", importance])`
 
-**Insight**: When conditioning on the true confounder, RFI should show reduced importance for x1 and x2 (since much of their apparent importance was due to confounding) while independent maintains its importance (since it's truly causally related to y).
+**Insight**: When conditioning on the true confounder, RFI should show reduced importance for x1 (since much of its apparent importance was due to confounding) while independent maintains its importance (since it's truly causally related to y).
 
 #### Comparing Methods on Confounding
 
@@ -521,11 +517,11 @@ conf_summary |>
 
 In the confounding scenario, we observed:
 
-1. **PFI shows confounded effects**: Without accounting for confounders, PFI overestimates the importance of x1 and x2 due to their spurious correlation with y through the hidden confounder.
+1. **PFI shows confounded effects**: Without accounting for confounders, PFI overestimates the importance of x1 due to its spurious correlation with y through the hidden confounder.
 
 2. **RFI conditioning on proxy reduces bias**: By conditioning on the proxy (noisy measurement of the confounder), RFI can partially isolate direct effects, though some confounding remains due to measurement error.
 
-3. **RFI conditioning on true confounder removes bias**: When the confounder is observable and we can condition directly on it, RFI dramatically reduces the apparent importance of x1 and x2, revealing their true direct effects.
+3. **RFI conditioning on true confounder removes bias**: When the confounder is observable and we can condition directly on it, RFI dramatically reduces the apparent importance of x1, revealing its true direct effect.
 
 4. **CFI partially accounts for confounding**: Through its conditional sampling, CFI captures some of the confounding structure but cannot target specific confounders like RFI can.
 

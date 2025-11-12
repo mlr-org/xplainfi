@@ -178,27 +178,27 @@ sim_dgp_mediated <- function(n = 500L) {
 #'
 #' @details
 #' **Confounding DGP:**
-#' This DGP includes a confounder that affects both features and the outcome.
+#' This DGP includes a confounder that affects both a feature and the outcome.
 #' Uses simple coefficients for easy interpretation.
 #'
 #' **Mathematical Model:**
 #' \deqn{H \sim N(0,1)}
-#' \deqn{X_1 = H + \varepsilon_1, \quad X_2 = H + \varepsilon_2}
+#' \deqn{X_1 = H + \varepsilon_1}
 #' \deqn{\text{proxy} = H + \varepsilon_p, \quad \text{independent} \sim N(0,1)}
-#' \deqn{Y = H + 0.5 \cdot X_1 + 0.5 \cdot X_2 + \text{independent} + \varepsilon}
+#' \deqn{Y = H + X_1 + \text{independent} + \varepsilon}
 #' where all \eqn{\varepsilon \sim N(0, 0.5^2)} independently.
 #'
 #' **Model Structure:**
-#' - Confounder H ~ N(0,1) (dashed red node = potentially unobserved)
-#' - x1 = H + noise, x2 = H + noise (both affected by confounder)
+#' - Confounder H ~ N(0,1) (potentially unobserved)
+#' - x1 = H + noise (affected by confounder)
 #' - proxy = H + noise (noisy measurement of confounder)
 #' - independent ~ N(0,1) (truly independent)
-#' - y = H + 0.5*x1 + 0.5*x2 + independent + noise
+#' - y = H + x1 + independent + noise
 #'
 #' **Expected Behavior:**
-#' - **PFI**: Will show inflated importance for x1 and x2 due to confounding
+#' - **PFI**: Will show inflated importance for x1 due to confounding
 #' - **CFI**: Should partially account for confounding through conditional sampling
-#' - **RFI conditioning on confounder/proxy**: Should reduce confounding bias
+#' - **RFI conditioning on proxy**: Should reduce confounding bias by conditioning on proxy
 #'
 #' @param n (`integer(1)`: `500L`) Number of observations to generate.
 #' @param hidden (`logical(1)`: `TRUE`) Whether to hide the confounder from the returned task.
@@ -218,9 +218,8 @@ sim_dgp_confounded <- function(n = 500L, hidden = TRUE) {
 	# Confounder
 	confounder <- rnorm(n)
 
-	# Features affected by confounder
+	# Feature affected by confounder
 	x1 <- confounder + rnorm(n, 0, 0.5)
-	x2 <- confounder + rnorm(n, 0, 0.5)
 
 	# Proxy measurement of confounder (observable but noisy)
 	proxy <- confounder + rnorm(n, 0, 0.5)
@@ -228,8 +227,8 @@ sim_dgp_confounded <- function(n = 500L, hidden = TRUE) {
 	# Independent feature unaffected by confounder
 	independent <- rnorm(n)
 
-	# Outcome affected by confounder and all features
-	y <- confounder + 0.5 * x1 + 0.5 * x2 + independent + rnorm(n, 0, 0.5)
+	# Outcome affected by confounder, x1, and independent feature
+	y <- confounder + x1 + independent + rnorm(n, 0, 0.5)
 
 	# Create data.table conditionally including the confounder
 	if (hidden) {
@@ -237,7 +236,6 @@ sim_dgp_confounded <- function(n = 500L, hidden = TRUE) {
 		dt <- data.table::data.table(
 			y = y,
 			x1 = x1,
-			x2 = x2,
 			proxy = proxy,
 			independent = independent
 		)
@@ -247,7 +245,6 @@ sim_dgp_confounded <- function(n = 500L, hidden = TRUE) {
 		dt <- data.table::data.table(
 			y = y,
 			x1 = x1,
-			x2 = x2,
 			confounder = confounder,
 			proxy = proxy,
 			independent = independent

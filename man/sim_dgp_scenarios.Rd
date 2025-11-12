@@ -92,30 +92,30 @@ where \eqn{\varepsilon_m \sim N(0, 0.3^2)} and \eqn{\varepsilon \sim N(0, 0.2^2)
 }
 
 \strong{Confounding DGP:}
-This DGP includes a confounder that affects both features and the outcome.
+This DGP includes a confounder that affects both a feature and the outcome.
 Uses simple coefficients for easy interpretation.
 
 \strong{Mathematical Model:}
 \deqn{H \sim N(0,1)}
-\deqn{X_1 = H + \varepsilon_1, \quad X_2 = H + \varepsilon_2}
+\deqn{X_1 = H + \varepsilon_1}
 \deqn{\text{proxy} = H + \varepsilon_p, \quad \text{independent} \sim N(0,1)}
-\deqn{Y = H + 0.5 \cdot X_1 + 0.5 \cdot X_2 + \text{independent} + \varepsilon}
+\deqn{Y = H + X_1 + \text{independent} + \varepsilon}
 where all \eqn{\varepsilon \sim N(0, 0.5^2)} independently.
 
 \strong{Model Structure:}
 \itemize{
-\item Confounder H ~ N(0,1) (dashed red node = potentially unobserved)
-\item x1 = H + noise, x2 = H + noise (both affected by confounder)
+\item Confounder H ~ N(0,1) (potentially unobserved)
+\item x1 = H + noise (affected by confounder)
 \item proxy = H + noise (noisy measurement of confounder)
 \item independent ~ N(0,1) (truly independent)
-\item y = H + 0.5\emph{x1 + 0.5}x2 + independent + noise
+\item y = H + x1 + independent + noise
 }
 
 \strong{Expected Behavior:}
 \itemize{
-\item \strong{PFI}: Will show inflated importance for x1 and x2 due to confounding
+\item \strong{PFI}: Will show inflated importance for x1 due to confounding
 \item \strong{CFI}: Should partially account for confounding through conditional sampling
-\item \strong{RFI conditioning on confounder/proxy}: Should reduce confounding bias
+\item \strong{RFI conditioning on proxy}: Should reduce confounding bias by conditioning on proxy
 }
 
 \strong{Interaction Effects DGP:}

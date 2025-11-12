@@ -102,23 +102,20 @@ test_that("sim_dgp_confounded with hidden=TRUE generates correct structure", {
 	# Basic structure tests
 	expect_s3_class(task, "TaskRegr")
 	expect_equal(nrow(data), 500)
-	expect_setequal(task$feature_names, c("x1", "x2", "proxy", "independent"))
+	expect_setequal(task$feature_names, c("x1", "proxy", "independent"))
 	expect_true(grepl("^confounded_hidden_", task$id))
 	expect_false("confounder" %in% task$feature_names) # Should be hidden
 
 	# Check confounding structure through correlations
-	# x1, x2, and proxy should be correlated (due to hidden confounder)
-	expect_gt(cor(data$x1, data$x2), 0.4)
+	# x1 and proxy should be correlated (due to hidden confounder)
 	expect_gt(cor(data$x1, data$proxy), 0.4)
-	expect_gt(cor(data$x2, data$proxy), 0.4)
 
 	# Independent should have low correlation with confounded variables
 	expect_lt(abs(cor(data$independent, data$x1)), 0.3)
-	expect_lt(abs(cor(data$independent, data$x2)), 0.3)
 	expect_lt(abs(cor(data$independent, data$proxy)), 0.3)
 
 	# All should correlate with y
-	cor_y <- cor(data$y, data[, .(x1, x2, proxy, independent)])
+	cor_y <- cor(data$y, data[, .(x1, proxy, independent)])
 	# Check all correlations are meaningful
 	for (i in 1:ncol(cor_y)) {
 		expect_gt(abs(cor_y[1, i]), 0.2)
@@ -132,14 +129,13 @@ test_that("sim_dgp_confounded with hidden=FALSE includes confounder", {
 	# Basic structure tests
 	expect_s3_class(task, "TaskRegr")
 	expect_equal(nrow(data), 100)
-	expect_setequal(task$feature_names, c("x1", "x2", "confounder", "proxy", "independent"))
+	expect_setequal(task$feature_names, c("x1", "confounder", "proxy", "independent"))
 	expect_true(grepl("^confounded_observed_", task$id))
 	expect_true("confounder" %in% task$feature_names) # Should be observable
 
 	# Check that confounder is the source of correlations
-	# Confounder should correlate highly with x1, x2, proxy
+	# Confounder should correlate highly with x1, proxy
 	expect_gt(cor(data$confounder, data$x1), 0.6)
-	expect_gt(cor(data$confounder, data$x2), 0.6)
 	expect_gt(cor(data$confounder, data$proxy), 0.6)
 	expect_gt(cor(data$confounder, data$y), 0.6)
 
