@@ -457,3 +457,8 @@ test_that("KnockoffSampler works with multiple iterations", {
 		data.table::rbindlist(replicate(3, sampler_1$sample("x1", row_ids = 1), simplify = FALSE))
 	)
 })
+
+test_that("KnockoffGaussianSampler preserves integer feature types", {
+	skip_if_not_installed("knockoff")
+	expect_feature_type_preservation(KnockoffGaussianSampler)
+})

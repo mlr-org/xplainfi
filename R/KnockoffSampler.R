@@ -142,6 +142,10 @@ KnockoffSampler = R6Class(
 			data_copy[, ..seq_id := NULL]
 
 			setcolorder(data_copy, self$task$feature_names)
+
+			# Restore integer types and assert type consistency
+			data_copy = private$.ensure_feature_types(data_copy)
+
 			data_copy[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
 
 			# Old / simpler approach doesn't work with duplicates

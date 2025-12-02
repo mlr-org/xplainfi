@@ -81,6 +81,34 @@ FeatureSampler = R6Class(
 				))
 			}
 			self$task$data(rows = row_ids)
+		},
+
+		# Ensure feature types match task specification, fixing what can be fixed
+		# and asserting correctness. Only modifies data when necessary.
+		# mlr3 feature types correspond to R's class(), not typeof()
+		.ensure_feature_types = function(data) {
+			feature_types <- self$task$feature_types
+
+			for (feat in self$task$feature_names) {
+				expected_type <- feature_types[id == feat, type]
+				actual_class <- class(data[[feat]])[1]
+
+				if (expected_type == actual_class) next
+
+				# Attempt to fix known fixable cases
+				if (expected_type == "integer" && actual_class == "numeric") {
+					set(data, j = feat, value = as.integer(round(data[[feat]])))
+					next
+				}
+
+				# Type mismatch that cannot be automatically fixed
+				cli::cli_abort(c(
+					x = "Feature {.val {feat}} has class {.val {actual_class}} but expected {.val {expected_type}}.",
+					i = "This indicates a bug in the sampler implementation."
+				))
+			}
+
+			data
 		}
 	)
 )

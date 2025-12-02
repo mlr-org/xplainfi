@@ -1,5 +1,44 @@
 # Helper functions for testing samplers
 
+#' Test that sampler preserves feature types from task
+#'
+#' Creates a task with mixed integer/numeric features and verifies that
+#' sampling any feature preserves all feature types in the output.
+#'
+#' @param sampler_class R6 class for the sampler to test
+#' @param ... Additional arguments passed to sampler constructor
+#'
+#' @return NULL (used for side effects via testthat expectations)
+expect_feature_type_preservation = function(sampler_class, ...) {
+	xdat = data.table::data.table(
+		x1 = rep(1:10, 10),
+		x2 = rnorm(100),
+		x3 = runif(100),
+		x4 = as.integer(round(runif(100, -4, 4)))
+	)
+	xdat[, y := x1 + 0.5 * x2 + 1.5 * x3 + rnorm(100, sd = 0.1)]
+	task = mlr3::as_task_regr(xdat, target = "y")
+
+	sampler = sampler_class$new(task, ...)
+
+	# Sample one feature (x2) and verify ALL feature types match task specification
+	sampled = sampler$sample("x2", row_ids = 1:10)
+
+	for (feat in task$feature_names) {
+		expected_type = task$feature_types[id == feat, type]
+		actual_class = class(sampled[[feat]])[1]
+		testthat::expect_equal(
+			actual_class,
+			expected_type,
+			info = glue::glue(
+				"After sampling x2: feature '{feat}' should be {expected_type}, got {actual_class}"
+			)
+		)
+	}
+
+	invisible(NULL)
+}
+
 #' Test conditioning_set parameter behavior for conditional samplers
 #'
 #' Verifies that a conditional sampler correctly:

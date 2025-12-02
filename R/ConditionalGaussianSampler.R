@@ -33,6 +33,7 @@
 #' - Strong distributional assumption
 #' - May produce out-of-range values for bounded features
 #' - Cannot handle categorical features
+#' - Integer features are treated as continuous and rounded back to integers
 #'
 #' @examples
 #' library(mlr3)
@@ -99,6 +100,9 @@ ConditionalGaussianSampler = R6Class(
 				# Update data with sampled values
 				data[, (feature) := as.data.table(samples)]
 
+				# Restore integer types and assert type consistency
+				data = private$.ensure_feature_types(data)
+
 				return(data[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)])
 			}
 
@@ -151,6 +155,9 @@ ConditionalGaussianSampler = R6Class(
 
 			# Update data
 			data[, (feature) := as.data.table(samples)]
+
+			# Restore integer types and assert type consistency
+			data = private$.ensure_feature_types(data)
 
 			data[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
 		}

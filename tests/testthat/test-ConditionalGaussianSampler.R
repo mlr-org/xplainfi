@@ -171,3 +171,7 @@ test_that("ConditionalGaussianSampler conditioning_set parameter behavior", {
 		task = task
 	)
 })
+
+test_that("ConditionalGaussianSampler preserves integer feature types", {
+	expect_feature_type_preservation(ConditionalGaussianSampler)
+})
