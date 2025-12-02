@@ -4,6 +4,7 @@
 
 - Simplify `sim_dgp_confounded`, removing `x2` which doesn’t add
   anything interesting over `x1`.
+- Ensure integers are preserved in Gaussian samplers
 
 ## xplainfi 0.2.0
 
