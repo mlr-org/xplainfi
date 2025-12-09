@@ -10,5 +10,6 @@
 #' @importFrom paradox ps
 #' @importFrom R6 R6Class
 #' @importFrom stats var sd quantile qt binom.test runif rnorm
+#' @importFrom utils packageVersion
 ## usethis namespace: end
 NULL

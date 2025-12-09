@@ -23,7 +23,8 @@ Imports:
     mvtnorm,
     paradox (>= 1.0.0),
     R6,
-    stats
+    stats,
+    utils
 Suggests:
     arf,
     DiagrammeR,
