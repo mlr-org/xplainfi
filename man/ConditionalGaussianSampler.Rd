@@ -42,6 +42,7 @@ This is equivalent to the regression formulation used by fippy:
 \item Strong distributional assumption
 \item May produce out-of-range values for bounded features
 \item Cannot handle categorical features
+\item Integer features are treated as continuous and rounded back to integers
 }
 }
 \examples{
