@@ -86,7 +86,7 @@ test_that("ConditionalCtreeSampler sample_newdata works", {
 
 	expect_sampler_output_structure(sampled, task, nrows = 10)
 	expect_feature_type_consistency(sampled, task)
-	expect_conditioning_preserved(sampled, test_data, "important1")
+	expect_non_sampled_unchanged(sampled, test_data, "important1")
 })
 
 test_that("ConditionalCtreeSampler caching works", {
@@ -137,7 +137,7 @@ test_that("ConditionalCtreeSampler handles single observation", {
 	)
 
 	expect_sampler_output_structure(sampled, task, nrows = 1)
-	expect_conditioning_preserved(sampled, test_data, "important1")
+	expect_non_sampled_unchanged(sampled, test_data, "important1")
 })
 
 test_that("ConditionalCtreeSampler is reproducible with seed", {

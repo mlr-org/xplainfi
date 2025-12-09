@@ -27,7 +27,7 @@ test_that("MarginalPermutationSampler sampling works", {
 	expect_setequal(sampled_data$x1, data$x1)
 
 	# Other features unchanged
-	expect_conditioning_preserved(sampled_data, data, c("x2", "x3", "x4", "x5"))
+	expect_non_sampled_unchanged(sampled_data, data, c("x2", "x3", "x4", "x5"))
 })
 
 test_that("MarginalPermutationSampler handles multiple features", {
@@ -48,7 +48,7 @@ test_that("MarginalPermutationSampler handles multiple features", {
 	}
 
 	# Non-sampled features unchanged
-	expect_conditioning_preserved(sampled_data, data, c("x4", "x5"))
+	expect_non_sampled_unchanged(sampled_data, data, c("x4", "x5"))
 })
 
 test_that("MarginalPermutationSampler works with different task types", {

@@ -61,7 +61,7 @@ test_that("ConditionalGaussianSampler sample_newdata works", {
 
 	expect_sampler_output_structure(sampled, task, nrows = 10)
 	expect_feature_type_consistency(sampled, task)
-	expect_conditioning_preserved(sampled, test_data, "important1")
+	expect_non_sampled_unchanged(sampled, test_data, "important1")
 })
 
 test_that("ConditionalGaussianSampler handles single observation", {
@@ -77,7 +77,7 @@ test_that("ConditionalGaussianSampler handles single observation", {
 	)
 
 	expect_sampler_output_structure(sampled, task, nrows = 1)
-	expect_conditioning_preserved(sampled, test_data, "important1")
+	expect_non_sampled_unchanged(sampled, test_data, "important1")
 })
 
 test_that("ConditionalGaussianSampler is reproducible with seed", {

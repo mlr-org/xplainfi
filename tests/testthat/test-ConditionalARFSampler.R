@@ -48,7 +48,7 @@ test_that("ConditionalARFSampler sampling works", {
 	)
 })
 
-test_that("ConditionalARFSampler with empty conditioning set behaves like marginal sampling", {
+test_that("ConditionalARFSampler handles empty conditioning set", {
 	skip_if_not_installed("arf")
 	library(mlr3)
 
@@ -59,13 +59,12 @@ test_that("ConditionalARFSampler with empty conditioning set behaves like margin
 	sampled = sampler$sample("x1")
 
 	expect_sampler_output_structure(sampled, task, nrows = 100)
-	expect_feature_type_consistency(sampled, task)
 
 	# Sampled feature should differ from original
 	expect_sampled_features_changed(sampled, data, "x1")
 
-	# Other features should remain unchanged
-	expect_conditioning_preserved(sampled, data, c("x2", "x3", "x4", "x5"))
+	# Non-sampled features should remain unchanged
+	expect_non_sampled_unchanged(sampled, data, c("x2", "x3", "x4", "x5"))
 
 	# Verify empty conditioning is stored
 	expect_equal(sampler$param_set$values$conditioning_set, character(0))

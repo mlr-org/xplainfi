@@ -61,7 +61,7 @@ test_that("ConditionalKNNSampler sample_newdata works", {
 
 	expect_sampler_output_structure(sampled, task, nrows = 10)
 	expect_feature_type_consistency(sampled, task)
-	expect_conditioning_preserved(sampled, test_data, "important1")
+	expect_non_sampled_unchanged(sampled, test_data, "important1")
 })
 
 test_that("ConditionalKNNSampler handles different k values", {
@@ -161,7 +161,7 @@ test_that("ConditionalKNNSampler works with categorical features using Gower dis
 	)
 
 	expect_sampler_output_structure(sampled, task, nrows = 10)
-	expect_conditioning_preserved(sampled, test_data, "island")
+	expect_non_sampled_unchanged(sampled, test_data, "island")
 
 	# Sampled values should come from training data
 	expect_true(all(sampled$bill_length %in% data$bill_length))
@@ -183,5 +183,5 @@ test_that("ConditionalKNNSampler works with mixed numeric and categorical condit
 	)
 
 	expect_sampler_output_structure(sampled, task, nrows = 10)
-	expect_conditioning_preserved(sampled, test_data, c("island", "body_mass"))
+	expect_non_sampled_unchanged(sampled, test_data, c("island", "body_mass"))
 })

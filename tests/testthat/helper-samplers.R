@@ -1,6 +1,6 @@
 # Custom testthat expectations for FeatureSampler testing
 #
-# These follow testthat 3e conventions using fail()/pass() for custom expectations.
+# These follow testthat 3e conventions.
 # See: https://testthat.r-lib.org/articles/custom-expectation.html
 
 # -----------------------------------------------------------------------------
@@ -49,16 +49,13 @@ generate_test_task = function(supported_types, n = 100) {
 #' @param sampled A data.table returned from sampler$sample()
 #' @param task The mlr3 task used for sampling
 #' @return Invisibly returns sampled data for piping
-#' @export
 expect_feature_type_consistency = function(sampled, task) {
-	act = testthat::quasi_label(rlang::enquo(sampled), arg = "sampled")
-
 	expected_classes = stats::setNames(
 		task$feature_types$type,
 		task$feature_types$id
 	)
 	actual_classes = sapply(
-		act$val[, task$feature_names, with = FALSE],
+		sampled[, task$feature_names, with = FALSE],
 		function(x) class(x)[1]
 	)
 
@@ -66,7 +63,7 @@ expect_feature_type_consistency = function(sampled, task) {
 	if (any(mismatches)) {
 		bad_feats = names(expected_classes)[mismatches]
 		msg = glue::glue(
-			"Feature type mismatch in {act$lab}.\n",
+			"Feature type mismatch in sampled data.\n",
 			"Features with wrong type: {paste(bad_feats, collapse = ', ')}\n",
 			"Expected: {paste(expected_classes[mismatches], collapse = ', ')}\n",
 			"Actual: {paste(actual_classes[mismatches], collapse = ', ')}"
@@ -76,44 +73,40 @@ expect_feature_type_consistency = function(sampled, task) {
 	}
 
 	testthat::expect(!any(mismatches), msg)
-	invisible(act$val)
+	invisible(sampled)
 }
 
 # -----------------------------------------------------------------------------
-# expect_conditioning_preserved
+# expect_non_sampled_unchanged
 # -----------------------------------------------------------------------------
 
-#' Expect conditioning set features are unchanged after sampling
+#' Expect non-sampled features are unchanged after sampling
 #'
-#' Verifies that features in the conditioning set remain identical
+#' Verifies that features not passed to $sample() remain identical
 #' between the original data and the sampled output.
 #'
 #' @param sampled A data.table returned from sampler$sample()
 #' @param original The original data before sampling
-#' @param conditioning_set Character vector of conditioning feature names
+#' @param features Character vector of feature names that should be unchanged
 #' @return Invisibly returns sampled data for piping
-#' @export
-expect_conditioning_preserved = function(sampled, original, conditioning_set) {
-	act = testthat::quasi_label(rlang::enquo(sampled), arg = "sampled")
-
-	if (length(conditioning_set) == 0) {
-		# No conditioning set - pass trivially
-		testthat::expect(TRUE, "No conditioning set to check")
-		return(invisible(act$val))
+expect_non_sampled_unchanged = function(sampled, original, features) {
+	if (length(features) == 0) {
+		testthat::expect(TRUE, "No features to check")
+		return(invisible(sampled))
 	}
 
-	for (feat in conditioning_set) {
-		ok = identical(act$val[[feat]], original[[feat]])
+	for (feat in features) {
+		ok = identical(sampled[[feat]], original[[feat]])
 		testthat::expect(
 			ok,
 			glue::glue(
-				"Conditioning feature '{feat}' was modified in {act$lab}.\n",
-				"Conditioning features must remain unchanged during sampling."
+				"Feature '{feat}' was modified in sampled data.\n",
+				"Non-sampled features must remain unchanged during sampling."
 			)
 		)
 	}
 
-	invisible(act$val)
+	invisible(sampled)
 }
 
 # -----------------------------------------------------------------------------
@@ -130,23 +123,20 @@ expect_conditioning_preserved = function(sampled, original, conditioning_set) {
 #' @param original The original data before sampling
 #' @param sampled_features Character vector of feature names that were sampled
 #' @return Invisibly returns sampled data for piping
-#' @export
 expect_sampled_features_changed = function(sampled, original, sampled_features) {
-	act = testthat::quasi_label(rlang::enquo(sampled), arg = "sampled")
-
 	for (feat in sampled_features) {
-		ok = !identical(act$val[[feat]], original[[feat]])
+		ok = !identical(sampled[[feat]], original[[feat]])
 		testthat::expect(
 			ok,
 			glue::glue(
-				"Sampled feature '{feat}' is identical to original in {act$lab}.\n",
+				"Sampled feature '{feat}' is identical to original.\n",
 				"This suggests the sampler did not modify the feature.\n",
 				"(Note: This could theoretically be a false positive with very low probability)"
 			)
 		)
 	}
 
-	invisible(act$val)
+	invisible(sampled)
 }
 
 # -----------------------------------------------------------------------------
@@ -161,25 +151,22 @@ expect_sampled_features_changed = function(sampled, original, sampled_features) 
 #' @param task The mlr3 task used for sampling
 #' @param nrows Expected number of rows (NULL to skip check)
 #' @return Invisibly returns sampled data for piping
-#' @export
 expect_sampler_output_structure = function(sampled, task, nrows = NULL) {
-	act = testthat::quasi_label(rlang::enquo(sampled), arg = "sampled")
-
 	testthat::expect(
-		data.table::is.data.table(act$val),
+		data.table::is.data.table(sampled),
 		glue::glue(
-			"{act$lab} is not a data.table.\n",
-			"Actual class: {paste(class(act$val), collapse = ', ')}"
+			"Sampled data is not a data.table.\n",
+			"Actual class: {paste(class(sampled), collapse = ', ')}"
 		)
 	)
 
 	expected_cols = c(task$target_names, task$feature_names)
-	actual_cols = names(act$val)
+	actual_cols = names(sampled)
 
 	testthat::expect(
 		identical(actual_cols, expected_cols),
 		glue::glue(
-			"{act$lab} has incorrect columns.\n",
+			"Sampled data has incorrect columns.\n",
 			"Expected: {paste(expected_cols, collapse = ', ')}\n",
 			"Actual: {paste(actual_cols, collapse = ', ')}"
 		)
@@ -187,16 +174,16 @@ expect_sampler_output_structure = function(sampled, task, nrows = NULL) {
 
 	if (!is.null(nrows)) {
 		testthat::expect(
-			nrow(act$val) == nrows,
+			nrow(sampled) == nrows,
 			glue::glue(
-				"{act$lab} has incorrect number of rows.\n",
+				"Sampled data has incorrect number of rows.\n",
 				"Expected: {nrows}\n",
-				"Actual: {nrow(act$val)}"
+				"Actual: {nrow(sampled)}"
 			)
 		)
 	}
 
-	invisible(act$val)
+	invisible(sampled)
 }
 
 # -----------------------------------------------------------------------------
@@ -212,38 +199,31 @@ expect_sampler_output_structure = function(sampled, task, nrows = NULL) {
 #' @param feature Feature to sample
 #' @param row_ids Row IDs to sample
 #' @return Invisibly returns sampled data for piping
-#' @export
 expect_marginal_sampling = function(sampler, feature, row_ids = 1:10) {
-	act_sampler = testthat::quasi_label(rlang::enquo(sampler), arg = "sampler")
-
 	testthat::expect(
-		inherits(act_sampler$val, "ConditionalSampler"),
-		glue::glue(
-			"{act_sampler$lab} is not a ConditionalSampler.\n",
-			"Marginal sampling test only applies to conditional samplers."
-		)
+		inherits(sampler, "ConditionalSampler"),
+		"Sampler is not a ConditionalSampler. Marginal sampling test only applies to conditional samplers."
 	)
 
-	original = act_sampler$val$task$data(rows = row_ids)
+	original = sampler$task$data(rows = row_ids)
 
 	# Sample with empty conditioning set (marginal sampling)
-	sampled = act_sampler$val$sample(
+	sampled = sampler$sample(
 		feature = feature,
 		row_ids = row_ids,
 		conditioning_set = character(0)
 	)
 
 	# Check structure
-	expect_sampler_output_structure(sampled, act_sampler$val$task, nrows = length(row_ids))
+	expect_sampler_output_structure(sampled, sampler$task, nrows = length(row_ids))
 
 	# Check types
-	expect_feature_type_consistency(sampled, act_sampler$val$task)
+	expect_feature_type_consistency(sampled, sampler$task)
 
-	# Non-sampled features should remain unchanged (this is true for all sampling,
-	# not just marginal). The key test here is that conditional samplers can
-	# handle an empty conditioning set without error.
-	non_sampled = setdiff(act_sampler$val$task$feature_names, feature)
-	expect_conditioning_preserved(sampled, original, non_sampled)
+	# Non-sampled features should remain unchanged. The key test here is that
+	# conditional samplers can handle an empty conditioning set without error.
+	non_sampled = setdiff(sampler$task$feature_names, feature)
+	expect_non_sampled_unchanged(sampled, original, non_sampled)
 
 	invisible(sampled)
 }
@@ -251,6 +231,7 @@ expect_marginal_sampling = function(sampler, feature, row_ids = 1:10) {
 # -----------------------------------------------------------------------------
 # expect_conditional_sampling
 # -----------------------------------------------------------------------------
+
 #' Expect conditional sampler handles conditional sampling correctly
 #'
 #' Tests that a conditional sampler correctly preserves conditioning features
@@ -261,34 +242,28 @@ expect_marginal_sampling = function(sampler, feature, row_ids = 1:10) {
 #' @param conditioning_set Features to condition on
 #' @param row_ids Row IDs to sample
 #' @return Invisibly returns sampled data for piping
-#' @export
 expect_conditional_sampling = function(sampler, feature, conditioning_set, row_ids = 1:10) {
-	act_sampler = testthat::quasi_label(rlang::enquo(sampler), arg = "sampler")
-
 	testthat::expect(
-		inherits(act_sampler$val, "ConditionalSampler"),
-		glue::glue(
-			"{act_sampler$lab} is not a ConditionalSampler.\n",
-			"Conditional sampling test only applies to conditional samplers."
-		)
+		inherits(sampler, "ConditionalSampler"),
+		"Sampler is not a ConditionalSampler. Conditional sampling test only applies to conditional samplers."
 	)
 
-	original = act_sampler$val$task$data(rows = row_ids)
+	original = sampler$task$data(rows = row_ids)
 
-	sampled = act_sampler$val$sample(
+	sampled = sampler$sample(
 		feature = feature,
 		row_ids = row_ids,
 		conditioning_set = conditioning_set
 	)
 
 	# Check structure
-	expect_sampler_output_structure(sampled, act_sampler$val$task, nrows = length(row_ids))
+	expect_sampler_output_structure(sampled, sampler$task, nrows = length(row_ids))
 
 	# Check types
-	expect_feature_type_consistency(sampled, act_sampler$val$task)
+	expect_feature_type_consistency(sampled, sampler$task)
 
-	# Conditioning features must be preserved
-	expect_conditioning_preserved(sampled, original, conditioning_set)
+	# Non-sampled features must be unchanged
+	expect_non_sampled_unchanged(sampled, original, conditioning_set)
 
 	# Sampled features should change (stochastic check)
 	expect_sampled_features_changed(sampled, original, feature)
@@ -308,7 +283,6 @@ expect_conditional_sampling = function(sampler, feature, conditioning_set, row_i
 #' @param sampler_class R6 class for the sampler to test
 #' @param ... Additional arguments passed to sampler constructor
 #' @return NULL (used for side effects via testthat expectations)
-#' @export
 test_sampler_feature_types = function(sampler_class, ...) {
 	supported_types = sampler_class$public_fields$feature_types
 	task = generate_test_task(supported_types)
@@ -378,7 +352,7 @@ test_conditioning_set_behavior = function(sampler_class, task, ...) {
 	original_data = task$data(rows = 1:5)
 	result_stored = sampler_with_cond$sample(feature = target_feature, row_ids = 1:5)
 	expect_sampler_output_structure(result_stored, task, nrows = 5)
-	expect_conditioning_preserved(result_stored, original_data, cond_set_1)
+	expect_non_sampled_unchanged(result_stored, original_data, cond_set_1)
 
 	# Test 3: Can override conditioning_set in $sample() call
 	result_override = sampler_with_cond$sample(
@@ -387,7 +361,7 @@ test_conditioning_set_behavior = function(sampler_class, task, ...) {
 		conditioning_set = cond_set_2
 	)
 	expect_sampler_output_structure(result_override, task, nrows = 5)
-	expect_conditioning_preserved(result_override, original_data, cond_set_2)
+	expect_non_sampled_unchanged(result_override, original_data, cond_set_2)
 
 	# Test 4: NULL conditioning_set during initialization
 	sampler_no_cond = sampler_class$new(task, ...)
@@ -399,7 +373,7 @@ test_conditioning_set_behavior = function(sampler_class, task, ...) {
 		row_ids = 1:5,
 		conditioning_set = cond_set_1
 	)
-	expect_conditioning_preserved(result_specified, original_data, cond_set_1)
+	expect_non_sampled_unchanged(result_specified, original_data, cond_set_1)
 
 	# Test 6: NULL conditioning_set should default to all other features
 	# Use debug mode to verify resolved conditioning_set
@@ -450,13 +424,3 @@ test_conditioning_set_behavior = function(sampler_class, task, ...) {
 
 	invisible(NULL)
 }
-
-# -----------------------------------------------------------------------------
-# Legacy aliases for backward compatibility
-# -----------------------------------------------------------------------------
-
-#' @rdname test_sampler_feature_types
-expect_feature_type_preservation = test_sampler_feature_types
-
-#' @rdname test_conditioning_set_behavior
-expect_conditioning_set_behavior = test_conditioning_set_behavior
