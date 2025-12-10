@@ -20,7 +20,7 @@ PerturbationImportance = R6Class(
 		initialize = function(
 			task,
 			learner,
-			measure,
+			measure = NULL,
 			resampling = NULL,
 			features = NULL,
 			groups = NULL,
@@ -360,7 +360,7 @@ PFI = R6Class(
 		initialize = function(
 			task,
 			learner,
-			measure,
+			measure = NULL,
 			resampling = NULL,
 			features = NULL,
 			groups = NULL,
@@ -454,7 +454,7 @@ CFI = R6Class(
 		initialize = function(
 			task,
 			learner,
-			measure,
+			measure = NULL,
 			resampling = NULL,
 			features = NULL,
 			groups = NULL,
@@ -562,7 +562,7 @@ RFI = R6Class(
 		initialize = function(
 			task,
 			learner,
-			measure,
+			measure = NULL,
 			resampling = NULL,
 			features = NULL,
 			groups = NULL,
