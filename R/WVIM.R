@@ -186,7 +186,7 @@ WVIM = R6Class(
 			self$predictions = predictions[, .(iter_rsmp, iter_repeat, feature, prediction)]
 
 			# obs losses ----
-			if (!is.null(self$measure$obs_loss)) {
+			if (has_obs_loss(self$measure)) {
 				obs_loss_vals = instance$archive$benchmark_result$obs_loss(self$measure)
 				setnames(obs_loss_vals, "resample_result", "batch_nr")
 				# add iter_repeat to keep track

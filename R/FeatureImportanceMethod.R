@@ -39,7 +39,7 @@ FeatureImportanceMethod = R6Class(
 		initialize = function(
 			task,
 			learner,
-			measure,
+			measure = NULL,
 			resampling = NULL,
 			features = NULL,
 			groups = NULL,
@@ -56,7 +56,7 @@ FeatureImportanceMethod = R6Class(
 					"regr" = mlr3::msr("regr.mse")
 				)
 				cli::cli_alert_info(
-					"No {.cls Measure} provided, using {.code measure = msr({self$measure$id})}"
+					"No {.cls Measure} provided, using {.code measure = msr(\"{self$measure$id}\")}"
 				)
 			} else {
 				self$measure = mlr3::assert_measure(measure, task = task, learner = learner)
@@ -77,10 +77,9 @@ FeatureImportanceMethod = R6Class(
 
 			# resampling: default to holdout with default ratio if NULL
 			if (is.null(resampling)) {
-				resampling = mlr3::rsmp("holdout")$instantiate(task)
+				resampling = mlr3::rsmp("holdout", ratio = 2 / 3)$instantiate(task)
 				cli::cli_inform(c(
-					i = "No {.cls Resampling} provided",
-					"Using {.code resampling = rsmp(\"holdout\")} with default {.code ratio = {round(resampling$param_set$values$ratio, 2)}}."
+					i = "No {.cls Resampling} provided, using {.code resampling = rsmp(\"holdout\", ratio = 2/3)} (test set size: {.val {length(resampling$train_set(1))}})"
 				))
 			} else {
 				# Clone the resampling to avoid instantiating the resampling in the user's workspace
@@ -216,7 +215,7 @@ FeatureImportanceMethod = R6Class(
 		#' relation between baseline and post-modifcation loss, i.e. [PerturbationImportance] methods such as [PFI] or [WVIM] / [LOCO]. Not available for [SAGE] methods.
 		#'
 		obs_loss = function(relation = NULL) {
-			if (is.null(self$measure$obs_loss)) {
+			if (!has_obs_loss(self$measure)) {
 				cli::cli_warn(c(
 					x = "{.cls Measure} {.val {self$measure$id}} does not have an observation-wise loss:",
 					i = "Is it decomposable?"

@@ -20,7 +20,7 @@ PerturbationImportance = R6Class(
 		initialize = function(
 			task,
 			learner,
-			measure,
+			measure = NULL,
 			resampling = NULL,
 			features = NULL,
 			groups = NULL,
@@ -291,16 +291,15 @@ PerturbationImportance = R6Class(
 
 			# for obs_loss:
 			# Not all losses are decomposable so this is optional and depends on the provided measure
-			if (!is.null(self$measure$obs_loss)) {
+			if (has_obs_loss(self$measure)) {
 				grouping_vars = c("feature", "iter_rsmp", "iter_repeat")
 
 				obs_loss_all <- all_preds[,
 					{
 						pred <- prediction[[1]]
-						obs_loss_vals <- self$measure$obs_loss(
-							truth = pred$truth,
-							response = pred$response
-						)
+
+						# Get only vector of obs losses, Prediction$obs_loss() returns full table
+						obs_loss_vals <- pred$obs_loss()[[self$measure$id]]
 
 						list(
 							row_ids = pred$row_ids,
@@ -361,7 +360,7 @@ PFI = R6Class(
 		initialize = function(
 			task,
 			learner,
-			measure,
+			measure = NULL,
 			resampling = NULL,
 			features = NULL,
 			groups = NULL,
@@ -455,7 +454,7 @@ CFI = R6Class(
 		initialize = function(
 			task,
 			learner,
-			measure,
+			measure = NULL,
 			resampling = NULL,
 			features = NULL,
 			groups = NULL,
@@ -563,7 +562,7 @@ RFI = R6Class(
 		initialize = function(
 			task,
 			learner,
-			measure,
+			measure = NULL,
 			resampling = NULL,
 			features = NULL,
 			groups = NULL,
