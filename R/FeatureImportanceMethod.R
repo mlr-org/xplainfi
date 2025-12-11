@@ -79,8 +79,7 @@ FeatureImportanceMethod = R6Class(
 			if (is.null(resampling)) {
 				resampling = mlr3::rsmp("holdout", ratio = 2 / 3)$instantiate(task)
 				cli::cli_inform(c(
-					i = "No {.cls Resampling} provided",
-					"Using {.code resampling = rsmp(\"holdout\", ratio = 2/3)} (test set size: {.val {length(resampling$train_set(1))}})"
+					i = "No {.cls Resampling} provided, using {.code resampling = rsmp(\"holdout\", ratio = 2/3)} (test set size: {.val {length(resampling$train_set(1))}})"
 				))
 			} else {
 				# Clone the resampling to avoid instantiating the resampling in the user's workspace
