@@ -215,7 +215,7 @@ FeatureImportanceMethod = R6Class(
 		#' relation between baseline and post-modifcation loss, i.e. [PerturbationImportance] methods such as [PFI] or [WVIM] / [LOCO]. Not available for [SAGE] methods.
 		#'
 		obs_loss = function(relation = NULL) {
-			if (has_obs_loss(self$measure)) {
+			if (!has_obs_loss(self$measure)) {
 				cli::cli_warn(c(
 					x = "{.cls Measure} {.val {self$measure$id}} does not have an observation-wise loss:",
 					i = "Is it decomposable?"
