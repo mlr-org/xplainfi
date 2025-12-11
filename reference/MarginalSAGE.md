@@ -91,7 +91,7 @@ sage = MarginalSAGE$new(
   n_permutations = 3L,
   n_samples = 20
 )
-#> ℹ No <Resampling> provided
-#> Using `resampling = rsmp("holdout")` with default `ratio = 0.67`.
+#> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
+#>   (test set size: 67)
 sage$compute()
 ```

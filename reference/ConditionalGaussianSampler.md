@@ -44,6 +44,9 @@ This is equivalent to the regression formulation used by fippy:
 
 - Cannot handle categorical features
 
+- Integer features are treated as continuous and rounded back to
+  integers
+
 ## References
 
 Anderson T (2003). *An Introduction to Multivariate Statistical

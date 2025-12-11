@@ -147,8 +147,8 @@ rfi = RFI$new(
   conditioning_set = c("important1")
 )
 #> ℹ No <ConditionalSampler> provided, using <ConditionalARFSampler> with default settings.
-#> ℹ No <Resampling> provided
-#> Using `resampling = rsmp("holdout")` with default `ratio = 0.67`.
+#> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
+#>   (test set size: 133)
 rfi$compute()
 rfi$importance()
 #> Key: <feature>

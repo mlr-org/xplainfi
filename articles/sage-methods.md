@@ -242,11 +242,11 @@ methods on the same data:
 ``` r
 # Quick PFI and CFI comparison for context
 pfi = PFI$new(task, learner, measure)
-#> ℹ No <Resampling> provided
-#> Using `resampling = rsmp("holdout")` with default `ratio = 0.67`.
+#> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
+#>   (test set size: 667)
 cfi = CFI$new(task, learner, measure, sampler = sampler_gaussian)
-#> ℹ No <Resampling> provided
-#> Using `resampling = rsmp("holdout")` with default `ratio = 0.67`.
+#> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
+#>   (test set size: 667)
 
 pfi$compute()
 cfi$compute()

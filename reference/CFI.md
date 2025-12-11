@@ -135,8 +135,8 @@ cfi = CFI$new(
   measure = msr("classif.ce")
 )
 #> ℹ No `sampler` provided, using <ConditionalARFSampler> with default settings.
-#> ℹ No <Resampling> provided
-#> Using `resampling = rsmp("holdout")` with default `ratio = 0.67`.
+#> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
+#>   (test set size: 67)
 cfi$compute()
 cfi$importance()
 #> Key: <feature>
