@@ -2,7 +2,7 @@
 
 - Simplify `sim_dgp_confounded`, removing `x2` which doesn't add anything interesting over `x1`.
 - Ensure integers are preserved in Gaussian samplers
-- Fix compatibility with mlr3 >= 1.3.0 due to the change in the `obs_loss()` (see https://github.com/mlr-org/mlr3/pull/1411)
+- Fix compatibility with mlr3 >= 1.3.0 due to the change in the way `obs_loss()` is computed (see https://github.com/mlr-org/mlr3/pull/1411).
 
 # xplainfi 0.2.0
 
