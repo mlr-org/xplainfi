@@ -57,7 +57,7 @@ Creates a new instance of the RFI class
 \if{html}{\out{<div class="r">}}\preformatted{RFI$new(
   task,
   learner,
-  measure,
+  measure = NULL,
   resampling = NULL,
   features = NULL,
   groups = NULL,

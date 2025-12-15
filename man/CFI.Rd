@@ -73,7 +73,7 @@ Creates a new instance of the CFI class
 \if{html}{\out{<div class="r">}}\preformatted{CFI$new(
   task,
   learner,
-  measure,
+  measure = NULL,
   resampling = NULL,
   features = NULL,
   groups = NULL,
