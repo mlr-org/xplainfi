@@ -29,7 +29,7 @@ WVIM = R6Class(
 		initialize = function(
 			task,
 			learner,
-			measure,
+			measure = NULL,
 			resampling = NULL,
 			features = NULL,
 			groups = NULL,
@@ -267,14 +267,15 @@ LOCO = R6Class(
 		#' Creates a new instance of this [R6][R6::R6Class] class.
 		#' @param task ([mlr3::Task]) Task to compute importance for.
 		#' @param learner ([mlr3::Learner]) Learner to use for prediction.
-		#' @param measure ([mlr3::Measure]) Measure to use for scoring.
+		#' @param measure ([mlr3::Measure]: `NULL`) Measure to use for scoring. Defaults to
+		#'   `classif.ce` for classification and `regr.mse` for regression.
 		#' @param resampling ([mlr3::Resampling]) Resampling strategy. Defaults to holdout.
 		#' @param features (`character()`) Features to compute importance for. Defaults to all features.
 		#' @param n_repeats (`integer(1)`: `1L`) Number of refit iterations per resampling iteration.
 		initialize = function(
 			task,
 			learner,
-			measure,
+			measure = NULL,
 			resampling = NULL,
 			features = NULL,
 			n_repeats = 1L

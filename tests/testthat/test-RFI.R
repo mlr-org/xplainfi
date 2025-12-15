@@ -1,26 +1,39 @@
-test_that("RFI can't be constructed without args", {
-	expect_error(RFI$new())
+# =============================================================================
+# RFI Tests using higher-level test helpers
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Basic functionality
+# -----------------------------------------------------------------------------
+
+test_that("RFI constructor validation", {
+	test_constructor_validation(RFI)
 })
 
-test_that("RFI can be constructed with simple objects", {
+test_that("RFI default behavior with minimal parameters", {
+	skip_if_not_installed("arf")
+
+	set.seed(123)
+	# RFI warns when conditioning_set is not specified (defaults to empty)
+	expect_warning(
+		test_default_behavior(RFI, task_type = "regr")
+	)
+})
+
+test_that("RFI basic workflow with classification", {
 	skip_if_not_installed("arf")
 
 	set.seed(123)
 	task = mlr3::tgen("2dnormals")$generate(n = 100)
 
-	rfi = RFI$new(
+	test_basic_workflow(
+		RFI,
 		task = task,
 		learner = mlr3::lrn("classif.rpart", predict_type = "prob"),
 		measure = mlr3::msr("classif.ce"),
+		expected_classes = c("FeatureImportanceMethod", "PerturbationImportance", "RFI"),
 		conditioning_set = "x2"
 	)
-
-	checkmate::expect_r6(rfi, c("FeatureImportanceMethod", "PerturbationImportance", "RFI"))
-
-	rfi$compute()
-	expect_importance_dt(rfi$importance(), features = rfi$features)
-	# Test that default is "difference"
-	expect_identical(rfi$importance(), rfi$importance(relation = "difference"))
 })
 
 test_that("RFI uses ConditionalARFSampler by default", {
@@ -36,18 +49,193 @@ test_that("RFI uses ConditionalARFSampler by default", {
 		conditioning_set = "x2"
 	)
 
-	# Should have ConditionalARFSampler
 	checkmate::expect_r6(rfi$sampler, "ConditionalARFSampler")
 	expect_equal(rfi$label, "Relative Feature Importance")
 })
+
+test_that("RFI featureless learner produces zero importance", {
+	skip_if_not_installed("arf")
+
+	set.seed(123)
+	test_featureless_zero_importance(RFI, task_type = "classif", conditioning_set = "x1")
+})
+
+# -----------------------------------------------------------------------------
+# Repeats and scores
+# -----------------------------------------------------------------------------
+
+test_that("RFI multiple repeats and scores structure", {
+	skip_if_not_installed("ranger")
+	skip_if_not_installed("mlr3learners")
+	skip_if_not_installed("arf")
+
+	set.seed(123)
+	task = mlr3::tgen("friedman1")$generate(n = 200)
+
+	test_n_repeats_and_scores(
+		RFI,
+		task = task,
+		learner = mlr3::lrn("regr.ranger", num.trees = 50),
+		measure = mlr3::msr("regr.mse"),
+		n_repeats = 2L,
+		conditioning_set = "important1"
+	)
+})
+
+test_that("RFI single feature", {
+	skip_if_not_installed("ranger")
+	skip_if_not_installed("mlr3learners")
+	skip_if_not_installed("arf")
+
+	set.seed(123)
+	task = mlr3::tgen("friedman1")$generate(n = 200)
+
+	test_single_feature(
+		RFI,
+		task = task,
+		learner = mlr3::lrn("regr.ranger", num.trees = 50),
+		measure = mlr3::msr("regr.mse"),
+		feature = "important4",
+		n_repeats = 2L,
+		conditioning_set = c("important1", "important2")
+	)
+})
+
+# -----------------------------------------------------------------------------
+# Relation parameter
+# -----------------------------------------------------------------------------
+
+test_that("RFI difference vs ratio relations", {
+	skip_if_not_installed("ranger")
+	skip_if_not_installed("mlr3learners")
+	skip_if_not_installed("arf")
+
+	set.seed(123)
+	task = mlr3::tgen("2dnormals")$generate(n = 100)
+
+	test_relation_parameter(
+		RFI,
+		task = task,
+		learner = mlr3::lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
+		measure = mlr3::msr("classif.ce"),
+		conditioning_set = character(0)
+	)
+})
+
+# -----------------------------------------------------------------------------
+# Sensible results
+# -----------------------------------------------------------------------------
+
+test_that("RFI friedman1 produces sensible ranking", {
+	skip_if_not_installed("ranger")
+	skip_if_not_installed("mlr3learners")
+	skip_if_not_installed("arf")
+
+	set.seed(123)
+	test_friedman1_sensible_ranking(
+		RFI,
+		learner = mlr3::lrn("regr.ranger", num.trees = 50),
+		measure = mlr3::msr("regr.mse"),
+		conditioning_set = "important1"
+	)
+})
+
+# -----------------------------------------------------------------------------
+# Parameter validation
+# -----------------------------------------------------------------------------
+
+test_that("RFI parameter validation", {
+	skip_if_not_installed("ranger")
+	skip_if_not_installed("mlr3learners")
+	skip_if_not_installed("arf")
+
+	set.seed(123)
+	task = mlr3::tgen("2dnormals")$generate(n = 50)
+
+	test_parameter_validation(
+		RFI,
+		task = task,
+		learner = mlr3::lrn("classif.ranger", num.trees = 10, predict_type = "prob"),
+		measure = mlr3::msr("classif.ce"),
+		conditioning_set = "x1"
+	)
+})
+
+test_that("RFI rejects invalid conditioning_set", {
+	skip_if_not_installed("ranger")
+	skip_if_not_installed("mlr3learners")
+	skip_if_not_installed("arf")
+
+	set.seed(123)
+	task = mlr3::tgen("2dnormals")$generate(n = 50)
+
+	expect_error(RFI$new(
+		task = task,
+		learner = mlr3::lrn("classif.ranger", num.trees = 10, predict_type = "prob"),
+		measure = mlr3::msr("classif.ce"),
+		conditioning_set = c("nonexistent_feature")
+	))
+})
+
+# -----------------------------------------------------------------------------
+# Grouped importance
+# -----------------------------------------------------------------------------
+
+test_that("RFI with feature groups", {
+	skip_if_not_installed("arf")
+
+	set.seed(123)
+	task = mlr3::tgen("friedman1")$generate(n = 200)
+
+	groups = list(
+		early_important = c("important1", "important2"),
+		late_important = c("important3", "important4"),
+		noise = c("unimportant1", "unimportant2")
+	)
+
+	test_grouped_importance(
+		RFI,
+		task = task,
+		learner = mlr3::lrn("regr.rpart"),
+		measure = mlr3::msr("regr.mse"),
+		groups = groups,
+		expected_classes = c("FeatureImportanceMethod", "PerturbationImportance", "RFI"),
+		conditioning_set = "important5"
+	)
+})
+
+# -----------------------------------------------------------------------------
+# Custom samplers
+# -----------------------------------------------------------------------------
+
+test_that("RFI with custom ARF sampler", {
+	skip_if_not_installed("ranger")
+	skip_if_not_installed("mlr3learners")
+	skip_if_not_installed("arf")
+
+	set.seed(123)
+	task = mlr3::tgen("spirals")$generate(n = 100)
+
+	test_custom_sampler(
+		RFI,
+		task = task,
+		learner = mlr3::lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
+		measure = mlr3::msr("classif.ce"),
+		sampler = ConditionalARFSampler$new(task),
+		expected_sampler_class = "ConditionalARFSampler",
+		conditioning_set = "x1"
+	)
+})
+
+# -----------------------------------------------------------------------------
+# RFI-specific: conditioning_set behavior
+# -----------------------------------------------------------------------------
 
 test_that("RFI with custom conditioning set", {
 	skip_if_not_installed("arf")
 
 	set.seed(123)
 	task = mlr3::tgen("friedman1")$generate(n = 200)
-
-	# Use only the first two important features as conditioning set
 	conditioning_set = c("important1", "important2")
 
 	rfi = RFI$new(
@@ -60,33 +248,28 @@ test_that("RFI with custom conditioning set", {
 	expect_identical(rfi$param_set$values$conditioning_set, conditioning_set)
 
 	rfi$compute()
-	result = rfi$importance()
-	expect_importance_dt(result, features = rfi$features)
+	expect_importance_dt(rfi$importance(), features = rfi$features)
 })
 
 test_that("RFI with empty conditioning set (equivalent to PFI)", {
 	skip_if_not_installed("arf")
 
 	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 200) # Use friedman1 with more features for better ranking comparison
-	learner = mlr3::lrn("regr.rpart")
-	measure = mlr3::msr("regr.mse")
+	task = mlr3::tgen("friedman1")$generate(n = 200)
 
 	# RFI with empty conditioning set warns
 	expect_warning({
 		rfi = RFI$new(
 			task = task,
-			learner = learner,
-			measure = measure
+			learner = mlr3::lrn("regr.rpart"),
+			measure = mlr3::msr("regr.mse")
 		)
 	})
 
 	expect_equal(length(rfi$param_set$values$conditioning_set), 0)
 
 	rfi$compute()
-	rfi_result = rfi$importance()
-
-	expect_importance_dt(rfi_result, features = rfi$features)
+	expect_importance_dt(rfi$importance(), features = rfi$features)
 })
 
 test_that("RFI with single conditioning feature", {
@@ -101,233 +284,14 @@ test_that("RFI with single conditioning feature", {
 		task = task,
 		learner = mlr3::lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
 		measure = mlr3::msr("classif.ce"),
-		conditioning_set = "x1" # Single conditioning feature
+		conditioning_set = "x1"
 	)
 
 	expect_equal(length(rfi$param_set$values$conditioning_set), 1)
 	expect_equal(rfi$param_set$values$conditioning_set, "x1")
 
 	rfi$compute()
-	result = rfi$importance()
-	expect_importance_dt(result, features = rfi$features)
-})
-
-test_that("RFI with custom ARF sampler", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
-	skip_if_not_installed("arf")
-
-	set.seed(123)
-	task = mlr3::tgen("spirals")$generate(n = 100)
-	custom_sampler = ConditionalARFSampler$new(task)
-
-	rfi = RFI$new(
-		task = task,
-		learner = mlr3::lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
-		measure = mlr3::msr("classif.ce"),
-		conditioning_set = c("x1"), # Use one feature as conditioning set
-		sampler = custom_sampler
-	)
-
-	# Should use the custom sampler
-	checkmate::expect_r6(rfi$sampler, "ConditionalARFSampler")
-	rfi$compute()
 	expect_importance_dt(rfi$importance(), features = rfi$features)
-})
-
-test_that("RFI null result for featureless learner", {
-	skip_if_not_installed("arf")
-
-	set.seed(123)
-	task = mlr3::tgen("xor")$generate(n = 200)
-
-	rfi = RFI$new(
-		task = task,
-		learner = mlr3::lrn("classif.featureless"),
-		measure = mlr3::msr("classif.ce"),
-		conditioning_set = "x1"
-	)
-
-	rfi$compute()
-
-	expected = data.table::data.table(
-		feature = rfi$features,
-		importance = 0,
-		key = "feature"
-	)
-
-	expect_identical(rfi$importance(), expected)
-})
-
-test_that("RFI multiple perms", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
-	skip_if_not_installed("arf")
-
-	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 200)
-
-	rfi = RFI$new(
-		task = task,
-		learner = mlr3::lrn("regr.ranger", num.trees = 50),
-		measure = mlr3::msr("regr.mse"),
-		resampling = mlr3::rsmp("cv", folds = 3),
-		conditioning_set = "important1",
-		n_repeats = 2
-	)
-
-	rfi$compute()
-
-	expect_importance_dt(rfi$importance(), features = rfi$features)
-
-	checkmate::expect_data_table(
-		rfi$scores(),
-		types = c("character", "integer", "numeric"),
-		nrows = rfi$resampling$iters *
-			rfi$param_set$values$n_repeats *
-			length(rfi$features),
-		ncols = 6,
-		any.missing = FALSE,
-		min.cols = 6
-	)
-})
-
-test_that("RFI only one feature", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
-	skip_if_not_installed("arf")
-
-	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 200)
-
-	rfi = RFI$new(
-		task = task,
-		learner = mlr3::lrn("regr.ranger", num.trees = 50),
-		measure = mlr3::msr("regr.mse"),
-		resampling = mlr3::rsmp("cv", folds = 3),
-		conditioning_set = c("important1", "important2"),
-		n_repeats = 2,
-		features = "important4"
-	)
-
-	rfi$compute()
-
-	expect_importance_dt(rfi$importance(), features = "important4")
-
-	checkmate::expect_data_table(
-		rfi$scores(),
-		types = c("character", "integer", "numeric"),
-		nrows = rfi$resampling$iters *
-			rfi$param_set$values$n_repeats,
-		ncols = 6,
-		any.missing = FALSE,
-		min.cols = 6
-	)
-})
-
-test_that("RFI with friedman1 produces sensible results", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
-	skip_if_not_installed("arf")
-
-	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 200)
-	learner = mlr3::lrn("regr.ranger", num.trees = 50)
-	measure = mlr3::msr("regr.mse")
-
-	rfi = RFI$new(
-		task = task,
-		learner = learner,
-		measure = measure,
-		conditioning_set = c("important1"), # Condition on one feature
-		n_repeats = 2
-	)
-
-	rfi$compute()
-	result = rfi$importance()
-	expect_importance_dt(result, features = rfi$features)
-
-	# Check that important features (important1-5) generally have higher scores
-	# than unimportant features (unimportant1-5)
-	important_features = grep("^important", result$feature, value = TRUE)
-	unimportant_features = grep("^unimportant", result$feature, value = TRUE)
-
-	important_scores = result[feature %in% important_features]$importance
-	unimportant_scores = result[feature %in% unimportant_features]$importance
-
-	# On average, important features should have higher RFI values
-	expect_gt(mean(important_scores), mean(unimportant_scores))
-
-	# Check that scores are finite and not all zero
-	expect_true(all(is.finite(result$importance)))
-	expect_gt(max(abs(result$importance)), 0)
-})
-
-test_that("RFI different relations (difference vs ratio)", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
-	skip_if_not_installed("arf")
-
-	set.seed(123)
-	task = mlr3::tgen("2dnormals")$generate(n = 100)
-
-	rfi = RFI$new(
-		task = task,
-		learner = mlr3::lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
-		measure = mlr3::msr("classif.ce"),
-		conditioning_set = character(0) # Empty conditioning set (as oppsosed to NULL -> condition on all features)
-	)
-
-	# Default behavior should be sane
-	rfi$compute()
-	res_1 = rfi$importance()
-	expect_importance_dt(res_1, rfi$features)
-
-	res_2 = rfi$importance(relation = "difference")
-	expect_identical(res_1, res_2)
-
-	res_3 = rfi$importance(relation = "ratio")
-	res_4 = rfi$importance(relation = "difference")
-
-	expect_error(expect_equal(res_3, res_4))
-
-	expect_importance_dt(res_2, rfi$features)
-	expect_importance_dt(res_3, rfi$features)
-	expect_importance_dt(res_4, rfi$features)
-})
-
-test_that("RFI parameter validation", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
-	skip_if_not_installed("arf")
-
-	set.seed(123)
-	task = mlr3::tgen("2dnormals")$generate(n = 50)
-	learner = mlr3::lrn("classif.ranger", num.trees = 10, predict_type = "prob")
-	measure = mlr3::msr("classif.ce")
-
-	# n_repeats must be positive integer
-	expect_error(RFI$new(
-		task = task,
-		learner = learner,
-		measure = measure,
-		n_repeats = 0L
-	))
-
-	expect_error(RFI$new(
-		task = task,
-		learner = learner,
-		measure = measure,
-		n_repeats = -1L
-	))
-
-	# conditioning_set must be valid feature names
-	expect_error(RFI$new(
-		task = task,
-		learner = learner,
-		measure = measure,
-		conditioning_set = c("nonexistent_feature")
-	))
 })
 
 test_that("RFI different conditioning sets produce different results", {
@@ -340,7 +304,7 @@ test_that("RFI different conditioning sets produce different results", {
 	learner = mlr3::lrn("regr.ranger", num.trees = 50)
 	measure = mlr3::msr("regr.mse")
 
-	# RFI with empty conditioning set (equivalent to PFI)
+	# RFI with empty conditioning set
 	rfi_empty = RFI$new(
 		task = task,
 		learner = learner,
@@ -368,10 +332,11 @@ test_that("RFI different conditioning sets produce different results", {
 	)
 
 	rfi_empty$compute()
-	result_empty = rfi_empty$importance()
 	rfi_one$compute()
-	result_one = rfi_one$importance()
 	rfi_multi$compute()
+
+	result_empty = rfi_empty$importance()
+	result_one = rfi_one$importance()
 	result_multi = rfi_multi$importance()
 
 	# All should be valid importance tables
@@ -379,42 +344,7 @@ test_that("RFI different conditioning sets produce different results", {
 	expect_importance_dt(result_one, features = rfi_one$features)
 	expect_importance_dt(result_multi, features = rfi_multi$features)
 
-	# Results should generally be different (allowing for some tolerance due to randomness)
-	# We don't expect exact differences but the conditioning should have some effect
+	# Results should generally be different
 	expect_false(all(abs(result_empty$importance - result_one$importance) < 1e-10))
 	expect_false(all(abs(result_one$importance - result_multi$importance) < 1e-10))
-})
-
-test_that("RFI with groups", {
-	skip_if_not_installed("arf")
-
-	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 200)
-
-	# Define feature groups
-	groups = list(
-		early_important = c("important1", "important2"),
-		late_important = c("important3", "important4"),
-		noise = c("unimportant1", "unimportant2")
-	)
-
-	rfi = RFI$new(
-		task = task,
-		learner = mlr3::lrn("regr.rpart"),
-		measure = mlr3::msr("regr.mse"),
-		conditioning_set = "important5",
-		groups = groups
-	)
-
-	checkmate::expect_r6(rfi, c("FeatureImportanceMethod", "PerturbationImportance", "RFI"))
-	expect_false(is.null(rfi$groups))
-	expect_equal(names(rfi$groups), c("early_important", "late_important", "noise"))
-
-	rfi$compute()
-	result = rfi$importance()
-
-	# Should have one row per group
-	expect_equal(nrow(result), length(groups))
-	expect_equal(result$feature, names(groups))
-	expect_importance_dt(result, features = names(groups))
 })

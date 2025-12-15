@@ -1,7 +1,7 @@
-# Higher-level test functions for PerturbationImportance methods (PFI, CFI, RFI)
+# Higher-level test functions for FeatureImportanceMethod subclasses
 #
 # These functions encapsulate common test patterns to reduce duplication
-# and make writing new tests easier.
+# and make writing new tests easier. Works for PFI, CFI, RFI, WVIM, LOCO, etc.
 
 # -----------------------------------------------------------------------------
 # test_default_behavior
