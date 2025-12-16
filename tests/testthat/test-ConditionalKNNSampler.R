@@ -1,7 +1,6 @@
 # Tests for ConditionalKNNSampler
 
 test_that("ConditionalKNNSampler initialization works", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalKNNSampler$new(task, k = 5L)
 
@@ -15,7 +14,6 @@ test_that("ConditionalKNNSampler initialization works", {
 })
 
 test_that("ConditionalKNNSampler works with default k", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalKNNSampler$new(task) # Default k = 5L
 
@@ -23,7 +21,6 @@ test_that("ConditionalKNNSampler works with default k", {
 })
 
 test_that("ConditionalKNNSampler sampling works", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalKNNSampler$new(task, k = 5L)
 
@@ -48,7 +45,6 @@ test_that("ConditionalKNNSampler sampling works", {
 })
 
 test_that("ConditionalKNNSampler sample_newdata works", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalKNNSampler$new(task, k = 5L)
 	test_data = task$data(rows = 1:10)
@@ -65,7 +61,6 @@ test_that("ConditionalKNNSampler sample_newdata works", {
 })
 
 test_that("ConditionalKNNSampler handles different k values", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	test_data = task$data(rows = 1:10)
 
@@ -94,7 +89,6 @@ test_that("ConditionalKNNSampler handles different k values", {
 })
 
 test_that("ConditionalKNNSampler handles k > n_train", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 50)
 	sampler = ConditionalKNNSampler$new(task, k = 100L)
 	test_data = task$data(rows = 1:5)
@@ -110,7 +104,6 @@ test_that("ConditionalKNNSampler handles k > n_train", {
 })
 
 test_that("ConditionalKNNSampler is reproducible with seed", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalKNNSampler$new(task, k = 5L)
 	test_data = task$data(rows = 1:10)
@@ -135,7 +128,6 @@ test_that("ConditionalKNNSampler is reproducible with seed", {
 })
 
 test_that("ConditionalKNNSampler conditioning_set parameter behavior", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	test_conditioning_set_behavior(ConditionalKNNSampler, task, k = 5L)
 })
@@ -146,7 +138,6 @@ test_that("ConditionalKNNSampler preserves feature types", {
 
 test_that("ConditionalKNNSampler works with categorical features using Gower distance", {
 	skip_if_not_installed("gower")
-	library(mlr3)
 
 	task = tsk("penguins")
 	data = task$data()
@@ -169,7 +160,6 @@ test_that("ConditionalKNNSampler works with categorical features using Gower dis
 
 test_that("ConditionalKNNSampler works with mixed numeric and categorical conditioning", {
 	skip_if_not_installed("gower")
-	library(mlr3)
 
 	task = tsk("penguins")
 	sampler = ConditionalKNNSampler$new(task, k = 5L)

@@ -1,7 +1,6 @@
 # Tests for MarginalReferenceSampler
 
 test_that("MarginalReferenceSampler initialization works", {
-	library(mlr3)
 	task = tgen("circle", d = 5)$generate(n = 100)
 	sampler = MarginalReferenceSampler$new(task)
 
@@ -17,7 +16,6 @@ test_that("MarginalReferenceSampler initialization works", {
 })
 
 test_that("MarginalReferenceSampler sampling works", {
-	library(mlr3)
 	task = tgen("circle", d = 5)$generate(n = 100)
 	sampler = MarginalReferenceSampler$new(task)
 	data = task$data()
@@ -33,7 +31,6 @@ test_that("MarginalReferenceSampler sampling works", {
 })
 
 test_that("MarginalReferenceSampler handles multiple features", {
-	library(mlr3)
 	task = tgen("circle", d = 5)$generate(n = 100)
 	sampler = MarginalReferenceSampler$new(task)
 	data = task$data()
@@ -51,7 +48,6 @@ test_that("MarginalReferenceSampler handles multiple features", {
 })
 
 test_that("MarginalReferenceSampler with n_samples", {
-	library(mlr3)
 	task = tgen("circle", d = 5)$generate(n = 100)
 
 	# Create sampler with subsampled reference data
@@ -68,7 +64,6 @@ test_that("MarginalReferenceSampler with n_samples", {
 })
 
 test_that("MarginalReferenceSampler sample_newdata works", {
-	library(mlr3)
 	task = tgen("circle", d = 5)$generate(n = 100)
 	sampler = MarginalReferenceSampler$new(task)
 
@@ -85,7 +80,6 @@ test_that("MarginalReferenceSampler sample_newdata works", {
 })
 
 test_that("MarginalReferenceSampler preserves within-row dependencies", {
-	library(mlr3)
 	set.seed(123)
 	n = 100
 	x1 = rnorm(n)
@@ -108,7 +102,6 @@ test_that("MarginalReferenceSampler preserves within-row dependencies", {
 })
 
 test_that("MarginalReferenceSampler vs MarginalPermutationSampler difference", {
-	library(mlr3)
 	set.seed(123)
 	n = 100
 	x1 = rnorm(n)
@@ -135,7 +128,6 @@ test_that("MarginalReferenceSampler vs MarginalPermutationSampler difference", {
 })
 
 test_that("MarginalReferenceSampler works with different task types", {
-	library(mlr3)
 
 	# Regression task
 	task_regr = tgen("circle", d = 4)$generate(n = 100)
@@ -157,7 +149,6 @@ test_that("MarginalReferenceSampler works with different task types", {
 })
 
 test_that("MarginalReferenceSampler handles n_samples edge cases", {
-	library(mlr3)
 	task = tgen("circle", d = 5)$generate(n = 100)
 
 	# n_samples larger than task size

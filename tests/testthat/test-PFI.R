@@ -20,13 +20,13 @@ test_that("PFI basic workflow with classification", {
 	skip_if_not_installed("mlr3learners")
 
 	set.seed(123)
-	task = mlr3::tgen("2dnormals")$generate(n = 100)
+	task = tgen("2dnormals")$generate(n = 100)
 
 	test_basic_workflow(
 		PFI,
 		task = task,
-		learner = mlr3::lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
-		measure = mlr3::msr("classif.ce"),
+		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
+		measure = msr("classif.ce"),
 		expected_classes = c("FeatureImportanceMethod", "PFI")
 	)
 })
@@ -45,13 +45,13 @@ test_that("PFI multiple repeats and scores structure", {
 	skip_if_not_installed("mlr3learners")
 
 	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 200)
 
 	test_n_repeats_and_scores(
 		PFI,
 		task = task,
-		learner = mlr3::lrn("regr.ranger", num.trees = 50),
-		measure = mlr3::msr("regr.mse"),
+		learner = lrn("regr.ranger", num.trees = 50),
+		measure = msr("regr.mse"),
 		n_repeats = 2L
 	)
 })
@@ -61,13 +61,13 @@ test_that("PFI single feature", {
 	skip_if_not_installed("mlr3learners")
 
 	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 200)
 
 	test_single_feature(
 		PFI,
 		task = task,
-		learner = mlr3::lrn("regr.ranger", num.trees = 50),
-		measure = mlr3::msr("regr.mse"),
+		learner = lrn("regr.ranger", num.trees = 50),
+		measure = msr("regr.mse"),
 		feature = "important4",
 		n_repeats = 2L
 	)
@@ -82,13 +82,13 @@ test_that("PFI difference vs ratio relations", {
 	skip_if_not_installed("mlr3learners")
 
 	set.seed(123)
-	task = mlr3::tgen("2dnormals")$generate(n = 100)
+	task = tgen("2dnormals")$generate(n = 100)
 
 	test_relation_parameter(
 		PFI,
 		task = task,
-		learner = mlr3::lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
-		measure = mlr3::msr("classif.ce")
+		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
+		measure = msr("classif.ce")
 	)
 })
 
@@ -107,7 +107,7 @@ test_that("PFI friedman1 produces sensible ranking", {
 
 test_that("PFI with feature groups", {
 	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 200)
 
 	groups = list(
 		important_group = c("important1", "important2", "important3"),
@@ -117,8 +117,8 @@ test_that("PFI with feature groups", {
 	test_grouped_importance(
 		PFI,
 		task = task,
-		learner = mlr3::lrn("regr.rpart"),
-		measure = mlr3::msr("regr.mse"),
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
 		groups = groups,
 		expected_classes = c("FeatureImportanceMethod", "PFI")
 	)
@@ -130,13 +130,13 @@ test_that("PFI with feature groups", {
 
 test_that("PFI scores and obs_losses agree", {
 	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 200)
 
 	pfi = PFI$new(
 		task = task,
-		learner = mlr3::lrn("regr.rpart"),
-		measure = mlr3::msr("regr.mse"),
-		resampling = mlr3::rsmp("cv", folds = 3),
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("cv", folds = 3),
 		n_repeats = 2
 	)
 

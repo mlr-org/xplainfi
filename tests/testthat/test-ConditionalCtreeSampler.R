@@ -1,7 +1,6 @@
 # Tests for ConditionalCtreeSampler
 
 test_that("ConditionalCtreeSampler initialization works", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalCtreeSampler$new(task)
 
@@ -21,7 +20,6 @@ test_that("ConditionalCtreeSampler initialization works", {
 })
 
 test_that("ConditionalCtreeSampler works with custom parameters", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 
 	sampler = ConditionalCtreeSampler$new(
@@ -39,7 +37,6 @@ test_that("ConditionalCtreeSampler works with custom parameters", {
 })
 
 test_that("ConditionalCtreeSampler sampling works", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalCtreeSampler$new(task)
 	data = task$data()
@@ -73,7 +70,6 @@ test_that("ConditionalCtreeSampler sampling works", {
 })
 
 test_that("ConditionalCtreeSampler sample_newdata works", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalCtreeSampler$new(task)
 	test_data = task$data(rows = 1:10)
@@ -90,7 +86,6 @@ test_that("ConditionalCtreeSampler sample_newdata works", {
 })
 
 test_that("ConditionalCtreeSampler caching works", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	test_data = task$data(rows = 1:10)
 
@@ -125,7 +120,6 @@ test_that("ConditionalCtreeSampler caching works", {
 })
 
 test_that("ConditionalCtreeSampler handles single observation", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalCtreeSampler$new(task)
 	test_data = task$data(rows = 1)
@@ -141,7 +135,6 @@ test_that("ConditionalCtreeSampler handles single observation", {
 })
 
 test_that("ConditionalCtreeSampler is reproducible with seed", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalCtreeSampler$new(task)
 	test_data = task$data(rows = 1:10)
@@ -166,7 +159,6 @@ test_that("ConditionalCtreeSampler is reproducible with seed", {
 })
 
 test_that("ConditionalCtreeSampler conditioning_set parameter behavior", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	test_conditioning_set_behavior(ConditionalCtreeSampler, task)
 })

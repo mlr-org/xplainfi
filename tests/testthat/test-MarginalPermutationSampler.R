@@ -1,7 +1,6 @@
 # Tests for MarginalPermutationSampler
 
 test_that("MarginalPermutationSampler initialization works", {
-	library(mlr3)
 	task = tgen("circle", d = 5)$generate(n = 100)
 	sampler = MarginalPermutationSampler$new(task)
 
@@ -12,7 +11,6 @@ test_that("MarginalPermutationSampler initialization works", {
 })
 
 test_that("MarginalPermutationSampler sampling works", {
-	library(mlr3)
 	task = tgen("circle", d = 5)$generate(n = 100)
 	sampler = MarginalPermutationSampler$new(task)
 	data = task$data()
@@ -31,7 +29,6 @@ test_that("MarginalPermutationSampler sampling works", {
 })
 
 test_that("MarginalPermutationSampler handles multiple features", {
-	library(mlr3)
 	task = tgen("circle", d = 5)$generate(n = 100)
 	sampler = MarginalPermutationSampler$new(task)
 	data = task$data()
@@ -52,7 +49,6 @@ test_that("MarginalPermutationSampler handles multiple features", {
 })
 
 test_that("MarginalPermutationSampler works with different task types", {
-	library(mlr3)
 
 	# Regression task
 	task_regr = tgen("circle", d = 4)$generate(n = 100)

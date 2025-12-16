@@ -2,7 +2,6 @@
 
 test_that("ConditionalARFSampler initialization works", {
 	skip_if_not_installed("arf")
-	library(mlr3)
 
 	task = tgen("circle", d = 5)$generate(n = 100)
 	sampler = ConditionalARFSampler$new(task)
@@ -23,7 +22,6 @@ test_that("ConditionalARFSampler initialization works", {
 
 test_that("ConditionalARFSampler sampling works", {
 	skip_if_not_installed("arf")
-	library(mlr3)
 
 	task = tgen("circle", d = 5)$generate(n = 100)
 	sampler = ConditionalARFSampler$new(task)
@@ -50,7 +48,6 @@ test_that("ConditionalARFSampler sampling works", {
 
 test_that("ConditionalARFSampler handles empty conditioning set", {
 	skip_if_not_installed("arf")
-	library(mlr3)
 
 	task = tgen("circle", d = 5)$generate(n = 100)
 	sampler = ConditionalARFSampler$new(task, conditioning_set = character(0))
@@ -72,7 +69,6 @@ test_that("ConditionalARFSampler handles empty conditioning set", {
 
 test_that("ConditionalARFSampler works with different task types", {
 	skip_if_not_installed("arf")
-	library(mlr3)
 
 	# Regression task
 	task_regr = tgen("circle", d = 4)$generate(n = 100)
@@ -92,7 +88,6 @@ test_that("ConditionalARFSampler works with different task types", {
 
 test_that("ConditionalARFSampler param_set structure", {
 	skip_if_not_installed("arf")
-	library(mlr3)
 
 	task = tgen("circle", d = 5)$generate(n = 50)
 	sampler = ConditionalARFSampler$new(task, finite_bounds = "no")
@@ -112,7 +107,6 @@ test_that("ConditionalARFSampler param_set structure", {
 
 test_that("ConditionalARFSampler parameter priority and storage", {
 	skip_if_not_installed("arf")
-	library(mlr3)
 
 	task = tgen("circle", d = 5)$generate(n = 50)
 	sampler = ConditionalARFSampler$new(
@@ -138,7 +132,6 @@ test_that("ConditionalARFSampler parameter priority and storage", {
 
 test_that("ConditionalARFSampler conditioning_set parameter behavior", {
 	skip_if_not_installed("arf")
-	library(mlr3)
 
 	task = tgen("friedman1")$generate(n = 100)
 	test_conditioning_set_behavior(ConditionalARFSampler, task, verbose = FALSE)

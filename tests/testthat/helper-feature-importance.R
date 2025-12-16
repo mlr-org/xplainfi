@@ -20,12 +20,12 @@
 #' @param ... Additional arguments passed to method constructor (e.g., conditioning_set for RFI)
 test_default_behavior = function(method_class, task_type = "regr", ...) {
 	if (task_type == "regr") {
-		task = mlr3::tgen("friedman1")$generate(n = 100)
-		learner = mlr3::lrn("regr.rpart")
+		task = tgen("friedman1")$generate(n = 100)
+		learner = lrn("regr.rpart")
 		expected_measure_class = "MeasureRegr"
 	} else {
-		task = mlr3::tgen("2dnormals")$generate(n = 100)
-		learner = mlr3::lrn("classif.rpart", predict_type = "prob")
+		task = tgen("2dnormals")$generate(n = 100)
+		learner = lrn("classif.rpart", predict_type = "prob")
 		expected_measure_class = "MeasureClassif"
 	}
 
@@ -116,13 +116,13 @@ test_basic_workflow = function(
 #' @param ... Additional arguments passed to method constructor
 test_featureless_zero_importance = function(method_class, task_type = "classif", ...) {
 	if (task_type == "regr") {
-		task = mlr3::tgen("friedman1")$generate(n = 200)
-		learner = mlr3::lrn("regr.featureless")
-		measure = mlr3::msr("regr.mse")
+		task = tgen("friedman1")$generate(n = 200)
+		learner = lrn("regr.featureless")
+		measure = msr("regr.mse")
 	} else {
-		task = mlr3::tgen("xor")$generate(n = 200)
-		learner = mlr3::lrn("classif.featureless")
-		measure = mlr3::msr("classif.ce")
+		task = tgen("xor")$generate(n = 200)
+		learner = lrn("classif.featureless")
+		measure = msr("classif.ce")
 	}
 
 	method = method_class$new(
@@ -164,7 +164,7 @@ test_n_repeats_and_scores = function(
 	learner,
 	measure,
 	n_repeats = 2L,
-	resampling = mlr3::rsmp("cv", folds = 3),
+	resampling = rsmp("cv", folds = 3),
 	...
 ) {
 	method = method_class$new(
@@ -216,7 +216,7 @@ test_single_feature = function(
 	measure,
 	feature = "important4",
 	n_repeats = 2L,
-	resampling = mlr3::rsmp("cv", folds = 3),
+	resampling = rsmp("cv", folds = 3),
 	...
 ) {
 	method = method_class$new(
@@ -262,15 +262,17 @@ test_single_feature = function(
 #' @param learner mlr3 Learner for regression
 #' @param measure mlr3 Measure for regression
 #' @param n_repeats Number of repeats
+#' @param n Sample size for friedman1 task (default 500 for stable ranking)
 #' @param ... Additional arguments passed to method constructor
 test_friedman1_sensible_ranking = function(
 	method_class,
-	learner = mlr3::lrn("regr.rpart"),
-	measure = mlr3::msr("regr.mse"),
+	learner = lrn("regr.rpart"),
+	measure = msr("regr.mse"),
 	n_repeats = 2L,
+	n = 500L,
 	...
 ) {
-	task = mlr3::tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = n)
 
 	method = method_class$new(
 		task = task,
@@ -296,7 +298,7 @@ test_friedman1_sensible_ranking = function(
 	testthat::expect_gt(mean(important_scores), mean(unimportant_scores))
 
 	# Scores should be finite and not all zero
-	testthat::expect_true(all(is.finite(result$importance)))
+	checkmate::expect_numeric(result$importance, finite = TRUE)
 	testthat::expect_gt(max(abs(result$importance)), 0)
 
 	invisible(method)

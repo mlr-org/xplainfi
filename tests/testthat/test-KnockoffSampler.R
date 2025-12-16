@@ -2,7 +2,6 @@
 
 test_that("KnockoffSampler initialization works", {
 	skip_if_not_installed("knockoff")
-	library(mlr3)
 
 	n = 100
 	task = tgen("friedman1")$generate(n = n)
@@ -23,7 +22,6 @@ test_that("KnockoffSampler initialization works", {
 
 test_that("KnockoffSampler sampling works", {
 	skip_if_not_installed("knockoff")
-	library(mlr3)
 
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = KnockoffSampler$new(task)
@@ -41,7 +39,6 @@ test_that("KnockoffSampler sampling works", {
 
 test_that("KnockoffSampler handles multiple features", {
 	skip_if_not_installed("knockoff")
-	library(mlr3)
 
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = KnockoffSampler$new(task)
@@ -61,7 +58,6 @@ test_that("KnockoffSampler handles multiple features", {
 
 test_that("KnockoffSampler works with different numeric tasks", {
 	skip_if_not_installed("knockoff")
-	library(mlr3)
 
 	# Friedman1 regression task (all numeric)
 	task_friedman = tgen("friedman1")$generate(n = 100)
@@ -91,7 +87,6 @@ test_that("KnockoffSampler works with different numeric tasks", {
 
 test_that("KnockoffSampler knockoff matrix properties", {
 	skip_if_not_installed("knockoff")
-	library(mlr3)
 
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = KnockoffSampler$new(task)
@@ -111,7 +106,6 @@ test_that("KnockoffSampler knockoff matrix properties", {
 
 test_that("KnockoffSampler custom knockoff function", {
 	skip_if_not_installed("knockoff")
-	library(mlr3)
 
 	task = tgen("friedman1")$generate(n = 50)
 
@@ -140,7 +134,6 @@ test_that("KnockoffSampler custom knockoff function", {
 
 test_that("KnockoffSampler reproducibility", {
 	skip_if_not_installed("knockoff")
-	library(mlr3)
 
 	task = tgen("friedman1")$generate(n = 80)
 
@@ -163,7 +156,6 @@ test_that("KnockoffSampler reproducibility", {
 
 test_that("KnockoffSampler edge cases", {
 	skip_if_not_installed("knockoff")
-	library(mlr3)
 
 	# Test with minimum viable task (single feature)
 	single_feature_data = data.table::data.table(
@@ -186,7 +178,6 @@ test_that("KnockoffSampler edge cases", {
 
 test_that("KnockoffSampler fails with non-numeric features", {
 	skip_if_not_installed("knockoff")
-	library(mlr3)
 
 	# Factor features
 	data_with_factor = data.table::data.table(
@@ -211,7 +202,6 @@ test_that("KnockoffSampler fails with non-numeric features", {
 
 test_that("KnockoffGaussianSampler works with all-numeric features", {
 	skip_if_not_installed("knockoff")
-	library(mlr3)
 
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = KnockoffGaussianSampler$new(task)
@@ -255,7 +245,6 @@ test_that("KnockoffGaussianSampler works with all-numeric features", {
 
 test_that("KnockoffGaussianSampler fails with factor features", {
 	skip_if_not_installed("knockoff")
-	library(mlr3)
 
 	data_with_factor = data.table::data.table(
 		x1 = rnorm(50),
@@ -273,7 +262,6 @@ test_that("KnockoffGaussianSampler fails with factor features", {
 
 test_that("KnockoffSampler works with multiple iterations", {
 	skip_if_not_installed("knockoff")
-	library(mlr3)
 
 	task = sim_dgp_ewald(n = 100)
 

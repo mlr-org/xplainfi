@@ -1,5 +1,4 @@
 test_that("has_obs_loss returns TRUE for measures with obs_loss", {
-	library(mlr3)
 	# Classification measures with obs_loss
 	expect_true(has_obs_loss(msr("classif.ce")))
 	expect_true(has_obs_loss(msr("classif.acc")))
@@ -11,7 +10,6 @@ test_that("has_obs_loss returns TRUE for measures with obs_loss", {
 })
 
 test_that("has_obs_loss returns FALSE for measures without obs_loss", {
-	library(mlr3)
 	# These measures don't have observation-wise losses
 	expect_false(has_obs_loss(msr("classif.auc")))
 	expect_false(has_obs_loss(msr("regr.rsq")))

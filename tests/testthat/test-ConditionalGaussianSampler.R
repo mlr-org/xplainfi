@@ -1,7 +1,6 @@
 # Tests for ConditionalGaussianSampler
 
 test_that("ConditionalGaussianSampler initialization works", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalGaussianSampler$new(task)
 
@@ -17,13 +16,11 @@ test_that("ConditionalGaussianSampler initialization works", {
 })
 
 test_that("ConditionalGaussianSampler rejects non-numeric tasks", {
-	library(mlr3)
 	task = tsk("penguins")
 	expect_error(ConditionalGaussianSampler$new(task), "unsupported feature types")
 })
 
 test_that("ConditionalGaussianSampler sampling works", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalGaussianSampler$new(task)
 
@@ -48,7 +45,6 @@ test_that("ConditionalGaussianSampler sampling works", {
 })
 
 test_that("ConditionalGaussianSampler sample_newdata works", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalGaussianSampler$new(task)
 	test_data = task$data(rows = 1:10)
@@ -65,7 +61,6 @@ test_that("ConditionalGaussianSampler sample_newdata works", {
 })
 
 test_that("ConditionalGaussianSampler handles single observation", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalGaussianSampler$new(task)
 	test_data = task$data(rows = 1)
@@ -81,7 +76,6 @@ test_that("ConditionalGaussianSampler handles single observation", {
 })
 
 test_that("ConditionalGaussianSampler is reproducible with seed", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalGaussianSampler$new(task)
 	test_data = task$data(rows = 1:10)
@@ -106,7 +100,6 @@ test_that("ConditionalGaussianSampler is reproducible with seed", {
 })
 
 test_that("ConditionalGaussianSampler conditioning_set parameter behavior", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	test_conditioning_set_behavior(ConditionalGaussianSampler, task)
 })
