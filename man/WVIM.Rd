@@ -54,7 +54,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="r">}}\preformatted{WVIM$new(
   task,
   learner,
-  measure,
+  measure = NULL,
   resampling = NULL,
   features = NULL,
   groups = NULL,

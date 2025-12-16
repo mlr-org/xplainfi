@@ -128,7 +128,6 @@ test_that("MarginalReferenceSampler vs MarginalPermutationSampler difference", {
 })
 
 test_that("MarginalReferenceSampler works with different task types", {
-
 	# Regression task
 	task_regr = tgen("circle", d = 4)$generate(n = 100)
 	sampler_regr = MarginalReferenceSampler$new(task_regr)

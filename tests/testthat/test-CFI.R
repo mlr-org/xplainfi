@@ -286,7 +286,15 @@ test_that("CFI with CPI variance method using KnockoffGaussianSampler", {
 
 	# Check structure
 	expect_importance_dt(cpi_result, features = cfi$features)
-	expected_cols = c("feature", "importance", "se", "statistic", "p.value", "conf_lower", "conf_upper")
+	expected_cols = c(
+		"feature",
+		"importance",
+		"se",
+		"statistic",
+		"p.value",
+		"conf_lower",
+		"conf_upper"
+	)
 	expect_contains(names(cpi_result), expected_cols)
 
 	# Check that all values are finite (except conf_upper which is Inf for one-sided)

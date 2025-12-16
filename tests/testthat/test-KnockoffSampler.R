@@ -225,9 +225,17 @@ test_that("KnockoffGaussianSampler works with all-numeric features", {
 	expect_equal(nrow(sampler$sample("important1", row_ids = 32)), 1)
 
 	# Non-sampled features unchanged
-	non_sampled = c("important2", "important3", "important4", "important5",
-									"unimportant1", "unimportant2", "unimportant3",
-									"unimportant4", "unimportant5")
+	non_sampled = c(
+		"important2",
+		"important3",
+		"important4",
+		"important5",
+		"unimportant1",
+		"unimportant2",
+		"unimportant3",
+		"unimportant4",
+		"unimportant5"
+	)
 	expect_equal(
 		sampler$sample("important1", row_ids = 32)[, ..non_sampled],
 		data[32, ..non_sampled]

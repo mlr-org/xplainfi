@@ -53,7 +53,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="r">}}\preformatted{LOCO$new(
   task,
   learner,
-  measure,
+  measure = NULL,
   resampling = NULL,
   features = NULL,
   n_repeats = 1L
@@ -67,7 +67,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 
 \item{\code{learner}}{(\link[mlr3:Learner]{mlr3::Learner}) Learner to use for prediction.}
 
-\item{\code{measure}}{(\link[mlr3:Measure]{mlr3::Measure}) Measure to use for scoring.}
+\item{\code{measure}}{(\link[mlr3:Measure]{mlr3::Measure}: \code{NULL}) Measure to use for scoring. Defaults to
+\code{classif.ce} for classification and \code{regr.mse} for regression.}
 
 \item{\code{resampling}}{(\link[mlr3:Resampling]{mlr3::Resampling}) Resampling strategy. Defaults to holdout.}
 

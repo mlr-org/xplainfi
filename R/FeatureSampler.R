@@ -93,7 +93,9 @@ FeatureSampler = R6Class(
 				expected_type <- feature_types[id == feat, type]
 				actual_class <- class(data[[feat]])[1]
 
-				if (expected_type == actual_class) next
+				if (expected_type == actual_class) {
+					next
+				}
 
 				# Attempt to fix known fixable cases
 				if (expected_type == "integer" && actual_class == "numeric") {

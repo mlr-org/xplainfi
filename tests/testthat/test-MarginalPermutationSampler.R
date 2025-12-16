@@ -49,7 +49,6 @@ test_that("MarginalPermutationSampler handles multiple features", {
 })
 
 test_that("MarginalPermutationSampler works with different task types", {
-
 	# Regression task
 	task_regr = tgen("circle", d = 4)$generate(n = 100)
 	sampler_regr = MarginalPermutationSampler$new(task_regr)

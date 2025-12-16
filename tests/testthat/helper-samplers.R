@@ -25,10 +25,12 @@ generate_test_task = function(supported_types, n = 100) {
 		xdat[, x_fct := factor(sample(c("a", "b", "c"), n, replace = TRUE))]
 	}
 	if ("ordered" %in% supported_types) {
-		xdat[, x_ord := ordered(
-			sample(c("low", "mid", "high"), n, replace = TRUE),
-			levels = c("low", "mid", "high")
-		)]
+		xdat[,
+			x_ord := ordered(
+				sample(c("low", "mid", "high"), n, replace = TRUE),
+				levels = c("low", "mid", "high")
+			)
+		]
 	}
 	if ("logical" %in% supported_types) {
 		xdat[, x_lgl := sample(c(TRUE, FALSE), n, replace = TRUE)]

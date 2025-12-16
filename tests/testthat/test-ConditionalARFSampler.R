@@ -12,7 +12,14 @@ test_that("ConditionalARFSampler initialization works", {
 	expect_s3_class(sampler$param_set, "ParamSet")
 
 	# Check expected parameters
-	expected_params = c("conditioning_set", "finite_bounds", "round", "stepsize", "verbose", "parallel")
+	expected_params = c(
+		"conditioning_set",
+		"finite_bounds",
+		"round",
+		"stepsize",
+		"verbose",
+		"parallel"
+	)
 	expect_true(all(expected_params %in% sampler$param_set$ids()))
 
 	# Check that ARF model was fitted
