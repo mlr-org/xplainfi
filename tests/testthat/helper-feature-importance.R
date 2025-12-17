@@ -126,13 +126,13 @@ test_featureless_zero_importance = function(method_class, task_type = "classif",
 
 	method$compute()
 
-	expected = data.table::data.table(
-		feature = method$features,
-		importance = 0,
-		key = "feature"
-	)
+	result = method$importance()
 
-	expect_identical(method$importance(), expected)
+	# Verify structure
+	expect_importance_dt(result, features = method$features)
+
+	# All importance values should be essentially zero
+	checkmate::expect_numeric(result$importance, lower = -1e-10, upper = 1e-10)
 
 	invisible(method)
 }
@@ -250,17 +250,15 @@ test_single_feature = function(
 #' Verifies that important features (important1-5) have higher mean importance
 #' than unimportant features (unimportant1-5).
 #'
-#' @param method_class R6 class (PFI, CFI, or RFI)
+#' @param method_class R6 class (PFI, CFI, RFI, MarginalSAGE, ConditionalSAGE, etc.)
 #' @param learner mlr3 Learner for regression
 #' @param measure mlr3 Measure for regression
-#' @param n_repeats Number of repeats
 #' @param n Sample size for friedman1 task (default 500 for stable ranking)
-#' @param ... Additional arguments passed to method constructor
+#' @param ... Additional arguments passed to method constructor (e.g., n_repeats for perturbation methods)
 test_friedman1_sensible_ranking = function(
 	method_class,
 	learner = lrn("regr.rpart"),
 	measure = msr("regr.mse"),
-	n_repeats = 2L,
 	n = 500L,
 	...
 ) {
@@ -270,7 +268,6 @@ test_friedman1_sensible_ranking = function(
 		task = task,
 		learner = learner,
 		measure = measure,
-		n_repeats = n_repeats,
 		...
 	)
 
