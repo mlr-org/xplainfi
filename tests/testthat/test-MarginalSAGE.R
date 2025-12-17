@@ -6,8 +6,9 @@
 # Basic functionality
 # -----------------------------------------------------------------------------
 
-test_that("MarginalSAGE constructor validation", {
-	test_constructor_validation(MarginalSAGE)
+test_that("MarginalSAGE default behavior with minimal parameters", {
+	set.seed(123)
+	test_default_behavior(MarginalSAGE, task_type = "regr")
 })
 
 test_that("MarginalSAGE can be constructed with simple objects", {

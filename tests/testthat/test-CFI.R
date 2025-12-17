@@ -6,10 +6,6 @@
 # Basic functionality
 # -----------------------------------------------------------------------------
 
-test_that("CFI constructor validation", {
-	test_constructor_validation(CFI)
-})
-
 test_that("CFI default behavior with minimal parameters", {
 	skip_if_not_installed("arf")
 

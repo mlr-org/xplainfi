@@ -6,10 +6,6 @@
 # Basic functionality - WVIM
 # -----------------------------------------------------------------------------
 
-test_that("WVIM constructor validation", {
-	test_constructor_validation(WVIM)
-})
-
 test_that("WVIM default behavior with minimal parameters", {
 	set.seed(123)
 	test_default_behavior(WVIM, task_type = "regr", direction = "leave-out")
@@ -92,10 +88,6 @@ test_that("WVIM with feature groups", {
 # -----------------------------------------------------------------------------
 # Basic functionality - LOCO
 # -----------------------------------------------------------------------------
-
-test_that("LOCO constructor validation", {
-	test_constructor_validation(LOCO)
-})
 
 test_that("LOCO default behavior with minimal parameters", {
 	set.seed(123)

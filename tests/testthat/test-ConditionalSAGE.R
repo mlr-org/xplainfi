@@ -6,8 +6,11 @@
 # Basic functionality
 # -----------------------------------------------------------------------------
 
-test_that("ConditionalSAGE constructor validation", {
-	test_constructor_validation(ConditionalSAGE)
+test_that("ConditionalSAGE default behavior with minimal parameters", {
+	skip_if_not_installed("arf")
+
+	set.seed(123)
+	test_default_behavior(ConditionalSAGE, task_type = "regr")
 })
 
 test_that("ConditionalSAGE can be constructed with simple objects", {

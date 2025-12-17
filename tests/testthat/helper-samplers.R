@@ -74,7 +74,7 @@ expect_feature_type_consistency = function(sampled, task) {
 		msg = ""
 	}
 
-	testthat::expect(!any(mismatches), msg)
+	expect(!any(mismatches), msg)
 	invisible(sampled)
 }
 
@@ -93,13 +93,13 @@ expect_feature_type_consistency = function(sampled, task) {
 #' @return Invisibly returns sampled data for piping
 expect_non_sampled_unchanged = function(sampled, original, features) {
 	if (length(features) == 0) {
-		testthat::expect(TRUE, "No features to check")
+		expect(TRUE, "No features to check")
 		return(invisible(sampled))
 	}
 
 	for (feat in features) {
 		ok = identical(sampled[[feat]], original[[feat]])
-		testthat::expect(
+		expect(
 			ok,
 			glue::glue(
 				"Feature '{feat}' was modified in sampled data.\n",
@@ -128,7 +128,7 @@ expect_non_sampled_unchanged = function(sampled, original, features) {
 expect_sampled_features_changed = function(sampled, original, sampled_features) {
 	for (feat in sampled_features) {
 		ok = !identical(sampled[[feat]], original[[feat]])
-		testthat::expect(
+		expect(
 			ok,
 			glue::glue(
 				"Sampled feature '{feat}' is identical to original.\n",
@@ -154,7 +154,7 @@ expect_sampled_features_changed = function(sampled, original, sampled_features) 
 #' @param nrows Expected number of rows (NULL to skip check)
 #' @return Invisibly returns sampled data for piping
 expect_sampler_output_structure = function(sampled, task, nrows = NULL) {
-	testthat::expect(
+	expect(
 		data.table::is.data.table(sampled),
 		glue::glue(
 			"Sampled data is not a data.table.\n",
@@ -165,7 +165,7 @@ expect_sampler_output_structure = function(sampled, task, nrows = NULL) {
 	expected_cols = c(task$target_names, task$feature_names)
 	actual_cols = names(sampled)
 
-	testthat::expect(
+	expect(
 		identical(actual_cols, expected_cols),
 		glue::glue(
 			"Sampled data has incorrect columns.\n",
@@ -175,7 +175,7 @@ expect_sampler_output_structure = function(sampled, task, nrows = NULL) {
 	)
 
 	if (!is.null(nrows)) {
-		testthat::expect(
+		expect(
 			nrow(sampled) == nrows,
 			glue::glue(
 				"Sampled data has incorrect number of rows.\n",
@@ -202,7 +202,7 @@ expect_sampler_output_structure = function(sampled, task, nrows = NULL) {
 #' @param row_ids Row IDs to sample
 #' @return Invisibly returns sampled data for piping
 expect_marginal_sampling = function(sampler, feature, row_ids = 1:10) {
-	testthat::expect(
+	expect(
 		inherits(sampler, "ConditionalSampler"),
 		"Sampler is not a ConditionalSampler. Marginal sampling test only applies to conditional samplers."
 	)
@@ -245,7 +245,7 @@ expect_marginal_sampling = function(sampler, feature, row_ids = 1:10) {
 #' @param row_ids Row IDs to sample
 #' @return Invisibly returns sampled data for piping
 expect_conditional_sampling = function(sampler, feature, conditioning_set, row_ids = 1:10) {
-	testthat::expect(
+	expect(
 		inherits(sampler, "ConditionalSampler"),
 		"Sampler is not a ConditionalSampler. Conditional sampling test only applies to conditional samplers."
 	)
@@ -345,7 +345,7 @@ test_conditioning_set_behavior = function(sampler_class, task, ...) {
 
 	# Test 1: conditioning_set stored in param_set when provided
 	sampler_with_cond = sampler_class$new(task, conditioning_set = cond_set_1, ...)
-	testthat::expect_identical(
+	expect_identical(
 		sampler_with_cond$param_set$values$conditioning_set,
 		cond_set_1
 	)
@@ -367,7 +367,7 @@ test_conditioning_set_behavior = function(sampler_class, task, ...) {
 
 	# Test 4: NULL conditioning_set during initialization
 	sampler_no_cond = sampler_class$new(task, ...)
-	testthat::expect_null(sampler_no_cond$param_set$values$conditioning_set)
+	expect_null(sampler_no_cond$param_set$values$conditioning_set)
 
 	# Test 5: Can specify conditioning_set in $sample() when not set during init
 	result_specified = sampler_no_cond$sample(
@@ -392,13 +392,13 @@ test_conditioning_set_behavior = function(sampler_class, task, ...) {
 	)
 
 	resolved_null = paste(messages_null, collapse = " ")
-	testthat::expect_true(
+	expect_true(
 		grepl("Resolved conditioning_set:", resolved_null, fixed = TRUE)
 	)
 
 	# All other features should be in conditioning set when NULL
 	for (feat in other_features) {
-		testthat::expect_true(grepl(feat, resolved_null, fixed = TRUE))
+		expect_true(grepl(feat, resolved_null, fixed = TRUE))
 	}
 
 	# Test 7: character(0) should result in empty conditioning set (marginal)
@@ -415,13 +415,13 @@ test_conditioning_set_behavior = function(sampler_class, task, ...) {
 	)
 
 	resolved_empty = paste(messages_empty, collapse = " ")
-	testthat::expect_true(
+	expect_true(
 		grepl("Resolved conditioning_set:", resolved_empty, fixed = TRUE)
 	)
 
 	# No features should appear in conditioning set with character(0)
 	for (feat in other_features) {
-		testthat::expect_false(grepl(feat, resolved_empty, fixed = TRUE))
+		expect_false(grepl(feat, resolved_empty, fixed = TRUE))
 	}
 
 	invisible(NULL)

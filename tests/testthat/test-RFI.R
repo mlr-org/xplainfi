@@ -6,10 +6,6 @@
 # Basic functionality
 # -----------------------------------------------------------------------------
 
-test_that("RFI constructor validation", {
-	test_constructor_validation(RFI)
-})
-
 test_that("RFI default behavior with minimal parameters", {
 	skip_if_not_installed("arf")
 

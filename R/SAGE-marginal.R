@@ -27,7 +27,7 @@ MarginalSAGE = R6Class(
 		initialize = function(
 			task,
 			learner,
-			measure,
+			measure = NULL,
 			resampling = NULL,
 			features = NULL,
 			n_permutations = 10L,

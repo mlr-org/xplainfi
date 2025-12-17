@@ -6,10 +6,6 @@
 # Basic functionality
 # -----------------------------------------------------------------------------
 
-test_that("PFI constructor validation", {
-	test_constructor_validation(PFI)
-})
-
 test_that("PFI default behavior with minimal parameters", {
 	set.seed(123)
 	test_default_behavior(PFI, task_type = "regr")

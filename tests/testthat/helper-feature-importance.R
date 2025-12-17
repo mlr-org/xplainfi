@@ -7,18 +7,22 @@
 # test_default_behavior
 # -----------------------------------------------------------------------------
 
-#' Test that a perturbation importance method works with minimal parameters
+#' Test that a FeatureImportanceMethod works with minimal parameters
 #'
 #' Verifies that:
+#' - Constructor fails without any arguments (basic validation)
 #' - Method can be constructed with just task and learner
 #' - Default measure is automatically selected based on task type
 #' - Default resampling is holdout
 #' - compute() and importance() work correctly
 #'
-#' @param method_class R6 class (PFI, CFI, or RFI)
+#' @param method_class R6 class (PFI, CFI, RFI, WVIM, LOCO, etc.)
 #' @param task_type "regr" or "classif"
 #' @param ... Additional arguments passed to method constructor (e.g., conditioning_set for RFI)
 test_default_behavior = function(method_class, task_type = "regr", ...) {
+	# Constructor must fail without any arguments
+	expect_error(method_class$new())
+
 	if (task_type == "regr") {
 		task = tgen("friedman1")$generate(n = 100)
 		learner = lrn("regr.rpart")
@@ -40,25 +44,13 @@ test_default_behavior = function(method_class, task_type = "regr", ...) {
 	checkmate::expect_r6(method$measure, expected_measure_class)
 
 	# Check default resampling is holdout
-	testthat::expect_equal(method$resampling$id, "holdout")
+	expect_equal(method$resampling$id, "holdout")
 
 	# Compute and validate
 	method$compute()
 	expect_importance_dt(method$importance(), features = method$features)
 
 	invisible(method)
-}
-
-# -----------------------------------------------------------------------------
-# test_constructor_validation
-# -----------------------------------------------------------------------------
-
-#' Test that constructor validates required arguments
-#'
-#' @param method_class R6 class (PFI, CFI, or RFI)
-test_constructor_validation = function(method_class) {
-	# Must fail without any arguments
-	testthat::expect_error(method_class$new())
 }
 
 # -----------------------------------------------------------------------------
@@ -100,7 +92,7 @@ test_basic_workflow = function(
 	expect_importance_dt(result, features = method$features)
 
 	# Test default relation is "difference"
-	testthat::expect_identical(method$importance(), method$importance(relation = "difference"))
+	expect_identical(method$importance(), method$importance(relation = "difference"))
 
 	invisible(method)
 }
@@ -140,7 +132,7 @@ test_featureless_zero_importance = function(method_class, task_type = "classif",
 		key = "feature"
 	)
 
-	testthat::expect_identical(method$importance(), expected)
+	expect_identical(method$importance(), expected)
 
 	invisible(method)
 }
@@ -295,11 +287,11 @@ test_friedman1_sensible_ranking = function(
 	unimportant_scores = result[feature %in% unimportant_features]$importance
 
 	# Important features should have higher mean importance
-	testthat::expect_gt(mean(important_scores), mean(unimportant_scores))
+	expect_gt(mean(important_scores), mean(unimportant_scores))
 
 	# Scores should be finite and not all zero
 	checkmate::expect_numeric(result$importance, finite = TRUE)
-	testthat::expect_gt(max(abs(result$importance)), 0)
+	expect_gt(max(abs(result$importance)), 0)
 
 	invisible(method)
 }
@@ -340,10 +332,10 @@ test_relation_parameter = function(
 	expect_importance_dt(res_ratio, method$features)
 
 	# Default should be "difference"
-	testthat::expect_identical(res_default, res_diff)
+	expect_identical(res_default, res_diff)
 
 	# Different relations should give different results
-	testthat::expect_false(isTRUE(all.equal(res_diff, res_ratio)))
+	expect_false(isTRUE(all.equal(res_diff, res_ratio)))
 
 	invisible(method)
 }
@@ -367,7 +359,7 @@ test_parameter_validation = function(
 	...
 ) {
 	# n_repeats = 0 should fail
-	testthat::expect_error(
+	expect_error(
 		method_class$new(
 			task = task,
 			learner = learner,
@@ -378,7 +370,7 @@ test_parameter_validation = function(
 	)
 
 	# n_repeats = -1 should fail
-	testthat::expect_error(
+	expect_error(
 		method_class$new(
 			task = task,
 			learner = learner,
@@ -425,15 +417,15 @@ test_grouped_importance = function(
 	}
 
 	# Groups should be stored
-	testthat::expect_false(is.null(method$groups))
-	testthat::expect_equal(names(method$groups), names(groups))
+	expect_false(is.null(method$groups))
+	expect_equal(names(method$groups), names(groups))
 
 	method$compute()
 	result = method$importance()
 
 	# Should have one row per group
-	testthat::expect_equal(nrow(result), length(groups))
-	testthat::expect_equal(result$feature, names(groups))
+	expect_equal(nrow(result), length(groups))
+	expect_equal(result$feature, names(groups))
 	expect_importance_dt(result, features = names(groups))
 
 	invisible(method)
