@@ -47,7 +47,7 @@ Creates a new instance of the CFI class
     CFI$new(
       task,
       learner,
-      measure,
+      measure = NULL,
       resampling = NULL,
       features = NULL,
       groups = NULL,

@@ -55,7 +55,7 @@ Creates a new instance of this
     LOCO$new(
       task,
       learner,
-      measure,
+      measure = NULL,
       resampling = NULL,
       features = NULL,
       n_repeats = 1L
@@ -75,8 +75,9 @@ Creates a new instance of this
 
 - `measure`:
 
-  ([mlr3::Measure](https://mlr3.mlr-org.com/reference/Measure.html))
-  Measure to use for scoring.
+  ([mlr3::Measure](https://mlr3.mlr-org.com/reference/Measure.html):
+  `NULL`) Measure to use for scoring. Defaults to `classif.ce` for
+  classification and `regr.mse` for regression.
 
 - `resampling`:
 

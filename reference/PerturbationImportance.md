@@ -44,7 +44,7 @@ Creates a new instance of the PerturbationImportance class
     PerturbationImportance$new(
       task,
       learner,
-      measure,
+      measure = NULL,
       resampling = NULL,
       features = NULL,
       groups = NULL,

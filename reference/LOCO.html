@@ -106,7 +106,7 @@ feature's importance. Higher values indicate more important features.</p>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/LOCO.html">LOCO</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  <span class="va">task</span>,</span>
 <span>  <span class="va">learner</span>,</span>
-<span>  <span class="va">measure</span>,</span>
+<span>  measure <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  resampling <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  features <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n_repeats <span class="op">=</span> <span class="fl">1L</span></span>
@@ -124,7 +124,8 @@ feature's importance. Higher values indicate more important features.</p>
 
 
 <dt><code>measure</code></dt>
-<dd><p>(<a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">mlr3::Measure</a>) Measure to use for scoring.</p></dd>
+<dd><p>(<a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">mlr3::Measure</a>: <code>NULL</code>) Measure to use for scoring. Defaults to
+<code>classif.ce</code> for classification and <code>regr.mse</code> for regression.</p></dd>
 
 
 <dt><code>resampling</code></dt>

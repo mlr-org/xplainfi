@@ -61,7 +61,7 @@ Creates a new instance of this
     WVIM$new(
       task,
       learner,
-      measure,
+      measure = NULL,
       resampling = NULL,
       features = NULL,
       groups = NULL,

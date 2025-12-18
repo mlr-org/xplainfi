@@ -47,7 +47,7 @@ Creates a new instance of the RFI class
     RFI$new(
       task,
       learner,
-      measure,
+      measure = NULL,
       resampling = NULL,
       features = NULL,
       groups = NULL,

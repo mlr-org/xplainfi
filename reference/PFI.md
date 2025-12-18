@@ -71,7 +71,7 @@ Creates a new instance of the PFI class
     PFI$new(
       task,
       learner,
-      measure,
+      measure = NULL,
       resampling = NULL,
       features = NULL,
       groups = NULL,

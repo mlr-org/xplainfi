@@ -113,7 +113,7 @@ typically intended for use by derived classes.
     FeatureImportanceMethod$new(
       task,
       learner,
-      measure,
+      measure = NULL,
       resampling = NULL,
       features = NULL,
       groups = NULL,
