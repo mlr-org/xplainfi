@@ -1,66 +1,147 @@
-test_that("WVIM can't be constructed without args", {
-	expect_error(WVIM$new())
+# =============================================================================
+# WVIM/LOCO Tests using higher-level test helpers
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Basic functionality - WVIM
+# -----------------------------------------------------------------------------
+
+test_that("WVIM default behavior with minimal parameters", {
+	set.seed(123)
+	test_default_behavior(WVIM, task_type = "regr", direction = "leave-out")
 })
 
-test_that("LOCO can't be constructed without args", {
-	expect_error(LOCO$new())
+test_that("WVIM basic workflow with regression", {
+	set.seed(123)
+	task = tgen("friedman1")$generate(n = 150)
+
+	test_basic_workflow(
+		WVIM,
+		task = task,
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		expected_classes = c("FeatureImportanceMethod", "WVIM"),
+		direction = "leave-out"
+	)
 })
 
-test_that("LOCO works with regression task", {
+test_that("WVIM direction parameter (leave-out vs leave-in)", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
 	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 200)
-	learner = mlr3::lrn("regr.ranger", num.trees = 50)
-	measure = mlr3::msr("regr.mse")
+	task = tgen("friedman1")$generate(n = 150)
+	learner = lrn("regr.ranger", num.trees = 20)
+	measure = msr("regr.mse")
+	features = task$feature_names[1:3]
 
-	loco = LOCO$new(
+	# Test leave-out direction
+	wvim_out = WVIM$new(
 		task = task,
 		learner = learner,
-		measure = measure
+		measure = measure,
+		features = features,
+		direction = "leave-out"
+	)
+	expect_equal(wvim_out$direction, "leave-out")
+	wvim_out$compute()
+	result_out = wvim_out$importance()
+	expect_importance_dt(result_out, features = features)
+
+	# Test leave-in direction
+	wvim_in = WVIM$new(
+		task = task,
+		learner = learner,
+		measure = measure,
+		features = features,
+		direction = "leave-in"
+	)
+	expect_equal(wvim_in$direction, "leave-in")
+	wvim_in$compute()
+	result_in = wvim_in$importance()
+	expect_importance_dt(result_in, features = features)
+
+	# Results should differ
+	expect_false(isTRUE(all.equal(result_out, result_in)))
+})
+
+test_that("WVIM with feature groups", {
+	set.seed(123)
+	task = tgen("friedman1")$generate(n = 150)
+
+	groups = list(
+		important_set = c("important1", "important2", "important3"),
+		unimportant_set = c("unimportant1", "unimportant2")
 	)
 
-	checkmate::expect_r6(loco, c("FeatureImportanceMethod", "WVIM", "LOCO"))
+	test_grouped_importance(
+		WVIM,
+		task = task,
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		groups = groups,
+		expected_classes = c("FeatureImportanceMethod", "WVIM"),
+		direction = "leave-out"
+	)
+})
+
+# -----------------------------------------------------------------------------
+# Basic functionality - LOCO
+# -----------------------------------------------------------------------------
+
+test_that("LOCO default behavior with minimal parameters", {
+	set.seed(123)
+	test_default_behavior(LOCO, task_type = "regr")
+})
+
+test_that("LOCO basic workflow with regression", {
+	skip_if_not_installed("ranger")
+	skip_if_not_installed("mlr3learners")
+
+	set.seed(123)
+	task = tgen("friedman1")$generate(n = 200)
+
+	loco = test_basic_workflow(
+		LOCO,
+		task = task,
+		learner = lrn("regr.ranger", num.trees = 50),
+		measure = msr("regr.mse"),
+		expected_classes = c("FeatureImportanceMethod", "WVIM", "LOCO")
+	)
+
+	# LOCO-specific checks
 	expect_equal(loco$direction, "leave-out")
 	expect_equal(loco$label, "Leave-One-Covariate-Out (LOCO)")
-
-	loco$compute()
-	expect_importance_dt(loco$importance(), features = loco$features)
-
-	# Scores should be a method
-	scores = loco$scores()
-	checkmate::expect_data_table(scores, min.rows = length(loco$features))
-	expect_true(all(c("feature", "iter_rsmp", "iter_repeat") %in% names(scores)))
 })
 
-test_that("LOCO works with classification task", {
+test_that("LOCO basic workflow with classification", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
 	set.seed(123)
-	task = mlr3::tgen("simplex", d = 5)$generate(n = 200)
-	learner = mlr3::lrn("classif.ranger", num.trees = 50, predict_type = "prob")
-	measure = mlr3::msr("classif.ce")
+	task = tgen("simplex", d = 5)$generate(n = 200)
 
-	loco = LOCO$new(
+	test_basic_workflow(
+		LOCO,
 		task = task,
-		learner = learner,
-		measure = measure
+		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
+		measure = msr("classif.ce"),
+		expected_classes = c("FeatureImportanceMethod", "WVIM", "LOCO")
 	)
-
-	loco$compute()
-	expect_importance_dt(loco$importance(), features = loco$features)
 })
 
-test_that("LOCO works with features = NULL (all features)", {
+# -----------------------------------------------------------------------------
+# Feature selection
+# -----------------------------------------------------------------------------
+
+test_that("LOCO with all features (features = NULL)", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
 	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 100)
-	learner = mlr3::lrn("regr.ranger", num.trees = 20)
-	measure = mlr3::msr("regr.mse")
+	task = tgen("friedman1")$generate(n = 100)
+	learner = lrn("regr.ranger", num.trees = 20)
+	measure = msr("regr.mse")
 
 	loco = LOCO$new(task, learner, measure)
 	expect_equal(loco$features, task$feature_names)
@@ -69,14 +150,14 @@ test_that("LOCO works with features = NULL (all features)", {
 	expect_importance_dt(loco$importance(), features = task$feature_names)
 })
 
-test_that("LOCO works with subset of features", {
+test_that("LOCO with feature subset", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
 	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 100)
-	learner = mlr3::lrn("regr.ranger", num.trees = 20)
-	measure = mlr3::msr("regr.mse")
+	task = tgen("friedman1")$generate(n = 100)
+	learner = lrn("regr.ranger", num.trees = 20)
+	measure = msr("regr.mse")
 
 	features_subset = task$feature_names[1:3]
 	loco = LOCO$new(task, learner, measure, features = features_subset)
@@ -86,14 +167,18 @@ test_that("LOCO works with subset of features", {
 	expect_importance_dt(loco$importance(), features = features_subset)
 })
 
-test_that("LOCO works with multiple refits", {
+# -----------------------------------------------------------------------------
+# Repeats and resampling
+# -----------------------------------------------------------------------------
+
+test_that("LOCO with multiple refits", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
 	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 150)
-	learner = mlr3::lrn("regr.ranger", num.trees = 20)
-	measure = mlr3::msr("regr.mse")
+	task = tgen("friedman1")$generate(n = 150)
+	learner = lrn("regr.ranger", num.trees = 20)
+	measure = msr("regr.mse")
 
 	loco = LOCO$new(
 		task = task,
@@ -108,91 +193,39 @@ test_that("LOCO works with multiple refits", {
 
 	# Scores should have multiple refits
 	scores = loco$scores()
-	# With holdout resampling, we get 1 iteration * 3 refits * 3 features = 9 rows
 	expect_gte(nrow(scores), length(loco$features))
 	expect_true(all(scores$iter_repeat %in% 1:3))
 })
 
-test_that("LOCO works with cross-validation", {
+test_that("LOCO with cross-validation", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
 	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 150)
-	learner = mlr3::lrn("regr.ranger", num.trees = 20)
-	measure = mlr3::msr("regr.mse")
-	resampling = mlr3::rsmp("cv", folds = 3)
+	task = tgen("friedman1")$generate(n = 150)
 
-	loco = LOCO$new(
+	test_with_resampling(
+		LOCO,
 		task = task,
-		learner = learner,
-		measure = measure,
-		resampling = resampling,
+		learner = lrn("regr.ranger", num.trees = 20),
+		measure = msr("regr.mse"),
+		resampling = rsmp("cv", folds = 3),
 		features = task$feature_names[1:2]
 	)
-
-	loco$compute()
-	importance = loco$importance()
-	expect_importance_dt(importance, features = loco$features)
-
-	# With multiple resampling folds, scores should have multiple iter_rsmp values
-	scores = loco$scores()
-	expect_gt(length(unique(scores$iter_rsmp)), 1L)
 })
 
-test_that("WVIM works with leave-in direction (LOCI)", {
+# -----------------------------------------------------------------------------
+# Sensible results
+# -----------------------------------------------------------------------------
+
+test_that("LOCO friedman1 produces sensible ranking", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
 	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 150)
-	learner = mlr3::lrn("regr.ranger", num.trees = 20)
-	measure = mlr3::msr("regr.mse")
-
-	wvim_loci = WVIM$new(
-		task = task,
-		learner = learner,
-		measure = measure,
-		features = task$feature_names[1:3],
-		direction = "leave-in"
+	test_friedman1_sensible_ranking(
+		LOCO,
+		learner = lrn("regr.ranger", num.trees = 50),
+		measure = msr("regr.mse")
 	)
-
-	checkmate::expect_r6(wvim_loci, c("FeatureImportanceMethod", "WVIM"))
-	expect_equal(wvim_loci$direction, "leave-in")
-
-	wvim_loci$compute()
-	expect_importance_dt(wvim_loci$importance(), features = wvim_loci$features)
-})
-
-test_that("WVIM with feature groups", {
-	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 150)
-	learner = mlr3::lrn("regr.rpart")
-	measure = mlr3::msr("regr.mse")
-
-	groups = list(
-		important_set = c("important1", "important2", "important3"),
-		unimportant_set = c("unimportant1", "unimportant2")
-	)
-
-	wvim_groups = WVIM$new(
-		task = task,
-		learner = learner,
-		measure = measure,
-		groups = groups,
-		direction = "leave-out"
-	)
-
-	checkmate::expect_r6(wvim_groups, c("FeatureImportanceMethod", "WVIM"))
-	expect_false(is.null(wvim_groups$groups))
-	expect_equal(names(wvim_groups$groups), c("important_set", "unimportant_set"))
-	expect_equal(wvim_groups$direction, "leave-out")
-
-	wvim_groups$compute()
-	result = wvim_groups$importance()
-
-	# Should have one row per group
-	expect_equal(nrow(result), length(groups))
-	expect_equal(result$feature, names(groups))
-	expect_importance_dt(result, features = names(groups))
 })

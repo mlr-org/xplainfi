@@ -44,7 +44,7 @@ Creates a new instance of the PerturbationImportance class
 \if{html}{\out{<div class="r">}}\preformatted{PerturbationImportance$new(
   task,
   learner,
-  measure,
+  measure = NULL,
   resampling = NULL,
   features = NULL,
   groups = NULL,

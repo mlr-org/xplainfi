@@ -1,102 +1,52 @@
+# Tests for ConditionalKNNSampler
+
 test_that("ConditionalKNNSampler initialization works", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalKNNSampler$new(task, k = 5L)
 
-	expect_true(inherits(sampler, "ConditionalKNNSampler"))
-	expect_true(inherits(sampler, "ConditionalSampler"))
+	expect_s3_class(sampler, "ConditionalKNNSampler")
+	expect_s3_class(sampler, "ConditionalSampler")
 	expect_equal(sampler$label, "k-Nearest Neighbors Conditional Sampler")
-	expect_true(inherits(sampler$param_set, "ParamSet"))
+	expect_s3_class(sampler$param_set, "ParamSet")
 
 	# Check k parameter
 	expect_equal(sampler$param_set$values$k, 5L)
 })
 
 test_that("ConditionalKNNSampler works with default k", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalKNNSampler$new(task) # Default k = 5L
 
 	expect_equal(sampler$param_set$values$k, 5L)
 })
 
-test_that("ConditionalKNNSampler marginal sampling works", {
-	library(mlr3)
+test_that("ConditionalKNNSampler sampling works", {
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalKNNSampler$new(task, k = 5L)
-	data = task$data()
 
-	# Sample without conditioning
-	sampled_data = sampler$sample("important1", row_ids = 1:50)
+	# Marginal sampling
+	expect_marginal_sampling(sampler, feature = "important1", row_ids = 1:20)
 
-	expect_sampler_output(
-		sampled_data = sampled_data,
-		task = task,
-		nrows = 50
-	)
-
-	# Values should come from training data
-	expect_true(all(sampled_data$important1 %in% data$important1))
-})
-
-test_that("ConditionalKNNSampler conditional sampling with single feature", {
-	library(mlr3)
-	task = tgen("friedman1")$generate(n = 100)
-	sampler = ConditionalKNNSampler$new(task, k = 5L)
-	data = task$data()
-
-	# Sample important2 | important1
-	sampled_data = sampler$sample(
+	# Conditional sampling
+	expect_conditional_sampling(
+		sampler,
 		feature = "important2",
-		row_ids = 1:50,
-		conditioning_set = "important1"
+		conditioning_set = "important1",
+		row_ids = 1:20
 	)
 
-	expect_sampler_output(
-		sampled_data = sampled_data,
-		task = task,
-		original_data = data[1:50],
-		sampled_features = "important2",
-		nrows = 50
-	)
-
-	# Conditioning feature unchanged
-	expect_identical(sampled_data$important1, data$important1[1:50])
-
-	# Sampled values should come from training data
-	expect_true(all(sampled_data$important2 %in% data$important2))
-})
-
-test_that("ConditionalKNNSampler handles multiple features", {
-	library(mlr3)
-	task = tgen("friedman1")$generate(n = 100)
-	sampler = ConditionalKNNSampler$new(task, k = 5L)
-	data = task$data()
-
-	# Sample multiple features conditionally
-	sampled_data = sampler$sample(
+	# Multiple features
+	expect_conditional_sampling(
+		sampler,
 		feature = c("important2", "important3"),
-		row_ids = 1:50,
-		conditioning_set = "important1"
+		conditioning_set = "important1",
+		row_ids = 1:20
 	)
-
-	expect_sampler_output(
-		sampled_data = sampled_data,
-		task = task,
-		original_data = data[1:50],
-		sampled_features = c("important2", "important3"),
-		nrows = 50
-	)
-
-	# Conditioning feature unchanged
-	expect_identical(sampled_data$important1, data$important1[1:50])
 })
 
 test_that("ConditionalKNNSampler sample_newdata works", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalKNNSampler$new(task, k = 5L)
-
 	test_data = task$data(rows = 1:10)
 
 	sampled = sampler$sample_newdata(
@@ -105,21 +55,14 @@ test_that("ConditionalKNNSampler sample_newdata works", {
 		conditioning_set = "important1"
 	)
 
-	expect_sampler_output(
-		sampled_data = sampled,
-		task = task,
-		original_data = test_data,
-		sampled_features = c("important2", "important3"),
-		nrows = 10
-	)
-
-	# Conditioning feature unchanged
-	expect_identical(sampled$important1, test_data$important1)
+	expect_sampler_output_structure(sampled, task, nrows = 10)
+	expect_feature_type_consistency(sampled, task)
+	expect_non_sampled_unchanged(sampled, test_data, "important1")
 })
 
 test_that("ConditionalKNNSampler handles different k values", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
+	test_data = task$data(rows = 1:10)
 
 	# Test with k=1 (nearest neighbor)
 	sampler_k1 = ConditionalKNNSampler$new(task, k = 1L)
@@ -129,32 +72,25 @@ test_that("ConditionalKNNSampler handles different k values", {
 	sampler_k20 = ConditionalKNNSampler$new(task, k = 20L)
 	expect_equal(sampler_k20$param_set$values$k, 20L)
 
-	test_data = task$data(rows = 1:10)
-
 	# Both should work
 	sampled_k1 = sampler_k1$sample_newdata(
 		feature = "important2",
 		newdata = test_data,
 		conditioning_set = "important1"
 	)
-
 	sampled_k20 = sampler_k20$sample_newdata(
 		feature = "important2",
 		newdata = test_data,
 		conditioning_set = "important1"
 	)
 
-	expect_sampler_output(sampled_k1, task, nrows = 10)
-	expect_sampler_output(sampled_k20, task, nrows = 10)
+	expect_sampler_output_structure(sampled_k1, task, nrows = 10)
+	expect_sampler_output_structure(sampled_k20, task, nrows = 10)
 })
 
 test_that("ConditionalKNNSampler handles k > n_train", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 50)
-
-	# k larger than training data size
 	sampler = ConditionalKNNSampler$new(task, k = 100L)
-
 	test_data = task$data(rows = 1:5)
 
 	# Should still work (uses all available training data)
@@ -164,11 +100,10 @@ test_that("ConditionalKNNSampler handles k > n_train", {
 		conditioning_set = "important1"
 	)
 
-	expect_sampler_output(sampled, task, nrows = 5)
+	expect_sampler_output_structure(sampled, task, nrows = 5)
 })
 
-test_that("ConditionalKNNSampler is reproducible", {
-	library(mlr3)
+test_that("ConditionalKNNSampler is reproducible with seed", {
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalKNNSampler$new(task, k = 5L)
 	test_data = task$data(rows = 1:10)
@@ -192,68 +127,32 @@ test_that("ConditionalKNNSampler is reproducible", {
 	expect_identical(sampled1$important2, sampled2$important2)
 })
 
-test_that("ConditionalKNNSampler works with mixed feature types", {
-	library(mlr3)
-
-	# Create task with mixed types
-	task = tgen("circle", d = 5)$generate(n = 100)
-
-	# kNN supports mixed types
-	sampler = ConditionalKNNSampler$new(task, k = 5L)
-
-	expect_true(inherits(sampler, "ConditionalKNNSampler"))
-
-	test_data = task$data(rows = 1:10)
-
-	sampled = sampler$sample_newdata(
-		feature = "x2",
-		newdata = test_data,
-		conditioning_set = "x1"
-	)
-
-	expect_sampler_output(sampled, task, nrows = 10)
+test_that("ConditionalKNNSampler conditioning_set parameter behavior", {
+	task = tgen("friedman1")$generate(n = 100)
+	test_conditioning_set_behavior(ConditionalKNNSampler, task, k = 5L)
 })
 
-test_that("ConditionalKNNSampler conditioning_set parameter behavior", {
-	library(mlr3)
-	task = tgen("friedman1")$generate(n = 100)
-
-	expect_conditioning_set_behavior(
-		sampler_class = ConditionalKNNSampler,
-		task = task,
-		k = 5L
-	)
+test_that("ConditionalKNNSampler preserves feature types", {
+	test_sampler_feature_types(ConditionalKNNSampler, k = 5L)
 })
 
 test_that("ConditionalKNNSampler works with categorical features using Gower distance", {
 	skip_if_not_installed("gower")
-	library(mlr3)
 
-	# Use penguins task which has factor features
 	task = tsk("penguins")
 	data = task$data()
-
-	# Create sampler
 	sampler = ConditionalKNNSampler$new(task, k = 5L)
+	test_data = task$data(rows = 1:10)
 
 	# Sample conditioning on categorical feature
-	test_data = task$data(rows = 1:10)
 	sampled = sampler$sample_newdata(
 		feature = "bill_length",
 		newdata = test_data,
-		conditioning_set = "island" # factor feature
+		conditioning_set = "island"
 	)
 
-	expect_sampler_output(
-		sampled_data = sampled,
-		task = task,
-		original_data = test_data,
-		sampled_features = "bill_length",
-		nrows = 10
-	)
-
-	# Conditioning feature unchanged
-	expect_identical(sampled$island, test_data$island)
+	expect_sampler_output_structure(sampled, task, nrows = 10)
+	expect_non_sampled_unchanged(sampled, test_data, "island")
 
 	# Sampled values should come from training data
 	expect_true(all(sampled$bill_length %in% data$bill_length))
@@ -261,30 +160,18 @@ test_that("ConditionalKNNSampler works with categorical features using Gower dis
 
 test_that("ConditionalKNNSampler works with mixed numeric and categorical conditioning", {
 	skip_if_not_installed("gower")
-	library(mlr3)
 
 	task = tsk("penguins")
-	data = task$data()
-
 	sampler = ConditionalKNNSampler$new(task, k = 5L)
+	test_data = task$data(rows = 1:10)
 
 	# Sample conditioning on both numeric and factor features
-	test_data = task$data(rows = 1:10)
 	sampled = sampler$sample_newdata(
 		feature = "bill_length",
 		newdata = test_data,
-		conditioning_set = c("island", "body_mass") # factor + integer
+		conditioning_set = c("island", "body_mass")
 	)
 
-	expect_sampler_output(
-		sampled_data = sampled,
-		task = task,
-		original_data = test_data,
-		sampled_features = "bill_length",
-		nrows = 10
-	)
-
-	# Conditioning features unchanged
-	expect_identical(sampled$island, test_data$island)
-	expect_identical(sampled$body_mass, test_data$body_mass)
+	expect_sampler_output_structure(sampled, task, nrows = 10)
+	expect_non_sampled_unchanged(sampled, test_data, c("island", "body_mass"))
 })

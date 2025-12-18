@@ -1,12 +1,13 @@
+# Tests for ConditionalGaussianSampler
+
 test_that("ConditionalGaussianSampler initialization works", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalGaussianSampler$new(task)
 
-	expect_true(inherits(sampler, "ConditionalGaussianSampler"))
-	expect_true(inherits(sampler, "ConditionalSampler"))
+	expect_s3_class(sampler, "ConditionalGaussianSampler")
+	expect_s3_class(sampler, "ConditionalSampler")
 	expect_equal(sampler$label, "Gaussian Conditional Sampler")
-	expect_true(inherits(sampler$param_set, "ParamSet"))
+	expect_s3_class(sampler$param_set, "ParamSet")
 
 	# Check stored statistics
 	checkmate::expect_numeric(sampler$mu, len = task$n_features, any.missing = FALSE)
@@ -15,116 +16,53 @@ test_that("ConditionalGaussianSampler initialization works", {
 })
 
 test_that("ConditionalGaussianSampler rejects non-numeric tasks", {
-	library(mlr3)
-	task = tsk("penguins") # Has factor features
-
-	expect_error(
-		ConditionalGaussianSampler$new(task),
-		"unsupported feature types"
-	)
+	task = tsk("penguins")
+	expect_error(ConditionalGaussianSampler$new(task), "unsupported feature types")
 })
 
-test_that("ConditionalGaussianSampler marginal sampling works", {
-	library(mlr3)
+test_that("ConditionalGaussianSampler sampling works", {
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalGaussianSampler$new(task)
-	data = task$data()
 
-	# Sample single feature without conditioning
-	sampled_data = sampler$sample("important1", row_ids = 1:50)
+	# Marginal sampling
+	expect_marginal_sampling(sampler, feature = "important1", row_ids = 1:20)
 
-	expect_sampler_output(
-		sampled_data = sampled_data,
-		task = task,
-		nrows = 50
-	)
-
-	# important1 should be different from original (stochastic test)
-	expect_false(identical(sampled_data$important1, data$important1[1:50]))
-})
-
-test_that("ConditionalGaussianSampler conditional sampling with single conditioning feature", {
-	library(mlr3)
-	task = tgen("friedman1")$generate(n = 100)
-	sampler = ConditionalGaussianSampler$new(task)
-	data = task$data()
-
-	# Sample important2 | important1
-	sampled_data = sampler$sample(
+	# Conditional sampling with single conditioning feature
+	expect_conditional_sampling(
+		sampler,
 		feature = "important2",
-		row_ids = 1:50,
-		conditioning_set = "important1"
+		conditioning_set = "important1",
+		row_ids = 1:20
 	)
 
-	expect_sampler_output(
-		sampled_data = sampled_data,
-		task = task,
-		original_data = data[1:50],
-		sampled_features = "important2",
-		nrows = 50
-	)
-
-	# Conditioning feature should be unchanged
-	expect_identical(sampled_data$important1, data$important1[1:50])
-})
-
-test_that("ConditionalGaussianSampler conditional sampling with multiple features", {
-	library(mlr3)
-	task = tgen("friedman1")$generate(n = 100)
-	sampler = ConditionalGaussianSampler$new(task)
-	data = task$data()
-
-	# Sample important2, important3 | important1
-	sampled_data = sampler$sample(
+	# Conditional sampling with multiple features
+	expect_conditional_sampling(
+		sampler,
 		feature = c("important2", "important3"),
-		row_ids = 1:50,
-		conditioning_set = "important1"
+		conditioning_set = "important1",
+		row_ids = 1:20
 	)
-
-	expect_sampler_output(
-		sampled_data = sampled_data,
-		task = task,
-		original_data = data[1:50],
-		sampled_features = c("important2", "important3"),
-		nrows = 50
-	)
-
-	# Conditioning feature unchanged
-	expect_identical(sampled_data$important1, data$important1[1:50])
 })
 
 test_that("ConditionalGaussianSampler sample_newdata works", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalGaussianSampler$new(task)
-
-	# Create external test data
 	test_data = task$data(rows = 1:10)
 
-	# Sample with conditioning
 	sampled = sampler$sample_newdata(
 		feature = c("important2", "important3"),
 		newdata = test_data,
 		conditioning_set = "important1"
 	)
 
-	expect_sampler_output(
-		sampled_data = sampled,
-		task = task,
-		original_data = test_data,
-		sampled_features = c("important2", "important3"),
-		nrows = 10
-	)
-
-	# Conditioning feature unchanged
-	expect_identical(sampled$important1, test_data$important1)
+	expect_sampler_output_structure(sampled, task, nrows = 10)
+	expect_feature_type_consistency(sampled, task)
+	expect_non_sampled_unchanged(sampled, test_data, "important1")
 })
 
 test_that("ConditionalGaussianSampler handles single observation", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalGaussianSampler$new(task)
-
 	test_data = task$data(rows = 1)
 
 	sampled = sampler$sample_newdata(
@@ -133,12 +71,11 @@ test_that("ConditionalGaussianSampler handles single observation", {
 		conditioning_set = "important1"
 	)
 
-	expect_sampler_output(sampled, task, nrows = 1)
-	expect_identical(sampled$important1, test_data$important1)
+	expect_sampler_output_structure(sampled, task, nrows = 1)
+	expect_non_sampled_unchanged(sampled, test_data, "important1")
 })
 
 test_that("ConditionalGaussianSampler is reproducible with seed", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalGaussianSampler$new(task)
 	test_data = task$data(rows = 1:10)
@@ -163,15 +100,10 @@ test_that("ConditionalGaussianSampler is reproducible with seed", {
 })
 
 test_that("ConditionalGaussianSampler conditioning_set parameter behavior", {
-	library(mlr3)
 	task = tgen("friedman1")$generate(n = 100)
-
-	expect_conditioning_set_behavior(
-		sampler_class = ConditionalGaussianSampler,
-		task = task
-	)
+	test_conditioning_set_behavior(ConditionalGaussianSampler, task)
 })
 
-test_that("ConditionalGaussianSampler preserves integer feature types", {
-	expect_feature_type_preservation(ConditionalGaussianSampler)
+test_that("ConditionalGaussianSampler preserves feature types", {
+	test_sampler_feature_types(ConditionalGaussianSampler)
 })

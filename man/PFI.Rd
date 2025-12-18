@@ -79,7 +79,7 @@ Creates a new instance of the PFI class
 \if{html}{\out{<div class="r">}}\preformatted{PFI$new(
   task,
   learner,
-  measure,
+  measure = NULL,
   resampling = NULL,
   features = NULL,
   groups = NULL,

@@ -2,8 +2,8 @@ test_that("sage_batch_predict works for regression without batching", {
 	skip_if_not_installed("rpart")
 
 	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 50)
-	learner = mlr3::lrn("regr.rpart")
+	task = tgen("friedman1")$generate(n = 50)
+	learner = lrn("regr.rpart")
 	learner$train(task)
 
 	test_data = task$data()
@@ -18,8 +18,8 @@ test_that("sage_batch_predict works for regression with batching", {
 	skip_if_not_installed("rpart")
 
 	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 50)
-	learner = mlr3::lrn("regr.rpart")
+	task = tgen("friedman1")$generate(n = 50)
+	learner = lrn("regr.rpart")
 	learner$train(task)
 
 	test_data = task$data()
@@ -50,8 +50,8 @@ test_that("sage_batch_predict works for classification without batching", {
 	skip_if_not_installed("rpart")
 
 	set.seed(123)
-	task = mlr3::tgen("2dnormals")$generate(n = 50)
-	learner = mlr3::lrn("classif.rpart", predict_type = "prob")
+	task = tgen("2dnormals")$generate(n = 50)
+	learner = lrn("classif.rpart", predict_type = "prob")
 	learner$train(task)
 
 	test_data = task$data()
@@ -75,8 +75,8 @@ test_that("sage_batch_predict works for classification with batching", {
 	skip_if_not_installed("rpart")
 
 	set.seed(123)
-	task = mlr3::tgen("2dnormals")$generate(n = 50)
-	learner = mlr3::lrn("classif.rpart", predict_type = "prob")
+	task = tgen("2dnormals")$generate(n = 50)
+	learner = lrn("classif.rpart", predict_type = "prob")
 	learner$train(task)
 
 	test_data = task$data()

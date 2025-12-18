@@ -1,181 +1,138 @@
-test_that("can't be constructed without args", {
-	expect_error(PFI$new())
+# =============================================================================
+# PFI Tests using higher-level test helpers
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Basic functionality
+# -----------------------------------------------------------------------------
+
+test_that("PFI default behavior with minimal parameters", {
+	set.seed(123)
+	test_default_behavior(PFI, task_type = "regr")
 })
 
-test_that("can be constructed with simple objects", {
+test_that("PFI basic workflow with classification", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
 	set.seed(123)
-	task = mlr3::tgen("2dnormals")$generate(n = 100)
+	task = tgen("2dnormals")$generate(n = 100)
 
-	pfi = PFI$new(
+	test_basic_workflow(
+		PFI,
 		task = task,
-		learner = mlr3::lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
-		measure = mlr3::msr("classif.ce")
+		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
+		measure = msr("classif.ce"),
+		expected_classes = c("FeatureImportanceMethod", "PFI")
 	)
-
-	checkmate::expect_r6(pfi, c("FeatureImportanceMethod", "PFI"))
-
-	pfi$compute()
-	expect_importance_dt(pfi$importance(), features = pfi$features)
-	# Test that default is "difference"
-	expect_identical(pfi$importance(), pfi$importance(relation = "difference"))
 })
 
-test_that("null result for featureless learner", {
+test_that("PFI featureless learner produces zero importance", {
 	set.seed(123)
-	task = mlr3::tgen("xor")$generate(n = 200)
-
-	pfi = PFI$new(
-		task = task,
-		learner = mlr3::lrn("classif.featureless"),
-		measure = mlr3::msr("classif.ce")
-	)
-
-	pfi$compute()
-
-	expected = data.table::data.table(
-		feature = pfi$features,
-		importance = 0,
-		key = "feature"
-	)
-
-	expect_identical(pfi$importance(), expected)
+	test_featureless_zero_importance(PFI, task_type = "classif")
 })
 
-test_that("multiple perms", {
+# -----------------------------------------------------------------------------
+# Repeats and scores
+# -----------------------------------------------------------------------------
+
+test_that("PFI multiple repeats and scores structure", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
 	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 200)
 
-	pfi = PFI$new(
+	test_n_repeats_and_scores(
+		PFI,
 		task = task,
-		learner = mlr3::lrn("regr.ranger", num.trees = 50),
-		measure = mlr3::msr("regr.mse"),
-		resampling = mlr3::rsmp("cv", folds = 3),
-		n_repeats = 2
-	)
-
-	pfi$compute()
-
-	expect_importance_dt(pfi$importance(), features = pfi$features)
-
-	checkmate::expect_data_table(
-		pfi$scores(),
-		types = c("character", "integer", "numeric"),
-		nrows = pfi$resampling$iters *
-			pfi$param_set$values$n_repeats *
-			length(pfi$features),
-		ncols = 6,
-		any.missing = FALSE,
-		min.cols = 6
+		learner = lrn("regr.ranger", num.trees = 50),
+		measure = msr("regr.mse"),
+		n_repeats = 2L
 	)
 })
 
-test_that("only one feature", {
+test_that("PFI single feature", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
 	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 200)
 
-	pfi = PFI$new(
+	test_single_feature(
+		PFI,
 		task = task,
-		learner = mlr3::lrn("regr.ranger", num.trees = 50),
-		measure = mlr3::msr("regr.mse"),
-		resampling = mlr3::rsmp("cv", folds = 3),
-		n_repeats = 2,
-		features = "important4"
-	)
-
-	pfi$compute()
-
-	expect_importance_dt(pfi$importance(), features = "important4")
-
-	checkmate::expect_data_table(
-		pfi$scores(),
-		types = c("character", "integer", "numeric"),
-		nrows = pfi$resampling$iters *
-			pfi$param_set$values$n_repeats,
-		ncols = 6,
-		any.missing = FALSE,
-		min.cols = 6
+		learner = lrn("regr.ranger", num.trees = 50),
+		measure = msr("regr.mse"),
+		feature = "important4",
+		n_repeats = 2L
 	)
 })
 
+# -----------------------------------------------------------------------------
+# Relation parameter
+# -----------------------------------------------------------------------------
 
-test_that("PFI different relations (difference vs ratio)", {
+test_that("PFI difference vs ratio relations", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
 	set.seed(123)
-	task = mlr3::tgen("2dnormals")$generate(n = 100)
+	task = tgen("2dnormals")$generate(n = 100)
 
-	pfi = PFI$new(
+	test_relation_parameter(
+		PFI,
 		task = task,
-		learner = mlr3::lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
-		measure = mlr3::msr("classif.ce")
+		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
+		measure = msr("classif.ce")
 	)
-
-	# Compute once, test different relations
-	pfi$compute()
-	res_diff = pfi$importance(relation = "difference")
-	res_ratio = pfi$importance(relation = "ratio")
-	res_default = pfi$importance()
-
-	expect_importance_dt(res_diff, pfi$features)
-	expect_importance_dt(res_ratio, pfi$features)
-
-	# Default should be "difference"
-	expect_identical(res_default, res_diff)
-
-	# Different relations should give different results
-	expect_false(isTRUE(all.equal(res_diff, res_ratio)))
 })
 
-test_that("PFI with resampling", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
+# -----------------------------------------------------------------------------
+# Sensible results
+# -----------------------------------------------------------------------------
 
+test_that("PFI friedman1 produces sensible ranking", {
 	set.seed(123)
-	task = mlr3::tgen("xor")$generate(n = 200)
-	learner = mlr3::lrn("classif.ranger", num.trees = 50, predict_type = "prob")
-	resampling = mlr3::rsmp("cv", folds = 3)
-	measure = mlr3::msr("classif.ce")
-
-	pfi = PFI$new(
-		task = task,
-		learner = learner,
-		resampling = resampling,
-		measure = measure,
-		n_repeats = 2
-	)
-
-	pfi$compute()
-	res_diff = pfi$importance(relation = "difference")
-	res_ratio = pfi$importance(relation = "ratio")
-
-	expect_importance_dt(res_diff, pfi$features)
-	expect_importance_dt(res_ratio, pfi$features)
-
-	# Different relations should give different results
-	expect_false(isTRUE(all.equal(res_diff, res_ratio)))
+	test_friedman1_sensible_ranking(PFI)
 })
 
-test_that("scores and obs_losses agree", {
-	skip_if_not_installed("mlr3learners")
+# -----------------------------------------------------------------------------
+# Grouped importance
+# -----------------------------------------------------------------------------
 
+test_that("PFI with feature groups", {
 	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 200)
+
+	groups = list(
+		important_group = c("important1", "important2", "important3"),
+		unimportant_group = c("unimportant1", "unimportant2")
+	)
+
+	test_grouped_importance(
+		PFI,
+		task = task,
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		groups = groups,
+		expected_classes = c("FeatureImportanceMethod", "PFI")
+	)
+})
+
+# -----------------------------------------------------------------------------
+# PFI-specific tests (not covered by generic helpers)
+# -----------------------------------------------------------------------------
+
+test_that("PFI scores and obs_losses agree", {
+	set.seed(123)
+	task = tgen("friedman1")$generate(n = 200)
 
 	pfi = PFI$new(
 		task = task,
-		learner = mlr3::lrn("regr.rpart"),
-		measure = mlr3::msr("regr.mse"),
-		resampling = mlr3::rsmp("cv", folds = 3),
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("cv", folds = 3),
 		n_repeats = 2
 	)
 
@@ -190,45 +147,14 @@ test_that("scores and obs_losses agree", {
 	expect_equal(
 		importance_agg,
 		importance_scores[, list(importance = mean(importance)), by = "feature"],
-		ignore_attr = TRUE # ignore sorting by feature
+		ignore_attr = TRUE
 	)
 
-	# Aggregate squared errors to get mse per iteration, should be same as $scores()
-	# up to numerical error
+	# Aggregate squared errors to get mse per iteration
 	obs_agg = importance_obs_loss[,
 		list(importance = mean(obs_importance)),
 		by = c("iter_rsmp", "iter_repeat", "feature")
 	][order(iter_rsmp, iter_repeat, feature)]
 
 	expect_equal(importance_scores, obs_agg, tolerance = sqrt(.Machine$double.eps))
-})
-
-test_that("PFI with groups", {
-	set.seed(123)
-	task = mlr3::tgen("friedman1")$generate(n = 200)
-
-	# Define feature groups
-	groups = list(
-		important_group = c("important1", "important2", "important3"),
-		unimportant_group = c("unimportant1", "unimportant2")
-	)
-
-	pfi = PFI$new(
-		task = task,
-		learner = mlr3::lrn("regr.rpart"),
-		measure = mlr3::msr("regr.mse"),
-		groups = groups
-	)
-
-	checkmate::expect_r6(pfi, c("FeatureImportanceMethod", "PFI"))
-	expect_false(is.null(pfi$groups))
-	expect_equal(names(pfi$groups), c("important_group", "unimportant_group"))
-
-	pfi$compute()
-	result = pfi$importance()
-
-	# Should have one row per group
-	expect_equal(nrow(result), length(groups))
-	expect_equal(result$feature, names(groups))
-	expect_importance_dt(result, features = names(groups))
 })

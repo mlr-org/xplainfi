@@ -4,9 +4,9 @@ test_that("importance() accepts all ci_method values", {
 
 	pfi = PFI$new(
 		task = task,
-		learner = mlr3::lrn("regr.rpart"),
-		measure = mlr3::msr("regr.mse"),
-		resampling = mlr3::rsmp("subsampling", repeats = 5),
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("subsampling", repeats = 5),
 		n_repeats = 2
 	)
 
@@ -32,9 +32,9 @@ test_that("ci_method='none' produces no variance columns", {
 
 	pfi = PFI$new(
 		task = task,
-		learner = mlr3::lrn("regr.rpart"),
-		measure = mlr3::msr("regr.mse"),
-		resampling = mlr3::rsmp("subsampling", repeats = 5),
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("subsampling", repeats = 5),
 		n_repeats = 2
 	)
 
@@ -51,9 +51,9 @@ test_that("raw CIs are narrower than nadeau_bengio corrected CIs", {
 
 	pfi = PFI$new(
 		task = task,
-		learner = mlr3::lrn("regr.rpart"),
-		measure = mlr3::msr("regr.mse"),
-		resampling = mlr3::rsmp("subsampling", repeats = 11, ratio = 0.8),
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("subsampling", repeats = 11, ratio = 0.8),
 		n_repeats = 3
 	)
 
@@ -79,9 +79,9 @@ test_that("nadeau_bengio correction requires appropriate resampling", {
 	# Cross-validation is not supported for nadeau_bengio
 	pfi = PFI$new(
 		task = task,
-		learner = mlr3::lrn("regr.rpart"),
-		measure = mlr3::msr("regr.mse"),
-		resampling = mlr3::rsmp("cv", folds = 3),
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("cv", folds = 3),
 		n_repeats = 2
 	)
 
@@ -104,9 +104,9 @@ test_that("confidence level parameter works correctly", {
 
 	pfi = PFI$new(
 		task = task,
-		learner = mlr3::lrn("regr.rpart"),
-		measure = mlr3::msr("regr.mse"),
-		resampling = mlr3::rsmp("subsampling", repeats = 5),
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("subsampling", repeats = 5),
 		n_repeats = 2
 	)
 
@@ -133,9 +133,9 @@ test_that("variance estimation works with bootstrap resampling", {
 
 	pfi = PFI$new(
 		task = task,
-		learner = mlr3::lrn("regr.rpart"),
-		measure = mlr3::msr("regr.mse"),
-		resampling = mlr3::rsmp("bootstrap", repeats = 11),
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("bootstrap", repeats = 11),
 		n_repeats = 2
 	)
 
@@ -159,9 +159,9 @@ test_that("quantile variance method works", {
 
 	pfi = PFI$new(
 		task = task,
-		learner = mlr3::lrn("regr.rpart"),
-		measure = mlr3::msr("regr.mse"),
-		resampling = mlr3::rsmp("subsampling", repeats = 5),
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("subsampling", repeats = 5),
 		n_repeats = 2
 	)
 
@@ -198,9 +198,9 @@ test_that("quantile CIs differ from parametric methods", {
 
 	pfi = PFI$new(
 		task = task,
-		learner = mlr3::lrn("regr.rpart"),
-		measure = mlr3::msr("regr.mse"),
-		resampling = mlr3::rsmp("subsampling", repeats = 15),
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("subsampling", repeats = 15),
 		n_repeats = 3
 	)
 

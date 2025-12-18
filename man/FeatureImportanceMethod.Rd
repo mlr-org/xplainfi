@@ -72,7 +72,7 @@ This is typically intended for use by derived classes.
 \if{html}{\out{<div class="r">}}\preformatted{FeatureImportanceMethod$new(
   task,
   learner,
-  measure,
+  measure = NULL,
   resampling = NULL,
   features = NULL,
   groups = NULL,
