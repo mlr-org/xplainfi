@@ -2,8 +2,9 @@
 #' @param groups (`list`) A (named) list of groups
 #' @param all_features (character()) All available feature names from the task.
 #'
+#' @family utilities
 #' @export
-#' @return `group`, with each element now named.
+#' @return The input list `group`, with each element now named.
 #' @examples
 #' task <- sim_dgp_interactions(n = 100)
 #' task$feature_names
@@ -15,7 +16,7 @@
 #' # Names are auto-generated where needed
 #' check_groups(list(a = "x1",  c("x2", "x1")), task$feature_names)
 #'
-#' \dontrun{
+#' \donttest{
 #' # Unexpected features
 #' groups2 = list(effects = c("x1", "foo", "bar", "x1"))
 #' check_groups(groupos1, task$feature_names)

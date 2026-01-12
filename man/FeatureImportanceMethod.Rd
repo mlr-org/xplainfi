@@ -201,6 +201,10 @@ relation between baseline and post-modifcation loss, i.e. \link{PerturbationImpo
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Returns}{
+(\link[data.table:data.table]{data.table}) Observation-wise losses and importance scores with columns
+\code{"feature"}, \code{"iter_rsmp"}, \code{"iter_repeat"} (if applicable), \code{"row_ids"}, \code{"loss_baseline"}, \code{"loss_post"}, and \code{"obs_importance"}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FeatureImportanceMethod-reset"></a>}}
@@ -249,6 +253,10 @@ Iteration-wise importance are computed on the fly depending on the chosen relati
 relation between baseline and post-modifcation loss, i.e. \link{PerturbationImportance} methods such as \link{PFI} or \link{WVIM} / \link{LOCO}. Not available for \link{SAGE} methods.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(\link[data.table:data.table]{data.table}) Iteration-wise importance scores with columns for
+\code{"feature"}, iteration indices, baseline and post-modification scores, and \code{"importance"}.
 }
 }
 \if{html}{\out{<hr>}}

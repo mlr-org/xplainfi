@@ -22,6 +22,7 @@
 #' @return A regression task ([mlr3::TaskRegr]) with [data.table][data.table::data.table] backend.
 #' @export
 #' @references `r print_bib("ewald_2024")`
+#' @family simulation
 #' @examples
 #' sim_dgp_ewald(100)
 #'
@@ -87,6 +88,7 @@ NULL
 #' @param r (`numeric(1)`: `0.9`) Correlation between x1 and x2. Must be between -1 and 1.
 #' @return A regression task ([mlr3::TaskRegr]) with [data.table][data.table::data.table] backend.
 #' @export
+#' @family simulation
 #' @examples
 #' task = sim_dgp_correlated(200)
 #' task$data()
@@ -145,6 +147,7 @@ sim_dgp_correlated <- function(n = 500L, r = 0.9) {
 #' - **RFI with mediator**: Should show direct effects similar to CFI
 #'
 #' @export
+#' @family simulation
 #' @examples
 #' task = sim_dgp_mediated(200)
 #' task$data()
@@ -206,6 +209,7 @@ sim_dgp_mediated <- function(n = 500L) {
 #'   If `TRUE` (default), only the proxy is available, simulating unmeasured confounding.
 #'
 #' @export
+#' @family simulation
 #' @examples
 #' # Hidden confounder scenario (traditional)
 #' task_hidden = sim_dgp_confounded(200, hidden = TRUE)
@@ -276,6 +280,7 @@ sim_dgp_confounded <- function(n = 500L, hidden = TRUE) {
 #' - **Ground truth**: x1 and x2 are important ONLY through their interaction
 #'
 #' @export
+#' @family simulation
 #' @examples
 #' task = sim_dgp_interactions(200)
 #' task$data()
@@ -325,6 +330,7 @@ sim_dgp_interactions <- function(n = 500L) {
 #' - **Ground truth**: important1 > important2 > important3 > unimportant1,2 ≈ 0
 #'
 #' @export
+#' @family simulation
 #' @examples
 #' task = sim_dgp_independent(200)
 #' task$data()

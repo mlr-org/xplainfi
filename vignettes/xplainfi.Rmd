@@ -200,7 +200,7 @@ In the resulting table we see
 
 Note that not all measures have a `Measure$obs_loss()`:
 Some measures like `msr("classif.auc")` are not decomposable, so observation-wise loss values are not available.  
-In other cases, the corresponding `obs_loss()` is just not yet implemented in [`mlr3measures`](https://cran.r-project.org/web/packages/mlr3measures/index.html), but will likely be in the future.
+In other cases, the corresponding `obs_loss()` is just not yet implemented in [`mlr3measures`](https://CRAN.R-project.org/package=mlr3measures), but will likely be in the future.
 
 ## Parallelization
 
@@ -258,7 +258,6 @@ daemons(0)
 
 ### Notes
 
-- **SAGE**: Currently does not support parallelization and will always run sequentially
+- **SAGE**: Currently does not support parallelization and will always run sequentially in terms of the permutations evaluated. The learner or resampling procedure used for the initial model fits can be parallelized though.
 - **Performance**: Parallelization is most beneficial with multiple features, large datasets, or expensive learners
-- **Backend choice**: Use either `future::plan()` or `mirai::daemons()` - both work with the same code
-- **Consistency**: Both PerturbationImportance (PFI/CFI/RFI) and WVIM (LOCO) use the same mlr3 parallelization infrastructure
+- Use either `future::plan()` or `mirai::daemons()` - both work with the same code, similar to mlr3

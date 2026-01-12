@@ -214,6 +214,8 @@ FeatureImportanceMethod = R6Class(
 		#' @param relation (character(1)) How to relate perturbed scores to originals ("difference" or "ratio"). If `NULL`, uses stored parameter value. This is only applicable for methods where importance is based on some
 		#' relation between baseline and post-modifcation loss, i.e. [PerturbationImportance] methods such as [PFI] or [WVIM] / [LOCO]. Not available for [SAGE] methods.
 		#'
+		#' @return ([data.table][data.table::data.table]) Observation-wise losses and importance scores with columns
+		#'   `"feature"`, `"iter_rsmp"`, `"iter_repeat"` (if applicable), `"row_ids"`, `"loss_baseline"`, `"loss_post"`, and `"obs_importance"`.
 		obs_loss = function(relation = NULL) {
 			if (!has_obs_loss(self$measure)) {
 				cli::cli_warn(c(
@@ -329,6 +331,8 @@ FeatureImportanceMethod = R6Class(
 		#' @param relation (character(1)) How to relate perturbed scores to originals ("difference" or "ratio"). If `NULL`, uses stored parameter value. This is only applicable for methods where importance is based on some
 		#' relation between baseline and post-modifcation loss, i.e. [PerturbationImportance] methods such as [PFI] or [WVIM] / [LOCO]. Not available for [SAGE] methods.
 		#'
+		#' @return ([data.table][data.table::data.table]) Iteration-wise importance scores with columns for
+		#'   `"feature"`, iteration indices, baseline and post-modification scores, and `"importance"`.
 		scores = function(relation = NULL) {
 			if (is.null(private$.scores)) {
 				cli::cli_warn(c(
