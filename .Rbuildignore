@@ -26,3 +26,4 @@
 ^vignettes/articles$
 ^xplainfi\.Rproj$
 ^cran-comments\.md$
+^xplainfi-manual\.tex$
