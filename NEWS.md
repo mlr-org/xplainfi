@@ -3,7 +3,7 @@
 The major version bump is largely to mark the occasin that the package is now considered "released".
 
 - Removed the `fippy` comparison article since a more comprehensive comparison is now available in [xplainfi-benchmark](https://github.com/jemus42/xplainfi-benchmark).
-- 
+- Clean up various documentation issues and other metadata.
 
 # xplainfi 0.2.1
 

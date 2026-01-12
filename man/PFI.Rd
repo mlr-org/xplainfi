@@ -42,7 +42,7 @@ Breiman L (2001).
 Fisher A, Rudin C, Dominici F (2019).
 \dQuote{All Models Are Wrong, but Many Are Useful: Learning a Variable's Importance by Studying an Entire Class of Prediction Models Simultaneously.}
 \emph{Journal of Machine Learning Research}, \bold{20}, 177.
-\url{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8323609/}.
+\url{https://pmc.ncbi.nlm.nih.gov/articles/PMC8323609/}.
 Strobl C, Boulesteix A, Kneib T, Augustin T, Zeileis A (2008).
 \dQuote{Conditional Variable Importance for Random Forests.}
 \emph{BMC Bioinformatics}, \bold{9}(1), 307.
