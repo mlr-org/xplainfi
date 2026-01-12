@@ -78,7 +78,7 @@ MarginalSAGE = R6Class(
 			for (i in seq_along(all_coalitions)) {
 				coalition = all_coalitions[[i]]
 
-				# Cartesian product: each test instance × all reference instances
+				# Cartesian product: each test instance * all reference instances
 				test_expanded = test_dt[rep(seq_len(n_test), each = n_reference)]
 				reference_expanded = private$reference_data[rep(seq_len(n_reference), times = n_test)]
 

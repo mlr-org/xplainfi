@@ -26,8 +26,8 @@ feature importance methods. Includes correlated features and interaction effects
 \strong{Feature Properties:}
 \itemize{
 \item X1, X3, X5: Independent uniform(0,1) distributions
-\item X2: Nearly perfect copy of X1 (correlation ≈ 0.99)
-\item X4: Noisy copy of X3 (correlation ≈ 0.67)
+\item X2: Nearly perfect copy of X1 (correlation approximately 0.99)
+\item X4: Noisy copy of X3 (correlation approximately 0.67)
 \item Y depends on X4, X5, and their interaction
 }
 }

@@ -176,7 +176,7 @@ PerturbationImportance = R6Class(
 			scores_baseline = private$.compute_baseline(store_backends = store_backends)
 
 			# Get predictions for each resampling iter, permutation iter, feature
-			# Create progress bar that tracks resampling_iter × feature/group combinations
+			# Create progress bar that tracks resampling_iter * feature/group combinations
 			# if (xplain_opt("progress")) {
 			# n_features_or_groups = length(self$groups %||% self$features)
 			# total_iterations = self$resampling$iters * n_features_or_groups

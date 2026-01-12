@@ -31,10 +31,10 @@ check_groups(list(a = "x1",  c("x2", "x1")), task$feature_names)
 \donttest{
 # Unexpected features
 groups2 = list(effects = c("x1", "foo", "bar", "x1"))
-check_groups(groupos1, task$feature_names)
+check_groups(groups2, task$feature_names)
 # Too deeply nested
 groups3 = list(effects = c("x1", "x2", "x3"), noise = c("noise1", list(c("noise2"))))
-check_groups(groupos1, task$feature_names)
+check_groups(groups2, task$feature_names)
 }
 }
 \concept{utilities}
