@@ -105,7 +105,6 @@ articles:
   - title: Testing and Validation
     contents:
       - simulation-settings
-      - contains("fippy")
 
 navbar:
   components:
@@ -129,5 +128,3 @@ navbar:
         - text: "Testing & Validation"
         - text: "Simulation Settings"
           href: articles/simulation-settings.html
-        - text: "Comparison with fippy (Python)"
-          href: articles/fippy-comparison.html

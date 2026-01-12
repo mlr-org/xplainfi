@@ -24,4 +24,5 @@
 ^vignettes/*_files
 ^vignettes/*.html
 ^vignettes/articles$
-^xplainvi\.Rproj$
+^xplainfi\.Rproj$
+^cran-comments\.md$

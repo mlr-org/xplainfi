@@ -49,29 +49,6 @@ check-remote:
 site:
 	Rscript -e "pkgdown::build_site()"
 
-FIPPY_RESULT=vignettes/articles/fippy-comparison/fippy_results.json
-FIPPY_SCRIPT=vignettes/articles/fippy-comparison/calculate_fippy.py
-
-XPLAINFI_RESULT=vignettes/articles/fippy-comparison/xplainfi_results.json
-XPLAINFI_SCRIPT=vignettes/articles/fippy-comparison/calculate_xplainfi.R
-
-.PHONY: fippy-comparison fippy-comparison-fippy fippy-comparison-xplainfi
-fippy-comparison: fippy-comparison-fippy fippy-comparison-xplainfi
-
-fippy-comparison-fippy: $(FIPPY_RESULT)
-
-fippy-comparison-xplainfi: $(XPLAINFI_RESULT)
-
-$(FIPPY_RESULT): $(FIPPY_SCRIPT)
-	@echo "Running fippy comparison script..."
-	cd vignettes/articles/fippy-comparison && \
-	./calculate_fippy.py
-
-$(XPLAINFI_RESULT): $(XPLAINFI_SCRIPT)
-	@echo "Running xplainfi comparison script..."
-	cd vignettes/articles/fippy-comparison && \
-	Rscript calculate_xplainfi.R
-
 README.md: README.Rmd
 	Rscript -e "rmarkdown::render('README.Rmd')"
 	rm README.html

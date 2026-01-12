@@ -56,7 +56,7 @@ Creates a new instance of the MarginalSAGE class.
 \if{html}{\out{<div class="r">}}\preformatted{MarginalSAGE$new(
   task,
   learner,
-  measure,
+  measure = NULL,
   resampling = NULL,
   features = NULL,
   n_permutations = 10L,

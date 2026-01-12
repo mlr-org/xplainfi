@@ -2,13 +2,14 @@ Package: xplainfi
 Title: Feature Importance Methods for Global Explanations
 Version: 0.2.1
 Authors@R: 
-    person("Lukas", "Burk", , "github@quantenbrot.de", role = c("aut", "cre"),
+    person("Lukas", "Burk", , "cran@lukasburk.de", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7528-3795"))
 Description: Provides a consistent interface for common feature importance
     methods, such as permutation feature importance ('PFI'),
     leave-one-covariate-out ('LOCO'), and 'Shapley Additive Global
-    importancE' ('SAGE').
-License: MIT + file LICENSE
+    importancE' ('SAGE'), as well as feature sampling mechanisms to
+    support conditional importance methods.
+License: LGPL (>= 3)
 URL: https://mlr-org.github.io/xplainfi/,
     https://github.com/mlr-org/xplainfi
 BugReports: https://github.com/mlr-org/xplainfi/issues

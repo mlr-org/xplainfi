@@ -76,7 +76,7 @@ Creates a new instance of the SAGE class.
 \if{html}{\out{<div class="r">}}\preformatted{SAGE$new(
   task,
   learner,
-  measure,
+  measure = NULL,
   resampling = NULL,
   features = NULL,
   n_permutations = 10L,

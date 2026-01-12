@@ -82,7 +82,7 @@ Creates a new instance of the ConditionalSAGE class.
 \if{html}{\out{<div class="r">}}\preformatted{ConditionalSAGE$new(
   task,
   learner,
-  measure,
+  measure = NULL,
   resampling = NULL,
   features = NULL,
   n_permutations = 10L,
