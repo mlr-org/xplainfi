@@ -39,7 +39,7 @@ in \code{task}, but optionally this can be restricted to at least one feature. I
 \item{\code{groups}}{(\code{list}: \code{NULL}) A (named) list of features (names or indices as in \code{task}).
 If \code{groups} is specified, \code{features} is ignored.
 Importances will be calculated for group of features at a time, e.g., in \link{PFI} not one but the group of features will be permuted at each step.
-Analogusly in \link{WVIM}, each group of features will be left out (or in) for each model refit.
+Analogously in \link{WVIM}, each group of features will be left out (or in) for each model refit.
 Not all methods support groups (e.g., \link{SAGE}).
 See FIXME: vignette or examples.}
 
@@ -127,7 +127,7 @@ across resampling iterations and, depending on the method use, permutations (\li
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{relation}}{(character(1)) How to relate perturbed scores to originals ("difference" or "ratio"). If \code{NULL}, uses stored parameter value. This is only applicable for methods where importance is based on some
-relation between baseline and post-modifcation loss, i.e. \link{PerturbationImportance} methods such as \link{PFI} or \link{WVIM} / \link{LOCO}. Not available for \link{SAGE} methods.}
+relation between baseline and post-modification loss, i.e. \link{PerturbationImportance} methods such as \link{PFI} or \link{WVIM} / \link{LOCO}. Not available for \link{SAGE} methods.}
 
 \item{\code{standardize}}{(\code{logical(1)}: \code{FALSE}) If \code{TRUE}, importances are standardized by the highest score so all scores fall in \verb{[-1, 1]}.}
 
@@ -138,9 +138,9 @@ If \code{"quantile"}, empirical quantiles are used to construct confidence-like 
 These methods are model-agnostic and rely on suitable \code{resampling}s, e.g. subsampling with 15 repeats for \code{"nadeau_bengio"}.
 See details.}
 
-\item{\code{conf_level}}{(\code{numeric(1): 0.95}): Conficence level to use for confidence interval construction when \code{ci_method != "none"}.}
+\item{\code{conf_level}}{(\code{numeric(1)}: \code{0.95}) Confidence level to use for confidence interval construction when \code{ci_method != "none"}.}
 
-\item{\code{...}}{Additional arguments passen to specialized methods, if any.}
+\item{\code{...}}{Additional arguments passed to specialized methods, if any.}
 }
 \if{html}{\out{</div>}}
 }
@@ -166,9 +166,9 @@ An approach leading to still imperfect, but improved variance estimates could be
 }\if{html}{\out{</div>}}
 
 \code{n_repeats = 5} in this context only improves the stability of the PFI estimate within the resampling iteration, whereas \code{rsmp("subsampling", repeats = 15)}
-is used to accounter for learner variance and neccessitates variance correction factor.
+is used to account for learner variance and necessitates variance correction.
 
-This appraoch can in principle also be applied to \code{CFI} and \code{RFI}, but beware that a conditional sample such as \link{ConditionalARFSampler} also needs to be trained on data,
+This approach can in principle also be applied to \code{CFI} and \code{RFI}, but beware that a conditional sample such as \link{ConditionalARFSampler} also needs to be trained on data,
 which would need to be taken account by the variance estimation method.
 Analogously, the \code{"nadeau_bengio"} correction was recommended for the use with \link{PFI} by Molnar et al., so its use with other methods like \link{LOCO} or \link{SAGE} is experimental.
 
@@ -176,8 +176,8 @@ Note that even if \code{measure} uses an \code{aggregator} function that is not 
 }
 
 \subsection{Returns}{
-(\link[data.table:data.table]{data.table}) Aggregated importance scores. with variables \verb{"feature", "importance"}
-and depending in \code{ci_method} also \verb{"se", "conf_lower", "conf_upper"}.
+(\link[data.table:data.table]{data.table}) Aggregated importance scores with columns \code{"feature"}, \code{"importance"},
+and depending on \code{ci_method} also \code{"se"}, \code{"conf_lower"}, \code{"conf_upper"}.
 }
 }
 \if{html}{\out{<hr>}}
@@ -197,7 +197,7 @@ This is not the case for measure like \code{classif.auc}, which is not decomposa
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{relation}}{(character(1)) How to relate perturbed scores to originals ("difference" or "ratio"). If \code{NULL}, uses stored parameter value. This is only applicable for methods where importance is based on some
-relation between baseline and post-modifcation loss, i.e. \link{PerturbationImportance} methods such as \link{PFI} or \link{WVIM} / \link{LOCO}. Not available for \link{SAGE} methods.}
+relation between baseline and post-modification loss, i.e. \link{PerturbationImportance} methods such as \link{PFI} or \link{WVIM} / \link{LOCO}. Not available for \link{SAGE} methods.}
 }
 \if{html}{\out{</div>}}
 }
@@ -250,7 +250,7 @@ Iteration-wise importance are computed on the fly depending on the chosen relati
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{relation}}{(character(1)) How to relate perturbed scores to originals ("difference" or "ratio"). If \code{NULL}, uses stored parameter value. This is only applicable for methods where importance is based on some
-relation between baseline and post-modifcation loss, i.e. \link{PerturbationImportance} methods such as \link{PFI} or \link{WVIM} / \link{LOCO}. Not available for \link{SAGE} methods.}
+relation between baseline and post-modification loss, i.e. \link{PerturbationImportance} methods such as \link{PFI} or \link{WVIM} / \link{LOCO}. Not available for \link{SAGE} methods.}
 }
 \if{html}{\out{</div>}}
 }

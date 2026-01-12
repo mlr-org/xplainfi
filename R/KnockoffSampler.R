@@ -188,7 +188,7 @@ KnockoffGaussianSampler = R6Class(
 	inherit = KnockoffSampler,
 	public = list(
 		#' @field feature_types (`character()`) Feature types supported by the sampler.
-		#'   Will be checked against the provied [mlr3::Task] to ensure compatibility.
+		#'   Will be checked against the provided [mlr3::Task] to ensure compatibility.
 		feature_types = c("numeric", "integer"),
 		#' @field x_tilde Knockoff matrix
 		x_tilde = NULL,
@@ -239,7 +239,7 @@ KnockoffSequentialSampler = R6Class(
 	inherit = KnockoffSampler,
 	public = list(
 		#' @field feature_types (`character()`) Feature types supported by the sampler.
-		#'   Will be checked against the provied [mlr3::Task] to ensure compatibility.
+		#'   Will be checked against the provided [mlr3::Task] to ensure compatibility.
 		feature_types = c("numeric", "factor"),
 		#' @field x_tilde Knockoff matrix
 		x_tilde = NULL,

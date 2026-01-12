@@ -82,7 +82,7 @@ resampling$instantiate(task)
 
 ## Marginal SAGE
 
-Marginal SAGE marginalizes features independently by averaging predictions over a subset of `n_samples` obervations drawn from the test dataset.
+Marginal SAGE marginalizes features independently by averaging predictions over a subset of `n_samples` observations drawn from the test dataset.
 We use 15 permutations of the feature vector to build coalitions, resulting in 61 evaluated coalitions (`15 * 4 + 1`).
 
 ```{r marginal-sage}
@@ -139,7 +139,7 @@ ggplot(marginal_results, aes(x = feature, y = importance)) +
 
 We can also keep track of the SAGE value approximation across permutations:
 
-```{r convergance-marginal}
+```{r convergence-marginal}
 marginal_sage$plot_convergence()
 ```
 
@@ -236,7 +236,7 @@ ggplot(conditional_results, aes(x = feature, y = importance)) +
 ```
 
 
-```{r convergance-conditional}
+```{r convergence-conditional}
 conditional_sage$plot_convergence()
 ```
 

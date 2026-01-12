@@ -4,7 +4,7 @@
 \alias{WVIM}
 \title{Williamson's Variable Importance Measure (WVIM)}
 \description{
-Base class generalizazing refit-based variable importance measures.
+Base class generalizing refit-based variable importance measures.
 Default corresponds to leaving out each feature \code{n_repeats} times, which
 corresponds to LOCO (Leave One Covariate Out).
 }

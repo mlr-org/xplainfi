@@ -1,7 +1,7 @@
 #' @title Williamson's Variable Importance Measure (WVIM)
 #'
 #' @description
-#' Base class generalizazing refit-based variable importance measures.
+#' Base class generalizing refit-based variable importance measures.
 #' Default corresponds to leaving out each feature `n_repeats` times, which
 #' corresponds to LOCO (Leave One Covariate Out).
 #'

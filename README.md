@@ -5,8 +5,8 @@
 
 <!-- badges: start -->
 
-[![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/xplainfi)](https://CRAN.R-project.org/package=xplainfi)
 [![R-CMD-check](https://github.com/mlr-org/xplainfi/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mlr-org/xplainfi/actions/workflows/R-CMD-check.yaml)
 [![codecov](https://codecov.io/gh/mlr-org/xplainfi/graph/badge.svg?token=QIQDMP3AM7)](https://codecov.io/gh/mlr-org/xplainfi)
 <!-- badges: end -->
@@ -20,7 +20,21 @@ implementation of importance measures.
 
 ## Installation
 
-You can install the development version of `xplainfi` like using `pak`:
+Once released, you can install `xplainfi` from CRAN:
+
+``` r
+install.packages("xplainfi")
+```
+
+You can also install `xplainfi` from
+[R-universe](https://mlr-org.r-universe.dev):
+
+``` r
+install.packages("xplainfi", repos = c("https://mlr-org.r-universe.dev", "https://cloud.r-project.org"))
+```
+
+The latest development version of `xplainfi` can be installed with
+`pak`:
 
 ``` r
 # install.packages(pak)
@@ -80,8 +94,8 @@ pfi$importance()
 #> 10: unimportant5  0.04819212
 ```
 
-If it aides interpretation, importances can also be calculates as the
-*ratio* rather then the *difference* between the baseline and
+If it aids interpretation, importances can also be calculated as the
+*ratio* rather than the *difference* between the baseline and
 post-permutation losses:
 
 ``` r
@@ -147,7 +161,7 @@ ggplot(
     )
 ```
 
-<img src="man/figures/README-pfi-plot-1.png" width="100%" />
+<img src="man/figures/README-pfi-plot-1.png" alt="" width="100%" />
 
 If the measure in question needs to be maximized rather than minimized
 (like $R^2$), the internal importance calculation takes that into
@@ -161,8 +175,8 @@ pfi = PFI$new(
     learner = learner,
     measure = msr("regr.rsq")
 )
-#> ℹ No <Resampling> provided
-#> Using `resampling = rsmp("holdout")` with default `ratio = 0.67`.
+#> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
+#> (test set size: 667)
 
 pfi$compute()
 pfi$importance()
