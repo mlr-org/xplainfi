@@ -52,7 +52,8 @@ SAGE = R6Class(
 		#'   Relative SE is calculated as SE divided by the range of importance values (max - min),
 		#'   making it scale-invariant across different loss metrics.
 		#'   Default of `0.01` means convergence when relative SE is below 1% of the importance range.
-		#' @param min_permutations (`integer(1)`: `3L`) Minimum permutations before checking for convergence.
+		#' @param min_permutations (`integer(1)`: `10L`) Minimum permutations before checking for convergence. Convergence is judged based on the standard errors of the estimated SAGE values,
+		#' which requires a sufficiently large number of samples (i.e., evaluated coalitions).
 		#' @param check_interval (`integer(1)`: `1L`) Check convergence every N permutations.
 		initialize = function(
 			task,
@@ -65,7 +66,7 @@ SAGE = R6Class(
 			n_samples = 100L,
 			early_stopping = TRUE,
 			se_threshold = 0.01,
-			min_permutations = 3L,
+			min_permutations = 10L,
 			check_interval = 1L
 		) {
 			super$initialize(
@@ -117,7 +118,7 @@ SAGE = R6Class(
 		#' @param se_threshold (`numeric(1)`: `0.01`) Convergence threshold for relative standard error.
 		#'   SE is normalized by the range of importance values (max - min) to make convergence
 		#'   detection scale-invariant. Default `0.01` means convergence when relative SE < 1%.
-		#' @param min_permutations (`integer(1)`: `3L`) Minimum permutations before checking convergence.
+		#' @param min_permutations (`integer(1)`: `10L`) Minimum permutations before checking convergence.
 		#' @param check_interval (`integer(1)`: `1L`) Check convergence every N permutations.
 		compute = function(
 			store_backends = TRUE,
@@ -283,7 +284,7 @@ SAGE = R6Class(
 			batch_size = NULL,
 			early_stopping = FALSE,
 			se_threshold = 0.01,
-			min_permutations = 3L,
+			min_permutations = 10L,
 			check_interval = 1L
 		) {
 			# Initialize numeric vectors to store marginal contributions and their squares for variance calculation.
@@ -428,6 +429,10 @@ SAGE = R6Class(
 				# Update the count of completed permutations.
 				n_completed = n_completed + checkpoint_size
 
+				# if (n_completed > 2) {
+				# 	browser()
+				# }
+
 				# Calculate the current average SAGE values and standard errors based on completed permutations.
 				current_avg = sage_values / n_completed
 
@@ -437,6 +442,17 @@ SAGE = R6Class(
 				# Ensure variance is non-negative (numerical precision issues)
 				current_variance[current_variance < 0] = 0
 				current_se = sqrt(current_variance / n_completed)
+
+				cli::cli_ol()
+				cli::cli_li(
+					c(
+						"SAGE values: {round(current_avg, 4)}",
+						"current SE: {round(current_se, 3)}",
+						"Completed: {n_completed}"
+						# "Checkpoint size: {checkpoint_size}"
+					)
+				)
+				cli::cli_end()
 
 				# Store the current average SAGE values and standard errors in the convergence history.
 				# Used for plotting, early stopping, and uncertainty quantification.
@@ -464,6 +480,7 @@ SAGE = R6Class(
 
 					# Normalize SE by range to get relative SE (matching fippy's formula)
 					# fippy: ratio = SE / range, convergence if max(ratio) < threshold
+					# https://github.com/gcskoenig/fippy/blob/a7a37aa5511f7074ead3289c89b1ae80036982cb/src/fippy/explainers/utils.py#L40-L42
 					if (importance_range > 0 && is.finite(importance_range)) {
 						relative_se_values = curr_se_values / importance_range
 						max_relative_se = max(relative_se_values, na.rm = TRUE)

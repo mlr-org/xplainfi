@@ -59,7 +59,7 @@ ConditionalSAGE = R6Class(
 			n_samples = 100L,
 			early_stopping = FALSE,
 			se_threshold = 0.01,
-			min_permutations = 3L,
+			min_permutations = 10L,
 			check_interval = 1L
 		) {
 			# Use ConditionalARFSampler by default
