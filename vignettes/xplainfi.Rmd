@@ -119,7 +119,7 @@ loco$importance()
 ```
 
 LOCO is computationally expensive as it requires retraining for each feature, but provides clear interpretation: higher values mean larger performance drop when the feature is removed.
-LOCO however cannot distinguish between direct effects and indirect effects through correlated features.
+LOCO, however, cannot distinguish between direct effects and indirect effects through correlated features.
 
 ## Feature Samplers
 
@@ -148,8 +148,8 @@ sample_data[, .(important1, important2, important3)]
 sampled_conditional[, .(important1, important2, important3)]
 ```
 
-This conditional sampling is essential for methods like CFI and RFI that need to preserve feature dependencies. 
-See `vignette("perturbation-importance")` for detailed comparisons `vignette("feature-samplers")` for more details on implemented samplers.
+This conditional sampling is essential for methods like CFI and RFI that need to preserve feature dependencies.
+See `vignette("perturbation-importance")` for detailed comparisons and `vignette("feature-samplers")` for more details on implemented samplers.
 
 ## Detailed Scoring Information
 

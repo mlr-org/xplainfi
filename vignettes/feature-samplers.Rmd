@@ -22,7 +22,7 @@ This vignette introduces the different types of feature samplers available in xp
 
 ## Setup
 
-We create two tasks: One with mixed features (the seminal penguins data), and one with all-numeric features.
+We create two tasks: one with mixed features (the penguins data), and one with all-numeric features.
 
 ```{r load-libraries}
 library(xplainfi)

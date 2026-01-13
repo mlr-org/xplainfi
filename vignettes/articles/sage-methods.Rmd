@@ -130,7 +130,7 @@ ggplot(marginal_results, aes(x = feature, y = importance)) +
 	) +
 	labs(
 		title = "Marginal SAGE Feature Importance",
-		subtitle = "Correlated features: x1 and x2 are correlated (r = 0.9 from MVN)\nx2 has no effect on y",
+		subtitle = "Correlated features: x1 and x2 are correlated (r = 0.5 from MVN)\nx2 has no effect on y",
 		x = "Features",
 		y = "SAGE Value"
 	) +
