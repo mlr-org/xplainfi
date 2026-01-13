@@ -34,16 +34,16 @@ deps:
 check:
 	Rscript -e "devtools::check()"
 
+.PHONY: check-remote
+check:
+	Rscript -e "devtools::check(remote = TRUE)"
+
 .PHONY: test
 test:
 	Rscript -e "devtools::test(reporter = 'summary')"
 
 coverage:
 	Rscript -e "covr::report(covr::package_coverage(\".\"), file = \"coverage.html\")"
-
-.PHONY: check-remote
-check-remote:
-	Rscript -e "devtools::check(remote = TRUE)"
 
 .PHONY: site
 site:
