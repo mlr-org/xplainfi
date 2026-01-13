@@ -35,7 +35,7 @@ check:
 	Rscript -e "devtools::check()"
 
 .PHONY: check-remote
-check:
+check-remote:
 	Rscript -e "devtools::check(remote = TRUE)"
 
 .PHONY: test
