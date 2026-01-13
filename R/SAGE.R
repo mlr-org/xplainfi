@@ -443,16 +443,14 @@ SAGE = R6Class(
 				current_variance[current_variance < 0] = 0
 				current_se = sqrt(current_variance / n_completed)
 
-				cli::cli_ol()
-				cli::cli_li(
-					c(
-						"SAGE values: {round(current_avg, 4)}",
-						"current SE: {round(current_se, 3)}",
-						"Completed: {n_completed}"
-						# "Checkpoint size: {checkpoint_size}"
-					)
-				)
-				cli::cli_end()
+				if (xplain_opt("debug")) {
+					cli::cli_alert_info("SAGE values after {.val {n_completed}} permutations")
+					cli::cli_ol(c(
+						"SAGE values: {.val {round(current_avg, 4)}}",
+						"current SE: {.val {round(current_se, 3)}}",
+						"Completed: {.val {n_completed}}"
+					))
+				}
 
 				# Store the current average SAGE values and standard errors in the convergence history.
 				# Used for plotting, early stopping, and uncertainty quantification.

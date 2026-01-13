@@ -91,7 +91,7 @@ Creates a new instance of the ConditionalSAGE class.
   n_samples = 100L,
   early_stopping = FALSE,
   se_threshold = 0.01,
-  min_permutations = 3L,
+  min_permutations = 10L,
   check_interval = 1L
 )}\if{html}{\out{</div>}}
 }

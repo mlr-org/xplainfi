@@ -84,7 +84,7 @@ Creates a new instance of the SAGE class.
   n_samples = 100L,
   early_stopping = TRUE,
   se_threshold = 0.01,
-  min_permutations = 3L,
+  min_permutations = 10L,
   check_interval = 1L
 )}\if{html}{\out{</div>}}
 }
@@ -111,7 +111,8 @@ Relative SE is calculated as SE divided by the range of importance values (max -
 making it scale-invariant across different loss metrics.
 Default of \code{0.01} means convergence when relative SE is below 1\% of the importance range.}
 
-\item{\code{min_permutations}}{(\code{integer(1)}: \code{3L}) Minimum permutations before checking for convergence.}
+\item{\code{min_permutations}}{(\code{integer(1)}: \code{10L}) Minimum permutations before checking for convergence. Convergence is judged based on the standard errors of the estimated SAGE values,
+which requires a sufficiently large number of samples (i.e., evaluated coalitions).}
 
 \item{\code{check_interval}}{(\code{integer(1)}: \code{1L}) Check convergence every N permutations.}
 }
@@ -147,7 +148,7 @@ Compute SAGE values.
 SE is normalized by the range of importance values (max - min) to make convergence
 detection scale-invariant. Default \code{0.01} means convergence when relative SE < 1\%.}
 
-\item{\code{min_permutations}}{(\code{integer(1)}: \code{3L}) Minimum permutations before checking convergence.}
+\item{\code{min_permutations}}{(\code{integer(1)}: \code{10L}) Minimum permutations before checking convergence.}
 
 \item{\code{check_interval}}{(\code{integer(1)}: \code{1L}) Check convergence every N permutations.}
 }
