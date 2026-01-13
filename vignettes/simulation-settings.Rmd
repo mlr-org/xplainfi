@@ -78,7 +78,7 @@ This DGP creates a highly correlated spurious predictor to illustrate the fundam
 
 $$(X_1, X_2)^T \sim \text{MVN}(0, \Sigma)$$
 
-where $\Sigma$ is a 2×2 covariance matrix with 1 on the diagonal and correlation $r$ (default 0.9) on the off-diagonal.
+where $\Sigma$ is a $2 \times 2$ covariance matrix with 1 on the diagonal and correlation $r$ (default 0.9) on the off-diagonal.
 
 $$X_3 \sim N(0,1), \quad X_4 \sim N(0,1)$$
 $$Y = 2 \cdot X_1 + X_3 + \varepsilon$$
@@ -187,7 +187,7 @@ task <- sim_dgp_mediated(n = 500)
 
 ### Expected Behavior
 
-- **PFI**: Shows total effects (exposure appears important with effect ≈ 1.2)
+- **PFI**: Shows total effects (exposure appears important with effect approximately 1.2)
 - **CFI**: Shows direct effects (exposure appears unimportant when conditioning on mediator)
 - **RFI with mediator**: Should show direct effects similar to CFI
 
@@ -357,7 +357,7 @@ set.seed(123)
 task <- sim_dgp_independent(n = 500)
 
 # All methods should rank features consistently:
-# important1 > important2 > important3 > unimportant1,2 ≈ 0
+# important1 > important2 > important3 > unimportant1,2 (approx. 0)
 ```
 
 ### Expected Behavior

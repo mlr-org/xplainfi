@@ -119,8 +119,8 @@ Unlike `MarginalPermutationSampler` which shuffles feature values independently,
 
 **Key differences from MarginalPermutationSampler:**
 
-- **MarginalPermutationSampler**: Shuffles each feature independently → breaks dependencies between sampled features
-- **MarginalReferenceSampler**: Samples complete reference rows → preserves dependencies of the sampled features
+- **MarginalPermutationSampler**: Shuffles each feature independently -- breaks dependencies between sampled features
+- **MarginalReferenceSampler**: Samples complete reference rows -- preserves dependencies of the sampled features
 
 This is the approach used in [SAGE (Shapley Additive Global importancE)](https://github.com/iancovert/sage) for marginal feature importance. In this SAGE implementation, the [`MarginalImputer`](https://github.com/iancovert/sage/blob/master/sage/imputers.py#L44-L78), uses this approach.
 The "imputer" name comes from the "imputation" of model predictions using out-of-coalition features by sampling from their marginal distribution.
