@@ -16,7 +16,8 @@
 #' # Names are auto-generated where needed
 #' check_groups(list(a = "x1",  c("x2", "x1")), task$feature_names)
 #'
-#' \donttest{
+#' # Examples for cases that throw errors:
+#' \dontrun{
 #' # Unexpected features
 #' groups2 = list(effects = c("x1", "foo", "bar", "x1"))
 #' check_groups(groups2, task$feature_names)
