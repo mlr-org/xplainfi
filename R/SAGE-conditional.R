@@ -20,7 +20,7 @@
 #' )
 #' sage$compute()
 #' }
-#' \dontrun{
+#' \donttest{
 #' # For alternative conditional samplers:
 #' custom_sampler = ConditionalGaussianSampler$new(
 #'   task = task

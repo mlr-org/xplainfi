@@ -427,7 +427,7 @@ PFI = R6Class(
 #' )
 #' cfi$compute()
 #' cfi$importance()
-#' \dontrun{
+#' \donttest{
 #' # For more control over conditional sampling:
 #' custom_sampler = ConditionalARFSampler$new(
 #'   task = task,

@@ -15,8 +15,10 @@
 #' sampler = KnockoffSampler$new(task)
 #' # Sample using row_ids from stored task
 #' sampled_data = sampler$sample("x1")
-#' \dontrun{
+#'
 #' # Example with sequential knockoffs (https://github.com/kormama1/seqknockoff)
+#' # Not on CRAN, install via pak::pak("kormama1/seqknockoff")
+#' \dontrun{
 #' task = tgen("simplex")$generate(n = 100)
 #' sampler_seq = KnockoffSampler$new(task, knockoff_fun = seqknockoff::knockoffs_seq)
 #' sampled_seq = sampler_seq$sample("x1")
@@ -225,6 +227,8 @@ KnockoffGaussianSampler = R6Class(
 #' This is equivalent to [KnockoffSampler] using `knockoff_fun = seqknockoff::knockoffs_seq`.
 #'
 #' @examples
+#' # Example with sequential knockoffs (https://github.com/kormama1/seqknockoff)
+#' # Not on CRAN, install via pak::pak("kormama1/seqknockoff")
 #' \dontrun{
 #' # Requires seqknockoff (https://github.com/kormama1/seqknockoff)
 #' task = tgen("simplex")$generate(n = 100)

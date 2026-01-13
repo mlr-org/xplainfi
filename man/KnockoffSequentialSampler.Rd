@@ -11,6 +11,8 @@ as created by \code{seqknockoff::knockoffs_seq}.
 This is equivalent to \link{KnockoffSampler} using \code{knockoff_fun = seqknockoff::knockoffs_seq}.
 }
 \examples{
+# Example with sequential knockoffs (https://github.com/kormama1/seqknockoff)
+# Not on CRAN, install via pak::pak("kormama1/seqknockoff")
 \dontrun{
 # Requires seqknockoff (https://github.com/kormama1/seqknockoff)
 task = tgen("simplex")$generate(n = 100)

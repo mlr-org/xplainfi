@@ -19,7 +19,7 @@ cfi = CFI$new(
 )
 cfi$compute()
 cfi$importance()
-\dontrun{
+\donttest{
 # For more control over conditional sampling:
 custom_sampler = ConditionalARFSampler$new(
   task = task,

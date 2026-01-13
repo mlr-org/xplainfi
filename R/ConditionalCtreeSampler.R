@@ -42,7 +42,7 @@
 #' - Tree building time increases with data size
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(mlr3)
 #' task = tgen("friedman1")$generate(n = 100)
 #'

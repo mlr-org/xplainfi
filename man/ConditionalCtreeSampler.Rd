@@ -56,7 +56,7 @@ use case (we build trees on-demand rather than pre-computing all subsets).
 }
 }
 \examples{
-\dontrun{
+\donttest{
 library(mlr3)
 task = tgen("friedman1")$generate(n = 100)
 
