@@ -10,14 +10,14 @@
 Source:
 [`DESCRIPTION`](https://github.com/mlr-org/xplainfi/blob/main/DESCRIPTION)
 
-Burk L (2025). *xplainfi: Feature Importance Methods for Global
+Burk L (2026). *xplainfi: Feature Importance Methods for Global
 Explanations*. R package version 0.2.1,
 <https://mlr-org.github.io/xplainfi/>.
 
     @Manual{,
       title = {xplainfi: Feature Importance Methods for Global Explanations},
       author = {Lukas Burk},
-      year = {2025},
+      year = {2026},
       note = {R package version 0.2.1},
       url = {https://mlr-org.github.io/xplainfi/},
     }
