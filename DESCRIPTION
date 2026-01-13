@@ -5,12 +5,12 @@ Authors@R:
     person("Lukas", "Burk", , "cran@lukasburk.de", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0001-7528-3795"))
 Description: Provides a consistent interface for common feature importance
-    methods, including permutation feature importance ('PFI'), conditional
-    and relative feature importances ('CFI', 'RFI'),
-    leave-one-covariate-out ('LOCO'), and marginal and conditional
-    'Shapley Additive Global importancE' ('SAGE') as described in Ewald et
-    al. (2024) <doi:10.1007/978-3-031-63797-1_22>, as well as feature
-    sampling mechanisms to support conditional importance methods.
+    methods as described in Ewald et al. (2024)
+    <doi:10.1007/978-3-031-63797-1_22>, including permutation feature
+    importance ('PFI'), conditional and relative feature importance
+    ('CFI', 'RFI'), 'leave-one-covariate-out' ('LOCO'), and 'Shapley
+    Additive Global importancE' ('SAGE'), as well as feature sampling
+    mechanisms to support conditional importance methods.
 License: LGPL (>= 3)
 URL: https://mlr-org.github.io/xplainfi/,
     https://github.com/mlr-org/xplainfi
