@@ -31,10 +31,10 @@ sim_dgp_ewald <- function(n = 500) {
 	x3 <- runif(n)
 	x5 <- runif(n)
 
-	x2 <- x1 + rnorm(n, 0, sqrt(0.001))
-	x4 <- x3 + rnorm(n, 0, sqrt(0.1))
+	x2 <- x1 + rnorm(n, 0, sd = 0.001)
+	x4 <- x3 + rnorm(n, 0, sd = 0.1)
 
-	y <- x4 + x5 + x4 * x5 + rnorm(n, 0, sqrt(0.1))
+	y <- x4 + x5 + x4 * x5 + rnorm(n, 0, sd = 0.1)
 
 	xdf <- data.table::data.table(
 		y,
