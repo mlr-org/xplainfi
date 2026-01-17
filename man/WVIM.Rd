@@ -8,6 +8,28 @@ Base class generalizing refit-based variable importance measures.
 Default corresponds to leaving out each feature \code{n_repeats} times, which
 corresponds to LOCO (Leave One Covariate Out).
 }
+\examples{
+\dontshow{if (requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+library(mlr3)
+library(mlr3learners)
+
+task <- sim_dgp_correlated(n = 500)
+
+# Group correlated features together, independent features separately
+groups <- list(
+  correlated = c("x1", "x2"),
+  independent = c("x3", "x4")
+)
+
+wvim <- WVIM$new(
+  task = task,
+  learner = lrn("regr.ranger", num.trees = 10),
+  groups = groups
+)
+wvim$compute()
+wvim$importance()
+\dontshow{\}) # examplesIf}
+}
 \keyword{internal}
 \section{Super class}{
 \code{\link[xplainfi:FeatureImportanceMethod]{xplainfi::FeatureImportanceMethod}} -> \code{WVIM}

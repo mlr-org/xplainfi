@@ -12,7 +12,7 @@ FeatureSampler = R6Class(
 		#' @field label (`character(1)`) Name of the sampler.
 		label = NULL,
 		#' @field feature_types (`character()`) Feature types supported by the sampler.
-		#'   Will be checked against the provied [mlr3::Task] to ensure compatibility.
+		#'   Will be checked against the provided [mlr3::Task] to ensure compatibility.
 		feature_types = c(
 			"numeric",
 			"factor",

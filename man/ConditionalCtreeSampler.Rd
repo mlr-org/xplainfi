@@ -91,7 +91,7 @@ Aas K, Jullum M, Løland A (2021).
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{feature_types}}{(\code{character()}) Feature types supported by the sampler.
-Will be checked against the provied \link[mlr3:Task]{mlr3::Task} to ensure compatibility.}
+Will be checked against the provided \link[mlr3:Task]{mlr3::Task} to ensure compatibility.}
 
 \item{\code{tree_cache}}{(\code{environment}) Cache for fitted ctree models.}
 }

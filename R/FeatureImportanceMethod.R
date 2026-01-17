@@ -25,7 +25,6 @@ FeatureImportanceMethod = R6Class(
 		#'   Importances will be calculated for group of features at a time, e.g., in [PFI] not one but the group of features will be permuted at each step.
 		#'   Analogously in [WVIM], each group of features will be left out (or in) for each model refit.
 		#'   Not all methods support groups (e.g., [SAGE]).
-		#'   See FIXME: vignette or examples.
 		groups = NULL,
 		#' @field param_set ([paradox::ps()])
 		param_set = ps(),

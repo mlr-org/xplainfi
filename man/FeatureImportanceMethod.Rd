@@ -40,8 +40,7 @@ in \code{task}, but optionally this can be restricted to at least one feature. I
 If \code{groups} is specified, \code{features} is ignored.
 Importances will be calculated for group of features at a time, e.g., in \link{PFI} not one but the group of features will be permuted at each step.
 Analogously in \link{WVIM}, each group of features will be left out (or in) for each model refit.
-Not all methods support groups (e.g., \link{SAGE}).
-See FIXME: vignette or examples.}
+Not all methods support groups (e.g., \link{SAGE}).}
 
 \item{\code{param_set}}{(\code{\link[paradox:ps]{paradox::ps()}})}
 

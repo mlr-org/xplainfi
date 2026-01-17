@@ -149,7 +149,7 @@ sampled_conditional[, .(important1, important2, important3)]
 ```
 
 This conditional sampling is essential for methods like CFI and RFI that need to preserve feature dependencies.
-See `vignette("perturbation-importance")` for detailed comparisons and `vignette("feature-samplers")` for more details on implemented samplers.
+See the [perturbation-importance article](https://mlr-org.github.io/xplainfi/articles/perturbation-importance.html) for detailed comparisons and `vignette("feature-samplers")` for more details on implemented samplers.
 
 ## Detailed Scoring Information
 

@@ -2,19 +2,18 @@
 % Please edit documentation in R/KnockoffSampler.R
 \name{KnockoffSequentialSampler}
 \alias{KnockoffSequentialSampler}
-\title{Gaussian Knockoff Conditional Sampler}
+\title{Sequential Knockoff Conditional Sampler}
 \description{
-A \link{KnockoffSampler} defaulting to second-order Gaussian knockoffs
+A \link{KnockoffSampler} using sequential knockoffs
 as created by \code{seqknockoff::knockoffs_seq}.
 }
 \details{
 This is equivalent to \link{KnockoffSampler} using \code{knockoff_fun = seqknockoff::knockoffs_seq}.
 }
 \examples{
-# Example with sequential knockoffs (https://github.com/kormama1/seqknockoff)
+# Example requires sequential knockoffs (https://github.com/kormama1/seqknockoff)
 # Not on CRAN, install via pak::pak("kormama1/seqknockoff")
 \dontrun{
-# Requires seqknockoff (https://github.com/kormama1/seqknockoff)
 task = tgen("simplex")$generate(n = 100)
 sampler_seq = KnockoffSampler$new(task)
 sampled_seq = sampler_seq$sample("x1")
