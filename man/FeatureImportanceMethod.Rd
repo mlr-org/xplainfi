@@ -126,13 +126,16 @@ across resampling iterations and, depending on the method use, permutations (\li
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{relation}}{(character(1)) How to relate perturbed scores to originals ("difference" or "ratio"). If \code{NULL}, uses stored parameter value. This is only applicable for methods where importance is based on some
-relation between baseline and post-modification loss, i.e. \link{PerturbationImportance} methods such as \link{PFI} or \link{WVIM} / \link{LOCO}. Not available for \link{SAGE} methods.}
+\item{\code{relation}}{(character(1)) How to relate perturbed scores to originals ("difference" or "ratio").
+If \code{NULL}, uses stored parameter value. This is only applicable for methods where importance is based on some
+relation between baseline and post-modification loss, i.e. \link{PerturbationImportance} methods such as \link{PFI} or \link{WVIM} / \link{LOCO}.
+Not available for \link{SAGE} methods.}
 
 \item{\code{standardize}}{(\code{logical(1)}: \code{FALSE}) If \code{TRUE}, importances are standardized by the highest score so all scores fall in \verb{[-1, 1]}.}
 
-\item{\code{ci_method}}{(\code{character(1)}: \code{"none"}) Variance estimation method to use, defaulting to omitting variance estimation (\code{"none"}).
-If \code{"raw"}, uncorrected variance estimates are provided purely for informative purposes with \strong{invalid} (too narrow) confidence intervals.
+\item{\code{ci_method}}{(\code{character(1)}: \code{"none"}) Which confidence interval estimation method to use, defaulting to omitting
+variance estimation (\code{"none"}).
+If \code{"raw"}, uncorrected (too narrow) CIs are provided purely for informative purposes.
 If \code{"nadeau_bengio"}, variance correction is performed according to Nadeau & Bengio (2003) as suggested by Molnar et al. (2023).
 If \code{"quantile"}, empirical quantiles are used to construct confidence-like intervals.
 These methods are model-agnostic and rely on suitable \code{resampling}s, e.g. subsampling with 15 repeats for \code{"nadeau_bengio"}.

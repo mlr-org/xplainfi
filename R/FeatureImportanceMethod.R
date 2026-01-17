@@ -102,11 +102,14 @@ FeatureImportanceMethod = R6Class(
 		#' Get aggregated importance scores.
 		#' The stored [`measure`][mlr3::Measure] object's `aggregator` (default: `mean`) will be used to aggregated importance scores
 		#' across resampling iterations and, depending on the method use, permutations ([PerturbationImportance] or refits [LOCO]).
-		#' @param relation (character(1)) How to relate perturbed scores to originals ("difference" or "ratio"). If `NULL`, uses stored parameter value. This is only applicable for methods where importance is based on some
-		#' relation between baseline and post-modification loss, i.e. [PerturbationImportance] methods such as [PFI] or [WVIM] / [LOCO]. Not available for [SAGE] methods.
+		#' @param relation (character(1)) How to relate perturbed scores to originals ("difference" or "ratio").
+		#'   If `NULL`, uses stored parameter value. This is only applicable for methods where importance is based on some
+		#'   relation between baseline and post-modification loss, i.e. [PerturbationImportance] methods such as [PFI] or [WVIM] / [LOCO].
+		#'   Not available for [SAGE] methods.
 		#' @param standardize (`logical(1)`: `FALSE`) If `TRUE`, importances are standardized by the highest score so all scores fall in `[-1, 1]`.
-		#' @param ci_method (`character(1)`: `"none"`) Variance estimation method to use, defaulting to omitting variance estimation (`"none"`).
-		#'   If `"raw"`, uncorrected variance estimates are provided purely for informative purposes with **invalid** (too narrow) confidence intervals.
+		#' @param ci_method (`character(1)`: `"none"`) Which confidence interval estimation method to use, defaulting to omitting
+		#'   variance estimation (`"none"`).
+		#'   If `"raw"`, uncorrected (too narrow) CIs are provided purely for informative purposes.
 		#'   If `"nadeau_bengio"`, variance correction is performed according to Nadeau & Bengio (2003) as suggested by Molnar et al. (2023).
 		#'   If `"quantile"`, empirical quantiles are used to construct confidence-like intervals.
 		#'   These methods are model-agnostic and rely on suitable `resampling`s, e.g. subsampling with 15 repeats for `"nadeau_bengio"`.
