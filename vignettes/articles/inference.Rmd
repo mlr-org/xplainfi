@@ -31,14 +31,14 @@ library(data.table)
 library(ggplot2)
 ```
 
-There are multiple (work in progress) inference possible with the underlying implementation, but the API around them is still being worked out.
+There are multiple (work in progress) inference methods available with the underlying implementation, but the API around them is still being worked out.
 
 ## Setup
 
 We use a simple linear DGP for demonstration purposes where
 
 - $X_1$ and $X_2$ are strongly correlated (r = 0.7)
-- $X_1$ and $X_3$ has an effect on Y
+- $X_1$ and $X_3$ have an effect on Y
 - $X_2$ and $X_4$ don't have an effect 
 
 ```{r setup-data}
@@ -76,7 +76,7 @@ DiagrammeR::grViz(
 
 ## Variance-correction
 
-When we calculate PFI using an appropriate resampling, such as subsampling with 15 repeats, we can use the approach recommended by Molnar et al. (2023) based on the proposed correction by Nadeay & Bengio (2003).
+When we calculate PFI using an appropriate resampling, such as subsampling with 15 repeats, we can use the approach recommended by Molnar et al. (2023) based on the proposed correction by Nadeau & Bengio (2003).
 
 By default, any importance measures' `$importance()` method will not output any variances or confidence intervals, it will merely compute averages over resampling iterations and repeats within resamplings (`iter_repeat` here).
 
@@ -228,7 +228,7 @@ A noteable caveat of the knockoff approach is that they are not readily availabl
 
 ### CPI with ARF
 
-An alternative is available using ARF as conditional sampler rather than knockoffs (CITE cARFi), which we can perform analogously:
+An alternative is available using ARF as conditional sampler rather than knockoffs (see [Blesch et al. (2025)](https://doi.org/10.1609/aaai.v39i15.33712)), which we can perform analogously:
 
 ```{r cfi-arf}
 arf_sampler = ConditionalARFSampler$new(
@@ -320,9 +320,9 @@ rbindlist(
 Given the width of the resulting confidence intervals, the Fisher- or t-test are generally recommended.
 
 
-## LOCO (WIP)
+## LOCO: Custom inference
 
-(CITATION) proposed inference for LOCO using the median absolute differences of the baseline- and post-refit loss differences
+[Lei et al. (2018)](https://doi.org/10.1080/01621459.2017.1307116) proposed inference for LOCO using the median absolute differences of the baseline- and post-refit loss differences
 
 $$
 \theta_j = \mathrm{med}\left(
@@ -400,7 +400,3 @@ loco_wilcox_ci = loco_obsloss[,
 
 loco_wilcox_ci
 ```
-
-**Note**: The above approach needs checking with the literature to ensure it's actually corresponding to what was proposed and the results are valid.  
-
-The main point of this section is to illustrate that the availability of the intermediate parts (i.e. obs losses) and flexibility regarding the used measure allows for flexibility in terms of inference. 
