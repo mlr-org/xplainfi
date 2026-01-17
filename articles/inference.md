@@ -10,16 +10,16 @@ library(data.table)
 library(ggplot2)
 ```
 
-There are multiple (work in progress) inference possible with the
-underlying implementation, but the API around them is still being worked
-out.
+There are multiple (work in progress) inference methods available with
+the underlying implementation, but the API around them is still being
+worked out.
 
 ## Setup
 
 We use a simple linear DGP for demonstration purposes where
 
 - \\X_1\\ and \\X_2\\ are strongly correlated (r = 0.7)
-- \\X_1\\ and \\X_3\\ has an effect on Y
+- \\X_1\\ and \\X_3\\ have an effect on Y
 - \\X_2\\ and \\X_4\\ don’t have an effect
 
 ``` r
@@ -34,7 +34,7 @@ DAG for correlated features DGP
 
 When we calculate PFI using an appropriate resampling, such as
 subsampling with 15 repeats, we can use the approach recommended by
-Molnar et al. (2023) based on the proposed correction by Nadeay & Bengio
+Molnar et al. (2023) based on the proposed correction by Nadeau & Bengio
 (2003).
 
 By default, any importance measures’ `$importance()` method will not
@@ -266,7 +266,9 @@ available for mixed data (with categorical features).
 ### CPI with ARF
 
 An alternative is available using ARF as conditional sampler rather than
-knockoffs (CITE cARFi), which we can perform analogously:
+knockoffs (see [Blesch et
+al. (2025)](https://doi.org/10.1609/aaai.v39i15.33712)), which we can
+perform analogously:
 
 ``` r
 arf_sampler = ConditionalARFSampler$new(
@@ -409,10 +411,11 @@ rbindlist(
 Given the width of the resulting confidence intervals, the Fisher- or
 t-test are generally recommended.
 
-## LOCO (WIP)
+## LOCO: Custom inference
 
-(CITATION) proposed inference for LOCO using the median absolute
-differences of the baseline- and post-refit loss differences
+[Lei et al. (2018)](https://doi.org/10.1080/01621459.2017.1307116)
+proposed inference for LOCO using the median absolute differences of the
+baseline- and post-refit loss differences
 
 \\ \theta_j = \mathrm{med}\left( \|Y - \hat{f}\_{n_1}^{-j}(X)\| - \|Y -
 \hat{f}\_{n_1}(X)\| \big\| D_1 \right) \\
@@ -524,11 +527,3 @@ loco_wilcox_ci
 #> 3:      x3    213532 0.59231575 1.508448e-93 0.54444761 0.64071906
 #> 4:      x4    162767 0.04423316 5.712254e-25 0.03565144 0.05305982
 ```
-
-**Note**: The above approach needs checking with the literature to
-ensure it’s actually corresponding to what was proposed and the results
-are valid.
-
-The main point of this section is to illustrate that the availability of
-the intermediate parts (i.e. obs losses) and flexibility regarding the
-used measure allows for flexibility in terms of inference.

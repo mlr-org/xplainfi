@@ -104,9 +104,9 @@
 <span><span class="co"># Data manip and visualization</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
-<p>There are multiple (work in progress) inference possible with the
-underlying implementation, but the API around them is still being worked
-out.</p>
+<p>There are multiple (work in progress) inference methods available
+with the underlying implementation, but the API around them is still
+being worked out.</p>
 <div class="section level2">
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
@@ -116,7 +116,7 @@ out.</p>
 <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> are strongly correlated (r =
 0.7)</li>
 <li>
-<span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_3\)</span> has an effect on Y</li>
+<span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_3\)</span> have an effect on Y</li>
 <li>
 <span class="math inline">\(X_2\)</span> and <span class="math inline">\(X_4\)</span> don’t have an effect</li>
 </ul>
@@ -136,7 +136,7 @@ DAG for correlated features DGP
 </h2>
 <p>When we calculate PFI using an appropriate resampling, such as
 subsampling with 15 repeats, we can use the approach recommended by
-Molnar et al. (2023) based on the proposed correction by Nadeay &amp;
+Molnar et al. (2023) based on the proposed correction by Nadeau &amp;
 Bengio (2003).</p>
 <p>By default, any importance measures’ <code>$importance()</code>
 method will not output any variances or confidence intervals, it will
@@ -345,7 +345,8 @@ readily available for mixed data (with categorical features).</p>
 <h3 id="cpi-with-arf">CPI with ARF<a class="anchor" aria-label="anchor" href="#cpi-with-arf"></a>
 </h3>
 <p>An alternative is available using ARF as conditional sampler rather
-than knockoffs (CITE cARFi), which we can perform analogously:</p>
+than knockoffs (see <a href="https://doi.org/10.1609/aaai.v39i15.33712" class="external-link">Blesch et
+al. (2025)</a>), which we can perform analogously:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">arf_sampler</span> <span class="op">=</span> <span class="va"><a href="../reference/ConditionalARFSampler.html">ConditionalARFSampler</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>    task <span class="op">=</span> <span class="va">task</span>,</span>
@@ -480,9 +481,10 @@ t-test are generally recommended.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="loco-wip">LOCO (WIP)<a class="anchor" aria-label="anchor" href="#loco-wip"></a>
+<h2 id="loco-custom-inference">LOCO: Custom inference<a class="anchor" aria-label="anchor" href="#loco-custom-inference"></a>
 </h2>
-<p>(CITATION) proposed inference for LOCO using the median absolute
+<p><a href="https://doi.org/10.1080/01621459.2017.1307116" class="external-link">Lei et
+al. (2018)</a> proposed inference for LOCO using the median absolute
 differences of the baseline- and post-refit loss differences</p>
 <p><span class="math display">\[
 \theta_j = \mathrm{med}\left(
@@ -590,12 +592,6 @@ pseudo-median:</p>
 <span><span class="co">#&gt; 2:      x2    144722 0.03419386 2.149646e-11 0.02424473 0.04449679</span></span>
 <span><span class="co">#&gt; 3:      x3    213532 0.59231575 1.508448e-93 0.54444761 0.64071906</span></span>
 <span><span class="co">#&gt; 4:      x4    162767 0.04423316 5.712254e-25 0.03565144 0.05305982</span></span></code></pre></div>
-<p><strong>Note</strong>: The above approach needs checking with the
-literature to ensure it’s actually corresponding to what was proposed
-and the results are valid.</p>
-<p>The main point of this section is to illustrate that the availability
-of the intermediate parts (i.e. obs losses) and flexibility regarding
-the used measure allows for flexibility in terms of inference.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
