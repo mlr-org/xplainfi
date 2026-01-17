@@ -13,8 +13,8 @@
 #'
 #' **Feature Properties:**
 #' - X1, X3, X5: Independent uniform(0,1) distributions
-#' - X2: Nearly perfect copy of X1 (correlation ≈ 0.99)
-#' - X4: Noisy copy of X3 (correlation ≈ 0.67)
+#' - X2: Nearly perfect copy of X1 (correlation approximately 0.99)
+#' - X4: Noisy copy of X3 (correlation approximately 0.67)
 #' - Y depends on X4, X5, and their interaction
 #'
 #' @param n (`integer(1)`) Number of samples to create.
@@ -22,6 +22,7 @@
 #' @return A regression task ([mlr3::TaskRegr]) with [data.table][data.table::data.table] backend.
 #' @export
 #' @references `r print_bib("ewald_2024")`
+#' @family simulation
 #' @examples
 #' sim_dgp_ewald(100)
 #'
@@ -30,10 +31,10 @@ sim_dgp_ewald <- function(n = 500) {
 	x3 <- runif(n)
 	x5 <- runif(n)
 
-	x2 <- x1 + rnorm(n, 0, sqrt(0.001))
-	x4 <- x3 + rnorm(n, 0, sqrt(0.1))
+	x2 <- x1 + rnorm(n, 0, sd = 0.001)
+	x4 <- x3 + rnorm(n, 0, sd = 0.1)
 
-	y <- x4 + x5 + x4 * x5 + rnorm(n, 0, sqrt(0.1))
+	y <- x4 + x5 + x4 * x5 + rnorm(n, 0, sd = 0.1)
 
 	xdf <- data.table::data.table(
 		y,
@@ -67,16 +68,16 @@ NULL
 #'
 #' **Mathematical Model:**
 #' \deqn{(X_1, X_2)^T \sim \text{MVN}(0, \Sigma)}
-#' where \eqn{\Sigma} is a 2×2 covariance matrix with 1 on the diagonal and correlation \eqn{r} on the off-diagonal.
+#' where \eqn{\Sigma} is a \eqn{2 \times 2} covariance matrix with 1 on the diagonal and correlation \eqn{r} on the off-diagonal.
 #' \deqn{X_3 \sim N(0,1), \quad X_4 \sim N(0,1)}
 #' \deqn{Y = 2 \cdot X_1 + X_3 + \varepsilon}
 #' where \eqn{\varepsilon \sim N(0, 0.2^2)}.
 #'
 #' **Feature Properties:**
-#' - `x1`: Standard normal from MVN, direct causal effect on y (β=2.0)
-#' - `x2`: Correlated with `x1` (correlation = `r`), NO causal effect on y (β=0)
-#' - `x3`: Independent standard normal, direct causal effect on y (β=1.0)
-#' - `x4`: Independent standard normal, no effect on y (β=0)
+#' - `x1`: Standard normal from MVN, direct causal effect on y (\eqn{\beta = 2.0})
+#' - `x2`: Correlated with `x1` (correlation = `r`), NO causal effect on y (\eqn{\beta = 0})
+#' - `x3`: Independent standard normal, direct causal effect on y (\eqn{\beta = 1.0})
+#' - `x4`: Independent standard normal, no effect on y (\eqn{\beta = 0})
 #'
 #' **Expected Behavior:**
 #' - **Marginal methods** (PFI, Marginal SAGE): Will falsely assign importance to x2 due to correlation with x1
@@ -87,6 +88,7 @@ NULL
 #' @param r (`numeric(1)`: `0.9`) Correlation between x1 and x2. Must be between -1 and 1.
 #' @return A regression task ([mlr3::TaskRegr]) with [data.table][data.table::data.table] backend.
 #' @export
+#' @family simulation
 #' @examples
 #' task = sim_dgp_correlated(200)
 #' task$data()
@@ -137,7 +139,7 @@ sim_dgp_correlated <- function(n = 500L, r = 0.9) {
 #' - `direct`: Has both direct effect on y and effect on mediator
 #' - `noise`: No causal relationship to y
 #'
-#' **Causal Structure:** exposure → mediator → y ← direct → mediator
+#' **Causal Structure:** exposure -> mediator -> y <- direct -> mediator
 #'
 #' **Expected Behavior:**
 #' - **PFI**: Shows total effects (exposure appears important)
@@ -145,6 +147,7 @@ sim_dgp_correlated <- function(n = 500L, r = 0.9) {
 #' - **RFI with mediator**: Should show direct effects similar to CFI
 #'
 #' @export
+#' @family simulation
 #' @examples
 #' task = sim_dgp_mediated(200)
 #' task$data()
@@ -206,6 +209,7 @@ sim_dgp_mediated <- function(n = 500L) {
 #'   If `TRUE` (default), only the proxy is available, simulating unmeasured confounding.
 #'
 #' @export
+#' @family simulation
 #' @examples
 #' # Hidden confounder scenario (traditional)
 #' task_hidden = sim_dgp_confounded(200, hidden = TRUE)
@@ -276,6 +280,7 @@ sim_dgp_confounded <- function(n = 500L, hidden = TRUE) {
 #' - **Ground truth**: x1 and x2 are important ONLY through their interaction
 #'
 #' @export
+#' @family simulation
 #' @examples
 #' task = sim_dgp_interactions(200)
 #' task$data()
@@ -322,9 +327,10 @@ sim_dgp_interactions <- function(n = 500L) {
 #'
 #' **Expected Behavior:**
 #' - **All methods**: Should rank features consistently by their true effect sizes
-#' - **Ground truth**: important1 > important2 > important3 > unimportant1,2 ≈ 0
+#' - **Ground truth**: important1 > important2 > important3 > unimportant1,2 (approximately 0)
 #'
 #' @export
+#' @family simulation
 #' @examples
 #' task = sim_dgp_independent(200)
 #' task$data()
