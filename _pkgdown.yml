@@ -1,4 +1,4 @@
-url: https://jemus42.github.io/xplainfi/
+url: https://mlr-org.github.io/xplainfi/
 
 authors:
   Lukas Burk:
@@ -116,7 +116,7 @@ navbar:
           href: articles/perturbation-importance.html
         - text: "Model Refitting Measures (LOCO, WVIM)"
           href: articles/loco.html
-        - text: "Shapley Additive Global Importance (SAGE)"
+        - text: "Shapley Additive Global ImportancE (SAGE)"
           href: articles/sage-methods.html
         - text: -------
         - text: "Specialized Topics"
