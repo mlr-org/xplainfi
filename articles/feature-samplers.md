@@ -343,16 +343,16 @@ data.table(
 )
 #>     original_island sampled_island bill_length body_mass
 #>              <fctr>         <fctr>       <num>     <int>
-#>  1:       Torgersen      Torgersen        39.1      3750
-#>  2:       Torgersen      Torgersen        39.5      3800
-#>  3:       Torgersen         Biscoe        40.3      3250
-#>  4:       Torgersen          Dream          NA        NA
-#>  5:       Torgersen      Torgersen        36.7      3450
-#>  6:       Torgersen         Biscoe        39.3      3650
-#>  7:       Torgersen          Dream        38.9      3625
+#>  1:       Torgersen         Biscoe        39.1      3750
+#>  2:       Torgersen         Biscoe        39.5      3800
+#>  3:       Torgersen      Torgersen        40.3      3250
+#>  4:       Torgersen      Torgersen          NA        NA
+#>  5:       Torgersen          Dream        36.7      3450
+#>  6:       Torgersen      Torgersen        39.3      3650
+#>  7:       Torgersen      Torgersen        38.9      3625
 #>  8:       Torgersen         Biscoe        39.2      4675
-#>  9:       Torgersen         Biscoe        34.1      3475
-#> 10:       Torgersen          Dream        42.0      4250
+#>  9:       Torgersen      Torgersen        34.1      3475
+#> 10:       Torgersen      Torgersen        42.0      4250
 ```
 
 **Use in CFI**: ConditionalARFSampler is the default for Conditional
@@ -394,16 +394,16 @@ data.table(
 )
 #>        island original sampled
 #>        <fctr>    <num>   <num>
-#>  1: Torgersen     39.1    33.5
-#>  2: Torgersen     39.5    43.1
-#>  3: Torgersen     40.3    35.7
-#>  4: Torgersen       NA    39.7
-#>  5: Torgersen     36.7    37.2
-#>  6: Torgersen     39.3    42.5
-#>  7: Torgersen     38.9    46.0
-#>  8: Torgersen     39.2    39.5
-#>  9: Torgersen     34.1    35.2
-#> 10: Torgersen     42.0    38.5
+#>  1: Torgersen     39.1    42.5
+#>  2: Torgersen     39.5    46.0
+#>  3: Torgersen     40.3    39.5
+#>  4: Torgersen       NA    35.2
+#>  5: Torgersen     36.7    38.5
+#>  6: Torgersen     39.3    41.4
+#>  7: Torgersen     38.9    42.0
+#>  8: Torgersen     39.2    34.6
+#>  9: Torgersen     34.1    42.1
+#> 10: Torgersen     42.0    42.5
 ```
 
 The ctree sampler partitions observations based on the conditioning
@@ -460,10 +460,10 @@ data.table(
 #>            x2         x3 original_x1  sampled_x1
 #>         <num>      <num>       <num>       <num>
 #> 1: -0.5272128  1.7361110  -1.0506838 -0.04454979
-#> 2: -1.2991235 -0.8452478  -2.0680921 -0.48853558
-#> 3:  1.3031674 -0.9615715   1.1365600  1.13656002
-#> 4: -1.1771093  1.0174911  -1.6750075 -1.76674799
-#> 5: -0.3692326 -1.4960537  -0.3570559 -0.32732251
+#> 2: -1.2991235 -0.8452478  -2.0680921 -1.85485761
+#> 3:  1.3031674 -0.9615715   1.1365600  1.54017968
+#> 4: -1.1771093  1.0174911  -1.6750075 -1.67500747
+#> 5: -0.3692326 -1.4960537  -0.3570559 -0.35705594
 ```
 
 #### Example 2: Mixed-type conditioning (Gower distance)
@@ -488,11 +488,11 @@ data.table(
 )
 #>       island body_mass original_bill sampled_bill
 #>       <fctr>     <int>         <num>        <num>
-#> 1: Torgersen      3750          39.1         40.9
-#> 2: Torgersen      3800          39.5         38.6
-#> 3: Torgersen      3250          40.3         41.1
-#> 4: Torgersen        NA            NA         34.6
-#> 5: Torgersen      3450          36.7           NA
+#> 1: Torgersen      3750          39.1           NA
+#> 2: Torgersen      3800          39.5         36.7
+#> 3: Torgersen      3250          40.3         37.8
+#> 4: Torgersen        NA            NA         37.8
+#> 5: Torgersen      3450          36.7         40.2
 ```
 
 The kNN sampler finds the k most similar observations (based on
@@ -543,11 +543,11 @@ data.table(
 )
 #>    x1_original x1_knockoff x2_original x2_knockoff
 #>          <num>       <num>       <num>       <num>
-#> 1:  -1.0506838  -0.5923490  -0.5272128  -1.0681303
-#> 2:  -2.0680921  -0.2506029  -1.2991235  -0.9736194
-#> 3:   1.1365600   1.3070985   1.3031674   1.3367546
-#> 4:  -1.6750075  -0.5921971  -1.1771093  -1.2278440
-#> 5:  -0.3570559   0.8674447  -0.3692326   1.0278541
+#> 1:  -1.0506838  -0.7513172  -0.5272128   -1.433181
+#> 2:  -2.0680921  -0.6129308  -1.2991235   -1.183605
+#> 3:   1.1365600   1.6247546   1.3031674    1.642699
+#> 4:  -1.6750075  -0.8129150  -1.1771093   -1.450024
+#> 5:  -0.3570559  -1.2109496  -0.3692326   -1.074235
 ```
 
 Key properties of knockoffs:

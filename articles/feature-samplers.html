@@ -438,16 +438,16 @@ large data)</li>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;     original_island sampled_island bill_length body_mass</span></span>
 <span><span class="co">#&gt;              &lt;fctr&gt;         &lt;fctr&gt;       &lt;num&gt;     &lt;int&gt;</span></span>
-<span><span class="co">#&gt;  1:       Torgersen      Torgersen        39.1      3750</span></span>
-<span><span class="co">#&gt;  2:       Torgersen      Torgersen        39.5      3800</span></span>
-<span><span class="co">#&gt;  3:       Torgersen         Biscoe        40.3      3250</span></span>
-<span><span class="co">#&gt;  4:       Torgersen          Dream          NA        NA</span></span>
-<span><span class="co">#&gt;  5:       Torgersen      Torgersen        36.7      3450</span></span>
-<span><span class="co">#&gt;  6:       Torgersen         Biscoe        39.3      3650</span></span>
-<span><span class="co">#&gt;  7:       Torgersen          Dream        38.9      3625</span></span>
+<span><span class="co">#&gt;  1:       Torgersen         Biscoe        39.1      3750</span></span>
+<span><span class="co">#&gt;  2:       Torgersen         Biscoe        39.5      3800</span></span>
+<span><span class="co">#&gt;  3:       Torgersen      Torgersen        40.3      3250</span></span>
+<span><span class="co">#&gt;  4:       Torgersen      Torgersen          NA        NA</span></span>
+<span><span class="co">#&gt;  5:       Torgersen          Dream        36.7      3450</span></span>
+<span><span class="co">#&gt;  6:       Torgersen      Torgersen        39.3      3650</span></span>
+<span><span class="co">#&gt;  7:       Torgersen      Torgersen        38.9      3625</span></span>
 <span><span class="co">#&gt;  8:       Torgersen         Biscoe        39.2      4675</span></span>
-<span><span class="co">#&gt;  9:       Torgersen         Biscoe        34.1      3475</span></span>
-<span><span class="co">#&gt; 10:       Torgersen          Dream        42.0      4250</span></span></code></pre></div>
+<span><span class="co">#&gt;  9:       Torgersen      Torgersen        34.1      3475</span></span>
+<span><span class="co">#&gt; 10:       Torgersen      Torgersen        42.0      4250</span></span></code></pre></div>
 <p><strong>Use in CFI</strong>: ConditionalARFSampler is the default for
 Conditional Feature Importance since it can be used with any task,
 unlike other samplers.</p>
@@ -489,16 +489,16 @@ features)</li>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;        island original sampled</span></span>
 <span><span class="co">#&gt;        &lt;fctr&gt;    &lt;num&gt;   &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1: Torgersen     39.1    33.5</span></span>
-<span><span class="co">#&gt;  2: Torgersen     39.5    43.1</span></span>
-<span><span class="co">#&gt;  3: Torgersen     40.3    35.7</span></span>
-<span><span class="co">#&gt;  4: Torgersen       NA    39.7</span></span>
-<span><span class="co">#&gt;  5: Torgersen     36.7    37.2</span></span>
-<span><span class="co">#&gt;  6: Torgersen     39.3    42.5</span></span>
-<span><span class="co">#&gt;  7: Torgersen     38.9    46.0</span></span>
-<span><span class="co">#&gt;  8: Torgersen     39.2    39.5</span></span>
-<span><span class="co">#&gt;  9: Torgersen     34.1    35.2</span></span>
-<span><span class="co">#&gt; 10: Torgersen     42.0    38.5</span></span></code></pre></div>
+<span><span class="co">#&gt;  1: Torgersen     39.1    42.5</span></span>
+<span><span class="co">#&gt;  2: Torgersen     39.5    46.0</span></span>
+<span><span class="co">#&gt;  3: Torgersen     40.3    39.5</span></span>
+<span><span class="co">#&gt;  4: Torgersen       NA    35.2</span></span>
+<span><span class="co">#&gt;  5: Torgersen     36.7    38.5</span></span>
+<span><span class="co">#&gt;  6: Torgersen     39.3    41.4</span></span>
+<span><span class="co">#&gt;  7: Torgersen     38.9    42.0</span></span>
+<span><span class="co">#&gt;  8: Torgersen     39.2    34.6</span></span>
+<span><span class="co">#&gt;  9: Torgersen     34.1    42.1</span></span>
+<span><span class="co">#&gt; 10: Torgersen     42.0    42.5</span></span></code></pre></div>
 <p>The ctree sampler partitions observations based on the conditioning
 features and samples from within the same partition (terminal node).</p>
 </div>
@@ -556,10 +556,10 @@ categorical (factor, ordered, logical)</li>
 <span><span class="co">#&gt;            x2         x3 original_x1  sampled_x1</span></span>
 <span><span class="co">#&gt;         &lt;num&gt;      &lt;num&gt;       &lt;num&gt;       &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1: -0.5272128  1.7361110  -1.0506838 -0.04454979</span></span>
-<span><span class="co">#&gt; 2: -1.2991235 -0.8452478  -2.0680921 -0.48853558</span></span>
-<span><span class="co">#&gt; 3:  1.3031674 -0.9615715   1.1365600  1.13656002</span></span>
-<span><span class="co">#&gt; 4: -1.1771093  1.0174911  -1.6750075 -1.76674799</span></span>
-<span><span class="co">#&gt; 5: -0.3692326 -1.4960537  -0.3570559 -0.32732251</span></span></code></pre></div>
+<span><span class="co">#&gt; 2: -1.2991235 -0.8452478  -2.0680921 -1.85485761</span></span>
+<span><span class="co">#&gt; 3:  1.3031674 -0.9615715   1.1365600  1.54017968</span></span>
+<span><span class="co">#&gt; 4: -1.1771093  1.0174911  -1.6750075 -1.67500747</span></span>
+<span><span class="co">#&gt; 5: -0.3692326 -1.4960537  -0.3570559 -0.35705594</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="example-2-mixed-type-conditioning-gower-distance">Example 2: Mixed-type conditioning (Gower distance)<a class="anchor" aria-label="anchor" href="#example-2-mixed-type-conditioning-gower-distance"></a>
@@ -584,11 +584,11 @@ categorical (factor, ordered, logical)</li>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;       island body_mass original_bill sampled_bill</span></span>
 <span><span class="co">#&gt;       &lt;fctr&gt;     &lt;int&gt;         &lt;num&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: Torgersen      3750          39.1         40.9</span></span>
-<span><span class="co">#&gt; 2: Torgersen      3800          39.5         38.6</span></span>
-<span><span class="co">#&gt; 3: Torgersen      3250          40.3         41.1</span></span>
-<span><span class="co">#&gt; 4: Torgersen        NA            NA         34.6</span></span>
-<span><span class="co">#&gt; 5: Torgersen      3450          36.7           NA</span></span></code></pre></div>
+<span><span class="co">#&gt; 1: Torgersen      3750          39.1           NA</span></span>
+<span><span class="co">#&gt; 2: Torgersen      3800          39.5         36.7</span></span>
+<span><span class="co">#&gt; 3: Torgersen      3250          40.3         37.8</span></span>
+<span><span class="co">#&gt; 4: Torgersen        NA            NA         37.8</span></span>
+<span><span class="co">#&gt; 5: Torgersen      3450          36.7         40.2</span></span></code></pre></div>
 <p>The kNN sampler finds the k most similar observations (based on
 conditioning features) and samples from their feature values. The
 distance metric is chosen automatically based on feature types.</p>
@@ -639,11 +639,11 @@ general importance</li>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;    x1_original x1_knockoff x2_original x2_knockoff</span></span>
 <span><span class="co">#&gt;          &lt;num&gt;       &lt;num&gt;       &lt;num&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  -1.0506838  -0.5923490  -0.5272128  -1.0681303</span></span>
-<span><span class="co">#&gt; 2:  -2.0680921  -0.2506029  -1.2991235  -0.9736194</span></span>
-<span><span class="co">#&gt; 3:   1.1365600   1.3070985   1.3031674   1.3367546</span></span>
-<span><span class="co">#&gt; 4:  -1.6750075  -0.5921971  -1.1771093  -1.2278440</span></span>
-<span><span class="co">#&gt; 5:  -0.3570559   0.8674447  -0.3692326   1.0278541</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:  -1.0506838  -0.7513172  -0.5272128   -1.433181</span></span>
+<span><span class="co">#&gt; 2:  -2.0680921  -0.6129308  -1.2991235   -1.183605</span></span>
+<span><span class="co">#&gt; 3:   1.1365600   1.6247546   1.3031674    1.642699</span></span>
+<span><span class="co">#&gt; 4:  -1.6750075  -0.8129150  -1.1771093   -1.450024</span></span>
+<span><span class="co">#&gt; 5:  -0.3570559  -1.2109496  -0.3692326   -1.074235</span></span></code></pre></div>
 <p>Key properties of knockoffs:</p>
 <ul>
 <li>Different values but similar statistical properties</li>
