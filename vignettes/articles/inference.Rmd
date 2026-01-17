@@ -1,8 +1,8 @@
 ---
-title: "Inference (Experimental)"
+title: "Inference for Feature Importance"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Inference (Experimental)}
+  %\VignetteIndexEntry{Inference for Feature Importance}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
