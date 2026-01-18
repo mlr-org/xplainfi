@@ -338,14 +338,15 @@ PerturbationImportance = R6Class(
 #' `r print_bib("strobl_2008")`
 #'
 #' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)
+#' library(mlr3)
 #' library(mlr3learners)
-#' task = tgen("xor", d = 5)$generate(n = 100)
-#' pfi = PFI$new(
+#'
+#' task <- sim_dgp_correlated(n = 500)
+#'
+#' pfi <- PFI$new(
 #'   task = task,
-#'   learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
-#'   measure = msr("classif.ce"),
-#'   resampling = rsmp("cv", folds = 3),
-#'   n_repeats = 3
+#'   learner = lrn("regr.ranger", num.trees = 10),
+#'   measure = msr("regr.mse")
 #' )
 #' pfi$compute()
 #' pfi$importance()
@@ -417,31 +418,18 @@ PFI = R6Class(
 #'
 #' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE) && requireNamespace("arf", quietly = TRUE)
 #' library(mlr3)
-#' task = tgen("2dnormals")$generate(n = 100)
+#' library(mlr3learners)
+#'
+#' task <- sim_dgp_correlated(n = 500)
 #'
 #' # Using default ConditionalARFSampler
-#' cfi = CFI$new(
+#' cfi <- CFI$new(
 #'   task = task,
-#'   learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
-#'   measure = msr("classif.ce")
+#'   learner = lrn("regr.ranger", num.trees = 10),
+#'   measure = msr("regr.mse")
 #' )
 #' cfi$compute()
 #' cfi$importance()
-#' \donttest{
-#' # For more control over conditional sampling:
-#' custom_sampler = ConditionalARFSampler$new(
-#'   task = task,
-#'   finite_bounds = "local" # can improve sampling behavior
-#' )
-#' cfi_custom = CFI$new(
-#'   task = task,
-#'   learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
-#'   measure = msr("classif.ce"),
-#'   sampler = custom_sampler
-#' )
-#' cfi_custom$compute()
-#' cfi_custom$importance()
-#' }
 #' @export
 CFI = R6Class(
 	"CFI",

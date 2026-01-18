@@ -8,7 +8,8 @@
 [![CRAN
 status](https://www.r-pkg.org/badges/version/xplainfi)](https://CRAN.R-project.org/package=xplainfi)
 [![R-CMD-check](https://github.com/mlr-org/xplainfi/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mlr-org/xplainfi/actions/workflows/R-CMD-check.yaml)
-[![codecov](https://codecov.io/gh/mlr-org/xplainfi/graph/badge.svg?token=QIQDMP3AM7)](https://codecov.io/gh/mlr-org/xplainfi)
+[![codecov](https://codecov.io/gh/mlr-org/xplainfi/graph/badge.svg?token=QIQDMP3AM7)](https://app.codecov.io/gh/mlr-org/xplainfi)
+
 <!-- badges: end -->
 
 The goal of `xplainfi` is to collect common feature importance methods

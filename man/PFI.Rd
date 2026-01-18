@@ -21,14 +21,15 @@ the Random Forest algorithm. The method works by:
 }
 \examples{
 \dontshow{if (requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+library(mlr3)
 library(mlr3learners)
-task = tgen("xor", d = 5)$generate(n = 100)
-pfi = PFI$new(
+
+task <- sim_dgp_correlated(n = 500)
+
+pfi <- PFI$new(
   task = task,
-  learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
-  measure = msr("classif.ce"),
-  resampling = rsmp("cv", folds = 3),
-  n_repeats = 3
+  learner = lrn("regr.ranger", num.trees = 10),
+  measure = msr("regr.mse")
 )
 pfi$compute()
 pfi$importance()
