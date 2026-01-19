@@ -23,7 +23,7 @@ sage = ConditionalSAGE$new(
 )
 sage$compute()
 }
-\dontrun{
+\donttest{
 # For alternative conditional samplers:
 custom_sampler = ConditionalGaussianSampler$new(
   task = task
@@ -82,7 +82,7 @@ Creates a new instance of the ConditionalSAGE class.
 \if{html}{\out{<div class="r">}}\preformatted{ConditionalSAGE$new(
   task,
   learner,
-  measure,
+  measure = NULL,
   resampling = NULL,
   features = NULL,
   n_permutations = 10L,
@@ -91,7 +91,7 @@ Creates a new instance of the ConditionalSAGE class.
   n_samples = 100L,
   early_stopping = FALSE,
   se_threshold = 0.01,
-  min_permutations = 3L,
+  min_permutations = 10L,
   check_interval = 1L
 )}\if{html}{\out{</div>}}
 }

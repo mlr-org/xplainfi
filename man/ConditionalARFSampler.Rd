@@ -53,7 +53,7 @@ Blesch K, Koenen N, Kapar J, Golchian P, Burk L, Loecher M, Wright M (2025).
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{feature_types}}{(\code{character()}) Feature types supported by the sampler.
-Will be checked against the provied \link[mlr3:Task]{mlr3::Task} to ensure compatibility.}
+Will be checked against the provided \link[mlr3:Task]{mlr3::Task} to ensure compatibility.}
 
 \item{\code{arf_model}}{Adversarial Random Forest model created by \link[arf:adversarial_rf]{arf::adversarial_rf}.}
 

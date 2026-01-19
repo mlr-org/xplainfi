@@ -42,7 +42,7 @@
 #' - Tree building time increases with data size
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(mlr3)
 #' task = tgen("friedman1")$generate(n = 100)
 #'
@@ -66,7 +66,7 @@ ConditionalCtreeSampler = R6Class(
 	inherit = ConditionalSampler,
 	public = list(
 		#' @field feature_types (`character()`) Feature types supported by the sampler.
-		#'   Will be checked against the provied [mlr3::Task] to ensure compatibility.
+		#'   Will be checked against the provided [mlr3::Task] to ensure compatibility.
 		feature_types = c("numeric", "integer", "factor", "ordered"),
 		#' @field tree_cache (`environment`) Cache for fitted ctree models.
 		tree_cache = NULL,

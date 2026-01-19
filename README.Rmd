@@ -1,7 +1,7 @@
 ---
 output: github_document
-editor_options: 
-  chunk_output_type: console
+editor_options:
+    chunk_output_type: console
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -22,33 +22,55 @@ set.seed(232323)
 # `xplainfi`
 
 <!-- badges: start -->
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+
+[![CRAN status](https://www.r-pkg.org/badges/version/xplainfi)](https://CRAN.R-project.org/package=xplainfi)
 [![R-CMD-check](https://github.com/mlr-org/xplainfi/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mlr-org/xplainfi/actions/workflows/R-CMD-check.yaml)
-[![codecov](https://codecov.io/gh/mlr-org/xplainfi/graph/badge.svg?token=QIQDMP3AM7)](https://codecov.io/gh/mlr-org/xplainfi)
+[![codecov](https://codecov.io/gh/mlr-org/xplainfi/graph/badge.svg?token=QIQDMP3AM7)](https://app.codecov.io/gh/mlr-org/xplainfi)
+
 <!-- badges: end -->
 
-The goal of `xplainfi` is to collect common feature importance methods under a unified and extensible interface.  
+The goal of `xplainfi` is to collect common feature importance methods under a
+unified and extensible interface.
 
-It is built around [mlr3](https://mlr-org.com/) as available abstractions for learners, tasks, measures, etc. greatly simplify the implementation of importance measures.
+It is built around [mlr3](https://mlr-org.com/) as available abstractions for
+learners, tasks, measures, etc. greatly simplify the implementation of
+importance measures.
 
 ## Installation
 
-You can install the development version of `xplainfi` like using `pak`:
+Once released, you can install `xplainfi` from CRAN:
 
-``` r
+```r
+install.packages("xplainfi")
+```
+
+You can also install `xplainfi` from
+[R-universe](https://mlr-org.r-universe.dev):
+
+```r
+install.packages("xplainfi", repos = c("https://mlr-org.r-universe.dev", "https://cloud.r-project.org"))
+```
+
+The latest development version of `xplainfi` can be installed with `pak`:
+
+```r
 # install.packages(pak)
 pak::pak("mlr-org/xplainfi")
 ```
 
 ## Example: PFI
 
-Here is a basic example on how to calculate PFI for a given learner and task, using repeated cross-validation as resampling strategy and computing PFI within each resampling 10 times on the `friedman1` task (see `?mlbench::mlbench.friedman1`).
+Here is a basic example on how to calculate PFI for a given learner and task,
+using repeated cross-validation as resampling strategy and computing PFI within
+each resampling 10 times on the `friedman1` task (see
+`?mlbench::mlbench.friedman1`).
 
 The `friedman1` task has the following structure:
 
 $$y = 10 \sin(\pi x_1 x_2) + 20(x_3 - 0.5)^2 + 10x_4 + 5x_5 + \varepsilon$$
 
-Where $x_{1,2,3,4,5}$ are named `important1` through `important5` in the `Task`, with additional numbered `unimportant` features without effect on $y$.
+Where $x_{1,2,3,4,5}$ are named `important1` through `important5` in the `Task`,
+with additional numbered `unimportant` features without effect on $y$.
 
 ```{r setup}
 library(xplainfi)
@@ -74,20 +96,26 @@ pfi$compute()
 pfi$importance()
 ```
 
-If it aides interpretation, importances can also be calculates as the *ratio* rather then the *difference* between the baseline and post-permutation losses:
+If it aids interpretation, importances can also be calculated as the _ratio_
+rather than the _difference_ between the baseline and post-permutation losses:
 
 ```{r pfi-ratio}
 pfi$importance(relation = "ratio")
 ```
 
-When PFI is computed based on resampling with multiple iterations, and / or multiple permutation iterations, the individual scores can be retrieved as a `data.table`:
+When PFI is computed based on resampling with multiple iterations, and / or
+multiple permutation iterations, the individual scores can be retrieved as a
+`data.table`:
 
 ```{r pfi-scores}
 str(pfi$scores())
 ```
 
-Where `iter_rsmp` corresponds to the resampling iteration, i.e., 3 for 3-fold cross-validation, and `iter_repeat` corresponds to the permutation iteration within each resampling iteration, 5 in this case.
-While `pfi$importance()` contains the means across all iterations, `pfi$scores()` allows you to manually visualize or aggregate them in any way you see fit.
+Where `iter_rsmp` corresponds to the resampling iteration, i.e., 3 for 3-fold
+cross-validation, and `iter_repeat` corresponds to the permutation iteration
+within each resampling iteration, 5 in this case. While `pfi$importance()`
+contains the means across all iterations, `pfi$scores()` allows you to manually
+visualize or aggregate them in any way you see fit.
 
 For example:
 
@@ -114,7 +142,10 @@ ggplot(
 	)
 ```
 
-If the measure in question needs to be maximized rather than minimized (like $R^2$), the internal importance calculation takes that into account via the `$minimize` property of the measure and calculates importances such that the intuition "performance improvement" -> "higher importance score" still holds:
+If the measure in question needs to be maximized rather than minimized (like
+$R^2$), the internal importance calculation takes that into account via the
+`$minimize` property of the measure and calculates importances such that the
+intuition "performance improvement" -> "higher importance score" still holds:
 
 ```{r pfi-rsq}
 pfi = PFI$new(

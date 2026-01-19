@@ -44,17 +44,17 @@ conditional contribution.
 
 \strong{Mathematical Model:}
 \deqn{(X_1, X_2)^T \sim \text{MVN}(0, \Sigma)}
-where \eqn{\Sigma} is a 2×2 covariance matrix with 1 on the diagonal and correlation \eqn{r} on the off-diagonal.
+where \eqn{\Sigma} is a \eqn{2 \times 2} covariance matrix with 1 on the diagonal and correlation \eqn{r} on the off-diagonal.
 \deqn{X_3 \sim N(0,1), \quad X_4 \sim N(0,1)}
 \deqn{Y = 2 \cdot X_1 + X_3 + \varepsilon}
 where \eqn{\varepsilon \sim N(0, 0.2^2)}.
 
 \strong{Feature Properties:}
 \itemize{
-\item \code{x1}: Standard normal from MVN, direct causal effect on y (β=2.0)
-\item \code{x2}: Correlated with \code{x1} (correlation = \code{r}), NO causal effect on y (β=0)
-\item \code{x3}: Independent standard normal, direct causal effect on y (β=1.0)
-\item \code{x4}: Independent standard normal, no effect on y (β=0)
+\item \code{x1}: Standard normal from MVN, direct causal effect on y (\eqn{\beta = 2.0})
+\item \code{x2}: Correlated with \code{x1} (correlation = \code{r}), NO causal effect on y (\eqn{\beta = 0})
+\item \code{x3}: Independent standard normal, direct causal effect on y (\eqn{\beta = 1.0})
+\item \code{x4}: Independent standard normal, no effect on y (\eqn{\beta = 0})
 }
 
 \strong{Expected Behavior:}
@@ -82,7 +82,7 @@ where \eqn{\varepsilon_m \sim N(0, 0.3^2)} and \eqn{\varepsilon \sim N(0, 0.2^2)
 \item \code{noise}: No causal relationship to y
 }
 
-\strong{Causal Structure:} exposure → mediator → y ← direct → mediator
+\strong{Causal Structure:} exposure -> mediator -> y <- direct -> mediator
 
 \strong{Expected Behavior:}
 \itemize{
@@ -156,7 +156,7 @@ where \eqn{X_j \sim N(0,1)} independently and \eqn{\varepsilon \sim N(0, 0.2^2)}
 \strong{Expected Behavior:}
 \itemize{
 \item \strong{All methods}: Should rank features consistently by their true effect sizes
-\item \strong{Ground truth}: important1 > important2 > important3 > unimportant1,2 ≈ 0
+\item \strong{Ground truth}: important1 > important2 > important3 > unimportant1,2 (approximately 0)
 }
 }
 \section{Functions}{
@@ -199,3 +199,20 @@ Ewald F, Bothmann L, Wright M, Bischl B, Casalicchio G, König G (2024).
 In Longo L, Lapuschkin S, Seifert C (eds.), \emph{Explainable Artificial Intelligence}, 440--464.
 ISBN 978-3-031-63797-1, \doi{10.1007/978-3-031-63797-1_22}.
 }
+\seealso{
+Other simulation: 
+\code{\link{sim_dgp_ewald}()}
+
+Other simulation: 
+\code{\link{sim_dgp_ewald}()}
+
+Other simulation: 
+\code{\link{sim_dgp_ewald}()}
+
+Other simulation: 
+\code{\link{sim_dgp_ewald}()}
+
+Other simulation: 
+\code{\link{sim_dgp_ewald}()}
+}
+\concept{simulation}

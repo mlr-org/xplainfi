@@ -1,10 +1,29 @@
 #' @title Williamson's Variable Importance Measure (WVIM)
 #'
 #' @description
-#' Base class generalizazing refit-based variable importance measures.
+#' Base class generalizing refit-based variable importance measures.
 #' Default corresponds to leaving out each feature `n_repeats` times, which
 #' corresponds to LOCO (Leave One Covariate Out).
 #'
+#' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)
+#' library(mlr3)
+#' library(mlr3learners)
+#'
+#' task <- sim_dgp_correlated(n = 500)
+#'
+#' # Group correlated features together, independent features separately
+#' groups <- list(
+#'   correlated = c("x1", "x2"),
+#'   independent = c("x3", "x4")
+#' )
+#'
+#' wvim <- WVIM$new(
+#'   task = task,
+#'   learner = lrn("regr.ranger", num.trees = 10),
+#'   groups = groups
+#' )
+#' wvim$compute()
+#' wvim$importance()
 #' @export
 #' @keywords internal
 WVIM = R6Class(
@@ -256,6 +275,18 @@ WVIM = R6Class(
 #' feature's importance. Higher values indicate more important features.
 #'
 #' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)
+#' library(mlr3)
+#' library(mlr3learners)
+#'
+#' task <- sim_dgp_correlated(n = 500)
+#'
+#' loco <- LOCO$new(
+#'   task = task,
+#'   learner = lrn("regr.ranger", num.trees = 10),
+#'   measure = msr("regr.mse")
+#' )
+#' loco$compute()
+#' loco$importance()
 #' @export
 #'
 #' @references `r print_bib("lei_2018")`

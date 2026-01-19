@@ -6,7 +6,7 @@
 \alias{xplainfi-package}
 \title{xplainfi: Feature Importance Methods for Global Explanations}
 \description{
-Provides a consistent interface for common feature importance methods, such as permutation feature importance ('PFI'), leave-one-covariate-out ('LOCO'), and 'Shapley Additive Global importancE' ('SAGE').
+Provides a consistent interface for common feature importance methods as described in Ewald et al. (2024) \doi{10.1007/978-3-031-63797-1_22}, including permutation feature importance ('PFI'), conditional and relative feature importance ('CFI', 'RFI'), 'leave-one-covariate-out' ('LOCO'), and 'Shapley Additive Global importancE' ('SAGE'), as well as feature sampling mechanisms to support conditional importance methods.
 }
 \seealso{
 Useful links:
@@ -18,7 +18,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Lukas Burk \email{github@quantenbrot.de} (\href{https://orcid.org/0000-0001-7528-3795}{ORCID})
+\strong{Maintainer}: Lukas Burk \email{cran@lukasburk.de} (\href{https://orcid.org/0000-0001-7528-3795}{ORCID}) [copyright holder]
 
 }
 \keyword{internal}

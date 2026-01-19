@@ -23,9 +23,8 @@ FeatureImportanceMethod = R6Class(
 		#' @field groups (`list`: `NULL`) A (named) list of features (names or indices as in `task`).
 		#'   If `groups` is specified, `features` is ignored.
 		#'   Importances will be calculated for group of features at a time, e.g., in [PFI] not one but the group of features will be permuted at each step.
-		#'   Analogusly in [WVIM], each group of features will be left out (or in) for each model refit.
+		#'   Analogously in [WVIM], each group of features will be left out (or in) for each model refit.
 		#'   Not all methods support groups (e.g., [SAGE]).
-		#'   See FIXME: vignette or examples.
 		groups = NULL,
 		#' @field param_set ([paradox::ps()])
 		param_set = ps(),
@@ -102,19 +101,22 @@ FeatureImportanceMethod = R6Class(
 		#' Get aggregated importance scores.
 		#' The stored [`measure`][mlr3::Measure] object's `aggregator` (default: `mean`) will be used to aggregated importance scores
 		#' across resampling iterations and, depending on the method use, permutations ([PerturbationImportance] or refits [LOCO]).
-		#' @param relation (character(1)) How to relate perturbed scores to originals ("difference" or "ratio"). If `NULL`, uses stored parameter value. This is only applicable for methods where importance is based on some
-		#' relation between baseline and post-modifcation loss, i.e. [PerturbationImportance] methods such as [PFI] or [WVIM] / [LOCO]. Not available for [SAGE] methods.
+		#' @param relation (character(1)) How to relate perturbed scores to originals ("difference" or "ratio").
+		#'   If `NULL`, uses stored parameter value. This is only applicable for methods where importance is based on some
+		#'   relation between baseline and post-modification loss, i.e. [PerturbationImportance] methods such as [PFI] or [WVIM] / [LOCO].
+		#'   Not available for [SAGE] methods.
 		#' @param standardize (`logical(1)`: `FALSE`) If `TRUE`, importances are standardized by the highest score so all scores fall in `[-1, 1]`.
-		#' @param ci_method (`character(1)`: `"none"`) Variance estimation method to use, defaulting to omitting variance estimation (`"none"`).
-		#'   If `"raw"`, uncorrected variance estimates are provided purely for informative purposes with **invalid** (too narrow) confidence intervals.
+		#' @param ci_method (`character(1)`: `"none"`) Which confidence interval estimation method to use, defaulting to omitting
+		#'   variance estimation (`"none"`).
+		#'   If `"raw"`, uncorrected (too narrow) CIs are provided purely for informative purposes.
 		#'   If `"nadeau_bengio"`, variance correction is performed according to Nadeau & Bengio (2003) as suggested by Molnar et al. (2023).
 		#'   If `"quantile"`, empirical quantiles are used to construct confidence-like intervals.
 		#'   These methods are model-agnostic and rely on suitable `resampling`s, e.g. subsampling with 15 repeats for `"nadeau_bengio"`.
 		#'   See details.
-		#' @param conf_level (`numeric(1): 0.95`): Conficence level to use for confidence interval construction when `ci_method != "none"`.
-		#' @param ... Additional arguments passen to specialized methods, if any.
-		#' @return ([data.table][data.table::data.table]) Aggregated importance scores. with variables `"feature", "importance"`
-		#' and depending in `ci_method` also `"se", "conf_lower", "conf_upper"`.
+		#' @param conf_level (`numeric(1)`: `0.95`) Confidence level to use for confidence interval construction when `ci_method != "none"`.
+		#' @param ... Additional arguments passed to specialized methods, if any.
+		#' @return ([data.table][data.table::data.table]) Aggregated importance scores with columns `"feature"`, `"importance"`,
+		#' and depending on `ci_method` also `"se"`, `"conf_lower"`, `"conf_upper"`.
 		#'
 		#' @details
 		#' Variance estimates for importance scores are biased due to the resampling procedure. Molnar et al. (2023) suggest to use
@@ -139,9 +141,9 @@ FeatureImportanceMethod = R6Class(
 		#' ```
 		#'
 		#' `n_repeats = 5` in this context only improves the stability of the PFI estimate within the resampling iteration, whereas `rsmp("subsampling", repeats = 15)`
-		#' is used to accounter for learner variance and neccessitates variance correction factor.
+		#' is used to account for learner variance and necessitates variance correction.
 		#'
-		#' This appraoch can in principle also be applied to `CFI` and `RFI`, but beware that a conditional sample such as [ConditionalARFSampler] also needs to be trained on data,
+		#' This approach can in principle also be applied to `CFI` and `RFI`, but beware that a conditional sample such as [ConditionalARFSampler] also needs to be trained on data,
 		#' which would need to be taken account by the variance estimation method.
 		#' Analogously, the `"nadeau_bengio"` correction was recommended for the use with [PFI] by Molnar et al., so its use with other methods like [LOCO] or [SAGE] is experimental.
 		#'
@@ -212,8 +214,10 @@ FeatureImportanceMethod = R6Class(
 		#' This is not the case for measure like `classif.auc`, which is not decomposable.
 		#'
 		#' @param relation (character(1)) How to relate perturbed scores to originals ("difference" or "ratio"). If `NULL`, uses stored parameter value. This is only applicable for methods where importance is based on some
-		#' relation between baseline and post-modifcation loss, i.e. [PerturbationImportance] methods such as [PFI] or [WVIM] / [LOCO]. Not available for [SAGE] methods.
+		#' relation between baseline and post-modification loss, i.e. [PerturbationImportance] methods such as [PFI] or [WVIM] / [LOCO]. Not available for [SAGE] methods.
 		#'
+		#' @return ([data.table][data.table::data.table]) Observation-wise losses and importance scores with columns
+		#'   `"feature"`, `"iter_rsmp"`, `"iter_repeat"` (if applicable), `"row_ids"`, `"loss_baseline"`, `"loss_post"`, and `"obs_importance"`.
 		obs_loss = function(relation = NULL) {
 			if (!has_obs_loss(self$measure)) {
 				cli::cli_warn(c(
@@ -327,8 +331,10 @@ FeatureImportanceMethod = R6Class(
 		#' (`difference` or `ratio`) to avoid re-computation if only a different relation is needed.
 		#'
 		#' @param relation (character(1)) How to relate perturbed scores to originals ("difference" or "ratio"). If `NULL`, uses stored parameter value. This is only applicable for methods where importance is based on some
-		#' relation between baseline and post-modifcation loss, i.e. [PerturbationImportance] methods such as [PFI] or [WVIM] / [LOCO]. Not available for [SAGE] methods.
+		#' relation between baseline and post-modification loss, i.e. [PerturbationImportance] methods such as [PFI] or [WVIM] / [LOCO]. Not available for [SAGE] methods.
 		#'
+		#' @return ([data.table][data.table::data.table]) Iteration-wise importance scores with columns for
+		#'   `"feature"`, iteration indices, baseline and post-modification scores, and `"importance"`.
 		scores = function(relation = NULL) {
 			if (is.null(private$.scores)) {
 				cli::cli_warn(c(
@@ -406,7 +412,7 @@ FeatureImportanceMethod = R6Class(
 		# Computes the `relation` of score before a change (e.g. PFI, LOCO, ...) and after.
 		# If `minimize == TRUE`, then `scores_post - scores_pre` is computed for
 		# `relation == "difference"`, otherwise `scores_pre - scores_post` is given.
-		# If `minimize == FALSE`, then the order is flipped, insuring that "higher value" means "more important".
+		# If `minimize == FALSE`, then the order is flipped, ensuring that "higher value" means "more important".
 		# @param scores_pre,scores_post (`numeric()`) Vector of scores or loss values at baseline / before (`_pre`) a modification, and after (`_post`) a modification (e.g., permutation or refit).
 		# @param relation (`character(1)`: `"difference"`) Calculate the difference or `"ratio"` between pre and post modification value.
 		.compute_score = function(

@@ -9,31 +9,18 @@ Implementation of CFI using modular sampling approach
 \examples{
 \dontshow{if (requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE) && requireNamespace("arf", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 library(mlr3)
-task = tgen("2dnormals")$generate(n = 100)
+library(mlr3learners)
+
+task <- sim_dgp_correlated(n = 500)
 
 # Using default ConditionalARFSampler
-cfi = CFI$new(
+cfi <- CFI$new(
   task = task,
-  learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
-  measure = msr("classif.ce")
+  learner = lrn("regr.ranger", num.trees = 10),
+  measure = msr("regr.mse")
 )
 cfi$compute()
 cfi$importance()
-\dontrun{
-# For more control over conditional sampling:
-custom_sampler = ConditionalARFSampler$new(
-  task = task,
-  finite_bounds = "local" # can improve sampling behavior
-)
-cfi_custom = CFI$new(
-  task = task,
-  learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
-  measure = msr("classif.ce"),
-  sampler = custom_sampler
-)
-cfi_custom$compute()
-cfi_custom$importance()
-}
 \dontshow{\}) # examplesIf}
 }
 \references{

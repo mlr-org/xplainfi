@@ -16,13 +16,13 @@ knitr::opts_chunk$set(
 )
 ```
 
-Feature samplers are a core component of perturbation-based feature importance methods (PFI, CFI, RFI) and any other methods based on some form of marginilization (SAGE).
+Feature samplers are a core component of perturbation-based feature importance methods (PFI, CFI, RFI) and any other methods based on some form of marginalization (SAGE).
 They determine how features are replaced or perturbed when evaluating feature importance. 
 This vignette introduces the different types of feature samplers available in xplainfi and demonstrates their use.
 
 ## Setup
 
-We create two tasks: One with mixed features (the seminal penguins data), and one with all-numeric features.
+We create two tasks: one with mixed features (the penguins data), and one with all-numeric features.
 
 ```{r load-libraries}
 library(xplainfi)
@@ -119,8 +119,8 @@ Unlike `MarginalPermutationSampler` which shuffles feature values independently,
 
 **Key differences from MarginalPermutationSampler:**
 
-- **MarginalPermutationSampler**: Shuffles each feature independently → breaks dependencies between sampled features
-- **MarginalReferenceSampler**: Samples complete reference rows → preserves dependencies of the sampled features
+- **MarginalPermutationSampler**: Shuffles each feature independently -- breaks dependencies between sampled features
+- **MarginalReferenceSampler**: Samples complete reference rows -- preserves dependencies of the sampled features
 
 This is the approach used in [SAGE (Shapley Additive Global importancE)](https://github.com/iancovert/sage) for marginal feature importance. In this SAGE implementation, the [`MarginalImputer`](https://github.com/iancovert/sage/blob/master/sage/imputers.py#L44-L78), uses this approach.
 The "imputer" name comes from the "imputation" of model predictions using out-of-coalition features by sampling from their marginal distribution.

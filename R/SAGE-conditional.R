@@ -20,7 +20,7 @@
 #' )
 #' sage$compute()
 #' }
-#' \dontrun{
+#' \donttest{
 #' # For alternative conditional samplers:
 #' custom_sampler = ConditionalGaussianSampler$new(
 #'   task = task
@@ -59,7 +59,7 @@ ConditionalSAGE = R6Class(
 			n_samples = 100L,
 			early_stopping = FALSE,
 			se_threshold = 0.01,
-			min_permutations = 3L,
+			min_permutations = 10L,
 			check_interval = 1L
 		) {
 			# Use ConditionalARFSampler by default
@@ -133,7 +133,7 @@ ConditionalSAGE = R6Class(
 						)
 					]
 				} else {
-					# If marginalize_features is empty than we evaluate the coalition of all features
+					# If marginalize_features is empty then we evaluate the coalition of all features
 					# in the task, so there's no room for any sampling and we just take all data
 					# no need to duplicate+average anything since prediction is deterministic (usually (I hope (right?)))
 					marginalized_test = copy(test_dt)

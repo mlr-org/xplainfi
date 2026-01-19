@@ -1,8 +1,8 @@
 ---
-title: "Inference (Experimental)"
+title: "Inference for Feature Importance"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Inference (Experimental)}
+  %\VignetteIndexEntry{Inference for Feature Importance}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
@@ -25,8 +25,6 @@ options("xplain.progress" = interactive())
 ```{r pkg}
 library(xplainfi)
 library(mlr3learners)
-
-# Data manip and visualization
 library(data.table)
 library(ggplot2)
 ```
@@ -48,6 +46,7 @@ measure = msr("regr.mse")
 ```
 
 ```{r dag-correlated, echo=FALSE, fig.cap="DAG for correlated features DGP", fig.width=10, fig.height=4}
+#| fig.alt: "Directed acyclic graph with four features X1-X4 and outcome Y. Bidirectional edge between X1 and X2. Arrows from X1 and X3 to Y."
 DiagrammeR::grViz(
 	"
   digraph Correlated {
@@ -119,6 +118,7 @@ pfi_ci_quantile
 To highlight the differences between parametric and empirical approaches, we visualize all methods:
 
 ```{r pfi-ci-comparison}
+#| fig.alt: "Point-and-whisker plot with features on y-axis and importance on x-axis. Three colored points for raw, nadeau_bengio, and quantile CI methods, each showing point estimates with horizontal error bars."
 pfi_cis = rbindlist(
 	list(
 		pfi_ci_raw[, type := "raw"],
@@ -205,6 +205,7 @@ cfi_cpi_res[, method := "CFI+Knockoffs"]
 The results should be very similar to those computed by `cpi()`, so let's compare them:
 
 ```{r cpi-cfi-plot}
+#| fig.alt: "Point-and-whisker plot with features on y-axis and CPI values on x-axis. Two colored points for CPI and CFI+Knockoffs methods with horizontal error bars."
 rbindlist(list(cpi_res, cfi_cpi_res), fill = TRUE) |>
 	ggplot(aes(y = feature, x = CPI, color = method)) +
 	geom_point(position = position_dodge(width = 0.3)) +
@@ -255,12 +256,12 @@ cfi_arf_res
 # Rename columns to match cpi package output for comparison
 setnames(cfi_arf_res, c("importance", "conf_lower"), c("CPI", "ci.lo"))
 cfi_arf_res[, method := "CFI+ARF"]
-
 ```
 
 We can now compare all three methods:
 
 ```{r cpi-cfi-arf-plot}
+#| fig.alt: "Point-and-whisker plot with features on y-axis and CPI values on x-axis. Three colored points for CPI, CFI+Knockoffs, and CFI+ARF methods with horizontal error bars."
 rbindlist(list(cpi_res, cfi_cpi_res, cfi_arf_res), fill = TRUE) |>
 	ggplot(aes(y = feature, x = CPI, color = method)) +
 	geom_point(position = position_dodge(width = 0.3)) +
@@ -286,6 +287,7 @@ As expected, the ARF-based approach differs more from both knockoff-based approa
 CPI can also perform additional tests besides the default t-test, specifically the Wilcoxon-, Fisher-, or binomial test:
 
 ```{r cpi-tests}
+#| fig.alt: "Point-and-whisker plot with features on y-axis and importance on x-axis. Four colored series for t, Wilcoxon, Fisher, and Binomial tests with horizontal error bars."
 (cpi_res_wilcoxon = cfi_arf$importance(ci_method = "cpi", test = "wilcoxon"))
 # Fisher test with same default for B as in cpi()
 (cpi_res_fisher = cfi_arf$importance(ci_method = "cpi", test = "fisher", B = 1999))
@@ -320,7 +322,7 @@ rbindlist(
 Given the width of the resulting confidence intervals, the Fisher- or t-test are generally recommended.
 
 
-## LOCO: Custom inference
+## Custom inference with LOCO
 
 [Lei et al. (2018)](https://doi.org/10.1080/01621459.2017.1307116) proposed inference for LOCO using the median absolute differences of the baseline- and post-refit loss differences
 
