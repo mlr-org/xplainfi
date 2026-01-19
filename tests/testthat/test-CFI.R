@@ -9,8 +9,7 @@
 test_that("CFI default behavior with minimal parameters", {
 	skip_if_not_installed("arf")
 
-	set.seed(123)
-	test_default_behavior(CFI, task_type = "regr")
+		test_default_behavior(CFI, task_type = "regr")
 })
 
 test_that("CFI basic workflow with classification", {
@@ -18,8 +17,7 @@ test_that("CFI basic workflow with classification", {
 	skip_if_not_installed("mlr3learners")
 	skip_if_not_installed("arf")
 
-	set.seed(123)
-	task = tgen("2dnormals")$generate(n = 100)
+		task = tgen("2dnormals")$generate(n = 100)
 
 	test_basic_workflow(
 		CFI,
@@ -35,8 +33,7 @@ test_that("CFI uses ConditionalARFSampler by default", {
 	skip_if_not_installed("mlr3learners")
 	skip_if_not_installed("arf")
 
-	set.seed(123)
-	task = tgen("xor")$generate(n = 100)
+		task = tgen("xor")$generate(n = 100)
 
 	cfi = CFI$new(
 		task = task,
@@ -51,8 +48,7 @@ test_that("CFI uses ConditionalARFSampler by default", {
 test_that("CFI featureless learner produces zero importance", {
 	skip_if_not_installed("arf")
 
-	set.seed(123)
-	test_featureless_zero_importance(CFI, task_type = "classif")
+		test_featureless_zero_importance(CFI, task_type = "classif")
 })
 
 # -----------------------------------------------------------------------------
@@ -64,8 +60,7 @@ test_that("CFI multiple repeats and scores structure", {
 	skip_if_not_installed("mlr3learners")
 	skip_if_not_installed("arf")
 
-	set.seed(123)
-	task = tgen("friedman1")$generate(n = 200)
+		task = tgen("friedman1")$generate(n = 200)
 
 	test_n_repeats_and_scores(
 		CFI,
@@ -81,8 +76,7 @@ test_that("CFI single feature", {
 	skip_if_not_installed("mlr3learners")
 	skip_if_not_installed("arf")
 
-	set.seed(123)
-	task = tgen("friedman1")$generate(n = 200)
+		task = tgen("friedman1")$generate(n = 200)
 
 	test_single_feature(
 		CFI,
@@ -103,8 +97,7 @@ test_that("CFI friedman1 produces sensible ranking", {
 	skip_if_not_installed("mlr3learners")
 	skip_if_not_installed("arf")
 
-	set.seed(123)
-	test_friedman1_sensible_ranking(
+		test_friedman1_sensible_ranking(
 		CFI,
 		learner = lrn("regr.ranger", num.trees = 50),
 		measure = msr("regr.mse")
@@ -120,8 +113,7 @@ test_that("CFI with resampling", {
 	skip_if_not_installed("mlr3learners")
 	skip_if_not_installed("arf")
 
-	set.seed(123)
-	task = tgen("xor", d = 5)$generate(n = 200)
+		task = tgen("xor", d = 5)$generate(n = 200)
 
 	test_with_resampling(
 		CFI,
@@ -140,8 +132,7 @@ test_that("CFI with resampling", {
 test_that("CFI parameter validation", {
 	skip_if_not_installed("arf")
 
-	set.seed(123)
-	task = tgen("2dnormals")$generate(n = 50)
+		task = tgen("2dnormals")$generate(n = 50)
 
 	test_parameter_validation(
 		CFI,
@@ -158,8 +149,7 @@ test_that("CFI parameter validation", {
 test_that("CFI with feature groups", {
 	skip_if_not_installed("arf")
 
-	set.seed(123)
-	task = tgen("friedman1")$generate(n = 200)
+		task = tgen("friedman1")$generate(n = 200)
 
 	groups = list(
 		important_features = c("important1", "important2", "important3"),
@@ -185,8 +175,7 @@ test_that("CFI with custom ARF sampler", {
 	skip_if_not_installed("mlr3learners")
 	skip_if_not_installed("arf")
 
-	set.seed(123)
-	task = tgen("spirals")$generate(n = 100)
+		task = tgen("spirals")$generate(n = 100)
 
 	test_custom_sampler(
 		CFI,
@@ -203,8 +192,7 @@ test_that("CFI with KnockoffSampler and KnockoffGaussianSampler", {
 	skip_if_not_installed("mlr3learners")
 	skip_if_not_installed("knockoff")
 
-	set.seed(123)
-	task = tgen("friedman1")$generate(n = 150)
+		task = tgen("friedman1")$generate(n = 150)
 	learner = lrn("regr.ranger", num.trees = 50)
 	measure = msr("regr.mse")
 
@@ -234,8 +222,7 @@ test_that("CFI with KnockoffSequentialSampler", {
 	skip_if_not_installed("mlr3learners")
 	skip_if_not_installed("seqknockoff")
 
-	set.seed(123)
-	task = tgen("friedman1")$generate(n = 150)
+		task = tgen("friedman1")$generate(n = 150)
 
 	test_custom_sampler(
 		CFI,
@@ -256,8 +243,7 @@ test_that("CFI with CPI variance method using KnockoffGaussianSampler", {
 	skip_if_not_installed("mlr3learners")
 	skip_if_not_installed("knockoff")
 
-	set.seed(123)
-	# Use n=500 for stable p-value comparisons
+		# Use n=500 for stable p-value comparisons
 	task = sim_dgp_correlated(n = 500, r = 0.7)
 	learner = lrn("regr.ranger", num.trees = 100)
 	measure = msr("regr.mse")
@@ -312,8 +298,7 @@ test_that("CFI with CPI variance method using KnockoffGaussianSampler", {
 test_that("CFI with CPI warning on problematic resampling", {
 	skip_if_not_installed("knockoff")
 
-	set.seed(123)
-	task = sim_dgp_correlated(n = 50)
+		task = sim_dgp_correlated(n = 50)
 	learner = lrn("regr.rpart")
 	measure = msr("regr.mse")
 	resampling = rsmp("subsampling", repeats = 5)

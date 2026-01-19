@@ -7,16 +7,14 @@
 # -----------------------------------------------------------------------------
 
 test_that("PFI default behavior with minimal parameters", {
-	set.seed(123)
-	test_default_behavior(PFI, task_type = "regr")
+		test_default_behavior(PFI, task_type = "regr")
 })
 
 test_that("PFI basic workflow with classification", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-	set.seed(123)
-	task = tgen("2dnormals")$generate(n = 100)
+		task = tgen("2dnormals")$generate(n = 100)
 
 	test_basic_workflow(
 		PFI,
@@ -28,8 +26,7 @@ test_that("PFI basic workflow with classification", {
 })
 
 test_that("PFI featureless learner produces zero importance", {
-	set.seed(123)
-	test_featureless_zero_importance(PFI, task_type = "classif")
+		test_featureless_zero_importance(PFI, task_type = "classif")
 })
 
 # -----------------------------------------------------------------------------
@@ -40,8 +37,7 @@ test_that("PFI multiple repeats and scores structure", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-	set.seed(123)
-	task = tgen("friedman1")$generate(n = 200)
+		task = tgen("friedman1")$generate(n = 200)
 
 	test_n_repeats_and_scores(
 		PFI,
@@ -56,8 +52,7 @@ test_that("PFI single feature", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-	set.seed(123)
-	task = tgen("friedman1")$generate(n = 200)
+		task = tgen("friedman1")$generate(n = 200)
 
 	test_single_feature(
 		PFI,
@@ -77,8 +72,7 @@ test_that("PFI difference vs ratio relations", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-	set.seed(123)
-	task = tgen("2dnormals")$generate(n = 100)
+		task = tgen("2dnormals")$generate(n = 100)
 
 	test_relation_parameter(
 		PFI,
@@ -93,8 +87,7 @@ test_that("PFI difference vs ratio relations", {
 # -----------------------------------------------------------------------------
 
 test_that("PFI friedman1 produces sensible ranking", {
-	set.seed(123)
-	test_friedman1_sensible_ranking(PFI)
+		test_friedman1_sensible_ranking(PFI)
 })
 
 # -----------------------------------------------------------------------------
@@ -102,8 +95,7 @@ test_that("PFI friedman1 produces sensible ranking", {
 # -----------------------------------------------------------------------------
 
 test_that("PFI with feature groups", {
-	set.seed(123)
-	task = tgen("friedman1")$generate(n = 200)
+		task = tgen("friedman1")$generate(n = 200)
 
 	groups = list(
 		important_group = c("important1", "important2", "important3"),
@@ -125,8 +117,7 @@ test_that("PFI with feature groups", {
 # -----------------------------------------------------------------------------
 
 test_that("PFI scores and obs_losses agree", {
-	set.seed(123)
-	task = tgen("friedman1")$generate(n = 200)
+		task = tgen("friedman1")$generate(n = 200)
 
 	pfi = PFI$new(
 		task = task,

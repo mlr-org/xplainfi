@@ -7,13 +7,11 @@
 # -----------------------------------------------------------------------------
 
 test_that("WVIM default behavior with minimal parameters", {
-	set.seed(123)
-	test_default_behavior(WVIM, task_type = "regr", direction = "leave-out")
+		test_default_behavior(WVIM, task_type = "regr", direction = "leave-out")
 })
 
 test_that("WVIM basic workflow with regression", {
-	set.seed(123)
-	task = tgen("friedman1")$generate(n = 150)
+		task = tgen("friedman1")$generate(n = 150)
 
 	test_basic_workflow(
 		WVIM,
@@ -29,8 +27,7 @@ test_that("WVIM direction parameter (leave-out vs leave-in)", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-	set.seed(123)
-	task = tgen("friedman1")$generate(n = 150)
+		task = tgen("friedman1")$generate(n = 150)
 	learner = lrn("regr.ranger", num.trees = 20)
 	measure = msr("regr.mse")
 	features = task$feature_names[1:3]
@@ -66,8 +63,7 @@ test_that("WVIM direction parameter (leave-out vs leave-in)", {
 })
 
 test_that("WVIM with feature groups", {
-	set.seed(123)
-	task = tgen("friedman1")$generate(n = 150)
+		task = tgen("friedman1")$generate(n = 150)
 
 	groups = list(
 		important_set = c("important1", "important2", "important3"),
@@ -90,16 +86,14 @@ test_that("WVIM with feature groups", {
 # -----------------------------------------------------------------------------
 
 test_that("LOCO default behavior with minimal parameters", {
-	set.seed(123)
-	test_default_behavior(LOCO, task_type = "regr")
+		test_default_behavior(LOCO, task_type = "regr")
 })
 
 test_that("LOCO basic workflow with regression", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-	set.seed(123)
-	task = tgen("friedman1")$generate(n = 200)
+		task = tgen("friedman1")$generate(n = 200)
 
 	loco = test_basic_workflow(
 		LOCO,
@@ -118,8 +112,7 @@ test_that("LOCO basic workflow with classification", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-	set.seed(123)
-	task = tgen("simplex", d = 5)$generate(n = 200)
+		task = tgen("simplex", d = 5)$generate(n = 200)
 
 	test_basic_workflow(
 		LOCO,
@@ -138,8 +131,7 @@ test_that("LOCO with all features (features = NULL)", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-	set.seed(123)
-	task = tgen("friedman1")$generate(n = 100)
+		task = tgen("friedman1")$generate(n = 100)
 	learner = lrn("regr.ranger", num.trees = 20)
 	measure = msr("regr.mse")
 
@@ -154,8 +146,7 @@ test_that("LOCO with feature subset", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-	set.seed(123)
-	task = tgen("friedman1")$generate(n = 100)
+		task = tgen("friedman1")$generate(n = 100)
 	learner = lrn("regr.ranger", num.trees = 20)
 	measure = msr("regr.mse")
 
@@ -175,8 +166,7 @@ test_that("LOCO with multiple refits", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-	set.seed(123)
-	task = tgen("friedman1")$generate(n = 150)
+		task = tgen("friedman1")$generate(n = 150)
 	learner = lrn("regr.ranger", num.trees = 20)
 	measure = msr("regr.mse")
 
@@ -201,8 +191,7 @@ test_that("LOCO with cross-validation", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-	set.seed(123)
-	task = tgen("friedman1")$generate(n = 150)
+		task = tgen("friedman1")$generate(n = 150)
 
 	test_with_resampling(
 		LOCO,
@@ -222,8 +211,7 @@ test_that("LOCO friedman1 produces sensible ranking", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-	set.seed(123)
-	test_friedman1_sensible_ranking(
+		test_friedman1_sensible_ranking(
 		LOCO,
 		learner = lrn("regr.ranger", num.trees = 50),
 		measure = msr("regr.mse")

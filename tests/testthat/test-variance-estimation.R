@@ -1,6 +1,5 @@
 test_that("importance() accepts all ci_method values", {
-	set.seed(123)
-	task = sim_dgp_independent(n = 100)
+		task = sim_dgp_independent(n = 100)
 
 	pfi = PFI$new(
 		task = task,
@@ -27,8 +26,7 @@ test_that("importance() accepts all ci_method values", {
 })
 
 test_that("ci_method='none' produces no variance columns", {
-	set.seed(123)
-	task = sim_dgp_independent(n = 100)
+		task = sim_dgp_independent(n = 100)
 
 	pfi = PFI$new(
 		task = task,
@@ -46,8 +44,7 @@ test_that("ci_method='none' produces no variance columns", {
 })
 
 test_that("raw CIs are narrower than nadeau_bengio corrected CIs", {
-	set.seed(123)
-	task = sim_dgp_independent(n = 200)
+		task = sim_dgp_independent(n = 200)
 
 	pfi = PFI$new(
 		task = task,
@@ -73,8 +70,7 @@ test_that("raw CIs are narrower than nadeau_bengio corrected CIs", {
 })
 
 test_that("nadeau_bengio correction requires appropriate resampling", {
-	set.seed(123)
-	task = sim_dgp_independent(n = 100)
+		task = sim_dgp_independent(n = 100)
 
 	# Cross-validation is not supported for nadeau_bengio
 	pfi = PFI$new(
@@ -99,8 +95,7 @@ test_that("nadeau_bengio correction requires appropriate resampling", {
 })
 
 test_that("confidence level parameter works correctly", {
-	set.seed(123)
-	task = sim_dgp_independent(n = 100)
+		task = sim_dgp_independent(n = 100)
 
 	pfi = PFI$new(
 		task = task,
@@ -128,8 +123,7 @@ test_that("confidence level parameter works correctly", {
 })
 
 test_that("variance estimation works with bootstrap resampling", {
-	set.seed(123)
-	task = sim_dgp_independent(n = 100)
+		task = sim_dgp_independent(n = 100)
 
 	pfi = PFI$new(
 		task = task,
@@ -154,8 +148,7 @@ test_that("variance estimation works with bootstrap resampling", {
 })
 
 test_that("quantile variance method works", {
-	set.seed(123)
-	task = sim_dgp_independent(n = 200)
+		task = sim_dgp_independent(n = 200)
 
 	pfi = PFI$new(
 		task = task,
@@ -193,8 +186,7 @@ test_that("quantile variance method works", {
 })
 
 test_that("quantile CIs differ from parametric methods", {
-	set.seed(123)
-	task = sim_dgp_independent(n = 200)
+		task = sim_dgp_independent(n = 200)
 
 	pfi = PFI$new(
 		task = task,
