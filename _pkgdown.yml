@@ -86,6 +86,7 @@ reference:
       - wvim_design_matrix
       - starts_with("check")
       - starts_with("op-")
+      - xplain_opt
   - title: Data simulation
   - contents:
       - starts_with("sim_")
