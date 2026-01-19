@@ -65,9 +65,11 @@ ConditionalSAGE = R6Class(
 			# Use ConditionalARFSampler by default
 			if (is.null(sampler)) {
 				sampler = ConditionalARFSampler$new(task)
-				cli::cli_alert_info(
-					"No {.cls ConditionalSampler} provided, using {.cls ConditionalARFSampler} with default settings."
-				)
+				if (xplain_opt("verbose")) {
+					cli::cli_alert_info(
+						"No {.cls ConditionalSampler} provided, using {.cls ConditionalARFSampler} with default settings."
+					)
+				}
 			} else {
 				checkmate::assert_class(sampler, "ConditionalSampler")
 			}

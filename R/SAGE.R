@@ -495,7 +495,7 @@ SAGE = R6Class(
 						"i" = "Saved {.val {n_permutations - n_completed}} permutations"
 					)
 
-					if (converged) {
+					if (xplain_opt("verbose") && converged) {
 						cli::cli_inform(convergence_msg)
 					}
 				}

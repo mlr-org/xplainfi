@@ -54,9 +54,11 @@ FeatureImportanceMethod = R6Class(
 					"classif" = mlr3::msr("classif.ce"),
 					"regr" = mlr3::msr("regr.mse")
 				)
-				cli::cli_alert_info(
-					"No {.cls Measure} provided, using {.code measure = msr(\"{self$measure$id}\")}"
-				)
+				if (xplain_opt("verbose")) {
+					cli::cli_alert_info(
+						"No {.cls Measure} provided, using {.code measure = msr(\"{self$measure$id}\")}"
+					)
+				}
 			} else {
 				self$measure = mlr3::assert_measure(measure, task = task, learner = learner)
 			}
@@ -77,9 +79,11 @@ FeatureImportanceMethod = R6Class(
 			# resampling: default to holdout with default ratio if NULL
 			if (is.null(resampling)) {
 				resampling = mlr3::rsmp("holdout", ratio = 2 / 3)$instantiate(task)
-				cli::cli_inform(c(
-					i = "No {.cls Resampling} provided, using {.code resampling = rsmp(\"holdout\", ratio = 2/3)} (test set size: {.val {length(resampling$train_set(1))}})"
-				))
+				if (xplain_opt("verbose")) {
+					cli::cli_inform(c(
+						i = "No {.cls Resampling} provided, using {.code resampling = rsmp(\"holdout\", ratio = 2/3)} (test set size: {.val {length(resampling$train_set(1))}})"
+					))
+				}
 			} else {
 				# Clone the resampling to avoid instantiating the resampling in the user's workspace
 				resampling = mlr3::assert_resampling(resampling)$clone()

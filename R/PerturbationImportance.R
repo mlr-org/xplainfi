@@ -454,9 +454,11 @@ CFI = R6Class(
 			# Use ConditionalARFSampler by default for CFI
 			if (is.null(sampler)) {
 				sampler = ConditionalARFSampler$new(task)
-				cli::cli_alert_info(
-					"No {.code sampler} provided, using {.cls ConditionalARFSampler} with default settings."
-				)
+				if (xplain_opt("verbose")) {
+					cli::cli_alert_info(
+						"No {.code sampler} provided, using {.cls ConditionalARFSampler} with default settings."
+					)
+				}
 			}
 			# checkmate::assert_class would expect sampler to inherit from all clases, but
 			# the two are mutually exclusive (for now?)
@@ -563,9 +565,11 @@ RFI = R6Class(
 			# Use ConditionalARFSampler by default for RFI
 			if (is.null(sampler)) {
 				sampler = ConditionalARFSampler$new(task)
-				cli::cli_alert_info(
-					"No {.cls ConditionalSampler} provided, using {.cls ConditionalARFSampler} with default settings."
-				)
+				if (xplain_opt("verbose")) {
+					cli::cli_alert_info(
+						"No {.cls ConditionalSampler} provided, using {.cls ConditionalARFSampler} with default settings."
+					)
+				}
 			} else {
 				checkmate::assert_class(sampler, "ConditionalSampler")
 			}
