@@ -4,8 +4,8 @@
 
 - This is a new release.
 - Resubmission after request from Uwe Ligges:
-  - Reduced runtime of tests in ./tests
-  - Fixed verbose output during tests
+  - Reduced runtime of tests in ./tests. Tests pass now in just under a minute on winbuilder (release + devel)
+  - Fixed accidentally verbose output during tests
 - The "possibly misspelled" words in DESCRIPTION are
   - A citation (Ewald et al.)
   - A method's name as it is commonly stylized ("Shapley Additive Global importancE (SAGE)")
