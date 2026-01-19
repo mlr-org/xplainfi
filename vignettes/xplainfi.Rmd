@@ -255,9 +255,3 @@ pfi_parallel$importance()
 # Clean up daemons when done
 daemons(0)
 ```
-
-### Notes
-
-- **SAGE**: Currently does not support parallelization and will always run sequentially in terms of the permutations evaluated. The learner or resampling procedure used for the initial model fits can be parallelized though.
-- **Performance**: Parallelization is most beneficial with multiple features, large datasets, or expensive learners
-- Use either `future::plan()` or `mirai::daemons()` - both work with the same code, similar to mlr3
