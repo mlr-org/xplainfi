@@ -38,9 +38,17 @@ check:
 check-remote:
 	Rscript -e "devtools::check(remote = TRUE)"
 
+.PHONY: test-summary
+test-summary:
+	Rscript -e "devtools::test(reporter = 'summary')"
+
+.PHONY: test-slow
+test-slow:
+	Rscript -e "devtools::test(reporter = 'slow')"
+
 .PHONY: test
 test:
-	Rscript -e "devtools::test(reporter = 'summary')"
+	Rscript -e "devtools::test()"
 
 coverage:
 	Rscript -e "covr::report(covr::package_coverage(\".\"), file = \"coverage.html\")"
