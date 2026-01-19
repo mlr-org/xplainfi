@@ -54,3 +54,4 @@ lib
 
 /.quarto/
 TODO.md
+tests/testthat/_problems
