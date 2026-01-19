@@ -2,8 +2,10 @@
 
 ## xplainfi 1.0.0 - Initial CRAN release
 
-The major version bump is largely to mark the occasin that the package
+The major version bump is largely to mark the occasion that the package
 is now considered “released”.
+
+### Minor changes
 
 - Removed the `fippy` comparison article since a more comprehensive
   comparison is now available in
@@ -12,7 +14,8 @@ is now considered “released”.
 - Adjusted the `min_permutations` default in `SAGE` methods to 10 rather
   than 3, since the previous value was found to lead to spurious early
   stopping.
-- Fix `sim_dgp_ewald` lading to erroneous variances.
+- Fix `sim_dgp_ewald` lading to erroneous variances when compared to
+  their settings.
 - Reduce runtime of tests (mostly by using less ARF and mor Gaussian
   sampling)
 

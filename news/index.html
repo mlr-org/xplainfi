@@ -61,13 +61,16 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.0" id="xplainfi-100---initial-cran-release">xplainfi 1.0.0 - Initial CRAN release<a class="anchor" aria-label="anchor" href="#xplainfi-100---initial-cran-release"></a></h2>
-<p>The major version bump is largely to mark the occasin that the package is now considered “released”.</p>
+<p>The major version bump is largely to mark the occasion that the package is now considered “released”.</p>
+<div class="section level3">
+<h3 id="minor-changes-1-0-0">Minor changes<a class="anchor" aria-label="anchor" href="#minor-changes-1-0-0"></a></h3>
 <ul><li>Removed the <code>fippy</code> comparison article since a more comprehensive comparison is now available in <a href="https://github.com/jemus42/xplainfi-benchmark" class="external-link">xplainfi-benchmark</a>.</li>
 <li>Clean up various documentation issues and other metadata.</li>
 <li>Adjusted the <code>min_permutations</code> default in <code>SAGE</code> methods to 10 rather than 3, since the previous value was found to lead to spurious early stopping.</li>
-<li>Fix <code>sim_dgp_ewald</code> lading to erroneous variances.</li>
+<li>Fix <code>sim_dgp_ewald</code> lading to erroneous variances when compared to their settings.</li>
 <li>Reduce runtime of tests (mostly by using less ARF and mor Gaussian sampling)</li>
 </ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.1" id="xplainfi-021">xplainfi 0.2.1<a class="anchor" aria-label="anchor" href="#xplainfi-021"></a></h2>
 <ul><li>Simplify <code>sim_dgp_confounded</code>, removing <code>x2</code> which doesn’t add anything interesting over <code>x1</code>.</li>
