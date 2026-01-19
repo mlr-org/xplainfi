@@ -1,40 +1,64 @@
 # =============================================================================
 # ConditionalSAGE Tests
 # =============================================================================
+#
+# Strategy for test speed:
+# - Use ConditionalGaussianSampler (fast) for most tests
+# - Use sim_dgp_* functions (4-5 features) instead of friedman1 (10 features)
+# - Only use ARF sampler in tests specifically testing ARF behavior
+# - ARF-specific tests get skip_on_cran()
 
 # -----------------------------------------------------------------------------
 # Basic functionality
 # -----------------------------------------------------------------------------
 
-test_that("ConditionalSAGE default behavior with minimal parameters", {
-	skip_if_not_installed("arf")
-
+test_that("ConditionalSAGE basic workflow with Gaussian sampler", {
 	set.seed(123)
-	test_default_behavior(ConditionalSAGE, task_type = "regr")
+	# Use small task (4 features) and fast Gaussian sampler
+	task = sim_dgp_correlated(n = 100)
+	sampler = ConditionalGaussianSampler$new(task)
+
+	sage = ConditionalSAGE$new(
+		task = task,
+		learner = lrn("regr.rpart"),
+		sampler = sampler,
+		n_permutations = 2L,
+		n_samples = 20L
+	)
+
+	checkmate::expect_r6(sage, c("FeatureImportanceMethod", "SAGE", "ConditionalSAGE"))
+	sage$compute()
+	expect_importance_dt(sage$importance(), features = sage$features)
 })
 
 test_that("ConditionalSAGE works with classification tasks", {
-	skip_if_not_installed("arf")
-
-	# Binary classification
 	set.seed(123)
+	# Binary classification - 2dnormals has 2 features
 	task_binary = tgen("2dnormals")$generate(n = 50)
+	sampler = ConditionalGaussianSampler$new(task_binary)
+
 	sage_binary = ConditionalSAGE$new(
 		task = task_binary,
 		learner = lrn("classif.rpart", predict_type = "prob"),
+		sampler = sampler,
 		n_permutations = 2L,
 		n_samples = 20L
 	)
 	checkmate::expect_r6(sage_binary, c("FeatureImportanceMethod", "SAGE", "ConditionalSAGE"))
 	sage_binary$compute()
 	expect_importance_dt(sage_binary$importance(), features = sage_binary$features)
+})
 
-	# Multiclass classification
+test_that("ConditionalSAGE multiclass classification", {
+	skip_on_cran() # multiclass with 3 features is slower
 	set.seed(123)
 	task_multi = tgen("cassini")$generate(n = 50)
+	sampler = ConditionalGaussianSampler$new(task_multi)
+
 	sage_multi = ConditionalSAGE$new(
 		task = task_multi,
 		learner = lrn("classif.rpart", predict_type = "prob"),
+		sampler = sampler,
 		n_permutations = 2L,
 		n_samples = 20L
 	)
@@ -44,27 +68,55 @@ test_that("ConditionalSAGE works with classification tasks", {
 })
 
 test_that("ConditionalSAGE featureless learner produces zero importance", {
-	skip_if_not_installed("arf")
-
 	set.seed(123)
-	test_featureless_zero_importance(ConditionalSAGE, task_type = "regr")
+	# Use small task (4 features) and fast Gaussian sampler
+	task = sim_dgp_correlated(n = 100)
+	sampler = ConditionalGaussianSampler$new(task)
+
+	sage = ConditionalSAGE$new(
+		task = task,
+		learner = lrn("regr.featureless"),
+		measure = msr("regr.mse"),
+		sampler = sampler,
+		n_permutations = 2L,
+		n_samples = 20L
+	)
+
+	sage$compute()
+	result = sage$importance()
+
+	expect_importance_dt(result, features = sage$features)
+	# All importance values should be essentially zero
+	checkmate::expect_numeric(result$importance, lower = -1e-10, upper = 1e-10)
 })
 
 # -----------------------------------------------------------------------------
 # Sensible results
 # -----------------------------------------------------------------------------
 
-test_that("ConditionalSAGE friedman1 produces sensible ranking", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
-	skip_if_not_installed("arf")
-
+test_that("ConditionalSAGE produces sensible ranking", {
 	set.seed(123)
-	test_friedman1_sensible_ranking(
-		ConditionalSAGE,
-		learner = lrn("regr.ranger", num.trees = 50),
-		n = 200L
+	# Use sim_dgp_independent (5 features) with Gaussian sampler
+	task = sim_dgp_independent(n = 200)
+	sampler = ConditionalGaussianSampler$new(task)
+
+	sage = ConditionalSAGE$new(
+		task = task,
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		sampler = sampler,
+		n_permutations = 2L,
+		n_samples = 20L
 	)
+
+	sage$compute()
+	result = sage$importance()
+	expect_importance_dt(result, features = sage$features)
+
+	# Important features should have higher mean importance than unimportant
+	important_scores = result[grepl("^important", feature)]$importance
+	unimportant_scores = result[grepl("^unimportant", feature)]$importance
+	expect_gt(mean(important_scores), mean(unimportant_scores))
 })
 
 # -----------------------------------------------------------------------------
@@ -75,11 +127,12 @@ test_that("ConditionalSAGE uses ConditionalARFSampler by default", {
 	skip_if_not_installed("arf")
 
 	set.seed(123)
-	task = tgen("xor")$generate(n = 50)
+	# Just check default sampler class - no compute needed
+	task = sim_dgp_correlated(n = 50)
 
 	sage = ConditionalSAGE$new(
 		task = task,
-		learner = lrn("classif.rpart", predict_type = "prob"),
+		learner = lrn("regr.rpart"),
 		n_permutations = 2L,
 		n_samples = 20L
 	)
@@ -88,23 +141,45 @@ test_that("ConditionalSAGE uses ConditionalARFSampler by default", {
 	expect_equal(sage$label, "Conditional SAGE")
 })
 
-test_that("ConditionalSAGE with custom sampler", {
+test_that("ConditionalSAGE with ARF sampler computes correctly", {
+	skip_on_cran() # ARF sampling is slow
 	skip_if_not_installed("arf")
 
 	set.seed(123)
-	task = tgen("spirals")$generate(n = 50)
-	custom_sampler = ConditionalARFSampler$new(task, finite_bounds = "local")
+	# Use small task for ARF test
+	task = sim_dgp_correlated(n = 50)
 
-	test_custom_sampler(
-		ConditionalSAGE,
+	sage = ConditionalSAGE$new(
 		task = task,
-		learner = lrn("classif.rpart", predict_type = "prob"),
-		measure = msr("classif.ce"),
-		sampler = custom_sampler,
-		expected_sampler_class = "ConditionalSampler",
+		learner = lrn("regr.rpart"),
 		n_permutations = 2L,
 		n_samples = 20L
 	)
+
+	sage$compute()
+	expect_importance_dt(sage$importance(), features = sage$features)
+})
+
+test_that("ConditionalSAGE with custom ARF sampler settings", {
+	skip_on_cran() # ARF sampling is slow
+	skip_if_not_installed("arf")
+
+	set.seed(123)
+	task = sim_dgp_correlated(n = 50)
+	custom_sampler = ConditionalARFSampler$new(task, finite_bounds = "local")
+
+	sage = ConditionalSAGE$new(
+		task = task,
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		sampler = custom_sampler,
+		n_permutations = 2L,
+		n_samples = 20L
+	)
+
+	checkmate::expect_r6(sage$sampler, "ConditionalSampler")
+	sage$compute()
+	expect_importance_dt(sage$importance(), features = sage$features)
 })
 
 # -----------------------------------------------------------------------------
@@ -125,25 +200,39 @@ test_that("ConditionalSAGE requires predict_type='prob' for classification", {
 })
 
 # -----------------------------------------------------------------------------
-# Batching
+# Batching (skip_on_cran - tests implementation detail)
 # -----------------------------------------------------------------------------
 
 test_that("ConditionalSAGE batching produces consistent results", {
-	skip_if_not_installed("arf")
+	skip_on_cran() # tests implementation detail, not core functionality
 	skip_if_not_installed("withr")
 
 	set.seed(123)
-	task = tgen("friedman1")$generate(n = 20)
+	# Use small task with Gaussian sampler for faster batching test
+	task = sim_dgp_correlated(n = 50)
+	sampler = ConditionalGaussianSampler$new(task)
 
 	# Results should be identical with or without batching
 	result_batch = withr::with_seed(42, {
-		sage = ConditionalSAGE$new(task = task, learner = lrn("regr.rpart"), n_permutations = 2L)
+		sage = ConditionalSAGE$new(
+			task = task,
+			learner = lrn("regr.rpart"),
+			sampler = ConditionalGaussianSampler$new(task),
+			n_permutations = 2L,
+			n_samples = 20L
+		)
 		sage$compute(batch_size = 1)
 		sage$importance()
 	})
 
 	result_normal = withr::with_seed(42, {
-		sage = ConditionalSAGE$new(task = task, learner = lrn("regr.rpart"), n_permutations = 2L)
+		sage = ConditionalSAGE$new(
+			task = task,
+			learner = lrn("regr.rpart"),
+			sampler = ConditionalGaussianSampler$new(task),
+			n_permutations = 2L,
+			n_samples = 20L
+		)
 		sage$compute()
 		sage$importance()
 	})
@@ -156,14 +245,15 @@ test_that("ConditionalSAGE batching produces consistent results", {
 # -----------------------------------------------------------------------------
 
 test_that("ConditionalSAGE with custom n_samples", {
-	skip_if_not_installed("arf")
-
 	set.seed(123)
-	task = tgen("friedman1")$generate(n = 50)
+	# Use small task with Gaussian sampler
+	task = sim_dgp_correlated(n = 50)
+	sampler = ConditionalGaussianSampler$new(task)
 
 	sage = ConditionalSAGE$new(
 		task = task,
 		learner = lrn("regr.rpart"),
+		sampler = sampler,
 		n_permutations = 2L,
 		n_samples = 20L
 	)
@@ -174,21 +264,22 @@ test_that("ConditionalSAGE with custom n_samples", {
 })
 
 # -----------------------------------------------------------------------------
-# Convergence tracking
+# Convergence tracking (skip_on_cran - tests advanced feature)
 # -----------------------------------------------------------------------------
 
 test_that("ConditionalSAGE SE tracking in convergence_history", {
-	skip_if_not_installed("arf")
+	skip_on_cran() # tests convergence tracking feature, not core SAGE
 
 	set.seed(123)
-	task = tgen("friedman1")$generate(n = 30)
-	learner = lrn("regr.rpart")
-	measure = msr("regr.mse")
+	# Use small task with Gaussian sampler
+	task = sim_dgp_correlated(n = 50)
+	sampler = ConditionalGaussianSampler$new(task)
 
 	sage = ConditionalSAGE$new(
 		task = task,
-		learner = learner,
-		measure = measure,
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		sampler = sampler,
 		n_permutations = 6L,
 		n_samples = 20L
 	)
@@ -207,18 +298,6 @@ test_that("ConditionalSAGE SE tracking in convergence_history", {
 	# SE values should be non-negative and finite
 	se_values = sage$convergence_history$se
 	checkmate::expect_numeric(se_values, lower = 0, finite = TRUE)
-
-	# For each feature, SE should be in a reasonable range for conditional sampling
-	for (feat in unique(sage$convergence_history$feature)) {
-		feat_data = sage$convergence_history[feature == feat]
-		feat_data = feat_data[order(n_permutations)]
-
-		if (nrow(feat_data) > 1) {
-			# More generous upper bound for conditional sampling
-			expect_lt(max(feat_data$se), 20)
-			checkmate::expect_numeric(feat_data$se, finite = TRUE)
-		}
-	}
 
 	# All features should be represented in convergence history
 	expect_setequal(

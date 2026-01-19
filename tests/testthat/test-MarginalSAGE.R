@@ -8,7 +8,8 @@
 
 test_that("MarginalSAGE default behavior with minimal parameters", {
 	set.seed(123)
-	test_default_behavior(MarginalSAGE, task_type = "regr")
+	# Use small params for test speed
+	test_default_behavior(MarginalSAGE, task_type = "regr", n_permutations = 2L, n_samples = 20L)
 })
 
 test_that("MarginalSAGE works with classification tasks", {
@@ -39,7 +40,8 @@ test_that("MarginalSAGE works with classification tasks", {
 
 test_that("MarginalSAGE featureless learner produces zero importance", {
 	set.seed(123)
-	test_featureless_zero_importance(MarginalSAGE, task_type = "regr")
+	# Use small params for test speed
+	test_featureless_zero_importance(MarginalSAGE, task_type = "regr", n_permutations = 2L, n_samples = 20L)
 })
 
 # -----------------------------------------------------------------------------
@@ -48,7 +50,8 @@ test_that("MarginalSAGE featureless learner produces zero importance", {
 
 test_that("MarginalSAGE friedman1 produces sensible ranking", {
 	set.seed(123)
-	test_friedman1_sensible_ranking(MarginalSAGE, n = 200L)
+	# Use small params for test speed
+	test_friedman1_sensible_ranking(MarginalSAGE, n = 200L, n_permutations = 2L, n_samples = 20L)
 })
 
 # -----------------------------------------------------------------------------
@@ -231,6 +234,7 @@ test_that("MarginalSAGE SE tracking in convergence_history", {
 })
 
 test_that("MarginalSAGE SE-based convergence detection", {
+	skip_on_cran() # ~1s - tests early stopping feature, not core SAGE
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
