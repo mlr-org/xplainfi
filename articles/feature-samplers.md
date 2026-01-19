@@ -2,15 +2,15 @@
 
 Feature samplers are a core component of perturbation-based feature
 importance methods (PFI, CFI, RFI) and any other methods based on some
-form of marginilization (SAGE). They determine how features are replaced
+form of marginalization (SAGE). They determine how features are replaced
 or perturbed when evaluating feature importance. This vignette
 introduces the different types of feature samplers available in xplainfi
 and demonstrates their use.
 
 ## Setup
 
-We create two tasks: One with mixed features (the seminal penguins
-data), and one with all-numeric features.
+We create two tasks: one with mixed features (the penguins data), and
+one with all-numeric features.
 
 ``` r
 library(xplainfi)
@@ -156,9 +156,9 @@ sampling intact observations.
 
 **Key differences from MarginalPermutationSampler:**
 
-- **MarginalPermutationSampler**: Shuffles each feature independently →
+- **MarginalPermutationSampler**: Shuffles each feature independently –
   breaks dependencies between sampled features
-- **MarginalReferenceSampler**: Samples complete reference rows →
+- **MarginalReferenceSampler**: Samples complete reference rows –
   preserves dependencies of the sampled features
 
 This is the approach used in [SAGE (Shapley Additive Global

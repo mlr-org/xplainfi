@@ -55,9 +55,9 @@ Analysis*, 3rd edition. Wiley-Interscience, Hoboken, NJ. ISBN
 
 ## Super classes
 
-[`xplainfi::FeatureSampler`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.md)
+[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\>
-[`xplainfi::ConditionalSampler`](https://jemus42.github.io/xplainfi/reference/ConditionalSampler.md)
+[`xplainfi::ConditionalSampler`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.md)
 -\> `ConditionalGaussianSampler`
 
 ## Public fields
@@ -87,9 +87,9 @@ Analysis*, 3rd edition. Wiley-Interscience, Hoboken, NJ. ISBN
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$print()`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.html#method-print)
-- [`xplainfi::ConditionalSampler$sample()`](https://jemus42.github.io/xplainfi/reference/ConditionalSampler.html#method-sample)
-- [`xplainfi::ConditionalSampler$sample_newdata()`](https://jemus42.github.io/xplainfi/reference/ConditionalSampler.html#method-sample_newdata)
+- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`xplainfi::ConditionalSampler$sample()`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.html#method-sample)
+- [`xplainfi::ConditionalSampler$sample_newdata()`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.html#method-sample_newdata)
 
 ------------------------------------------------------------------------
 

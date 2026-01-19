@@ -13,9 +13,9 @@ Artificial Intelligence*, **39**(15), 15596–15604.
 
 ## Super classes
 
-[`xplainfi::FeatureImportanceMethod`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+[`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
 -\>
-[`xplainfi::PerturbationImportance`](https://jemus42.github.io/xplainfi/reference/PerturbationImportance.md)
+[`xplainfi::PerturbationImportance`](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.md)
 -\> `CFI`
 
 ## Methods
@@ -30,11 +30,11 @@ Artificial Intelligence*, **39**(15), 15596–15604.
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
-- [`xplainfi::FeatureImportanceMethod$print()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
-- [`xplainfi::FeatureImportanceMethod$reset()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
-- [`xplainfi::FeatureImportanceMethod$scores()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
-- [`xplainfi::PerturbationImportance$importance()`](https://jemus42.github.io/xplainfi/reference/PerturbationImportance.html#method-importance)
+- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
+- [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
+- [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
+- [`xplainfi::FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`xplainfi::PerturbationImportance$importance()`](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.html#method-importance)
 
 ------------------------------------------------------------------------
 
@@ -62,11 +62,11 @@ Creates a new instance of the CFI class
 - `task, learner, measure, resampling, features, groups, relation, n_repeats, batch_size`:
 
   Passed to
-  [PerturbationImportance](https://jemus42.github.io/xplainfi/reference/PerturbationImportance.md).
+  [PerturbationImportance](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.md).
 
 - `sampler`:
 
-  ([ConditionalSampler](https://jemus42.github.io/xplainfi/reference/ConditionalSampler.md))
+  ([ConditionalSampler](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.md))
   Optional custom sampler. Defaults to instantiating
   `ConditionalARFSampler` internally with default parameters.
 
@@ -126,37 +126,26 @@ The objects of this class are cloneable with this method.
 
 ``` r
 library(mlr3)
-task = tgen("2dnormals")$generate(n = 100)
+library(mlr3learners)
+
+task <- sim_dgp_correlated(n = 500)
 
 # Using default ConditionalARFSampler
-cfi = CFI$new(
+cfi <- CFI$new(
   task = task,
-  learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
-  measure = msr("classif.ce")
+  learner = lrn("regr.ranger", num.trees = 10),
+  measure = msr("regr.mse")
 )
 #> ℹ No `sampler` provided, using <ConditionalARFSampler> with default settings.
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
-#>   (test set size: 67)
+#>   (test set size: 333)
 cfi$compute()
 cfi$importance()
 #> Key: <feature>
-#>    feature importance
-#>     <char>      <num>
-#> 1:      x1 0.09090909
-#> 2:      x2 0.09090909
-if (FALSE) { # \dontrun{
-# For more control over conditional sampling:
-custom_sampler = ConditionalARFSampler$new(
-  task = task,
-  finite_bounds = "local" # can improve sampling behavior
-)
-cfi_custom = CFI$new(
-  task = task,
-  learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
-  measure = msr("classif.ce"),
-  sampler = custom_sampler
-)
-cfi_custom$compute()
-cfi_custom$importance()
-} # }
+#>    feature  importance
+#>     <char>       <num>
+#> 1:      x1 2.985885240
+#> 2:      x2 0.171542034
+#> 3:      x3 1.525342471
+#> 4:      x4 0.005701918
 ```

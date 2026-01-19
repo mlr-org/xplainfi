@@ -1,27 +1,27 @@
 # Conditional SAGE
 
-[SAGE](https://jemus42.github.io/xplainfi/reference/SAGE.md) with
+[SAGE](https://mlr-org.github.io/xplainfi/reference/SAGE.md) with
 conditional sampling (features are "marginalized" conditionally). Uses
-[ConditionalARFSampler](https://jemus42.github.io/xplainfi/reference/ConditionalARFSampler.md)
+[ConditionalARFSampler](https://mlr-org.github.io/xplainfi/reference/ConditionalARFSampler.md)
 as default
-[ConditionalSampler](https://jemus42.github.io/xplainfi/reference/ConditionalSampler.md).
+[ConditionalSampler](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.md).
 
 ## See also
 
-[MarginalSAGE](https://jemus42.github.io/xplainfi/reference/MarginalSAGE.md)
+[MarginalSAGE](https://mlr-org.github.io/xplainfi/reference/MarginalSAGE.md)
 
 ## Super classes
 
-[`xplainfi::FeatureImportanceMethod`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+[`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
 -\>
-[`xplainfi::SAGE`](https://jemus42.github.io/xplainfi/reference/SAGE.md)
+[`xplainfi::SAGE`](https://mlr-org.github.io/xplainfi/reference/SAGE.md)
 -\> `ConditionalSAGE`
 
 ## Public fields
 
 - `sampler`:
 
-  ([ConditionalSampler](https://jemus42.github.io/xplainfi/reference/ConditionalSampler.md))
+  ([ConditionalSampler](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.md))
   Sampler for conditional marginalization.
 
 ## Methods
@@ -34,13 +34,13 @@ as default
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$importance()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
-- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
-- [`xplainfi::FeatureImportanceMethod$print()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
-- [`xplainfi::FeatureImportanceMethod$reset()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
-- [`xplainfi::FeatureImportanceMethod$scores()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
-- [`xplainfi::SAGE$compute()`](https://jemus42.github.io/xplainfi/reference/SAGE.html#method-compute)
-- [`xplainfi::SAGE$plot_convergence()`](https://jemus42.github.io/xplainfi/reference/SAGE.html#method-plot_convergence)
+- [`xplainfi::FeatureImportanceMethod$importance()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
+- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
+- [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
+- [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
+- [`xplainfi::FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`xplainfi::SAGE$compute()`](https://mlr-org.github.io/xplainfi/reference/SAGE.html#method-compute)
+- [`xplainfi::SAGE$plot_convergence()`](https://mlr-org.github.io/xplainfi/reference/SAGE.html#method-plot_convergence)
 
 ------------------------------------------------------------------------
 
@@ -53,7 +53,7 @@ Creates a new instance of the ConditionalSAGE class.
     ConditionalSAGE$new(
       task,
       learner,
-      measure,
+      measure = NULL,
       resampling = NULL,
       features = NULL,
       n_permutations = 10L,
@@ -62,7 +62,7 @@ Creates a new instance of the ConditionalSAGE class.
       n_samples = 100L,
       early_stopping = FALSE,
       se_threshold = 0.01,
-      min_permutations = 3L,
+      min_permutations = 10L,
       check_interval = 1L
     )
 
@@ -71,13 +71,13 @@ Creates a new instance of the ConditionalSAGE class.
 - `task, learner, measure, resampling, features, n_permutations, batch_size, n_samples, early_stopping, se_threshold, min_permutations, check_interval`:
 
   Passed to
-  [SAGE](https://jemus42.github.io/xplainfi/reference/SAGE.md).
+  [SAGE](https://mlr-org.github.io/xplainfi/reference/SAGE.md).
 
 - `sampler`:
 
-  ([ConditionalSampler](https://jemus42.github.io/xplainfi/reference/ConditionalSampler.md))
+  ([ConditionalSampler](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.md))
   Optional custom sampler. Defaults to
-  [ConditionalARFSampler](https://jemus42.github.io/xplainfi/reference/ConditionalARFSampler.md).
+  [ConditionalARFSampler](https://mlr-org.github.io/xplainfi/reference/ConditionalARFSampler.md).
 
 ------------------------------------------------------------------------
 
@@ -112,7 +112,7 @@ sage = ConditionalSAGE$new(
 )
 sage$compute()
 } # }
-if (FALSE) { # \dontrun{
+# \donttest{
 # For alternative conditional samplers:
 custom_sampler = ConditionalGaussianSampler$new(
   task = task
@@ -125,6 +125,8 @@ sage_custom = ConditionalSAGE$new(
   n_samples = 20,
   sampler = custom_sampler
 )
+#> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
+#>   (test set size: 67)
 sage_custom$compute()
-} # }
+# }
 ```

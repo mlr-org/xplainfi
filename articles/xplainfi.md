@@ -175,7 +175,7 @@ loco$importance()
 
 LOCO is computationally expensive as it requires retraining for each
 feature, but provides clear interpretation: higher values mean larger
-performance drop when the feature is removed. LOCO however cannot
+performance drop when the feature is removed. LOCO, however, cannot
 distinguish between direct effects and indirect effects through
 correlated features.
 
@@ -232,9 +232,10 @@ sampled_conditional[, .(important1, important2, important3)]
 ```
 
 This conditional sampling is essential for methods like CFI and RFI that
-need to preserve feature dependencies. See
-`vignette("perturbation-importance")` for detailed comparisons
-[`vignette("feature-samplers")`](https://jemus42.github.io/xplainfi/articles/feature-samplers.md)
+need to preserve feature dependencies. See the [perturbation-importance
+article](https://mlr-org.github.io/xplainfi/articles/perturbation-importance.html)
+for detailed comparisons and
+[`vignette("feature-samplers")`](https://mlr-org.github.io/xplainfi/articles/feature-samplers.md)
 for more details on implemented samplers.
 
 ## Detailed Scoring Information
@@ -361,8 +362,8 @@ like `msr("classif.auc")` are not decomposable, so observation-wise loss
 values are not available.  
 In other cases, the corresponding `obs_loss()` is just not yet
 implemented in
-[`mlr3measures`](https://cran.r-project.org/web/packages/mlr3measures/index.html),
-but will likely be in the future.
+[`mlr3measures`](https://CRAN.R-project.org/package=mlr3measures), but
+will likely be in the future.
 
 ## Parallelization
 
@@ -421,17 +422,3 @@ pfi_parallel$importance()
 # Clean up daemons when done
 daemons(0)
 ```
-
-### Notes
-
-- **SAGE**: Currently does not support parallelization and will always
-  run sequentially
-- **Performance**: Parallelization is most beneficial with multiple
-  features, large datasets, or expensive learners
-- **Backend choice**: Use either
-  [`future::plan()`](https://future.futureverse.org/reference/plan.html)
-  or
-  [`mirai::daemons()`](https://mirai.r-lib.org/reference/daemons.html) -
-  both work with the same code
-- **Consistency**: Both PerturbationImportance (PFI/CFI/RFI) and WVIM
-  (LOCO) use the same mlr3 parallelization infrastructure

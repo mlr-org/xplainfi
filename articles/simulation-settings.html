@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,7 +47,7 @@
 <li><h6 class="dropdown-header" data-toc-skip>Method Showcase</h6></li>
     <li><a class="dropdown-item" href="../articles/perturbation-importance.html">Perturbation-Based Methods (PFI, CFI, RFI)</a></li>
     <li><a class="dropdown-item" href="../articles/loco.html">Model Refitting Measures (LOCO, WVIM)</a></li>
-    <li><a class="dropdown-item" href="../articles/sage-methods.html">Shapley Additive Global Importance (SAGE)</a></li>
+    <li><a class="dropdown-item" href="../articles/sage-methods.html">Shapley Additive Global ImportancE (SAGE)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Specialized Topics</h6></li>
     <li><a class="dropdown-item" href="../articles/feature-samplers.html">Feature Samplers</a></li>
@@ -55,7 +55,6 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Testing &amp; Validation</h6></li>
     <li><a class="dropdown-item" href="../articles/simulation-settings.html">Simulation Settings</a></li>
-    <li><a class="dropdown-item" href="../articles/fippy-comparison.html">Comparison with fippy (Python)</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -97,7 +96,7 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr-org.github.io/xplainfi/" class="external-link">xplainfi</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr-org.github.io/xplainfi/">xplainfi</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rich-iannone.github.io/DiagrammeR/" class="external-link">DiagrammeR</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3learners.mlr-org.com" class="external-link">mlr3learners</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: mlr3</span></span>
@@ -182,8 +181,9 @@ methods.</p>
 </h3>
 <p><span class="math display">\[(X_1, X_2)^T \sim \text{MVN}(0,
 \Sigma)\]</span></p>
-<p>where <span class="math inline">\(\Sigma\)</span> is a 2×2 covariance
-matrix with 1 on the diagonal and correlation <span class="math inline">\(r\)</span> (default 0.9) on the off-diagonal.</p>
+<p>where <span class="math inline">\(\Sigma\)</span> is a <span class="math inline">\(2 \times 2\)</span> covariance matrix with 1 on
+the diagonal and correlation <span class="math inline">\(r\)</span>
+(default 0.9) on the off-diagonal.</p>
 <p><span class="math display">\[X_3 \sim N(0,1), \quad X_4 \sim
 N(0,1)\]</span> <span class="math display">\[Y = 2 \cdot X_1 + X_3 +
 \varepsilon\]</span></p>
@@ -279,7 +279,7 @@ DAG for mediated effects DGP
 <ul>
 <li>
 <strong>PFI</strong>: Shows total effects (exposure appears
-important with effect ≈ 1.2)</li>
+important with effect approximately 1.2)</li>
 <li>
 <strong>CFI</strong>: Shows direct effects (exposure appears
 unimportant when conditioning on mediator)</li>
@@ -434,7 +434,7 @@ DAG for independent features DGP
 <span><span class="va">task</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_dgp_scenarios.html">sim_dgp_independent</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># All methods should rank features consistently:</span></span>
-<span><span class="co"># important1 &gt; important2 &gt; important3 &gt; unimportant1,2 ≈ 0</span></span></code></pre></div>
+<span><span class="co"># important1 &gt; important2 &gt; important3 &gt; unimportant1,2 (approx. 0)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="expected-behavior-4">Expected Behavior<a class="anchor" aria-label="anchor" href="#expected-behavior-4"></a>

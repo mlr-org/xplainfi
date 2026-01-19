@@ -13,9 +13,9 @@ Recognition (ICPR)*, 9318–9325.
 
 ## Super classes
 
-[`xplainfi::FeatureImportanceMethod`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+[`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
 -\>
-[`xplainfi::PerturbationImportance`](https://jemus42.github.io/xplainfi/reference/PerturbationImportance.md)
+[`xplainfi::PerturbationImportance`](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.md)
 -\> `RFI`
 
 ## Methods
@@ -30,11 +30,11 @@ Recognition (ICPR)*, 9318–9325.
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
-- [`xplainfi::FeatureImportanceMethod$print()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
-- [`xplainfi::FeatureImportanceMethod$reset()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
-- [`xplainfi::FeatureImportanceMethod$scores()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
-- [`xplainfi::PerturbationImportance$importance()`](https://jemus42.github.io/xplainfi/reference/PerturbationImportance.html#method-importance)
+- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
+- [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
+- [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
+- [`xplainfi::FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`xplainfi::PerturbationImportance$importance()`](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.html#method-importance)
 
 ------------------------------------------------------------------------
 
@@ -63,7 +63,7 @@ Creates a new instance of the RFI class
 - `task, learner, measure, resampling, features, groups, relation, n_repeats, batch_size`:
 
   Passed to
-  [PerturbationImportance](https://jemus42.github.io/xplainfi/reference/PerturbationImportance.md).
+  [PerturbationImportance](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.md).
 
 - `conditioning_set`:
 
@@ -74,7 +74,7 @@ Creates a new instance of the RFI class
 
 - `sampler`:
 
-  ([ConditionalSampler](https://jemus42.github.io/xplainfi/reference/ConditionalSampler.md))
+  ([ConditionalSampler](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.md))
   Optional custom sampler. Defaults to `ConditionalARFSampler`.
 
 ------------------------------------------------------------------------
@@ -155,13 +155,13 @@ rfi$importance()
 #>          feature  importance
 #>           <char>       <num>
 #>  1:   important1  0.00000000
-#>  2:   important2  4.57328636
-#>  3:   important3  0.84236459
-#>  4:   important4  9.35752255
-#>  5:   important5  1.12430811
-#>  6: unimportant1 -0.29889537
-#>  7: unimportant2 -0.10636319
-#>  8: unimportant3 -0.02970777
-#>  9: unimportant4  0.07256787
-#> 10: unimportant5 -0.40156250
+#>  2:   important2  4.33976685
+#>  3:   important3  1.28437108
+#>  4:   important4  5.74666239
+#>  5:   important5  2.59825282
+#>  6: unimportant1  0.24248317
+#>  7: unimportant2 -0.06911931
+#>  8: unimportant3  0.07063466
+#>  9: unimportant4 -0.02648508
+#> 10: unimportant5 -0.08099410
 ```

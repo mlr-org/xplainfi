@@ -38,7 +38,7 @@ which subclasses must implement.
 
 ## Super class
 
-[`xplainfi::FeatureSampler`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.md)
+[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\> `MarginalSampler`
 
 ## Methods
@@ -53,8 +53,8 @@ which subclasses must implement.
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$initialize()`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.html#method-initialize)
-- [`xplainfi::FeatureSampler$print()`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`xplainfi::FeatureSampler$initialize()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-initialize)
+- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
 
 ------------------------------------------------------------------------
 

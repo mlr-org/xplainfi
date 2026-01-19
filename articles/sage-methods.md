@@ -49,7 +49,7 @@ will always be evaluated, resulting in a total number of evaluations of
 
 To showcase the difference between Marginal and Conditional SAGE, we’ll
 use the
-[`sim_dgp_correlated()`](https://jemus42.github.io/xplainfi/reference/sim_dgp_scenarios.md)
+[`sim_dgp_correlated()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
 function which creates a simple linear DGP with two correlated features.
 
 **Model:** \\(X_1, X_2)^T \sim \text{MVN}(0, \Sigma)\\
@@ -100,8 +100,8 @@ resampling$instantiate(task)
 ## Marginal SAGE
 
 Marginal SAGE marginalizes features independently by averaging
-predictions over a subset of `n_samples` obervations drawn from the test
-dataset. We use 15 permutations of the feature vector to build
+predictions over a subset of `n_samples` observations drawn from the
+test dataset. We use 15 permutations of the feature vector to build
 coalitions, resulting in 61 evaluated coalitions (`15 * 4 + 1`).
 
 ``` r
@@ -121,7 +121,9 @@ marginal_sage$compute(batch_size = 5000L)
 
 Let’s visualize the results:
 
-![](sage-methods_files/figure-html/marginal-sage-plot-1.png)
+![Bar chart with features on x-axis and SAGE values on y-axis. Bars
+colored by feature type (causal vs
+noise).](sage-methods_files/figure-html/marginal-sage-plot-1.png)
 
 We can also keep track of the SAGE value approximation across
 permutations:
@@ -130,7 +132,9 @@ permutations:
 marginal_sage$plot_convergence()
 ```
 
-![](sage-methods_files/figure-html/convergance-marginal-1.png)
+![Line plot with permutation number on x-axis and SAGE value on y-axis.
+Multiple colored lines showing convergence trajectory for each
+feature.](sage-methods_files/figure-html/convergence-marginal-1.png)
 
 ### Early Stopping Based on Convergence
 
@@ -140,12 +144,12 @@ with `early_stopping = TRUE`. Convergence is detected by monitoring the
 standard error (SE) of the SAGE value estimates in the first resampling
 iteration.
 
-**Convergence criterion**: SAGE normalizes the SE by the range of their
-values (max - min) to make convergence detection scale-invariant across
-different loss metrics. Convergence is detected when:
+SAGE normalizes the SE by the range of their values (max - min) to make
+convergence detection scale-invariant across different loss metrics.
+Convergence is detected when:
 
-\\\max_j \left(\frac{SE_j}{\max_i(\text{SAGE}\_i) -
-\min_i(\text{SAGE}\_i)}\right) \< \text{threshold}\\
+\\ \max_j \left(\frac{SE_j}{\max_i(\text{SAGE}\_i) -
+\min_i(\text{SAGE}\_i)}\right) \< \text{threshold} \\
 
 The default threshold is `se_threshold = 0.01` (1%), meaning convergence
 occurs when the relative SE is below 1% of the importance range for all
@@ -201,23 +205,30 @@ conditional_sage$compute(batch_size = 5000L)
 
 Let’s visualize the conditional SAGE results:
 
-![](sage-methods_files/figure-html/conditional-sage-plot-1.png)
+![Bar chart with features on x-axis and SAGE values on y-axis. Bars
+colored by feature type (causal vs
+noise).](sage-methods_files/figure-html/conditional-sage-plot-1.png)
 
 ``` r
 conditional_sage$plot_convergence()
 ```
 
-![](sage-methods_files/figure-html/convergance-conditional-1.png)
+![Line plot with permutation number on x-axis and SAGE value on y-axis.
+Multiple colored lines showing convergence trajectory for each
+feature.](sage-methods_files/figure-html/convergence-conditional-1.png)
 
 ## Comparison of Methods
 
 Let’s compare the two SAGE methods side by side:
 
-![](sage-methods_files/figure-html/comparison-1.png)
+![Faceted grouped bar chart with two panels (Causal and Noise). Each
+panel shows features on x-axis with grouped bars for Marginal SAGE
+(blue) and Conditional SAGE
+(green).](sage-methods_files/figure-html/comparison-1.png)
 
 ### Methodological Notes
 
-The key difference between the two methods:
+The difference between the two methods:
 
 - **MarginalSAGE**: Marginalizes all out-of-coalition features
   simultaneously by sampling from the marginal distribution, but does
@@ -267,6 +278,7 @@ method_comparison = data.frame(
 )
 
 # Create comparison plot
+#| fig.alt: "Grouped bar chart with features on x-axis and importance on y-axis. Four colored bars per feature for PFI, CFI, Marginal SAGE, and Conditional SAGE."
 ggplot(method_comparison, aes(x = feature, y = importance, fill = method)) +
     geom_col(position = "dodge", alpha = 0.8) +
     scale_fill_manual(
@@ -290,14 +302,13 @@ ggplot(method_comparison, aes(x = feature, y = importance, fill = method)) +
 
 ![](sage-methods_files/figure-html/pfi-cfi-comparison-1.png)
 
-**Note on comparison**: While both PFI/CFI and
-MarginalSAGE/ConditionalSAGE distinguish between marginal and
-conditional approaches, these method families measure fundamentally
-different quantities. PFI and CFI measure the drop in predictive
-performance when features are perturbed, making their interpretation in
-terms of prediction loss relatively straightforward. SAGE methods
-measure each feature’s contribution to overall performance through
-Shapley value decomposition, which involves a different theoretical
-framework. The results shown here demonstrate the methods on the same
-data, but direct comparisons of the numerical values should be made with
-these methodological differences in mind.
+While both PFI/CFI and MarginalSAGE/ConditionalSAGE distinguish between
+marginal and conditional approaches, these method families measure
+fundamentally different quantities. PFI and CFI measure the drop in
+predictive performance when features are perturbed, making their
+interpretation in terms of prediction loss relatively straightforward.
+SAGE methods measure each feature’s contribution to overall performance
+through Shapley value decomposition, which involves a different
+theoretical framework. The results shown here demonstrate the methods on
+the same data, but direct comparisons of the numerical values should be
+made with these methodological differences in mind.

@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,7 +51,7 @@
 <li><h6 class="dropdown-header" data-toc-skip>Method Showcase</h6></li>
     <li><a class="dropdown-item" href="articles/perturbation-importance.html">Perturbation-Based Methods (PFI, CFI, RFI)</a></li>
     <li><a class="dropdown-item" href="articles/loco.html">Model Refitting Measures (LOCO, WVIM)</a></li>
-    <li><a class="dropdown-item" href="articles/sage-methods.html">Shapley Additive Global Importance (SAGE)</a></li>
+    <li><a class="dropdown-item" href="articles/sage-methods.html">Shapley Additive Global ImportancE (SAGE)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Specialized Topics</h6></li>
     <li><a class="dropdown-item" href="articles/feature-samplers.html">Feature Samplers</a></li>
@@ -59,7 +59,6 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Testing &amp; Validation</h6></li>
     <li><a class="dropdown-item" href="articles/simulation-settings.html">Simulation Settings</a></li>
-    <li><a class="dropdown-item" href="articles/fippy-comparison.html">Comparison with fippy (Python)</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -90,13 +89,20 @@
 </h1></div>
 <!-- badges: start -->
 
+<!-- badges: end -->
 <p>The goal of <code>xplainfi</code> is to collect common feature importance methods under a unified and extensible interface.</p>
 <p>It is built around <a href="https://mlr-org.com/" class="external-link">mlr3</a> as available abstractions for learners, tasks, measures, etc. greatly simplify the implementation of importance measures.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of <code>xplainfi</code> like using <code>pak</code>:</p>
+<p>Once released, you can install <code>xplainfi</code> from CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"xplainfi"</span><span class="op">)</span></span></code></pre></div>
+<p>You can also install <code>xplainfi</code> from <a href="https://mlr-org.r-universe.dev" class="external-link">R-universe</a>:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"xplainfi"</span>, repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://mlr-org.r-universe.dev"</span>, <span class="st">"https://cloud.r-project.org"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>The latest development version of <code>xplainfi</code> can be installed with <code>pak</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages(pak)</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"mlr-org/xplainfi"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -107,8 +113,8 @@
 <p>The <code>friedman1</code> task has the following structure:</p>
 <p><span class="math display">\[y = 10 \sin(\pi x_1 x_2) + 20(x_3 - 0.5)^2 + 10x_4 + 5x_5 + \varepsilon\]</span></p>
 <p>Where <span class="math inline">\(x_{1,2,3,4,5}\)</span> are named <code>important1</code> through <code>important5</code> in the <code>Task</code>, with additional numbered <code>unimportant</code> features without effect on <span class="math inline">\(y\)</span>.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr-org.github.io/xplainfi/" class="external-link">xplainfi</a></span><span class="op">)</span></span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr-org.github.io/xplainfi/">xplainfi</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3learners.mlr-org.com" class="external-link">mlr3learners</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: mlr3</span></span>
 <span></span>
@@ -124,7 +130,7 @@
 <span>    n_repeats <span class="op">=</span> <span class="fl">10</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Compute and print PFI scores:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfi</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">pfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
@@ -140,8 +146,8 @@
 <span><span class="co">#&gt;  8: unimportant3 -0.04414584</span></span>
 <span><span class="co">#&gt;  9: unimportant4 -0.05157362</span></span>
 <span><span class="co">#&gt; 10: unimportant5  0.04819212</span></span></code></pre></div>
-<p>If it aides interpretation, importances can also be calculates as the <em>ratio</em> rather then the <em>difference</em> between the baseline and post-permutation losses:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p>If it aids interpretation, importances can also be calculated as the <em>ratio</em> rather than the <em>difference</em> between the baseline and post-permutation losses:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>relation <span class="op">=</span> <span class="st">"ratio"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;          feature importance</span></span>
@@ -157,7 +163,7 @@
 <span><span class="co">#&gt;  9: unimportant4  0.9890062</span></span>
 <span><span class="co">#&gt; 10: unimportant5  1.0100964</span></span></code></pre></div>
 <p>When PFI is computed based on resampling with multiple iterations, and / or multiple permutation iterations, the individual scores can be retrieved as a <code>data.table</code>:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">pfi</span><span class="op">$</span><span class="fu">scores</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Classes 'data.table' and 'data.frame':   300 obs. of  6 variables:</span></span>
 <span><span class="co">#&gt;  $ feature          : chr  "important1" "important1" "important1" "important1" ...</span></span>
@@ -169,7 +175,7 @@
 <span><span class="co">#&gt;  - attr(*, ".internal.selfref")=&lt;externalptr&gt;</span></span></code></pre></div>
 <p>Where <code>iter_rsmp</code> corresponds to the resampling iteration, i.e., 3 for 3-fold cross-validation, and <code>iter_repeat</code> corresponds to the permutation iteration within each resampling iteration, 5 in this case. While <code>pfi$importance()</code> contains the means across all iterations, <code>pfi$scores()</code> allows you to manually visualize or aggregate them in any way you see fit.</p>
 <p>For example:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span></span>
@@ -188,16 +194,16 @@
 <span>        plot.title.position <span class="op">=</span> <span class="st">"plot"</span>,</span>
 <span>        panel.grid.major.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-pfi-plot-1.png" width="100%"></p>
+<p><img src="reference/figures/README-pfi-plot-1.png" alt="" width="100%"></p>
 <p>If the measure in question needs to be maximized rather than minimized (like <span class="math inline">\(R^2\)</span>), the internal importance calculation takes that into account via the <code>$minimize</code> property of the measure and calculates importances such that the intuition “performance improvement” -&gt; “higher importance score” still holds:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfi</span> <span class="op">=</span> <span class="va"><a href="reference/PFI.html">PFI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>    task <span class="op">=</span> <span class="va">task</span>,</span>
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
 <span>    measure <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.rsq"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ No &lt;Resampling&gt; provided</span></span>
-<span><span class="co">#&gt; Using `resampling = rsmp("holdout")` with default `ratio = 0.67`.</span></span>
+<span><span class="co">#&gt; ℹ No &lt;Resampling&gt; provided, using `resampling = rsmp("holdout", ratio = 2/3)`</span></span>
+<span><span class="co">#&gt;   (test set size: 667)</span></span>
 <span></span>
 <span><span class="va">pfi</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">pfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
@@ -229,7 +235,7 @@
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
-<li><small><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
+<li><small>LGPL (&gt;= 3)</small></li>
 </ul>
 </div>
 
@@ -245,16 +251,16 @@
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>
-<a href="https://lukasburk.de" class="external-link">Lukas Burk</a> <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0001-7528-3795" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<a href="https://lukasburk.de" class="external-link">Lukas Burk</a> <br><small class="roles"> Author, maintainer, copyright holder </small> <a href="https://orcid.org/0000-0001-7528-3795" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 </ul>
 </div>
 
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
+<li><a href="https://CRAN.R-project.org/package=xplainfi" class="external-link"><img src="https://www.r-pkg.org/badges/version/xplainfi" alt="CRAN status"></a></li>
 <li><a href="https://github.com/mlr-org/xplainfi/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/mlr-org/xplainfi/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
-<li><a href="https://codecov.io/gh/mlr-org/xplainfi" class="external-link"><img src="https://codecov.io/gh/mlr-org/xplainfi/graph/badge.svg?token=QIQDMP3AM7" alt="codecov"></a></li>
+<li><a href="https://app.codecov.io/gh/mlr-org/xplainfi" class="external-link"><img src="https://codecov.io/gh/mlr-org/xplainfi/graph/badge.svg?token=QIQDMP3AM7" alt="codecov"></a></li>
 </ul>
 </div>
 

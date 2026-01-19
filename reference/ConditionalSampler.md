@@ -6,7 +6,7 @@ be extended by concrete implementations.
 
 ## Super class
 
-[`xplainfi::FeatureSampler`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.md)
+[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\> `ConditionalSampler`
 
 ## Methods
@@ -23,7 +23,7 @@ be extended by concrete implementations.
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$print()`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
 
 ------------------------------------------------------------------------
 

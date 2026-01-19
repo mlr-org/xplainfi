@@ -163,12 +163,14 @@ much does x1 add?”
 
 Let’s compare how the methods handle the interaction:
 
-![](perturbation-importance_files/figure-html/compare-interactions-1.png)![](perturbation-importance_files/figure-html/compare-interactions-2.png)
-
-**RFI Conditional Summary**: x1 given x2 has importance 2.170, x2 given
-x1 has importance 1.579, and x3 given x2 has importance 1.979. This
-shows how RFI reveals the conditional dependencies that pure marginal
-methods miss.
+![Two grouped bar charts. First compares PFI (blue) and CFI (green)
+importance scores across features. Second shows RFI importance scores
+when conditioning on
+x2.](perturbation-importance_files/figure-html/compare-interactions-1.png)![Two
+grouped bar charts. First compares PFI (blue) and CFI (green) importance
+scores across features. Second shows RFI importance scores when
+conditioning on
+x2.](perturbation-importance_files/figure-html/compare-interactions-2.png)
 
 ### Key Insights: Interaction Effects
 
@@ -198,13 +200,9 @@ int_ratio |>
 
 CFI vs PFI for Interacting Features
 
-**Important insight about interaction effects**: This example
-illustrates a crucial subtlety about PFI and interactions. While x1 and
-x2 have no main effects, PFI still correctly identifies them as
-important because permuting either feature destroys the interaction term
-x1×x2, which is crucial for prediction. The key limitation is that **PFI
-cannot distinguish between main effects and interaction effects** - it
-measures total contribution including through interactions.
+While x1 and x2 have no main effects, PFI still correctly identifies
+them as important because permuting either feature destroys the
+interaction term x1×x2, which is crucial for prediction.
 
 ## Scenario 2: Confounding
 
@@ -219,22 +217,25 @@ data_conf <- task_conf$data()
 
 **Causal Structure:**
 
-The **red arrows** show the confounding paths: the hidden confounder
-creates spurious correlations between x1, proxy, and y. The **blue
-arrows** show true direct causal effects. Note that `independent` is
-truly independent (no confounding) while `proxy` provides a noisy
-measurement of the confounder.
+The red arrows show the confounding paths: the hidden confounder creates
+spurious correlations between x1, proxy, and y. The **blue arrows** show
+true direct causal effects. Note that `independent` is truly independent
+(no confounding) while `proxy` provides a noisy measurement of the
+confounder.
 
-In the **observable confounder scenario** (used later), the confounder H
+In the observable confounder scenaro (used later), the confounder H
 would be included as a feature in the dataset, allowing direct
 conditioning rather than relying on the noisy proxy.
 
-![](perturbation-importance_files/figure-html/viz-confounding-1.png)
+![Heatmap showing correlation matrix between x1, proxy, independent, and
+y. Cells colored from blue (negative) through white to red (positive)
+with correlation values
+displayed.](perturbation-importance_files/figure-html/viz-confounding-1.png)
 
-**Key insight**: The hidden confounder creates spurious correlations
-between x1 and y (red paths), making x1 appear more important than its
-true direct effect. RFI conditioning on the proxy (which measures the
-confounder) should help isolate the true direct effect (blue path).
+The hidden confounder creates spurious correlations between x1 and y
+(red paths), making x1 appear more important than its true direct
+effect. RFI conditioning on the proxy (which measures the confounder)
+should help isolate the true direct effect (blue path).
 
 ### Analysis
 
@@ -377,21 +378,26 @@ pfi_conf_obs$importance()
 #> 4:          x1 2.18558022
 ```
 
-**Key Results:**
-
 - **x1 importance**: PFI = 2.186, RFI\|confounder = 0.549
 - **independent importance**: PFI = 1.625, RFI\|confounder = 1.539
 
-**Insight**: When conditioning on the true confounder, RFI should show
-reduced importance for x1 (since much of its apparent importance was due
-to confounding) while independent maintains its importance (since it’s
+When conditioning on the true confounder, RFI should show reduced
+importance for x1 (since much of its apparent importance was due to
+confounding) while independent maintains its importance (since it’s
 truly causally related to y).
 
 #### Comparing Methods on Confounding
 
-![](perturbation-importance_files/figure-html/compare-confounding-1.png)![](perturbation-importance_files/figure-html/compare-confounding-2.png)
+![Two grouped bar charts. First shows PFI (blue), CFI (green), and RFI
+(orange) importance by feature. Second compares PFI and RFI when
+confounder is
+observed.](perturbation-importance_files/figure-html/compare-confounding-1.png)![Two
+grouped bar charts. First shows PFI (blue), CFI (green), and RFI
+(orange) importance by feature. Second compares PFI and RFI when
+confounder is
+observed.](perturbation-importance_files/figure-html/compare-confounding-2.png)
 
-### Key Insights: Confounding Effects
+### Confounding Effects
 
 ``` r
 # Show how conditioning affects importance estimates
@@ -451,9 +457,9 @@ data_cor <- task_cor$data()
 
 **Causal Structure:**
 
-**Key feature**: x1 and x2 are highly correlated (r = 0.9 from MVN) but
-only x1 has a causal effect on y. x2 is a spurious predictor -
-correlated with the causal feature but not causal itself.
+x1 and x2 are highly correlated (r = 0.9 from MVN) but only x1 has a
+causal effect on y. x2 is a spurious predictor - correlated with the
+causal feature but not causal itself.
 
 ### Analysis
 
@@ -545,9 +551,8 @@ rfi_cor_x2 <- RFI$new(
 rfi_cor_x2$compute()
 ```
 
-**RFI Results:** - **x2 given x1**: 0.083 (How much does x2 add when we
-already know x1?) - **x1 given x2**: 1.962 (How much does x1 add when we
-already know x2?)
+- **x2 given x1**: 0.083 (How much does x2 add when we already know x1?)
+- **x1 given x2**: 1.962 (How much does x1 add when we already know x2?)
 
 Expected: When conditioning on x1, the importance of x2 should be near
 zero (and vice versa) because they’re almost identical - knowing one
@@ -555,9 +560,11 @@ tells you almost everything about the other.
 
 #### Comparing Methods on Correlated Features
 
-![](perturbation-importance_files/figure-html/compare-correlated-1.png)
+![Grouped bar chart comparing PFI (blue) and CFI (green) importance
+scores for each feature x1 through
+x4.](perturbation-importance_files/figure-html/compare-correlated-1.png)
 
-### Key Insights: Correlated Features
+### Correlated Features
 
 ``` r
 cor_ratio |>
@@ -660,7 +667,9 @@ rfi_ind$compute()
 
 And now we visualize:
 
-![](perturbation-importance_files/figure-html/combine-rf-plot-1.png)
+![Grouped bar chart comparing PFI (blue), CFI (green), and RFI (orange)
+importance scores across five
+features.](perturbation-importance_files/figure-html/combine-rf-plot-1.png)
 
 ### Agreement Between Methods
 
@@ -698,80 +707,11 @@ comp_ind_wide[, .(
 
 Method Agreement on Independent Features
 
-**Key insight**: With independent features and no complex relationships,
-all three methods (PFI, CFI, RFI) produce very similar importance
-estimates. This confirms that the differences we observe in Scenarios 1
-and 2 are truly due to interactions and confounding, not artifacts of
-the methods themselves.
-
-### Key Insights: Independent Features
-
-In the baseline scenario with independent features:
-
-1.  **All methods agree**: PFI, CFI, and RFI produce nearly identical
-    importance estimates when features are truly independent.
-
-2.  **Validates methodology**: The agreement between methods confirms
-    that differences in other scenarios are due to data structure, not
-    method artifacts.
-
-3.  **Noise correctly identified**: All methods correctly assign
-    near-zero importance to the noise features.
-
-## Variance Estimation and Confidence Intervals
-
-When using resampling, xplainfi can compute confidence intervals for
-importance scores to quantify uncertainty. However, standard variance
-calculations produce confidence intervals that are too narrow when
-observations appear in multiple resampling folds.
-
-### Example: Corrected vs Uncorrected Confidence Intervals
-
-``` r
-# Demonstrate variance correction with subsampling
-task_var <- sim_dgp_independent(n = 300)
-
-pfi_var <- PFI$new(
-    task = task_var,
-    learner = lrn("regr.ranger", num.trees = 100),
-    measure = msr("regr.mse"),
-    resampling = rsmp("subsampling", repeats = 10, ratio = 0.8),
-    n_repeats = 5
-)
-
-pfi_var$compute()
-
-# Compare variance methods
-imp_raw <- pfi_var$importance(ci_method = "raw") # Uncorrected (too narrow!)
-imp_corrected <- pfi_var$importance(ci_method = "nadeau_bengio") # Corrected
-
-# Show the difference for important features
-imp_raw[grepl("^important", feature), .(feature, importance, conf_lower, conf_upper)]
-#> Key: <feature>
-#>       feature importance conf_lower conf_upper
-#>        <char>      <num>      <num>      <num>
-#> 1: important1  7.5285208  6.7936479  8.2633937
-#> 2: important2  1.4363782  1.3240233  1.5487331
-#> 3: important3  0.1954965  0.1533125  0.2376805
-imp_corrected[grepl("^important", feature), .(feature, importance, conf_lower, conf_upper)]
-#> Key: <feature>
-#>       feature importance conf_lower conf_upper
-#>        <char>      <num>      <num>      <num>
-#> 1: important1  7.5285208  6.1536995  8.9033422
-#> 2: important2  1.4363782  1.2261814  1.6465750
-#> 3: important3  0.1954965  0.1165775  0.2744156
-```
-
-![](perturbation-importance_files/figure-html/variance-comparison-plot-1.png)
-
-### Practical Recommendations
-
-- Use `ci_method = "nadeau_bengio"` when using bootstrap or subsampling
-  for improved (yet still flawed) confidence intervals
-- The default `ci_method = "none"` returns only point estimates without
-  uncertainty
-- Never use `ci_method = "raw"` for actual results, the uncorrected
-  intervals are misleadingly narrow
+With independent features and no complex relationships, all three
+methods (PFI, CFI, RFI) produce very similar importance estimates. This
+confirms that the differences we observe in Scenarios 1 and 2 are truly
+due to interactions and confounding, not artifacts of the methods
+themselves.
 
 ## Key Takeaways
 

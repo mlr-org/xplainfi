@@ -17,7 +17,7 @@ importance methods like PFI and CFI
 - `feature_types`:
 
   ([`character()`](https://rdrr.io/r/base/character.html)) Feature types
-  supported by the sampler. Will be checked against the provied
+  supported by the sampler. Will be checked against the provided
   [mlr3::Task](https://mlr3.mlr-org.com/reference/Task.html) to ensure
   compatibility.
 

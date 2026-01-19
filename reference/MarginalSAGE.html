@@ -15,7 +15,7 @@ This is the standard SAGE implementation."><script defer src="https://umami.jemu
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,7 +30,7 @@ This is the standard SAGE implementation."><script defer src="https://umami.jemu
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><h6 class="dropdown-header" data-toc-skip>Method Showcase</h6></li>
     <li><a class="dropdown-item" href="../articles/perturbation-importance.html">Perturbation-Based Methods (PFI, CFI, RFI)</a></li>
     <li><a class="dropdown-item" href="../articles/loco.html">Model Refitting Measures (LOCO, WVIM)</a></li>
-    <li><a class="dropdown-item" href="../articles/sage-methods.html">Shapley Additive Global Importance (SAGE)</a></li>
+    <li><a class="dropdown-item" href="../articles/sage-methods.html">Shapley Additive Global ImportancE (SAGE)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Specialized Topics</h6></li>
     <li><a class="dropdown-item" href="../articles/feature-samplers.html">Feature Samplers</a></li>
@@ -38,7 +38,6 @@ This is the standard SAGE implementation."><script defer src="https://umami.jemu
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Testing &amp; Validation</h6></li>
     <li><a class="dropdown-item" href="../articles/simulation-settings.html">Simulation Settings</a></li>
-    <li><a class="dropdown-item" href="../articles/fippy-comparison.html">Comparison with fippy (Python)</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -99,7 +98,7 @@ This is the standard SAGE implementation.</p>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/MarginalSAGE.html">MarginalSAGE</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  <span class="va">task</span>,</span>
 <span>  <span class="va">learner</span>,</span>
-<span>  <span class="va">measure</span>,</span>
+<span>  measure <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  resampling <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  features <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n_permutations <span class="op">=</span> <span class="fl">10L</span>,</span>
@@ -107,7 +106,7 @@ This is the standard SAGE implementation.</p>
 <span>  n_samples <span class="op">=</span> <span class="fl">100L</span>,</span>
 <span>  early_stopping <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  se_threshold <span class="op">=</span> <span class="fl">0.01</span>,</span>
-<span>  min_permutations <span class="op">=</span> <span class="fl">3L</span>,</span>
+<span>  min_permutations <span class="op">=</span> <span class="fl">10L</span>,</span>
 <span>  check_interval <span class="op">=</span> <span class="fl">1L</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>

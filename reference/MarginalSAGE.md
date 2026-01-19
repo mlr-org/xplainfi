@@ -1,18 +1,18 @@
 # Marginal SAGE
 
-[SAGE](https://jemus42.github.io/xplainfi/reference/SAGE.md) with
+[SAGE](https://mlr-org.github.io/xplainfi/reference/SAGE.md) with
 marginal sampling (features are marginalized independently). This is the
 standard SAGE implementation.
 
 ## See also
 
-[ConditionalSAGE](https://jemus42.github.io/xplainfi/reference/ConditionalSAGE.md)
+[ConditionalSAGE](https://mlr-org.github.io/xplainfi/reference/ConditionalSAGE.md)
 
 ## Super classes
 
-[`xplainfi::FeatureImportanceMethod`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+[`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
 -\>
-[`xplainfi::SAGE`](https://jemus42.github.io/xplainfi/reference/SAGE.md)
+[`xplainfi::SAGE`](https://mlr-org.github.io/xplainfi/reference/SAGE.md)
 -\> `MarginalSAGE`
 
 ## Methods
@@ -25,13 +25,13 @@ standard SAGE implementation.
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$importance()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
-- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
-- [`xplainfi::FeatureImportanceMethod$print()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
-- [`xplainfi::FeatureImportanceMethod$reset()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
-- [`xplainfi::FeatureImportanceMethod$scores()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
-- [`xplainfi::SAGE$compute()`](https://jemus42.github.io/xplainfi/reference/SAGE.html#method-compute)
-- [`xplainfi::SAGE$plot_convergence()`](https://jemus42.github.io/xplainfi/reference/SAGE.html#method-plot_convergence)
+- [`xplainfi::FeatureImportanceMethod$importance()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
+- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
+- [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
+- [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
+- [`xplainfi::FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`xplainfi::SAGE$compute()`](https://mlr-org.github.io/xplainfi/reference/SAGE.html#method-compute)
+- [`xplainfi::SAGE$plot_convergence()`](https://mlr-org.github.io/xplainfi/reference/SAGE.html#method-plot_convergence)
 
 ------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ Creates a new instance of the MarginalSAGE class.
     MarginalSAGE$new(
       task,
       learner,
-      measure,
+      measure = NULL,
       resampling = NULL,
       features = NULL,
       n_permutations = 10L,
@@ -52,7 +52,7 @@ Creates a new instance of the MarginalSAGE class.
       n_samples = 100L,
       early_stopping = FALSE,
       se_threshold = 0.01,
-      min_permutations = 3L,
+      min_permutations = 10L,
       check_interval = 1L
     )
 
@@ -61,7 +61,7 @@ Creates a new instance of the MarginalSAGE class.
 - `task, learner, measure, resampling, features, n_permutations, batch_size, n_samples, early_stopping, se_threshold, min_permutations, check_interval`:
 
   Passed to
-  [SAGE](https://jemus42.github.io/xplainfi/reference/SAGE.md).
+  [SAGE](https://mlr-org.github.io/xplainfi/reference/SAGE.md).
 
 ------------------------------------------------------------------------
 

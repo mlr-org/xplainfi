@@ -83,9 +83,9 @@ Values.” *Artificial Intelligence*, **298**, 103502.
 
 ## Super classes
 
-[`xplainfi::FeatureSampler`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.md)
+[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\>
-[`xplainfi::ConditionalSampler`](https://jemus42.github.io/xplainfi/reference/ConditionalSampler.md)
+[`xplainfi::ConditionalSampler`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.md)
 -\> `ConditionalCtreeSampler`
 
 ## Public fields
@@ -93,7 +93,7 @@ Values.” *Artificial Intelligence*, **298**, 103502.
 - `feature_types`:
 
   ([`character()`](https://rdrr.io/r/base/character.html)) Feature types
-  supported by the sampler. Will be checked against the provied
+  supported by the sampler. Will be checked against the provided
   [mlr3::Task](https://mlr3.mlr-org.com/reference/Task.html) to ensure
   compatibility.
 
@@ -111,9 +111,9 @@ Values.” *Artificial Intelligence*, **298**, 103502.
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$print()`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.html#method-print)
-- [`xplainfi::ConditionalSampler$sample()`](https://jemus42.github.io/xplainfi/reference/ConditionalSampler.html#method-sample)
-- [`xplainfi::ConditionalSampler$sample_newdata()`](https://jemus42.github.io/xplainfi/reference/ConditionalSampler.html#method-sample_newdata)
+- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`xplainfi::ConditionalSampler$sample()`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.html#method-sample)
+- [`xplainfi::ConditionalSampler$sample_newdata()`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.html#method-sample_newdata)
 
 ------------------------------------------------------------------------
 
@@ -181,7 +181,7 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 library(mlr3)
 task = tgen("friedman1")$generate(n = 100)
 
@@ -195,5 +195,5 @@ sampled = sampler$sample_newdata(
   newdata = test_data,
   conditioning_set = "important1"
 )
-} # }
+# }
 ```

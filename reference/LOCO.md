@@ -20,9 +20,9 @@ American Statistical Association*, **113**(523), 1094–1111.
 
 ## Super classes
 
-[`xplainfi::FeatureImportanceMethod`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+[`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
 -\>
-[`xplainfi::WVIM`](https://jemus42.github.io/xplainfi/reference/WVIM.md)
+[`xplainfi::WVIM`](https://mlr-org.github.io/xplainfi/reference/WVIM.md)
 -\> `LOCO`
 
 ## Methods
@@ -37,11 +37,11 @@ American Statistical Association*, **113**(523), 1094–1111.
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$importance()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
-- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
-- [`xplainfi::FeatureImportanceMethod$print()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
-- [`xplainfi::FeatureImportanceMethod$reset()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
-- [`xplainfi::FeatureImportanceMethod$scores()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`xplainfi::FeatureImportanceMethod$importance()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
+- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
+- [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
+- [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
+- [`xplainfi::FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
 
 ------------------------------------------------------------------------
 
@@ -132,4 +132,25 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
+library(mlr3)
+library(mlr3learners)
+
+task <- sim_dgp_correlated(n = 500)
+
+loco <- LOCO$new(
+  task = task,
+  learner = lrn("regr.ranger", num.trees = 10),
+  measure = msr("regr.mse")
+)
+#> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
+#>   (test set size: 333)
+loco$compute()
+loco$importance()
+#> Key: <feature>
+#>    feature importance
+#>     <char>      <num>
+#> 1:      x1  0.9742173
+#> 2:      x2  0.2233854
+#> 3:      x3  1.1159889
+#> 4:      x4  0.0746354
 ```

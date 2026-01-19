@@ -5,14 +5,14 @@ and RFI
 
 ## Super class
 
-[`xplainfi::FeatureImportanceMethod`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+[`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
 -\> `PerturbationImportance`
 
 ## Public fields
 
 - `sampler`:
 
-  ([FeatureSampler](https://jemus42.github.io/xplainfi/reference/FeatureSampler.md))
+  ([FeatureSampler](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md))
   Sampler object for feature perturbation
 
 ## Methods
@@ -27,11 +27,11 @@ and RFI
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$compute()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-compute)
-- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
-- [`xplainfi::FeatureImportanceMethod$print()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
-- [`xplainfi::FeatureImportanceMethod$reset()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
-- [`xplainfi::FeatureImportanceMethod$scores()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`xplainfi::FeatureImportanceMethod$compute()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-compute)
+- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
+- [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
+- [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
+- [`xplainfi::FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
 
 ------------------------------------------------------------------------
 
@@ -59,11 +59,11 @@ Creates a new instance of the PerturbationImportance class
 - `task, learner, measure, resampling, features, groups`:
 
   Passed to
-  [FeatureImportanceMethod](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.md).
+  [FeatureImportanceMethod](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md).
 
 - `sampler`:
 
-  ([FeatureSampler](https://jemus42.github.io/xplainfi/reference/FeatureSampler.md))
+  ([FeatureSampler](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md))
   Sampler to use for feature perturbation.
 
 - `relation`:
@@ -120,7 +120,7 @@ method to support the additional `"cpi"` ci_method.
   base methods (`"none"`, `"raw"`, `"nadeau_bengio"`, `"quantile"`),
   perturbation methods support `"cpi"` (Conditional Predictive Impact).
   CPI is specifically designed for
-  [CFI](https://jemus42.github.io/xplainfi/reference/CFI.md) with
+  [CFI](https://mlr-org.github.io/xplainfi/reference/CFI.md) with
   knockoff samplers and uses one-sided hypothesis tests.
 
 - `conf_level`:

@@ -36,9 +36,9 @@ N(0, 0.1)\$\$
 
 - X1, X3, X5: Independent uniform(0,1) distributions
 
-- X2: Nearly perfect copy of X1 (correlation ≈ 0.99)
+- X2: Nearly perfect copy of X1 (correlation approximately 0.99)
 
-- X4: Noisy copy of X3 (correlation ≈ 0.67)
+- X4: Noisy copy of X3 (correlation approximately 0.67)
 
 - Y depends on X4, X5, and their interaction
 
@@ -50,6 +50,11 @@ Longo L, Lapuschkin S, Seifert C (eds.), *Explainable Artificial
 Intelligence*, 440–464. ISBN 978-3-031-63797-1,
 [doi:10.1007/978-3-031-63797-1_22](https://doi.org/10.1007/978-3-031-63797-1_22)
 .
+
+## See also
+
+Other simulation:
+[`sim_dgp_scenarios`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
 
 ## Examples
 

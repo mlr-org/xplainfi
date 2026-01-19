@@ -8,9 +8,9 @@ The KnockoffSampler samples
 [Knockoffs](https://rdrr.io/pkg/knockoff/man/knockoff.html) based on the
 task data. This class allows arbitrary `knockoff_fun`, which also means
 that no input checking against supported feature types can be done. Use
-[KnockoffGaussianSampler](https://jemus42.github.io/xplainfi/reference/KnockoffGaussianSampler.md)
+[KnockoffGaussianSampler](https://mlr-org.github.io/xplainfi/reference/KnockoffGaussianSampler.md)
 or
-[KnockoffSequentialSampler](https://jemus42.github.io/xplainfi/reference/KnockoffSequentialSampler.md)
+[KnockoffSequentialSampler](https://mlr-org.github.io/xplainfi/reference/KnockoffSequentialSampler.md)
 for these variants specifically.
 
 ## References
@@ -29,7 +29,7 @@ Mixed Data.” *AStA Advances in Statistical Analysis*, **108**(2),
 
 ## Super class
 
-[`xplainfi::FeatureSampler`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.md)
+[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\> `KnockoffSampler`
 
 ## Public fields
@@ -51,8 +51,8 @@ Mixed Data.” *AStA Advances in Statistical Analysis*, **108**(2),
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$print()`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.html#method-print)
-- [`xplainfi::FeatureSampler$sample_newdata()`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.html#method-sample_newdata)
+- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`xplainfi::FeatureSampler$sample_newdata()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-sample_newdata)
 
 ------------------------------------------------------------------------
 
@@ -137,8 +137,10 @@ task = tgen("2dnormals")$generate(n = 100)
 sampler = KnockoffSampler$new(task)
 # Sample using row_ids from stored task
 sampled_data = sampler$sample("x1")
-if (FALSE) { # \dontrun{
+
 # Example with sequential knockoffs (https://github.com/kormama1/seqknockoff)
+# Not on CRAN, install via pak::pak("kormama1/seqknockoff")
+if (FALSE) { # \dontrun{
 task = tgen("simplex")$generate(n = 100)
 sampler_seq = KnockoffSampler$new(task, knockoff_fun = seqknockoff::knockoffs_seq)
 sampled_seq = sampler_seq$sample("x1")

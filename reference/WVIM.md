@@ -1,12 +1,12 @@
 # Williamson's Variable Importance Measure (WVIM)
 
-Base class generalizazing refit-based variable importance measures.
+Base class generalizing refit-based variable importance measures.
 Default corresponds to leaving out each feature `n_repeats` times, which
 corresponds to LOCO (Leave One Covariate Out).
 
 ## Super class
 
-[`xplainfi::FeatureImportanceMethod`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+[`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
 -\> `WVIM`
 
 ## Public fields
@@ -22,7 +22,7 @@ corresponds to LOCO (Leave One Covariate Out).
   Columns correspond to `task$feature_names` and the number of rows
   corresponds to `length(features) * n_repeats`. The base matrix is
   created by
-  [wvim_design_matrix](https://jemus42.github.io/xplainfi/reference/wvim_design_matrix.md)
+  [wvim_design_matrix](https://mlr-org.github.io/xplainfi/reference/wvim_design_matrix.md)
   and then replicated `n_repeats` times before.
 
 - `instance`:
@@ -43,11 +43,11 @@ corresponds to LOCO (Leave One Covariate Out).
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$importance()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
-- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
-- [`xplainfi::FeatureImportanceMethod$print()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
-- [`xplainfi::FeatureImportanceMethod$reset()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
-- [`xplainfi::FeatureImportanceMethod$scores()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`xplainfi::FeatureImportanceMethod$importance()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
+- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
+- [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
+- [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
+- [`xplainfi::FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
 
 ------------------------------------------------------------------------
 
@@ -135,3 +135,34 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+library(mlr3)
+library(mlr3learners)
+
+task <- sim_dgp_correlated(n = 500)
+
+# Group correlated features together, independent features separately
+groups <- list(
+  correlated = c("x1", "x2"),
+  independent = c("x3", "x4")
+)
+
+wvim <- WVIM$new(
+  task = task,
+  learner = lrn("regr.ranger", num.trees = 10),
+  groups = groups
+)
+#> ℹ No <Measure> provided, using `measure = msr("regr.mse")`
+#> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
+#>   (test set size: 333)
+wvim$compute()
+wvim$importance()
+#> Key: <feature>
+#>        feature importance
+#>         <char>      <num>
+#> 1:  correlated   4.932899
+#> 2: independent   0.879166
+```

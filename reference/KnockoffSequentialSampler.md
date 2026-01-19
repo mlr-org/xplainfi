@@ -1,14 +1,13 @@
-# Gaussian Knockoff Conditional Sampler
+# Sequential Knockoff Conditional Sampler
 
 A
-[KnockoffSampler](https://jemus42.github.io/xplainfi/reference/KnockoffSampler.md)
-defaulting to second-order Gaussian knockoffs as created by
-`seqknockoff::knockoffs_seq`.
+[KnockoffSampler](https://mlr-org.github.io/xplainfi/reference/KnockoffSampler.md)
+using sequential knockoffs as created by `seqknockoff::knockoffs_seq`.
 
 ## Details
 
 This is equivalent to
-[KnockoffSampler](https://jemus42.github.io/xplainfi/reference/KnockoffSampler.md)
+[KnockoffSampler](https://mlr-org.github.io/xplainfi/reference/KnockoffSampler.md)
 using `knockoff_fun = seqknockoff::knockoffs_seq`.
 
 ## References
@@ -27,9 +26,9 @@ Mixed Data.” *AStA Advances in Statistical Analysis*, **108**(2),
 
 ## Super classes
 
-[`xplainfi::FeatureSampler`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.md)
+[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\>
-[`xplainfi::KnockoffSampler`](https://jemus42.github.io/xplainfi/reference/KnockoffSampler.md)
+[`xplainfi::KnockoffSampler`](https://mlr-org.github.io/xplainfi/reference/KnockoffSampler.md)
 -\> `KnockoffSequentialSampler`
 
 ## Public fields
@@ -37,7 +36,7 @@ Mixed Data.” *AStA Advances in Statistical Analysis*, **108**(2),
 - `feature_types`:
 
   ([`character()`](https://rdrr.io/r/base/character.html)) Feature types
-  supported by the sampler. Will be checked against the provied
+  supported by the sampler. Will be checked against the provided
   [mlr3::Task](https://mlr3.mlr-org.com/reference/Task.html) to ensure
   compatibility.
 
@@ -55,9 +54,9 @@ Mixed Data.” *AStA Advances in Statistical Analysis*, **108**(2),
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$print()`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.html#method-print)
-- [`xplainfi::FeatureSampler$sample_newdata()`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.html#method-sample_newdata)
-- [`xplainfi::KnockoffSampler$sample()`](https://jemus42.github.io/xplainfi/reference/KnockoffSampler.html#method-sample)
+- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`xplainfi::FeatureSampler$sample_newdata()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-sample_newdata)
+- [`xplainfi::KnockoffSampler$sample()`](https://mlr-org.github.io/xplainfi/reference/KnockoffSampler.html#method-sample)
 
 ------------------------------------------------------------------------
 
@@ -101,8 +100,9 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
+# Example requires sequential knockoffs (https://github.com/kormama1/seqknockoff)
+# Not on CRAN, install via pak::pak("kormama1/seqknockoff")
 if (FALSE) { # \dontrun{
-# Requires seqknockoff (https://github.com/kormama1/seqknockoff)
 task = tgen("simplex")$generate(n = 100)
 sampler_seq = KnockoffSampler$new(task)
 sampled_seq = sampler_seq$sample("x1")

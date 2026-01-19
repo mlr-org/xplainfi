@@ -20,7 +20,7 @@ check_groups(groups, all_features)
 
 ## Value
 
-`group`, with each element now named.
+The input list `group`, with each element now named.
 
 ## Examples
 
@@ -51,12 +51,18 @@ check_groups(list(a = "x1",  c("x2", "x1")), task$feature_names)
 #> [1] "x2" "x1"
 #> 
 
-if (FALSE) { # \dontrun{
+# Examples for cases that throw errors:
+
 # Unexpected features
 groups2 = list(effects = c("x1", "foo", "bar", "x1"))
-check_groups(groupos1, task$feature_names)
+try(check_groups(groups2, task$feature_names))
+#> ! Feature is specified in multiple groups: "x1"
+#> Error in check_groups(groups2, task$feature_names) : 
+#>   Features specified in `groups` not in provided <Task>: "foo" and "bar"
 # Too deeply nested
 groups3 = list(effects = c("x1", "x2", "x3"), noise = c("noise1", list(c("noise2"))))
-check_groups(groupos1, task$feature_names)
-} # }
+try(check_groups(groups2, task$feature_names))
+#> ! Feature is specified in multiple groups: "x1"
+#> Error in check_groups(groups2, task$feature_names) : 
+#>   Features specified in `groups` not in provided <Task>: "foo" and "bar"
 ```

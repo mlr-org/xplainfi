@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,7 +47,7 @@
 <li><h6 class="dropdown-header" data-toc-skip>Method Showcase</h6></li>
     <li><a class="dropdown-item" href="../articles/perturbation-importance.html">Perturbation-Based Methods (PFI, CFI, RFI)</a></li>
     <li><a class="dropdown-item" href="../articles/loco.html">Model Refitting Measures (LOCO, WVIM)</a></li>
-    <li><a class="dropdown-item" href="../articles/sage-methods.html">Shapley Additive Global Importance (SAGE)</a></li>
+    <li><a class="dropdown-item" href="../articles/sage-methods.html">Shapley Additive Global ImportancE (SAGE)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Specialized Topics</h6></li>
     <li><a class="dropdown-item" href="../articles/feature-samplers.html">Feature Samplers</a></li>
@@ -55,7 +55,6 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Testing &amp; Validation</h6></li>
     <li><a class="dropdown-item" href="../articles/simulation-settings.html">Simulation Settings</a></li>
-    <li><a class="dropdown-item" href="../articles/fippy-comparison.html">Comparison with fippy (Python)</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -96,7 +95,7 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr-org.github.io/xplainfi/" class="external-link">xplainfi</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr-org.github.io/xplainfi/">xplainfi</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3.mlr-org.com" class="external-link">mlr3</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3learners.mlr-org.com" class="external-link">mlr3learners</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
@@ -261,7 +260,7 @@ of each feature when all other features are present.</p>
 <span><span class="co">#&gt; 10: unimportant5 -0.5959717</span></span></code></pre></div>
 <p>LOCO is computationally expensive as it requires retraining for each
 feature, but provides clear interpretation: higher values mean larger
-performance drop when the feature is removed. LOCO however cannot
+performance drop when the feature is removed. LOCO, however, cannot
 distinguish between direct effects and indirect effects through
 correlated features.</p>
 </div>
@@ -314,10 +313,10 @@ given the values of <code>important2</code> and
 <span><span class="co">#&gt; 4:  0.8402944 0.729390652  0.3184946</span></span>
 <span><span class="co">#&gt; 5:  0.3115287 0.630131853  0.1739838</span></span></code></pre></div>
 <p>This conditional sampling is essential for methods like CFI and RFI
-that need to preserve feature dependencies. See
-<code>vignette("perturbation-importance")</code> for detailed
-comparisons <code><a href="../articles/feature-samplers.html">vignette("feature-samplers")</a></code> for more details
-on implemented samplers.</p>
+that need to preserve feature dependencies. See the <a href="https://mlr-org.github.io/xplainfi/articles/perturbation-importance.html">perturbation-importance
+article</a> for detailed comparisons and
+<code><a href="../articles/feature-samplers.html">vignette("feature-samplers")</a></code> for more details on
+implemented samplers.</p>
 </div>
 <div class="section level2">
 <h2 id="detailed-scoring-information">Detailed Scoring Information<a class="anchor" aria-label="anchor" href="#detailed-scoring-information"></a>
@@ -611,7 +610,7 @@ permutation (or in the case of <code>LOCO</code>, after refit)</li>
 Some measures like <code>msr("classif.auc")</code> are not decomposable,
 so observation-wise loss values are not available.<br>
 In other cases, the corresponding <code>obs_loss()</code> is just not
-yet implemented in <a href="https://cran.r-project.org/web/packages/mlr3measures/index.html" class="external-link"><code>mlr3measures</code></a>,
+yet implemented in <a href="https://CRAN.R-project.org/package=mlr3measures" class="external-link"><code>mlr3measures</code></a>,
 but will likely be in the future.</p>
 </div>
 <div class="section level2">
@@ -670,26 +669,6 @@ parallel computing:</p>
 <span></span>
 <span><span class="co"># Clean up daemons when done</span></span>
 <span><span class="fu"><a href="https://mirai.r-lib.org/reference/daemons.html" class="external-link">daemons</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="notes">Notes<a class="anchor" aria-label="anchor" href="#notes"></a>
-</h3>
-<ul>
-<li>
-<strong>SAGE</strong>: Currently does not support parallelization
-and will always run sequentially</li>
-<li>
-<strong>Performance</strong>: Parallelization is most beneficial
-with multiple features, large datasets, or expensive learners</li>
-<li>
-<strong>Backend choice</strong>: Use either
-<code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">future::plan()</a></code> or <code><a href="https://mirai.r-lib.org/reference/daemons.html" class="external-link">mirai::daemons()</a></code> - both work
-with the same code</li>
-<li>
-<strong>Consistency</strong>: Both PerturbationImportance
-(PFI/CFI/RFI) and WVIM (LOCO) use the same mlr3 parallelization
-infrastructure</li>
-</ul>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

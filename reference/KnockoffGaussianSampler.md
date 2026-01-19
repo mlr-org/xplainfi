@@ -1,14 +1,14 @@
 # Gaussian Knockoff Conditional Sampler
 
 A
-[KnockoffSampler](https://jemus42.github.io/xplainfi/reference/KnockoffSampler.md)
+[KnockoffSampler](https://mlr-org.github.io/xplainfi/reference/KnockoffSampler.md)
 defaulting to second-order Gaussian knockoffs as created by
 [knockoff::create.second_order](https://rdrr.io/pkg/knockoff/man/create.second_order.html).
 
 ## Details
 
 This is equivalent to
-[KnockoffSampler](https://jemus42.github.io/xplainfi/reference/KnockoffSampler.md)
+[KnockoffSampler](https://mlr-org.github.io/xplainfi/reference/KnockoffSampler.md)
 using the default `knockoff_fun`.
 
 ## References
@@ -27,9 +27,9 @@ Mixed Data.” *AStA Advances in Statistical Analysis*, **108**(2),
 
 ## Super classes
 
-[`xplainfi::FeatureSampler`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.md)
+[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\>
-[`xplainfi::KnockoffSampler`](https://jemus42.github.io/xplainfi/reference/KnockoffSampler.md)
+[`xplainfi::KnockoffSampler`](https://mlr-org.github.io/xplainfi/reference/KnockoffSampler.md)
 -\> `KnockoffGaussianSampler`
 
 ## Public fields
@@ -37,7 +37,7 @@ Mixed Data.” *AStA Advances in Statistical Analysis*, **108**(2),
 - `feature_types`:
 
   ([`character()`](https://rdrr.io/r/base/character.html)) Feature types
-  supported by the sampler. Will be checked against the provied
+  supported by the sampler. Will be checked against the provided
   [mlr3::Task](https://mlr3.mlr-org.com/reference/Task.html) to ensure
   compatibility.
 
@@ -55,9 +55,9 @@ Mixed Data.” *AStA Advances in Statistical Analysis*, **108**(2),
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$print()`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.html#method-print)
-- [`xplainfi::FeatureSampler$sample_newdata()`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.html#method-sample_newdata)
-- [`xplainfi::KnockoffSampler$sample()`](https://jemus42.github.io/xplainfi/reference/KnockoffSampler.html#method-sample)
+- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`xplainfi::FeatureSampler$sample_newdata()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-sample_newdata)
+- [`xplainfi::KnockoffSampler$sample()`](https://mlr-org.github.io/xplainfi/reference/KnockoffSampler.html#method-sample)
 
 ------------------------------------------------------------------------
 

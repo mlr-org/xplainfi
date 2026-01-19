@@ -313,11 +313,10 @@ For our interaction data where \\y = 2 \cdot x_1 \cdot x_2 + x_3 +
 - LOCO better captures the value of features that participate in
   interactions
 
-However, since we used a random forest learner (ranger), it can not be
-expected to learn any meaningful relations based on one training with
-onle one feature. This hopefully showcases that LOCI is primarily
-“useful” as a teaching exercise, rather than a meaningful importance
-measure.
+However, since we used a neural network learner, it cannot be expected
+to learn any meaningful relations based on training with only one
+feature. This hopefully showcases that LOCI is primarily “useful” as a
+teaching exercise, rather than a meaningful importance measure.
 
 ## WVIM with Feature Groups
 

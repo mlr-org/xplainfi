@@ -51,9 +51,9 @@ Information Processing Systems*, volume 33, 17212–17223.
 
 ## Super classes
 
-[`xplainfi::FeatureSampler`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.md)
+[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\>
-[`xplainfi::MarginalSampler`](https://jemus42.github.io/xplainfi/reference/MarginalSampler.md)
+[`xplainfi::MarginalSampler`](https://mlr-org.github.io/xplainfi/reference/MarginalSampler.md)
 -\> `MarginalReferenceSampler`
 
 ## Public fields
@@ -73,9 +73,9 @@ Information Processing Systems*, volume 33, 17212–17223.
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$print()`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.html#method-print)
-- [`xplainfi::MarginalSampler$sample()`](https://jemus42.github.io/xplainfi/reference/MarginalSampler.html#method-sample)
-- [`xplainfi::MarginalSampler$sample_newdata()`](https://jemus42.github.io/xplainfi/reference/MarginalSampler.html#method-sample_newdata)
+- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`xplainfi::MarginalSampler$sample()`](https://mlr-org.github.io/xplainfi/reference/MarginalSampler.html#method-sample)
+- [`xplainfi::MarginalSampler$sample_newdata()`](https://mlr-org.github.io/xplainfi/reference/MarginalSampler.html#method-sample_newdata)
 
 ------------------------------------------------------------------------
 

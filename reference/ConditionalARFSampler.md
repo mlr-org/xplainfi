@@ -30,9 +30,9 @@ Artificial Intelligence*, **39**(15), 15596–15604.
 
 ## Super classes
 
-[`xplainfi::FeatureSampler`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.md)
+[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\>
-[`xplainfi::ConditionalSampler`](https://jemus42.github.io/xplainfi/reference/ConditionalSampler.md)
+[`xplainfi::ConditionalSampler`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.md)
 -\> `ConditionalARFSampler`
 
 ## Public fields
@@ -40,7 +40,7 @@ Artificial Intelligence*, **39**(15), 15596–15604.
 - `feature_types`:
 
   ([`character()`](https://rdrr.io/r/base/character.html)) Feature types
-  supported by the sampler. Will be checked against the provied
+  supported by the sampler. Will be checked against the provided
   [mlr3::Task](https://mlr3.mlr-org.com/reference/Task.html) to ensure
   compatibility.
 
@@ -68,7 +68,7 @@ Artificial Intelligence*, **39**(15), 15596–15604.
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$print()`](https://jemus42.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
 
 ------------------------------------------------------------------------
 

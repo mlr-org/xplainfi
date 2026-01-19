@@ -57,13 +57,12 @@ Intelligence*, 456–479. ISBN 978-3-031-44064-9,
   (`list`: `NULL`) A (named) list of features (names or indices as in
   `task`). If `groups` is specified, `features` is ignored. Importances
   will be calculated for group of features at a time, e.g., in
-  [PFI](https://jemus42.github.io/xplainfi/reference/PFI.md) not one but
-  the group of features will be permuted at each step. Analogusly in
-  [WVIM](https://jemus42.github.io/xplainfi/reference/WVIM.md), each
+  [PFI](https://mlr-org.github.io/xplainfi/reference/PFI.md) not one but
+  the group of features will be permuted at each step. Analogously in
+  [WVIM](https://mlr-org.github.io/xplainfi/reference/WVIM.md), each
   group of features will be left out (or in) for each model refit. Not
   all methods support groups (e.g.,
-  [SAGE](https://jemus42.github.io/xplainfi/reference/SAGE.md)). See
-  FIXME: vignette or examples.
+  [SAGE](https://mlr-org.github.io/xplainfi/reference/SAGE.md)).
 
 - `param_set`:
 
@@ -73,8 +72,8 @@ Intelligence*, 456–479. ISBN 978-3-031-44064-9,
 
   ([data.table](https://rdatatable.gitlab.io/data.table/reference/data.table.html))
   Feature-specific prediction objects provided for some methods
-  ([PFI](https://jemus42.github.io/xplainfi/reference/PFI.md),
-  [WVIM](https://jemus42.github.io/xplainfi/reference/WVIM.md)).
+  ([PFI](https://mlr-org.github.io/xplainfi/reference/PFI.md),
+  [WVIM](https://mlr-org.github.io/xplainfi/reference/WVIM.md)).
   Contains columns for feature of interest, resampling iteration, refit
   or perturbation iteration, and
   [mlr3::Prediction](https://mlr3.mlr-org.com/reference/Prediction.html)
@@ -152,8 +151,8 @@ Get aggregated importance scores. The stored
 `aggregator` (default: `mean`) will be used to aggregated importance
 scores across resampling iterations and, depending on the method use,
 permutations
-([PerturbationImportance](https://jemus42.github.io/xplainfi/reference/PerturbationImportance.md)
-or refits [LOCO](https://jemus42.github.io/xplainfi/reference/LOCO.md)).
+([PerturbationImportance](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.md)
+or refits [LOCO](https://mlr-org.github.io/xplainfi/reference/LOCO.md)).
 
 #### Usage
 
@@ -172,14 +171,14 @@ or refits [LOCO](https://jemus42.github.io/xplainfi/reference/LOCO.md)).
   (character(1)) How to relate perturbed scores to originals
   ("difference" or "ratio"). If `NULL`, uses stored parameter value.
   This is only applicable for methods where importance is based on some
-  relation between baseline and post-modifcation loss, i.e.
-  [PerturbationImportance](https://jemus42.github.io/xplainfi/reference/PerturbationImportance.md)
+  relation between baseline and post-modification loss, i.e.
+  [PerturbationImportance](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.md)
   methods such as
-  [PFI](https://jemus42.github.io/xplainfi/reference/PFI.md) or
-  [WVIM](https://jemus42.github.io/xplainfi/reference/WVIM.md) /
-  [LOCO](https://jemus42.github.io/xplainfi/reference/LOCO.md). Not
+  [PFI](https://mlr-org.github.io/xplainfi/reference/PFI.md) or
+  [WVIM](https://mlr-org.github.io/xplainfi/reference/WVIM.md) /
+  [LOCO](https://mlr-org.github.io/xplainfi/reference/LOCO.md). Not
   available for
-  [SAGE](https://jemus42.github.io/xplainfi/reference/SAGE.md) methods.
+  [SAGE](https://mlr-org.github.io/xplainfi/reference/SAGE.md) methods.
 
 - `standardize`:
 
@@ -188,25 +187,24 @@ or refits [LOCO](https://jemus42.github.io/xplainfi/reference/LOCO.md)).
 
 - `ci_method`:
 
-  (`character(1)`: `"none"`) Variance estimation method to use,
-  defaulting to omitting variance estimation (`"none"`). If `"raw"`,
-  uncorrected variance estimates are provided purely for informative
-  purposes with **invalid** (too narrow) confidence intervals. If
-  `"nadeau_bengio"`, variance correction is performed according to
-  Nadeau & Bengio (2003) as suggested by Molnar et al. (2023). If
-  `"quantile"`, empirical quantiles are used to construct
-  confidence-like intervals. These methods are model-agnostic and rely
-  on suitable `resampling`s, e.g. subsampling with 15 repeats for
-  `"nadeau_bengio"`. See details.
+  (`character(1)`: `"none"`) Which confidence interval estimation method
+  to use, defaulting to omitting variance estimation (`"none"`). If
+  `"raw"`, uncorrected (too narrow) CIs are provided purely for
+  informative purposes. If `"nadeau_bengio"`, variance correction is
+  performed according to Nadeau & Bengio (2003) as suggested by Molnar
+  et al. (2023). If `"quantile"`, empirical quantiles are used to
+  construct confidence-like intervals. These methods are model-agnostic
+  and rely on suitable `resampling`s, e.g. subsampling with 15 repeats
+  for `"nadeau_bengio"`. See details.
 
 - `conf_level`:
 
-  (`numeric(1): 0.95`): Conficence level to use for confidence interval
+  (`numeric(1)`: `0.95`) Confidence level to use for confidence interval
   construction when `ci_method != "none"`.
 
 - `...`:
 
-  Additional arguments passen to specialized methods, if any.
+  Additional arguments passed to specialized methods, if any.
 
 #### Details
 
@@ -237,19 +235,19 @@ could be:
 
 `n_repeats = 5` in this context only improves the stability of the PFI
 estimate within the resampling iteration, whereas
-`rsmp("subsampling", repeats = 15)` is used to accounter for learner
-variance and neccessitates variance correction factor.
+`rsmp("subsampling", repeats = 15)` is used to account for learner
+variance and necessitates variance correction.
 
-This appraoch can in principle also be applied to `CFI` and `RFI`, but
+This approach can in principle also be applied to `CFI` and `RFI`, but
 beware that a conditional sample such as
-[ConditionalARFSampler](https://jemus42.github.io/xplainfi/reference/ConditionalARFSampler.md)
+[ConditionalARFSampler](https://mlr-org.github.io/xplainfi/reference/ConditionalARFSampler.md)
 also needs to be trained on data, which would need to be taken account
 by the variance estimation method. Analogously, the `"nadeau_bengio"`
 correction was recommended for the use with
-[PFI](https://jemus42.github.io/xplainfi/reference/PFI.md) by Molnar et
+[PFI](https://mlr-org.github.io/xplainfi/reference/PFI.md) by Molnar et
 al., so its use with other methods like
-[LOCO](https://jemus42.github.io/xplainfi/reference/LOCO.md) or
-[SAGE](https://jemus42.github.io/xplainfi/reference/SAGE.md) is
+[LOCO](https://mlr-org.github.io/xplainfi/reference/LOCO.md) or
+[SAGE](https://mlr-org.github.io/xplainfi/reference/SAGE.md) is
 experimental.
 
 Note that even if `measure` uses an `aggregator` function that is not
@@ -260,8 +258,9 @@ the mean, variance estimation currently will always use
 #### Returns
 
 ([data.table](https://rdatatable.gitlab.io/data.table/reference/data.table.html))
-Aggregated importance scores. with variables `"feature", "importance"`
-and depending in `ci_method` also `"se", "conf_lower", "conf_upper"`.
+Aggregated importance scores with columns `"feature"`, `"importance"`,
+and depending on `ci_method` also `"se"`, `"conf_lower"`,
+`"conf_upper"`.
 
 ------------------------------------------------------------------------
 
@@ -285,14 +284,21 @@ decomposable.
   (character(1)) How to relate perturbed scores to originals
   ("difference" or "ratio"). If `NULL`, uses stored parameter value.
   This is only applicable for methods where importance is based on some
-  relation between baseline and post-modifcation loss, i.e.
-  [PerturbationImportance](https://jemus42.github.io/xplainfi/reference/PerturbationImportance.md)
+  relation between baseline and post-modification loss, i.e.
+  [PerturbationImportance](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.md)
   methods such as
-  [PFI](https://jemus42.github.io/xplainfi/reference/PFI.md) or
-  [WVIM](https://jemus42.github.io/xplainfi/reference/WVIM.md) /
-  [LOCO](https://jemus42.github.io/xplainfi/reference/LOCO.md). Not
+  [PFI](https://mlr-org.github.io/xplainfi/reference/PFI.md) or
+  [WVIM](https://mlr-org.github.io/xplainfi/reference/WVIM.md) /
+  [LOCO](https://mlr-org.github.io/xplainfi/reference/LOCO.md). Not
   available for
-  [SAGE](https://jemus42.github.io/xplainfi/reference/SAGE.md) methods.
+  [SAGE](https://mlr-org.github.io/xplainfi/reference/SAGE.md) methods.
+
+#### Returns
+
+([data.table](https://rdatatable.gitlab.io/data.table/reference/data.table.html))
+Observation-wise losses and importance scores with columns `"feature"`,
+`"iter_rsmp"`, `"iter_repeat"` (if applicable), `"row_ids"`,
+`"loss_baseline"`, `"loss_post"`, and `"obs_importance"`.
 
 ------------------------------------------------------------------------
 
@@ -327,7 +333,7 @@ Print importance scores
 
 Calculate importance scores for each resampling iteration and
 sub-iterations (`iter_rsmp` in
-[PFI](https://jemus42.github.io/xplainfi/reference/PFI.md) for example).
+[PFI](https://mlr-org.github.io/xplainfi/reference/PFI.md) for example).
 
 Iteration-wise importance are computed on the fly depending on the
 chosen relation (`difference` or `ratio`) to avoid re-computation if
@@ -344,14 +350,20 @@ only a different relation is needed.
   (character(1)) How to relate perturbed scores to originals
   ("difference" or "ratio"). If `NULL`, uses stored parameter value.
   This is only applicable for methods where importance is based on some
-  relation between baseline and post-modifcation loss, i.e.
-  [PerturbationImportance](https://jemus42.github.io/xplainfi/reference/PerturbationImportance.md)
+  relation between baseline and post-modification loss, i.e.
+  [PerturbationImportance](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.md)
   methods such as
-  [PFI](https://jemus42.github.io/xplainfi/reference/PFI.md) or
-  [WVIM](https://jemus42.github.io/xplainfi/reference/WVIM.md) /
-  [LOCO](https://jemus42.github.io/xplainfi/reference/LOCO.md). Not
+  [PFI](https://mlr-org.github.io/xplainfi/reference/PFI.md) or
+  [WVIM](https://mlr-org.github.io/xplainfi/reference/WVIM.md) /
+  [LOCO](https://mlr-org.github.io/xplainfi/reference/LOCO.md). Not
   available for
-  [SAGE](https://jemus42.github.io/xplainfi/reference/SAGE.md) methods.
+  [SAGE](https://mlr-org.github.io/xplainfi/reference/SAGE.md) methods.
+
+#### Returns
+
+([data.table](https://rdatatable.gitlab.io/data.table/reference/data.table.html))
+Iteration-wise importance scores with columns for `"feature"`, iteration
+indices, baseline and post-modification scores, and `"importance"`.
 
 ------------------------------------------------------------------------
 

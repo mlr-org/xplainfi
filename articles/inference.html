@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Inference (Experimental) • xplainfi</title>
+<title>Inference for Feature Importance • xplainfi</title>
 <!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
   window.MathJax = {
     chtml: {
@@ -19,7 +19,7 @@
 <link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Inference (Experimental)">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Inference for Feature Importance">
 <script defer src="https://umami.jemu.name/script.js" data-website-id="248c8668-4908-4c63-86f7-db0a1b19758a"></script>
 </head>
 <body>
@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,7 +47,7 @@
 <li><h6 class="dropdown-header" data-toc-skip>Method Showcase</h6></li>
     <li><a class="dropdown-item" href="../articles/perturbation-importance.html">Perturbation-Based Methods (PFI, CFI, RFI)</a></li>
     <li><a class="dropdown-item" href="../articles/loco.html">Model Refitting Measures (LOCO, WVIM)</a></li>
-    <li><a class="dropdown-item" href="../articles/sage-methods.html">Shapley Additive Global Importance (SAGE)</a></li>
+    <li><a class="dropdown-item" href="../articles/sage-methods.html">Shapley Additive Global ImportancE (SAGE)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Specialized Topics</h6></li>
     <li><a class="dropdown-item" href="../articles/feature-samplers.html">Feature Samplers</a></li>
@@ -55,7 +55,6 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Testing &amp; Validation</h6></li>
     <li><a class="dropdown-item" href="../articles/simulation-settings.html">Simulation Settings</a></li>
-    <li><a class="dropdown-item" href="../articles/fippy-comparison.html">Comparison with fippy (Python)</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -87,7 +86,7 @@
 <script src="inference_files/grViz-binding-1.0.11/grViz.js"></script><div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Inference (Experimental)</h1>
+      <h1>Inference for Feature Importance</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/mlr-org/xplainfi/blob/main/vignettes/articles/inference.Rmd" class="external-link"><code>vignettes/articles/inference.Rmd</code></a></small>
@@ -97,11 +96,9 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr-org.github.io/xplainfi/" class="external-link">xplainfi</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr-org.github.io/xplainfi/">xplainfi</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3learners.mlr-org.com" class="external-link">mlr3learners</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: mlr3</span></span>
-<span></span>
-<span><span class="co"># Data manip and visualization</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
 <p>There are multiple (work in progress) inference methods available
@@ -233,7 +230,7 @@ approaches, we visualize all methods:</p>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="inference_files/figure-html/pfi-ci-comparison-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="inference_files/figure-html/pfi-ci-comparison-1.png" class="r-plt" alt="Point-and-whisker plot with features on y-axis and importance on x-axis. Three colored points for raw, nadeau_bengio, and quantile CI methods, each showing point estimates with horizontal error bars." width="768"></p>
 <p>The results highlight just how optimistic the unadjusted, raw
 confidence intervals are.</p>
 </div>
@@ -337,7 +334,7 @@ directly via <code>ci_method = "cpi"</code>:</p>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="inference_files/figure-html/cpi-cfi-plot-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="inference_files/figure-html/cpi-cfi-plot-1.png" class="r-plt" alt="Point-and-whisker plot with features on y-axis and CPI values on x-axis. Two colored points for CPI and CFI+Knockoffs methods with horizontal error bars." width="768"></p>
 <p>A noteable caveat of the knockoff approach is that they are not
 readily available for mixed data (with categorical features).</p>
 </div>
@@ -403,7 +400,7 @@ al. (2025)</a>), which we can perform analogously:</p>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="inference_files/figure-html/cpi-cfi-arf-plot-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="inference_files/figure-html/cpi-cfi-arf-plot-1.png" class="r-plt" alt="Point-and-whisker plot with features on y-axis and CPI values on x-axis. Three colored points for CPI, CFI+Knockoffs, and CFI+ARF methods with horizontal error bars." width="768"></p>
 <p>As expected, the ARF-based approach differs more from both
 knockoff-based approaches, but they are all roughly in agreement.</p>
 </div>
@@ -475,13 +472,13 @@ specifically the Wilcoxon-, Fisher-, or binomial test:</p>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="inference_files/figure-html/cpi-tests-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="inference_files/figure-html/cpi-tests-1.png" class="r-plt" alt="Point-and-whisker plot with features on y-axis and importance on x-axis. Four colored series for t, Wilcoxon, Fisher, and Binomial tests with horizontal error bars." width="768"></p>
 <p>Given the width of the resulting confidence intervals, the Fisher- or
 t-test are generally recommended.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="loco-custom-inference">LOCO: Custom inference<a class="anchor" aria-label="anchor" href="#loco-custom-inference"></a>
+<h2 id="custom-inference-with-loco">Custom inference with LOCO<a class="anchor" aria-label="anchor" href="#custom-inference-with-loco"></a>
 </h2>
 <p><a href="https://doi.org/10.1080/01621459.2017.1307116" class="external-link">Lei et
 al. (2018)</a> proposed inference for LOCO using the median absolute

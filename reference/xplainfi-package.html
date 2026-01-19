@@ -5,7 +5,9 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet"><link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet"><link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="xplainfi: Feature Importance Methods for Global Explanations — xplainfi-package"><meta name="description" content="Provides a consistent interface for common feature importance methods, such as permutation feature importance ('PFI'), leave-one-covariate-out ('LOCO'), and 'Shapley Additive Global importancE' ('SAGE')."><meta property="og:description" content="Provides a consistent interface for common feature importance methods, such as permutation feature importance ('PFI'), leave-one-covariate-out ('LOCO'), and 'Shapley Additive Global importancE' ('SAGE')."><script defer src="https://umami.jemu.name/script.js" data-website-id="248c8668-4908-4c63-86f7-db0a1b19758a"></script></head><body>
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet"><link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet"><link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="xplainfi: Feature Importance Methods for Global Explanations — xplainfi-package"><meta name="description" content="Provides a consistent interface for common feature importance methods as described in Ewald et al. (2024) doi:10.1007/978-3-031-63797-1_22
+, including permutation feature importance ('PFI'), conditional and relative feature importance ('CFI', 'RFI'), 'leave-one-covariate-out' ('LOCO'), and 'Shapley Additive Global importancE' ('SAGE'), as well as feature sampling mechanisms to support conditional importance methods."><meta property="og:description" content="Provides a consistent interface for common feature importance methods as described in Ewald et al. (2024) doi:10.1007/978-3-031-63797-1_22
+, including permutation feature importance ('PFI'), conditional and relative feature importance ('CFI', 'RFI'), 'leave-one-covariate-out' ('LOCO'), and 'Shapley Additive Global importancE' ('SAGE'), as well as feature sampling mechanisms to support conditional importance methods."><script defer src="https://umami.jemu.name/script.js" data-website-id="248c8668-4908-4c63-86f7-db0a1b19758a"></script></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -13,7 +15,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -28,7 +30,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><h6 class="dropdown-header" data-toc-skip>Method Showcase</h6></li>
     <li><a class="dropdown-item" href="../articles/perturbation-importance.html">Perturbation-Based Methods (PFI, CFI, RFI)</a></li>
     <li><a class="dropdown-item" href="../articles/loco.html">Model Refitting Measures (LOCO, WVIM)</a></li>
-    <li><a class="dropdown-item" href="../articles/sage-methods.html">Shapley Additive Global Importance (SAGE)</a></li>
+    <li><a class="dropdown-item" href="../articles/sage-methods.html">Shapley Additive Global ImportancE (SAGE)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Specialized Topics</h6></li>
     <li><a class="dropdown-item" href="../articles/feature-samplers.html">Feature Samplers</a></li>
@@ -36,7 +38,6 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Testing &amp; Validation</h6></li>
     <li><a class="dropdown-item" href="../articles/simulation-settings.html">Simulation Settings</a></li>
-    <li><a class="dropdown-item" href="../articles/fippy-comparison.html">Comparison with fippy (Python)</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -62,20 +63,21 @@
     </div>
 
     <div class="ref-description section level2">
-    <p>Provides a consistent interface for common feature importance methods, such as permutation feature importance ('PFI'), leave-one-covariate-out ('LOCO'), and 'Shapley Additive Global importancE' ('SAGE').</p>
+    <p>Provides a consistent interface for common feature importance methods as described in Ewald et al. (2024) <a href="https://doi.org/10.1007/978-3-031-63797-1_22" class="external-link">doi:10.1007/978-3-031-63797-1_22</a>
+, including permutation feature importance ('PFI'), conditional and relative feature importance ('CFI', 'RFI'), 'leave-one-covariate-out' ('LOCO'), and 'Shapley Additive Global importancE' ('SAGE'), as well as feature sampling mechanisms to support conditional importance methods.</p>
     </div>
 
 
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p>Useful links:</p><ul><li><p><a href="https://mlr-org.github.io/xplainfi/" class="external-link">https://mlr-org.github.io/xplainfi/</a></p></li>
+    <div class="dont-index"><p>Useful links:</p><ul><li><p><a href="https://mlr-org.github.io/xplainfi/">https://mlr-org.github.io/xplainfi/</a></p></li>
 <li><p><a href="https://github.com/mlr-org/xplainfi" class="external-link">https://github.com/mlr-org/xplainfi</a></p></li>
 <li><p>Report bugs at <a href="https://github.com/mlr-org/xplainfi/issues" class="external-link">https://github.com/mlr-org/xplainfi/issues</a></p></li>
 </ul></div>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
-    <p><strong>Maintainer</strong>: Lukas Burk <a href="mailto:github@quantenbrot.de">github@quantenbrot.de</a> (<a href="https://orcid.org/0000-0001-7528-3795" class="external-link">ORCID</a>)</p>
+    <p><strong>Maintainer</strong>: Lukas Burk <a href="mailto:cran@lukasburk.de">cran@lukasburk.de</a> (<a href="https://orcid.org/0000-0001-7528-3795" class="external-link">ORCID</a>) [copyright holder]</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

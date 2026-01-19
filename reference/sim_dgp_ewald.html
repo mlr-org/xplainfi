@@ -15,7 +15,7 @@ feature importance methods. Includes correlated features and interaction effects
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,7 +30,7 @@ feature importance methods. Includes correlated features and interaction effects
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><h6 class="dropdown-header" data-toc-skip>Method Showcase</h6></li>
     <li><a class="dropdown-item" href="../articles/perturbation-importance.html">Perturbation-Based Methods (PFI, CFI, RFI)</a></li>
     <li><a class="dropdown-item" href="../articles/loco.html">Model Refitting Measures (LOCO, WVIM)</a></li>
-    <li><a class="dropdown-item" href="../articles/sage-methods.html">Shapley Additive Global Importance (SAGE)</a></li>
+    <li><a class="dropdown-item" href="../articles/sage-methods.html">Shapley Additive Global ImportancE (SAGE)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Specialized Topics</h6></li>
     <li><a class="dropdown-item" href="../articles/feature-samplers.html">Feature Samplers</a></li>
@@ -38,7 +38,6 @@ feature importance methods. Includes correlated features and interaction effects
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Testing &amp; Validation</h6></li>
     <li><a class="dropdown-item" href="../articles/simulation-settings.html">Simulation Settings</a></li>
-    <li><a class="dropdown-item" href="../articles/fippy-comparison.html">Comparison with fippy (Python)</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -93,8 +92,8 @@ $$X_2 = X_1 + \varepsilon_2, \quad \varepsilon_2 \sim N(0, 0.001)$$
 $$X_4 = X_3 + \varepsilon_4, \quad \varepsilon_4 \sim N(0, 0.1)$$
 $$Y = X_4 + X_5 + X_4 \cdot X_5 + \varepsilon, \quad \varepsilon \sim N(0, 0.1)$$</p>
 <p><strong>Feature Properties:</strong></p><ul><li><p>X1, X3, X5: Independent uniform(0,1) distributions</p></li>
-<li><p>X2: Nearly perfect copy of X1 (correlation ≈ 0.99)</p></li>
-<li><p>X4: Noisy copy of X3 (correlation ≈ 0.67)</p></li>
+<li><p>X2: Nearly perfect copy of X1 (correlation approximately 0.99)</p></li>
+<li><p>X4: Noisy copy of X3 (correlation approximately 0.67)</p></li>
 <li><p>Y depends on X4, X5, and their interaction</p></li>
 </ul></div>
     <div class="section level2">
@@ -104,6 +103,11 @@ $$Y = X_4 + X_5 + X_4 \cdot X_5 + \varepsilon, \quad \varepsilon \sim N(0, 0.1)$
 In Longo L, Lapuschkin S, Seifert C (eds.), <em>Explainable Artificial Intelligence</em>, 440–464.
 ISBN 978-3-031-63797-1, <a href="https://doi.org/10.1007/978-3-031-63797-1_22" class="external-link">doi:10.1007/978-3-031-63797-1_22</a>
 .</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other simulation:
+<code><a href="sim_dgp_scenarios.html">sim_dgp_scenarios</a></code></p></div>
     </div>
 
     <div class="section level2">

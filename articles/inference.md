@@ -1,11 +1,9 @@
-# Inference (Experimental)
+# Inference for Feature Importance
 
 ``` r
 library(xplainfi)
 library(mlr3learners)
 #> Loading required package: mlr3
-
-# Data manip and visualization
 library(data.table)
 library(ggplot2)
 ```
@@ -143,7 +141,10 @@ ggplot(pfi_cis, aes(y = feature, color = type)) +
     theme(legend.position = "bottom")
 ```
 
-![](inference_files/figure-html/pfi-ci-comparison-1.png)
+![Point-and-whisker plot with features on y-axis and importance on
+x-axis. Three colored points for raw, nadeau_bengio, and quantile CI
+methods, each showing point estimates with horizontal error
+bars.](inference_files/figure-html/pfi-ci-comparison-1.png)
 
 The results highlight just how optimistic the unadjusted, raw confidence
 intervals are.
@@ -258,7 +259,9 @@ rbindlist(list(cpi_res, cfi_cpi_res), fill = TRUE) |>
     theme(legend.position = "top")
 ```
 
-![](inference_files/figure-html/cpi-cfi-plot-1.png)
+![Point-and-whisker plot with features on y-axis and CPI values on
+x-axis. Two colored points for CPI and CFI+Knockoffs methods with
+horizontal error bars.](inference_files/figure-html/cpi-cfi-plot-1.png)
 
 A noteable caveat of the knockoff approach is that they are not readily
 available for mixed data (with categorical features).
@@ -331,7 +334,10 @@ rbindlist(list(cpi_res, cfi_cpi_res, cfi_arf_res), fill = TRUE) |>
     theme(legend.position = "top")
 ```
 
-![](inference_files/figure-html/cpi-cfi-arf-plot-1.png)
+![Point-and-whisker plot with features on y-axis and CPI values on
+x-axis. Three colored points for CPI, CFI+Knockoffs, and CFI+ARF methods
+with horizontal error
+bars.](inference_files/figure-html/cpi-cfi-arf-plot-1.png)
 
 As expected, the ARF-based approach differs more from both
 knockoff-based approaches, but they are all roughly in agreement.
@@ -406,12 +412,15 @@ rbindlist(
     theme(legend.position = "top")
 ```
 
-![](inference_files/figure-html/cpi-tests-1.png)
+![Point-and-whisker plot with features on y-axis and importance on
+x-axis. Four colored series for t, Wilcoxon, Fisher, and Binomial tests
+with horizontal error
+bars.](inference_files/figure-html/cpi-tests-1.png)
 
 Given the width of the resulting confidence intervals, the Fisher- or
 t-test are generally recommended.
 
-## LOCO: Custom inference
+## Custom inference with LOCO
 
 [Lei et al. (2018)](https://doi.org/10.1080/01621459.2017.1307116)
 proposed inference for LOCO using the median absolute differences of the

@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,7 +47,7 @@
 <li><h6 class="dropdown-header" data-toc-skip>Method Showcase</h6></li>
     <li><a class="dropdown-item" href="../articles/perturbation-importance.html">Perturbation-Based Methods (PFI, CFI, RFI)</a></li>
     <li><a class="dropdown-item" href="../articles/loco.html">Model Refitting Measures (LOCO, WVIM)</a></li>
-    <li><a class="dropdown-item" href="../articles/sage-methods.html">Shapley Additive Global Importance (SAGE)</a></li>
+    <li><a class="dropdown-item" href="../articles/sage-methods.html">Shapley Additive Global ImportancE (SAGE)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Specialized Topics</h6></li>
     <li><a class="dropdown-item" href="../articles/feature-samplers.html">Feature Samplers</a></li>
@@ -55,7 +55,6 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Testing &amp; Validation</h6></li>
     <li><a class="dropdown-item" href="../articles/simulation-settings.html">Simulation Settings</a></li>
-    <li><a class="dropdown-item" href="../articles/fippy-comparison.html">Comparison with fippy (Python)</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -97,7 +96,7 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr-org.github.io/xplainfi/" class="external-link">xplainfi</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr-org.github.io/xplainfi/">xplainfi</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3.mlr-org.com" class="external-link">mlr3</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3learners.mlr-org.com" class="external-link">mlr3learners</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
@@ -258,11 +257,7 @@ already know x2, how much does x1 add?”</p>
 <h4 id="comparing-methods-on-interactions">Comparing Methods on Interactions<a class="anchor" aria-label="anchor" href="#comparing-methods-on-interactions"></a>
 </h4>
 <p>Let’s compare how the methods handle the interaction:</p>
-<p><img src="perturbation-importance_files/figure-html/compare-interactions-1.png" class="r-plt" alt="" width="768"><img src="perturbation-importance_files/figure-html/compare-interactions-2.png" class="r-plt" alt="" width="768"></p>
-<p><strong>RFI Conditional Summary</strong>: x1 given x2 has importance
-2.170, x2 given x1 has importance 1.579, and x3 given x2 has importance
-1.979. This shows how RFI reveals the conditional dependencies that pure
-marginal methods miss.</p>
+<p><img src="perturbation-importance_files/figure-html/compare-interactions-1.png" class="r-plt" alt="Two grouped bar charts. First compares PFI (blue) and CFI (green) importance scores across features. Second shows RFI importance scores when conditioning on x2." width="768"><img src="perturbation-importance_files/figure-html/compare-interactions-2.png" class="r-plt" alt="Two grouped bar charts. First compares PFI (blue) and CFI (green) importance scores across features. Second shows RFI importance scores when conditioning on x2." width="768"></p>
 </div>
 </div>
 <div class="section level3">
@@ -308,14 +303,9 @@ marginal methods miss.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Important insight about interaction effects</strong>: This
-example illustrates a crucial subtlety about PFI and interactions. While
-x1 and x2 have no main effects, PFI still correctly identifies them as
-important because permuting either feature destroys the interaction term
-x1×x2, which is crucial for prediction. The key limitation is that
-<strong>PFI cannot distinguish between main effects and interaction
-effects</strong> - it measures total contribution including through
-interactions.</p>
+<p>While x1 and x2 have no main effects, PFI still correctly identifies
+them as important because permuting either feature destroys the
+interaction term x1×x2, which is crucial for prediction.</p>
 </div>
 </div>
 <div class="section level2">
@@ -329,21 +319,19 @@ estimates and how conditioning can help:</p>
 <span><span class="va">data_conf</span> <span class="op">&lt;-</span> <span class="va">task_conf</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Causal Structure:</strong></p>
 <div class="grViz html-widget html-fill-item" id="htmlwidget-e5c8c404fe174e4c81bd" style="width:768px;height:480px;"></div>
-<script type="application/json" data-for="htmlwidget-e5c8c404fe174e4c81bd">{"x":{"diagram":"\ndigraph confounding_dag {\n  rankdir=TB;\n  node [shape=circle, style=filled, fontname=\"Arial\", fontsize=12];\n\n  # Hidden confounder\n  H [fillcolor=\"red\", label=\"Hidden\\nConfounder\", fontcolor=\"white\"];\n\n  # Observed features\n  x1 [fillcolor=\"lightblue\", label=\"x1\"];\n  proxy [fillcolor=\"orange\", label=\"proxy\"];\n  independent [fillcolor=\"lightblue\", label=\"independent\"];\n\n  # Outcome\n  y [fillcolor=\"greenyellow\", label=\"y\"];\n\n  # Confounding paths (creating spurious correlations)\n  H -> x1 [label=\"1.0\", color=\"red\"];\n  H -> proxy [label=\"1.0\", color=\"red\"];\n  H -> y [label=\"1.0\", color=\"red\", penwidth=2];\n\n  # Direct causal effects\n  x1 -> y [label=\"1.0\", color=\"blue\"];\n  independent -> y [label=\"1.0\", color=\"blue\"];\n\n  # Layout\n  {rank=same; x1, proxy, independent}\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p>The <strong>red arrows</strong> show the confounding paths: the
-hidden confounder creates spurious correlations between x1, proxy, and
-y. The <strong>blue arrows</strong> show true direct causal effects.
-Note that <code>independent</code> is truly independent (no confounding)
-while <code>proxy</code> provides a noisy measurement of the
-confounder.</p>
-<p>In the <strong>observable confounder scenario</strong> (used later),
-the confounder H would be included as a feature in the dataset, allowing
-direct conditioning rather than relying on the noisy proxy.</p>
-<p><img src="perturbation-importance_files/figure-html/viz-confounding-1.png" class="r-plt" alt="" width="768"></p>
-<p><strong>Key insight</strong>: The hidden confounder creates spurious
-correlations between x1 and y (red paths), making x1 appear more
-important than its true direct effect. RFI conditioning on the proxy
-(which measures the confounder) should help isolate the true direct
-effect (blue path).</p>
+<script type="application/json" data-for="htmlwidget-e5c8c404fe174e4c81bd">{"x":{"diagram":"\ndigraph confounding_dag {\n  rankdir=TB;\n  node [shape=circle, style=filled, fontname=\"Arial\", fontsize=12];\n\n  # Hidden confounder\n  H [fillcolor=\"red\", label=\"Hidden\\nConfounder\", fontcolor=\"white\"];\n\n  # Observed features\n  x1 [fillcolor=\"lightblue\", label=\"x1\"];\n  proxy [fillcolor=\"orange\", label=\"proxy\"];\n  independent [fillcolor=\"lightblue\", label=\"independent\"];\n\n  # Outcome\n  y [fillcolor=\"greenyellow\", label=\"y\"];\n\n  # Confounding paths (creating spurious correlations)\n  H -> x1 [label=\"1.0\", color=\"red\"];\n  H -> proxy [label=\"1.0\", color=\"red\"];\n  H -> y [label=\"1.0\", color=\"red\", penwidth=2];\n\n  # Direct causal effects\n  x1 -> y [label=\"1.0\", color=\"blue\"];\n  independent -> y [label=\"1.0\", color=\"blue\"];\n\n  # Layout\n  {rank=same; x1, proxy, independent}\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p>The red arrows show the confounding paths: the hidden confounder
+creates spurious correlations between x1, proxy, and y. The <strong>blue
+arrows</strong> show true direct causal effects. Note that
+<code>independent</code> is truly independent (no confounding) while
+<code>proxy</code> provides a noisy measurement of the confounder.</p>
+<p>In the observable confounder scenaro (used later), the confounder H
+would be included as a feature in the dataset, allowing direct
+conditioning rather than relying on the noisy proxy.</p>
+<p><img src="perturbation-importance_files/figure-html/viz-confounding-1.png" class="r-plt" alt="Heatmap showing correlation matrix between x1, proxy, independent, and y. Cells colored from blue (negative) through white to red (positive) with correlation values displayed." width="768"></p>
+<p>The hidden confounder creates spurious correlations between x1 and y
+(red paths), making x1 appear more important than its true direct
+effect. RFI conditioning on the proxy (which measures the confounder)
+should help isolate the true direct effect (blue path).</p>
 <div class="section level3">
 <h3 id="analysis-1">Analysis<a class="anchor" aria-label="anchor" href="#analysis-1"></a>
 </h3>
@@ -482,7 +470,6 @@ performs when we can condition directly on the true confounder:</p>
 <span><span class="co">#&gt; 2: independent 1.62540310</span></span>
 <span><span class="co">#&gt; 3:       proxy 0.05759922</span></span>
 <span><span class="co">#&gt; 4:          x1 2.18558022</span></span></code></pre></div>
-<p><strong>Key Results:</strong></p>
 <ul>
 <li>
 <strong>x1 importance</strong>: PFI = 2.186, RFI|confounder =
@@ -491,19 +478,19 @@ performs when we can condition directly on the true confounder:</p>
 <strong>independent importance</strong>: PFI = 1.625, RFI|confounder
 = 1.539</li>
 </ul>
-<p><strong>Insight</strong>: When conditioning on the true confounder,
-RFI should show reduced importance for x1 (since much of its apparent
-importance was due to confounding) while independent maintains its
-importance (since it’s truly causally related to y).</p>
+<p>When conditioning on the true confounder, RFI should show reduced
+importance for x1 (since much of its apparent importance was due to
+confounding) while independent maintains its importance (since it’s
+truly causally related to y).</p>
 </div>
 <div class="section level4">
 <h4 id="comparing-methods-on-confounding">Comparing Methods on Confounding<a class="anchor" aria-label="anchor" href="#comparing-methods-on-confounding"></a>
 </h4>
-<p><img src="perturbation-importance_files/figure-html/compare-confounding-1.png" class="r-plt" alt="" width="768"><img src="perturbation-importance_files/figure-html/compare-confounding-2.png" class="r-plt" alt="" width="768"></p>
+<p><img src="perturbation-importance_files/figure-html/compare-confounding-1.png" class="r-plt" alt="Two grouped bar charts. First shows PFI (blue), CFI (green), and RFI (orange) importance by feature. Second compares PFI and RFI when confounder is observed." width="768"><img src="perturbation-importance_files/figure-html/compare-confounding-2.png" class="r-plt" alt="Two grouped bar charts. First shows PFI (blue), CFI (green), and RFI (orange) importance by feature. Second compares PFI and RFI when confounder is observed." width="768"></p>
 </div>
 </div>
 <div class="section level3">
-<h3 id="key-insights-confounding-effects">Key Insights: Confounding Effects<a class="anchor" aria-label="anchor" href="#key-insights-confounding-effects"></a>
+<h3 id="confounding-effects">Confounding Effects<a class="anchor" aria-label="anchor" href="#confounding-effects"></a>
 </h3>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Show how conditioning affects importance estimates</span></span>
@@ -592,10 +579,9 @@ correlated:</p>
 <span><span class="va">data_cor</span> <span class="op">&lt;-</span> <span class="va">task_cor</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Causal Structure:</strong></p>
 <div class="grViz html-widget html-fill-item" id="htmlwidget-36aa3d2a04d42bbc2145" style="width:576px;height:384px;"></div>
-<script type="application/json" data-for="htmlwidget-36aa3d2a04d42bbc2145">{"x":{"diagram":"\ndigraph correlated_dag {\n  rankdir=TB;\n  node [shape=circle, style=filled, fontname=\"Arial\", fontsize=12];\n  \n  # Feature nodes\n  x1 [fillcolor=\"lightblue\", label=\"x1\"];\n  x2 [fillcolor=\"lightblue\", label=\"x2\"];\n  x3 [fillcolor=\"lightblue\", label=\"x3\"];\n  x4 [fillcolor=\"lightgray\", label=\"x4\"];\n  \n  # Outcome\n  y [fillcolor=\"greenyellow\", label=\"y\"];\n  \n  # Direct effects\n  x1 -> y [label=\"2.0\", color=\"blue\"];\n  x3 -> y [label=\"1.0\", color=\"blue\"];\n  # x2 has NO direct effect on y despite high correlation with x1\n  \n  # Correlation between x1 and x2 (bidirectional dashed line)\n  x1 -> x2 [dir=both, style=dashed, color=\"purple\", label=\"r=0.9\"];\n  \n  # Layout\n  {rank=same; x1, x2, x3, x4}\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p><strong>Key feature</strong>: x1 and x2 are highly correlated (r =
-0.9 from MVN) but only x1 has a causal effect on y. x2 is a spurious
-predictor - correlated with the causal feature but not causal
-itself.</p>
+<script type="application/json" data-for="htmlwidget-36aa3d2a04d42bbc2145">{"x":{"diagram":"\ndigraph correlated_dag {\n  rankdir=TB;\n  node [shape=circle, style=filled, fontname=\"Arial\", fontsize=12];\n  \n  # Feature nodes\n  x1 [fillcolor=\"lightblue\", label=\"x1\"];\n  x2 [fillcolor=\"lightblue\", label=\"x2\"];\n  x3 [fillcolor=\"lightblue\", label=\"x3\"];\n  x4 [fillcolor=\"lightgray\", label=\"x4\"];\n  \n  # Outcome\n  y [fillcolor=\"greenyellow\", label=\"y\"];\n  \n  # Direct effects\n  x1 -> y [label=\"2.0\", color=\"blue\"];\n  x3 -> y [label=\"1.0\", color=\"blue\"];\n  # x2 has NO direct effect on y despite high correlation with x1\n  \n  # Correlation between x1 and x2 (bidirectional dashed line)\n  x1 -> x2 [dir=both, style=dashed, color=\"purple\", label=\"r=0.9\"];\n  \n  # Layout\n  {rank=same; x1, x2, x3, x4}\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p>x1 and x2 are highly correlated (r = 0.9 from MVN) but only x1 has a
+causal effect on y. x2 is a spurious predictor - correlated with the
+causal feature but not causal itself.</p>
 <div class="section level3">
 <h3 id="analysis-2">Analysis<a class="anchor" aria-label="anchor" href="#analysis-2"></a>
 </h3>
@@ -685,9 +671,14 @@ predictors.</p>
 <span>    sampler <span class="op">=</span> <span class="va">sampler_cor</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">rfi_cor_x2</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><strong>RFI Results:</strong> - <strong>x2 given x1</strong>: 0.083
-(How much does x2 add when we already know x1?) - <strong>x1 given
-x2</strong>: 1.962 (How much does x1 add when we already know x2?)</p>
+<ul>
+<li>
+<strong>x2 given x1</strong>: 0.083 (How much does x2 add when we
+already know x1?)</li>
+<li>
+<strong>x1 given x2</strong>: 1.962 (How much does x1 add when we
+already know x2?)</li>
+</ul>
 <p>Expected: When conditioning on x1, the importance of x2 should be
 near zero (and vice versa) because they’re almost identical - knowing
 one tells you almost everything about the other.</p>
@@ -695,11 +686,11 @@ one tells you almost everything about the other.</p>
 <div class="section level4">
 <h4 id="comparing-methods-on-correlated-features">Comparing Methods on Correlated Features<a class="anchor" aria-label="anchor" href="#comparing-methods-on-correlated-features"></a>
 </h4>
-<p><img src="perturbation-importance_files/figure-html/compare-correlated-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="perturbation-importance_files/figure-html/compare-correlated-1.png" class="r-plt" alt="Grouped bar chart comparing PFI (blue) and CFI (green) importance scores for each feature x1 through x4." width="768"></p>
 </div>
 </div>
 <div class="section level3">
-<h3 id="key-insights-correlated-features">Key Insights: Correlated Features<a class="anchor" aria-label="anchor" href="#key-insights-correlated-features"></a>
+<h3 id="correlated-features">Correlated Features<a class="anchor" aria-label="anchor" href="#correlated-features"></a>
 </h3>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cor_ratio</span> <span class="op">|&gt;</span></span>
@@ -805,7 +796,7 @@ different sampler:</p>
 <span><span class="op">)</span></span>
 <span><span class="va">rfi_ind</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>And now we visualize:</p>
-<p><img src="perturbation-importance_files/figure-html/combine-rf-plot-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="perturbation-importance_files/figure-html/combine-rf-plot-1.png" class="r-plt" alt="Grouped bar chart comparing PFI (blue), CFI (green), and RFI (orange) importance scores across five features." width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="agreement-between-methods">Agreement Between Methods<a class="anchor" aria-label="anchor" href="#agreement-between-methods"></a>
@@ -873,84 +864,11 @@ different sampler:</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Key insight</strong>: With independent features and no
-complex relationships, all three methods (PFI, CFI, RFI) produce very
-similar importance estimates. This confirms that the differences we
-observe in Scenarios 1 and 2 are truly due to interactions and
-confounding, not artifacts of the methods themselves.</p>
-</div>
-<div class="section level3">
-<h3 id="key-insights-independent-features">Key Insights: Independent Features<a class="anchor" aria-label="anchor" href="#key-insights-independent-features"></a>
-</h3>
-<p>In the baseline scenario with independent features:</p>
-<ol style="list-style-type: decimal">
-<li><p><strong>All methods agree</strong>: PFI, CFI, and RFI produce
-nearly identical importance estimates when features are truly
-independent.</p></li>
-<li><p><strong>Validates methodology</strong>: The agreement between
-methods confirms that differences in other scenarios are due to data
-structure, not method artifacts.</p></li>
-<li><p><strong>Noise correctly identified</strong>: All methods
-correctly assign near-zero importance to the noise features.</p></li>
-</ol>
-</div>
-</div>
-<div class="section level2">
-<h2 id="variance-estimation-and-confidence-intervals">Variance Estimation and Confidence Intervals<a class="anchor" aria-label="anchor" href="#variance-estimation-and-confidence-intervals"></a>
-</h2>
-<p>When using resampling, xplainfi can compute confidence intervals for
-importance scores to quantify uncertainty. However, standard variance
-calculations produce confidence intervals that are too narrow when
-observations appear in multiple resampling folds.</p>
-<div class="section level3">
-<h3 id="example-corrected-vs-uncorrected-confidence-intervals">Example: Corrected vs Uncorrected Confidence Intervals<a class="anchor" aria-label="anchor" href="#example-corrected-vs-uncorrected-confidence-intervals"></a>
-</h3>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Demonstrate variance correction with subsampling</span></span>
-<span><span class="va">task_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_dgp_scenarios.html">sim_dgp_independent</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">300</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">pfi_var</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/PFI.html">PFI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
-<span>    task <span class="op">=</span> <span class="va">task_var</span>,</span>
-<span>    learner <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.ranger"</span>, num.trees <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>,</span>
-<span>    measure <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span>,</span>
-<span>    resampling <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">rsmp</a></span><span class="op">(</span><span class="st">"subsampling"</span>, repeats <span class="op">=</span> <span class="fl">10</span>, ratio <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span>,</span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">pfi_var</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Compare variance methods</span></span>
-<span><span class="va">imp_raw</span> <span class="op">&lt;-</span> <span class="va">pfi_var</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"raw"</span><span class="op">)</span> <span class="co"># Uncorrected (too narrow!)</span></span>
-<span><span class="va">imp_corrected</span> <span class="op">&lt;-</span> <span class="va">pfi_var</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"nadeau_bengio"</span><span class="op">)</span> <span class="co"># Corrected</span></span>
-<span></span>
-<span><span class="co"># Show the difference for important features</span></span>
-<span><span class="va">imp_raw</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^important"</span>, <span class="va">feature</span><span class="op">)</span>, <span class="fu">.</span><span class="op">(</span><span class="va">feature</span>, <span class="va">importance</span>, <span class="va">conf_lower</span>, <span class="va">conf_upper</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;       feature importance conf_lower conf_upper</span></span>
-<span><span class="co">#&gt;        &lt;char&gt;      &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: important1  7.5285208  6.7936479  8.2633937</span></span>
-<span><span class="co">#&gt; 2: important2  1.4363782  1.3240233  1.5487331</span></span>
-<span><span class="co">#&gt; 3: important3  0.1954965  0.1533125  0.2376805</span></span>
-<span><span class="va">imp_corrected</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^important"</span>, <span class="va">feature</span><span class="op">)</span>, <span class="fu">.</span><span class="op">(</span><span class="va">feature</span>, <span class="va">importance</span>, <span class="va">conf_lower</span>, <span class="va">conf_upper</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;       feature importance conf_lower conf_upper</span></span>
-<span><span class="co">#&gt;        &lt;char&gt;      &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: important1  7.5285208  6.1536995  8.9033422</span></span>
-<span><span class="co">#&gt; 2: important2  1.4363782  1.2261814  1.6465750</span></span>
-<span><span class="co">#&gt; 3: important3  0.1954965  0.1165775  0.2744156</span></span></code></pre></div>
-<p><img src="perturbation-importance_files/figure-html/variance-comparison-plot-1.png" class="r-plt" alt="" width="768"></p>
-</div>
-<div class="section level3">
-<h3 id="practical-recommendations">Practical Recommendations<a class="anchor" aria-label="anchor" href="#practical-recommendations"></a>
-</h3>
-<ul>
-<li>Use <code>ci_method = "nadeau_bengio"</code> when using bootstrap or
-subsampling for improved (yet still flawed) confidence intervals</li>
-<li>The default <code>ci_method = "none"</code> returns only point
-estimates without uncertainty</li>
-<li>Never use <code>ci_method = "raw"</code> for actual results, the
-uncorrected intervals are misleadingly narrow</li>
-</ul>
+<p>With independent features and no complex relationships, all three
+methods (PFI, CFI, RFI) produce very similar importance estimates. This
+confirms that the differences we observe in Scenarios 1 and 2 are truly
+due to interactions and confounding, not artifacts of the methods
+themselves.</p>
 </div>
 </div>
 <div class="section level2">

@@ -29,7 +29,7 @@ Breiman L (2001). “Random Forests.” *Machine Learning*, **45**(1), 5–32.
 Are Useful: Learning a Variable's Importance by Studying an Entire Class
 of Prediction Models Simultaneously.” *Journal of Machine Learning
 Research*, **20**, 177.
-<https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8323609/>. Strobl C,
+<https://pmc.ncbi.nlm.nih.gov/articles/PMC8323609/>. Strobl C,
 Boulesteix A, Kneib T, Augustin T, Zeileis A (2008). “Conditional
 Variable Importance for Random Forests.” *BMC Bioinformatics*, **9**(1),
 307.
@@ -37,9 +37,9 @@ Variable Importance for Random Forests.” *BMC Bioinformatics*, **9**(1),
 
 ## Super classes
 
-[`xplainfi::FeatureImportanceMethod`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+[`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
 -\>
-[`xplainfi::PerturbationImportance`](https://jemus42.github.io/xplainfi/reference/PerturbationImportance.md)
+[`xplainfi::PerturbationImportance`](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.md)
 -\> `PFI`
 
 ## Methods
@@ -54,11 +54,11 @@ Variable Importance for Random Forests.” *BMC Bioinformatics*, **9**(1),
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
-- [`xplainfi::FeatureImportanceMethod$print()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
-- [`xplainfi::FeatureImportanceMethod$reset()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
-- [`xplainfi::FeatureImportanceMethod$scores()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
-- [`xplainfi::PerturbationImportance$importance()`](https://jemus42.github.io/xplainfi/reference/PerturbationImportance.html#method-importance)
+- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
+- [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
+- [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
+- [`xplainfi::FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`xplainfi::PerturbationImportance$importance()`](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.html#method-importance)
 
 ------------------------------------------------------------------------
 
@@ -85,7 +85,7 @@ Creates a new instance of the PFI class
 - `task, learner, measure, resampling, features, groups, relation, n_repeats, batch_size`:
 
   Passed to
-  [PerturbationImportance](https://jemus42.github.io/xplainfi/reference/PerturbationImportance.md)
+  [PerturbationImportance](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.md)
 
 ------------------------------------------------------------------------
 
@@ -142,23 +142,25 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
+library(mlr3)
 library(mlr3learners)
-task = tgen("xor", d = 5)$generate(n = 100)
-pfi = PFI$new(
+
+task <- sim_dgp_correlated(n = 500)
+
+pfi <- PFI$new(
   task = task,
-  learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
-  measure = msr("classif.ce"),
-  resampling = rsmp("cv", folds = 3),
-  n_repeats = 3
+  learner = lrn("regr.ranger", num.trees = 10),
+  measure = msr("regr.mse")
 )
+#> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
+#>   (test set size: 333)
 pfi$compute()
 pfi$importance()
 #> Key: <feature>
-#>    feature importance
-#>     <char>      <num>
-#> 1:      x1 0.02376708
-#> 2:      x2 0.04693999
-#> 3:      x3 0.04684096
-#> 4:      x4 0.07021192
-#> 5:      x5 0.03693801
+#>    feature  importance
+#>     <char>       <num>
+#> 1:      x1  3.86637518
+#> 2:      x2  1.36427345
+#> 3:      x3  1.21619125
+#> 4:      x4 -0.01296581
 ```

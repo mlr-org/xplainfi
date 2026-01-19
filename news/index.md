@@ -1,5 +1,19 @@
 # Changelog
 
+## xplainfi 1.0.0 - Initial CRAN release
+
+The major version bump is largely to mark the occasin that the package
+is now considered “released”.
+
+- Removed the `fippy` comparison article since a more comprehensive
+  comparison is now available in
+  [xplainfi-benchmark](https://github.com/jemus42/xplainfi-benchmark).
+- Clean up various documentation issues and other metadata.
+- Adjusted the `min_permutations` default in `SAGE` methods to 10 rather
+  than 3, since the previous value was found to lead to spurious early
+  stopping.
+- Fix `sim_dgp_ewald` lading to erroneous variances.
+
 ## xplainfi 0.2.1
 
 - Simplify `sim_dgp_confounded`, removing `x2` which doesn’t add
@@ -40,15 +54,15 @@
 #### Data simulation helpers
 
 - Add focused simulation DGPs for testing importance methods:
-  - [`sim_dgp_independent()`](https://jemus42.github.io/xplainfi/reference/sim_dgp_scenarios.md):
+  - [`sim_dgp_independent()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md):
     Baseline with additive independent effects
-  - [`sim_dgp_correlated()`](https://jemus42.github.io/xplainfi/reference/sim_dgp_scenarios.md):
+  - [`sim_dgp_correlated()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md):
     Highly correlated features (PFI fails, CFI succeeds)
-  - [`sim_dgp_mediated()`](https://jemus42.github.io/xplainfi/reference/sim_dgp_scenarios.md):
+  - [`sim_dgp_mediated()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md):
     Mediation structure (total vs direct effects)
-  - [`sim_dgp_confounded()`](https://jemus42.github.io/xplainfi/reference/sim_dgp_scenarios.md):
+  - [`sim_dgp_confounded()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md):
     Confounding structure
-  - [`sim_dgp_interactions()`](https://jemus42.github.io/xplainfi/reference/sim_dgp_scenarios.md):
+  - [`sim_dgp_interactions()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md):
     Interaction effects between features
 - Each DGP illustrates specific methodological challenges for importance
   methods

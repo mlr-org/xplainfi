@@ -3,9 +3,9 @@
 Base class for SAGE (Shapley Additive Global Importance) feature
 importance based on Shapley values with marginalization. This is an
 abstract class - use
-[MarginalSAGE](https://jemus42.github.io/xplainfi/reference/MarginalSAGE.md)
+[MarginalSAGE](https://mlr-org.github.io/xplainfi/reference/MarginalSAGE.md)
 or
-[ConditionalSAGE](https://jemus42.github.io/xplainfi/reference/ConditionalSAGE.md).
+[ConditionalSAGE](https://mlr-org.github.io/xplainfi/reference/ConditionalSAGE.md).
 
 ## Details
 
@@ -32,12 +32,12 @@ Information Processing Systems*, volume 33, 17212–17223.
 
 ## See also
 
-[MarginalSAGE](https://jemus42.github.io/xplainfi/reference/MarginalSAGE.md)
-[ConditionalSAGE](https://jemus42.github.io/xplainfi/reference/ConditionalSAGE.md)
+[MarginalSAGE](https://mlr-org.github.io/xplainfi/reference/MarginalSAGE.md)
+[ConditionalSAGE](https://mlr-org.github.io/xplainfi/reference/ConditionalSAGE.md)
 
 ## Super class
 
-[`xplainfi::FeatureImportanceMethod`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+[`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
 -\> `SAGE`
 
 ## Public fields
@@ -73,11 +73,11 @@ Information Processing Systems*, volume 33, 17212–17223.
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$importance()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
-- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
-- [`xplainfi::FeatureImportanceMethod$print()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
-- [`xplainfi::FeatureImportanceMethod$reset()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
-- [`xplainfi::FeatureImportanceMethod$scores()`](https://jemus42.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`xplainfi::FeatureImportanceMethod$importance()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
+- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
+- [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
+- [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
+- [`xplainfi::FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
 
 ------------------------------------------------------------------------
 
@@ -90,7 +90,7 @@ Creates a new instance of the SAGE class.
     SAGE$new(
       task,
       learner,
-      measure,
+      measure = NULL,
       resampling = NULL,
       features = NULL,
       n_permutations = 10L,
@@ -98,7 +98,7 @@ Creates a new instance of the SAGE class.
       n_samples = 100L,
       early_stopping = TRUE,
       se_threshold = 0.01,
-      min_permutations = 3L,
+      min_permutations = 10L,
       check_interval = 1L
     )
 
@@ -123,10 +123,10 @@ Creates a new instance of the SAGE class.
 
   (`integer(1)`: `100L`) Number of samples to use for marginalizing
   out-of-coalition features. For
-  [MarginalSAGE](https://jemus42.github.io/xplainfi/reference/MarginalSAGE.md),
+  [MarginalSAGE](https://mlr-org.github.io/xplainfi/reference/MarginalSAGE.md),
   this is the number of marginal data samples ("background data" in
   other implementations). For
-  [ConditionalSAGE](https://jemus42.github.io/xplainfi/reference/ConditionalSAGE.md),
+  [ConditionalSAGE](https://mlr-org.github.io/xplainfi/reference/ConditionalSAGE.md),
   this is the number of conditional samples per test instance retrieved
   from `sampler`.
 
@@ -146,8 +146,10 @@ Creates a new instance of the SAGE class.
 
 - `min_permutations`:
 
-  (`integer(1)`: `3L`) Minimum permutations before checking for
-  convergence.
+  (`integer(1)`: `10L`) Minimum permutations before checking for
+  convergence. Convergence is judged based on the standard errors of the
+  estimated SAGE values, which requires a sufficiently large number of
+  samples (i.e., evaluated coalitions).
 
 - `check_interval`:
 
@@ -195,7 +197,8 @@ Compute SAGE values.
 
 - `min_permutations`:
 
-  (`integer(1)`: `3L`) Minimum permutations before checking convergence.
+  (`integer(1)`: `10L`) Minimum permutations before checking
+  convergence.
 
 - `check_interval`:
 
