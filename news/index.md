@@ -13,6 +13,8 @@ is now considered “released”.
   than 3, since the previous value was found to lead to spurious early
   stopping.
 - Fix `sim_dgp_ewald` lading to erroneous variances.
+- Reduce runtime of tests (mostly by using less ARF and mor Gaussian
+  sampling)
 
 ## xplainfi 0.2.1
 

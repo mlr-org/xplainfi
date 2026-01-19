@@ -115,6 +115,9 @@ on the fly.
 
   Default value for `NULL`
 
+- [`xplain_opt()`](https://mlr-org.github.io/xplainfi/reference/xplain_opt.md)
+  : xplainfi Package Options
+
 ## Data simulation
 
 - [`sim_dgp_ewald()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_ewald.md)
