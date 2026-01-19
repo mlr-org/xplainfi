@@ -6,6 +6,7 @@ The major version bump is largely to mark the occasin that the package is now co
 - Clean up various documentation issues and other metadata.
 - Adjusted the `min_permutations` default in `SAGE` methods to 10 rather than 3, since the previous value was found to lead to spurious early stopping.
 - Fix `sim_dgp_ewald` lading to erroneous variances.
+- Reduce runtime of tests (mostly by using less ARF and mor Gaussian sampling)
 
 # xplainfi 0.2.1
 
