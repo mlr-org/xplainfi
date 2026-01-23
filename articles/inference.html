@@ -540,11 +540,12 @@ the differences, but using the median it does.</p>
 <p><code>obs_importance</code> here refers to the difference
 <code>loss_post - loss_baseline</code>, so</p>
 <ul>
-<li>
-<code>loss_baseline</code> $ = |Y - _{n_1}(X)|$</li>
-<li>
-<code>loss_post</code> $ = |Y - _{n_1}^{-j}(X)|$</li>
-<li><code>obs_importance = loss_post - loss_baseline</code></li>
+<li><span class="math inline">\(\texttt{loss_baseline} = |Y -
+\hat{f}_{n_1}(X)|\)</span></li>
+<li><span class="math inline">\(\texttt{loss_post} = |Y -
+\hat{f}_{n_1}^{-j}(X)|\)</span></li>
+<li><span class="math inline">\(\texttt{obs_importance} =
+\texttt{loss_post} - \texttt{loss_baseline}\)</span></li>
 </ul>
 <p>Which means by taking the median for each feature <span class="math inline">\(j\)</span> within each resampling iteration, we
 can construct <span class="math inline">\(\theta_j(D_1)\)</span> as
