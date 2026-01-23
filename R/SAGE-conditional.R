@@ -10,7 +10,7 @@
 #' task = tgen("friedman1")$generate(n = 100)
 #'
 #' \donttest{
-#' # Using  ConditionalARFSampler
+#' # Using default ConditionalARFSampler (also handles all mixed data)
 #' sage = ConditionalSAGE$new(
 #'   task = task,
 #'   learner = lrn("regr.ranger", num.trees = 50),
