@@ -367,9 +367,9 @@ head(loco_obsloss)
 
 `obs_importance` here refers to the difference `loss_post - loss_baseline`, so
 
-- `loss_baseline` $ = |Y - \hat{f}_{n_1}(X)|$
-- `loss_post` $ = |Y - \hat{f}_{n_1}^{-j}(X)|$
-- `obs_importance = loss_post - loss_baseline`
+- $\texttt{loss_baseline} = |Y - \hat{f}_{n_1}(X)|$
+- $\texttt{loss_post} = |Y - \hat{f}_{n_1}^{-j}(X)|$
+- $\texttt{obs_importance} = \texttt{loss_post} - \texttt{loss_baseline}$
 
 Which means by taking the median for each feature $j$ within each resampling iteration, we can construct $\theta_j(D_1)$ as proposed, for each set $D_k$ where $k$ is the resampling iteration:
 
