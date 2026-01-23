@@ -9,8 +9,8 @@
 #' library(mlr3)
 #' task = tgen("friedman1")$generate(n = 100)
 #'
-#' \dontrun{
-#' # Using default ConditionalARFSampler
+#' \donttest{
+#' # Using  ConditionalARFSampler
 #' sage = ConditionalSAGE$new(
 #'   task = task,
 #'   learner = lrn("regr.ranger", num.trees = 50),
