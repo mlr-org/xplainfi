@@ -5,8 +5,8 @@
 #' @details
 #' The KnockoffSampler samples [Knockoffs][knockoff::knockoff] based on the task data.
 #' This class allows arbitrary `knockoff_fun`, which also means that no input checking
-#' against supported feature types can be done. Use [KnockoffGaussianSampler] or
-#' [KnockoffSequentialSampler] for these variants specifically.
+#' against supported feature types can be done. Use [KnockoffGaussianSampler] for the
+#' Gaussian knockoff sampler for numeric features..
 #'
 #' @examplesIf requireNamespace("knockoff", quietly = TRUE)
 #' library(mlr3)
@@ -18,13 +18,12 @@
 #'
 #' # Example with sequential knockoffs (https://github.com/kormama1/seqknockoff)
 #' # Not on CRAN, install via pak::pak("kormama1/seqknockoff")
-#' \dontrun{
-#' task = tgen("simplex")$generate(n = 100)
-#' sampler_seq = KnockoffSampler$new(task, knockoff_fun = seqknockoff::knockoffs_seq)
-#' sampled_seq = sampler_seq$sample("x1")
+#' if (requireNamespace("seqknockoff", quietly = TRUE)) {
+#'   task = tgen("simplex")$generate(n = 100)
+#'   sampler_seq = KnockoffSampler$new(task, knockoff_fun = seqknockoff::knockoffs_seq)
+#'   sampled_seq = sampler_seq$sample("x1")
 #' }
 #' @references `r print_bib("watson_2021", "blesch_2023")`
-#'
 #' @export
 KnockoffSampler = R6Class(
 	"KnockoffSampler",
@@ -213,54 +212,6 @@ KnockoffGaussianSampler = R6Class(
 				iters = iters
 			)
 			self$label = "Gaussian Knockoff sampler"
-		}
-	)
-)
-
-#' @title Sequential Knockoff Conditional Sampler
-#'
-#' @description
-#' A [KnockoffSampler] using sequential knockoffs
-#' as created by `seqknockoff::knockoffs_seq`.
-#'
-#' @details
-#' This is equivalent to [KnockoffSampler] using `knockoff_fun = seqknockoff::knockoffs_seq`.
-#'
-#' @examplesIf requireNamespace("seqknockoffs", quietly = TRUE)
-#' # Example requires sequential knockoffs (https://github.com/kormama1/seqknockoff)
-#' # Not on CRAN, install via pak::pak("kormama1/seqknockoff")
-#' task = tgen("simplex")$generate(n = 100)
-#' sampler_seq = KnockoffSampler$new(task)
-#' sampled_seq = sampler_seq$sample("x1")
-#' @references `r print_bib("watson_2021", "blesch_2023")`
-#'
-#' @export
-KnockoffSequentialSampler = R6Class(
-	"KnockoffSequentialSampler",
-	inherit = KnockoffSampler,
-	public = list(
-		#' @field feature_types (`character()`) Feature types supported by the sampler.
-		#'   Will be checked against the provided [mlr3::Task] to ensure compatibility.
-		feature_types = c("numeric", "factor"),
-		#' @field x_tilde Knockoff matrix
-		x_tilde = NULL,
-
-		#' @description
-		#' Creates a new instance using sequential knockoffs via `seqknockoff::knockoffs_seq`.
-		#' @param task ([mlr3::Task]) Task to sample from.
-		#' @param iters (`integer(1)`: 1) Number of repetitions the `knockoff_fun` is applied to create multiple `x_tilde`
-		#' instances per observation.
-		initialize = function(
-			task,
-			iters = 1
-		) {
-			require_package("seqknockoff", from = "https://github.com/kormama1/seqknockoff")
-			super$initialize(
-				task = task,
-				knockoff_fun = seqknockoff::knockoffs_seq,
-				iters = iters
-			)
-			self$label = "Sequential Knockoff sampler"
 		}
 	)
 )
