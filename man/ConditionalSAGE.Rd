@@ -12,8 +12,8 @@ Uses \link{ConditionalARFSampler} as default \link{ConditionalSampler}.
 library(mlr3)
 task = tgen("friedman1")$generate(n = 100)
 
-\dontrun{
-# Using default ConditionalARFSampler
+\donttest{
+# Using default ConditionalARFSampler (also handles all mixed data)
 sage = ConditionalSAGE$new(
   task = task,
   learner = lrn("regr.ranger", num.trees = 50),

@@ -1,12 +1,17 @@
-#' @title Knockoff-based Conditional Sampler
+#' @title Knockoff Sampler
 #'
 #' @description Implements conditional sampling using Knockoffs.
 #'
 #' @details
-#' The KnockoffSampler samples [Knockoffs][knockoff::knockoff] based on the task data.
+#' The `KnockoffSampler` samples [Knockoffs][knockoff::knockoff] based on the task data.
 #' This class allows arbitrary `knockoff_fun`, which also means that no input checking
 #' against supported feature types can be done. Use [KnockoffGaussianSampler] for the
-#' Gaussian knockoff sampler for numeric features..
+#' Gaussian knockoff sampler for numeric features.
+#' Alternative knockoff samplers include `knockoff_seq()` from the `seqknockoff` package
+#' available on GitHub: <https://github.com/kormama1/seqknockoff>.
+#'
+#' Knockoffs are related to the `ConditionalSampler` familty, with key differences:
+#' They do not allow specifying a `conditioning_set`
 #'
 #' @examplesIf requireNamespace("knockoff", quietly = TRUE)
 #' library(mlr3)
@@ -16,13 +21,6 @@
 #' # Sample using row_ids from stored task
 #' sampled_data = sampler$sample("x1")
 #'
-#' # Example with sequential knockoffs (https://github.com/kormama1/seqknockoff)
-#' # Not on CRAN, install via pak::pak("kormama1/seqknockoff")
-#' if (requireNamespace("seqknockoff", quietly = TRUE)) {
-#'   task = tgen("simplex")$generate(n = 100)
-#'   sampler_seq = KnockoffSampler$new(task, knockoff_fun = seqknockoff::knockoffs_seq)
-#'   sampled_seq = sampler_seq$sample("x1")
-#' }
 #' @references `r print_bib("watson_2021", "blesch_2023")`
 #' @export
 KnockoffSampler = R6Class(
@@ -34,8 +32,8 @@ KnockoffSampler = R6Class(
 		#' @description
 		#' Creates a new instance of the KnockoffSampler class.
 		#' @param task ([mlr3::Task]) Task to sample from
-		#' @param knockoff_fun (`function`) Step size for variance adjustment. Default are second-order Gaussian knockoffs.
-		#' @param iters (`integer(1)`: 1) Number of repetitions the `knockoff_fun` is applied to create multiple `x_tilde`
+		#' @param knockoff_fun (`function`) Function used to create knockoff matrix. Default are second-order Gaussian knockoffs (`knockoff::create.second_order()`)
+		#' @param iters (`integer(1)`: `1`) Number of repetitions the `knockoff_fun` is applied to create multiple `x_tilde`
 		#' instances per observation.
 		initialize = function(
 			task,
@@ -197,7 +195,7 @@ KnockoffGaussianSampler = R6Class(
 		#' @description
 		#' Creates a new instance using Gaussian knockoffs via [knockoff::create.second_order].
 		#' @param task ([mlr3::Task]) Task to sample from.
-		#' @param iters (`integer(1)`: 1) Number of repetitions the `knockoff_fun` is applied to create multiple `x_tilde`
+		#' @param iters (`integer(1)`: `1`) Number of repetitions the `knockoff_fun` is applied to create multiple `x_tilde`
 		#' instances per observation.
 		initialize = function(
 			task,

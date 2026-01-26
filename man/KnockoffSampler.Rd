@@ -2,15 +2,20 @@
 % Please edit documentation in R/KnockoffSampler.R
 \name{KnockoffSampler}
 \alias{KnockoffSampler}
-\title{Knockoff-based Conditional Sampler}
+\title{Knockoff Sampler}
 \description{
 Implements conditional sampling using Knockoffs.
 }
 \details{
-The KnockoffSampler samples \link[knockoff:knockoff]{Knockoffs} based on the task data.
+The \code{KnockoffSampler} samples \link[knockoff:knockoff]{Knockoffs} based on the task data.
 This class allows arbitrary \code{knockoff_fun}, which also means that no input checking
-against supported feature types can be done. Use \link{KnockoffGaussianSampler} or
-\link{KnockoffSequentialSampler} for these variants specifically.
+against supported feature types can be done. Use \link{KnockoffGaussianSampler} for the
+Gaussian knockoff sampler for numeric features.
+Alternative knockoff samplers include \code{knockoff_seq()} from the \code{seqknockoff} package
+available on GitHub: \url{https://github.com/kormama1/seqknockoff}.
+
+Knockoffs are related to the \code{ConditionalSampler} familty, with key differences:
+They do not allow specifying a \code{conditioning_set}
 }
 \examples{
 \dontshow{if (requireNamespace("knockoff", quietly = TRUE)) withAutoprint(\{ # examplesIf}
@@ -20,14 +25,6 @@ task = tgen("2dnormals")$generate(n = 100)
 sampler = KnockoffSampler$new(task)
 # Sample using row_ids from stored task
 sampled_data = sampler$sample("x1")
-
-# Example with sequential knockoffs (https://github.com/kormama1/seqknockoff)
-# Not on CRAN, install via pak::pak("kormama1/seqknockoff")
-\dontrun{
-task = tgen("simplex")$generate(n = 100)
-sampler_seq = KnockoffSampler$new(task, knockoff_fun = seqknockoff::knockoffs_seq)
-sampled_seq = sampler_seq$sample("x1")
-}
 \dontshow{\}) # examplesIf}
 }
 \references{
@@ -85,9 +82,9 @@ Creates a new instance of the KnockoffSampler class.
 \describe{
 \item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from}
 
-\item{\code{knockoff_fun}}{(\code{function}) Step size for variance adjustment. Default are second-order Gaussian knockoffs.}
+\item{\code{knockoff_fun}}{(\code{function}) Function used to create knockoff matrix. Default are second-order Gaussian knockoffs (\code{knockoff::create.second_order()})}
 
-\item{\code{iters}}{(\code{integer(1)}: 1) Number of repetitions the \code{knockoff_fun} is applied to create multiple \code{x_tilde}
+\item{\code{iters}}{(\code{integer(1)}: \code{1}) Number of repetitions the \code{knockoff_fun} is applied to create multiple \code{x_tilde}
 instances per observation.}
 }
 \if{html}{\out{</div>}}

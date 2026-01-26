@@ -74,7 +74,7 @@ Creates a new instance using Gaussian knockoffs via \link[knockoff:create.second
 \describe{
 \item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from.}
 
-\item{\code{iters}}{(\code{integer(1)}: 1) Number of repetitions the \code{knockoff_fun} is applied to create multiple \code{x_tilde}
+\item{\code{iters}}{(\code{integer(1)}: \code{1}) Number of repetitions the \code{knockoff_fun} is applied to create multiple \code{x_tilde}
 instances per observation.}
 }
 \if{html}{\out{</div>}}

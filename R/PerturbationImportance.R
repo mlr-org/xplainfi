@@ -497,7 +497,7 @@ CFI = R6Class(
 
 		#' @description
 		#' Compute CFI scores
-		#' @param n_repeats (integer(1)) Number of permutation iterations. If `NULL`, uses stored value.
+		#' @param n_repeats (`integer(1)`) Number of permutation iterations. If `NULL`, uses stored value.
 		#' @param batch_size (`integer(1)` | `NULL`: `NULL`) Maximum number of rows to predict at once. If `NULL`, uses stored value.
 		#' @param store_models,store_backends (`logical(1)`: `TRUE`) Whether to store fitted models / data backends, passed to [mlr3::resample] internally
 		#' for the initial fit of the learner.
@@ -614,8 +614,8 @@ RFI = R6Class(
 
 		#' @description
 		#' Compute RFI scores
-		#' @param conditioning_set (character()) Set of features to condition on. If `NULL`, uses the stored parameter value.
-		#' @param n_repeats (integer(1)) Number of permutation iterations. If `NULL`, uses stored value.
+		#' @param conditioning_set (`character()`) Set of features to condition on. If `NULL`, uses the stored parameter value.
+		#' @param n_repeats (`integer(1)`) Number of permutation iterations. If `NULL`, uses stored value.
 		#' @param batch_size (`integer(1)` | `NULL`: `NULL`) Maximum number of rows to predict at once. If `NULL`, uses stored value.
 		#' @param store_models,store_backends (`logical(1)`: `TRUE`) Whether to store fitted models / data backends, passed to [mlr3::resample] internally
 		#' for the initial fit of the learner.

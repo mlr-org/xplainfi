@@ -98,7 +98,7 @@ Compute CFI scores
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n_repeats}}{(integer(1)) Number of permutation iterations. If \code{NULL}, uses stored value.}
+\item{\code{n_repeats}}{(\code{integer(1)}) Number of permutation iterations. If \code{NULL}, uses stored value.}
 
 \item{\code{batch_size}}{(\code{integer(1)} | \code{NULL}: \code{NULL}) Maximum number of rows to predict at once. If \code{NULL}, uses stored value.}
 

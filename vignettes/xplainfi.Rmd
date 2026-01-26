@@ -30,11 +30,11 @@ library(data.table)
 library(ggplot2)
 ```
 
-The **xplainfi** package provides feature importance methods for machine learning models. It implements several approaches for measuring how much each feature contributes to model predictions, with a focus on model-agnostic methods that work with any learner.
+**xplainfi** provides feature importance methods for machine learning models. It implements several approaches for measuring how much each feature contributes to model performance, with a focus on model-agnostic methods that work with any learner.
 
 ## Core Concepts
 
-Feature importance methods in xplainfi address different but related questions:
+Feature importance methods in `xplainfi` address different but related questions:
 
 - **How much does each feature contribute to model performance?** (Permutation Feature Importance)
 - **What happens when we remove features and retrain?** (Leave-One-Covariate-Out)  
@@ -119,14 +119,14 @@ loco$importance()
 ```
 
 LOCO is computationally expensive as it requires retraining for each feature, but provides clear interpretation: higher values mean larger performance drop when the feature is removed.
-LOCO, however, cannot distinguish between direct effects and indirect effects through correlated features.
+However, it cannot distinguish between direct effects and indirect effects through correlated features.
 
 ## Feature Samplers
 
 For advanced methods that account for feature dependencies, xplainfi provides different sampling strategies. 
 While PFI uses simple permutation (marginal sampling), conditional samplers can preserve feature relationships.
 
-Let's demonstrate conditional sampling using Adversarial Random Forests, which preserves relationships between features when sampling:
+Let's demonstrate conditional sampling using adversarial random rorests (ARF), which preserves relationships between features when sampling:
 
 ```{r samplers-demo}
 arf_sampler <- ConditionalARFSampler$new(task)

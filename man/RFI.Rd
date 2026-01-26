@@ -100,9 +100,9 @@ Compute RFI scores
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{conditioning_set}}{(character()) Set of features to condition on. If \code{NULL}, uses the stored parameter value.}
+\item{\code{conditioning_set}}{(\code{character()}) Set of features to condition on. If \code{NULL}, uses the stored parameter value.}
 
-\item{\code{n_repeats}}{(integer(1)) Number of permutation iterations. If \code{NULL}, uses stored value.}
+\item{\code{n_repeats}}{(\code{integer(1)}) Number of permutation iterations. If \code{NULL}, uses stored value.}
 
 \item{\code{batch_size}}{(\code{integer(1)} | \code{NULL}: \code{NULL}) Maximum number of rows to predict at once. If \code{NULL}, uses stored value.}
 

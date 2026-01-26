@@ -217,23 +217,6 @@ test_that("CFI with KnockoffSampler and KnockoffGaussianSampler", {
 	)
 })
 
-# test_that("CFI with KnockoffSequentialSampler", {
-# 	skip_if_not_installed("ranger")
-# 	skip_if_not_installed("mlr3learners")
-# 	skip_if_not_installed("seqknockoff")
-
-# 		task = tgen("friedman1")$generate(n = 150)
-
-# 	test_custom_sampler(
-# 		CFI,
-# 		task = task,
-# 		learner = lrn("regr.ranger", num.trees = 50),
-# 		measure = msr("regr.mse"),
-# 		sampler = KnockoffSequentialSampler$new(task),
-# 		expected_sampler_class = "KnockoffSequentialSampler"
-# 	)
-# })
-
 # -----------------------------------------------------------------------------
 # CFI-specific: CPI variance method
 # -----------------------------------------------------------------------------
