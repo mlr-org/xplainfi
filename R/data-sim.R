@@ -7,14 +7,14 @@
 #' @details
 #' **Mathematical Model:**
 #' \deqn{X_1, X_3, X_5 \sim \text{Uniform}(0,1)}
-#' \deqn{X_2 = X_1 + \varepsilon_2, \quad \varepsilon_2 \sim N(0, 0.001)}
-#' \deqn{X_4 = X_3 + \varepsilon_4, \quad \varepsilon_4 \sim N(0, 0.1)}
-#' \deqn{Y = X_4 + X_5 + X_4 \cdot X_5 + \varepsilon, \quad \varepsilon \sim N(0, 0.1)}
+#' \deqn{X_2 = X_1 + \varepsilon_2, \quad \varepsilon_2 \sim N(0, \sqrt{0.001})}
+#' \deqn{X_4 = X_3 + \varepsilon_4, \quad \varepsilon_4 \sim N(0, \sqrt{0.1})}
+#' \deqn{Y = X_4 + X_5 + X_4 \cdot X_5 + \varepsilon, \quad \varepsilon \sim N(0, \sqrt{0.1})}
 #'
 #' **Feature Properties:**
 #' - X1, X3, X5: Independent uniform(0,1) distributions
 #' - X2: Nearly perfect copy of X1 (correlation approximately 0.99)
-#' - X4: Noisy copy of X3 (correlation approximately 0.67)
+#' - X4: Noisy copy of X3 (correlation approximately 0.94)
 #' - Y depends on X4, X5, and their interaction
 #'
 #' @param n (`integer(1)`) Number of samples to create.
@@ -80,9 +80,10 @@ NULL
 #' - `x4`: Independent standard normal, no effect on y (\eqn{\beta = 0})
 #'
 #' **Expected Behavior:**
-#' - **Marginal methods** (PFI, Marginal SAGE): Will falsely assign importance to x2 due to correlation with x1
-#' - **Conditional methods** (CFI, Conditional SAGE): Should correctly assign near-zero importance to x2
-#' - **Key insight**: x2 is a "spurious predictor" - correlated with causal feature but not causal itself
+#' - Will depend on the used learner and the strength of correlation (`r`)
+#' - **Marginal methods** (PFI, Marginal SAGE): Should falsely assign importance to x2 due to correlation with x1
+#' - **CFI** Should correctly assign near-zero importance to x2
+#' - x2 is a "spurious predictor" - correlated with causal feature but not causal itself
 #'
 #' @param n (`integer(1)`) Number of samples to generate.
 #' @param r (`numeric(1)`: `0.9`) Correlation between x1 and x2. Must be between -1 and 1.
@@ -141,11 +142,6 @@ sim_dgp_correlated <- function(n = 500L, r = 0.9) {
 #'
 #' **Causal Structure:** exposure -> mediator -> y <- direct -> mediator
 #'
-#' **Expected Behavior:**
-#' - **PFI**: Shows total effects (exposure appears important)
-#' - **CFI**: Shows direct effects (exposure appears less important when conditioning on mediator)
-#' - **RFI with mediator**: Should show direct effects similar to CFI
-#'
 #' @export
 #' @family simulation
 #' @examples
@@ -200,7 +196,7 @@ sim_dgp_mediated <- function(n = 500L) {
 #'
 #' **Expected Behavior:**
 #' - **PFI**: Will show inflated importance for x1 due to confounding
-#' - **CFI**: Should partially account for confounding through conditional sampling
+#' - **CFI**: Should partially account for confounding through conditional sampling and reduce its importance
 #' - **RFI conditioning on proxy**: Should reduce confounding bias by conditioning on proxy
 #'
 #' @param n (`integer(1)`: `500L`) Number of observations to generate.
@@ -275,10 +271,7 @@ sim_dgp_confounded <- function(n = 500L, hidden = TRUE) {
 #' - `noise1`, `noise2`: No causal effects
 #'
 #' **Expected Behavior:**
-#' - **PFI**: Should assign near-zero importance to x1 and x2 (no marginal effect)
-#' - **CFI**: Should capture the interaction and assign high importance to x1 and x2
-#' - **Ground truth**: x1 and x2 are important ONLY through their interaction
-#'
+#' - Will depend on the used learner and its ability to model interactions
 #' @export
 #' @family simulation
 #' @examples

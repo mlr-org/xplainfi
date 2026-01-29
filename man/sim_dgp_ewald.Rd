@@ -19,15 +19,15 @@ feature importance methods. Includes correlated features and interaction effects
 \details{
 \strong{Mathematical Model:}
 \deqn{X_1, X_3, X_5 \sim \text{Uniform}(0,1)}
-\deqn{X_2 = X_1 + \varepsilon_2, \quad \varepsilon_2 \sim N(0, 0.001)}
-\deqn{X_4 = X_3 + \varepsilon_4, \quad \varepsilon_4 \sim N(0, 0.1)}
-\deqn{Y = X_4 + X_5 + X_4 \cdot X_5 + \varepsilon, \quad \varepsilon \sim N(0, 0.1)}
+\deqn{X_2 = X_1 + \varepsilon_2, \quad \varepsilon_2 \sim N(0, \sqrt{0.001})}
+\deqn{X_4 = X_3 + \varepsilon_4, \quad \varepsilon_4 \sim N(0, \sqrt{0.1})}
+\deqn{Y = X_4 + X_5 + X_4 \cdot X_5 + \varepsilon, \quad \varepsilon \sim N(0, \sqrt{0.1})}
 
 \strong{Feature Properties:}
 \itemize{
 \item X1, X3, X5: Independent uniform(0,1) distributions
 \item X2: Nearly perfect copy of X1 (correlation approximately 0.99)
-\item X4: Noisy copy of X3 (correlation approximately 0.67)
+\item X4: Noisy copy of X3 (correlation approximately 0.94)
 \item Y depends on X4, X5, and their interaction
 }
 }

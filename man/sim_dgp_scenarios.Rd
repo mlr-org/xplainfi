@@ -59,9 +59,10 @@ where \eqn{\varepsilon \sim N(0, 0.2^2)}.
 
 \strong{Expected Behavior:}
 \itemize{
-\item \strong{Marginal methods} (PFI, Marginal SAGE): Will falsely assign importance to x2 due to correlation with x1
-\item \strong{Conditional methods} (CFI, Conditional SAGE): Should correctly assign near-zero importance to x2
-\item \strong{Key insight}: x2 is a "spurious predictor" - correlated with causal feature but not causal itself
+\item Will depend on the used learner and the strength of correlation (\code{r})
+\item \strong{Marginal methods} (PFI, Marginal SAGE): Should falsely assign importance to x2 due to correlation with x1
+\item \strong{CFI} Should correctly assign near-zero importance to x2
+\item x2 is a "spurious predictor" - correlated with causal feature but not causal itself
 }
 
 \strong{Mediated Effects DGP:}
@@ -83,13 +84,6 @@ where \eqn{\varepsilon_m \sim N(0, 0.3^2)} and \eqn{\varepsilon \sim N(0, 0.2^2)
 }
 
 \strong{Causal Structure:} exposure -> mediator -> y <- direct -> mediator
-
-\strong{Expected Behavior:}
-\itemize{
-\item \strong{PFI}: Shows total effects (exposure appears important)
-\item \strong{CFI}: Shows direct effects (exposure appears less important when conditioning on mediator)
-\item \strong{RFI with mediator}: Should show direct effects similar to CFI
-}
 
 \strong{Confounding DGP:}
 This DGP includes a confounder that affects both a feature and the outcome.
@@ -114,7 +108,7 @@ where all \eqn{\varepsilon \sim N(0, 0.5^2)} independently.
 \strong{Expected Behavior:}
 \itemize{
 \item \strong{PFI}: Will show inflated importance for x1 due to confounding
-\item \strong{CFI}: Should partially account for confounding through conditional sampling
+\item \strong{CFI}: Should partially account for confounding through conditional sampling and reduce its importance
 \item \strong{RFI conditioning on proxy}: Should reduce confounding bias by conditioning on proxy
 }
 
@@ -134,9 +128,7 @@ where \eqn{X_j \sim N(0,1)} independently and \eqn{\varepsilon \sim N(0, 0.5^2)}
 
 \strong{Expected Behavior:}
 \itemize{
-\item \strong{PFI}: Should assign near-zero importance to x1 and x2 (no marginal effect)
-\item \strong{CFI}: Should capture the interaction and assign high importance to x1 and x2
-\item \strong{Ground truth}: x1 and x2 are important ONLY through their interaction
+\item Will depend on the used learner and its ability to model interactions
 }
 
 \strong{Independent Features DGP:}
