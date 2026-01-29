@@ -84,8 +84,8 @@ Sample values for feature(s) from stored task
 #### Returns
 
 Modified copy of the input features with the feature(s) sampled: A
-[data.table](https://rdatatable.gitlab.io/data.table/reference/data.table.html)
-with same number of columns and one row matching the supplied `row_ids`
+[data.table](https://rdrr.io/pkg/data.table/man/data.table.html) with
+same number of columns and one row matching the supplied `row_ids`
 
 ------------------------------------------------------------------------
 
@@ -105,8 +105,8 @@ Sample values for feature(s) using external data
 
 - `newdata`:
 
-  ([`data.table`](https://rdatatable.gitlab.io/data.table/reference/data.table.html)
-  ) External data to use for sampling.
+  ([`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html) )
+  External data to use for sampling.
 
 ------------------------------------------------------------------------
 

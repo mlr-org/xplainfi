@@ -206,7 +206,7 @@ without any coverage guarantees.</p>
 <p>To highlight the differences between parametric and empirical
 approaches, we visualize all methods:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pfi_cis</span> <span class="op">=</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">pfi_cis</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>        <span class="va">pfi_ci_raw</span><span class="op">[</span>, <span class="va">type</span> <span class="op">:=</span> <span class="st">"raw"</span><span class="op">]</span>,</span>
 <span>        <span class="va">pfi_ci_corrected</span><span class="op">[</span>, <span class="va">type</span> <span class="op">:=</span> <span class="st">"nadeau_bengio"</span><span class="op">]</span>,</span>
@@ -254,8 +254,8 @@ looks like this:</p>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    test <span class="op">=</span> <span class="st">"t"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="va">cpi_res</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">cpi_res</span>, <span class="st">"Variable"</span>, <span class="st">"feature"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="va">cpi_res</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">cpi_res</span>, <span class="st">"Variable"</span>, <span class="st">"feature"</span><span class="op">)</span></span>
 <span><span class="va">cpi_res</span><span class="op">[</span>, <span class="va">method</span> <span class="op">:=</span> <span class="st">"CPI"</span><span class="op">]</span></span>
 <span></span>
 <span><span class="va">cpi_res</span></span>
@@ -313,12 +313,12 @@ directly via <code>ci_method = "cpi"</code>:</p>
 <span><span class="co">#&gt; 4:        Inf</span></span>
 <span></span>
 <span><span class="co"># Rename columns to match cpi package output for comparison</span></span>
-<span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">cfi_cpi_res</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"importance"</span>, <span class="st">"conf_lower"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CPI"</span>, <span class="st">"ci.lo"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">cfi_cpi_res</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"importance"</span>, <span class="st">"conf_lower"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CPI"</span>, <span class="st">"ci.lo"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">cfi_cpi_res</span><span class="op">[</span>, <span class="va">method</span> <span class="op">:=</span> <span class="st">"CFI+Knockoffs"</span><span class="op">]</span></span></code></pre></div>
 <p>The results should be very similar to those computed by
 <code><a href="https://bips-hb.github.io/cpi/reference/cpi.html" class="external-link">cpi()</a></code>, so let’s compare them:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">cpi_res</span>, <span class="va">cfi_cpi_res</span><span class="op">)</span>, fill <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">cpi_res</span>, <span class="va">cfi_cpi_res</span><span class="op">)</span>, fill <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">feature</span>, x <span class="op">=</span> <span class="va">CPI</span>, color <span class="op">=</span> <span class="va">method</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>position <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_errorbar</a></span><span class="op">(</span></span>
@@ -380,11 +380,11 @@ al. (2025)</a>), which we can perform analogously:</p>
 <span><span class="co">#&gt; 4:        Inf</span></span>
 <span></span>
 <span><span class="co"># Rename columns to match cpi package output for comparison</span></span>
-<span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">cfi_arf_res</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"importance"</span>, <span class="st">"conf_lower"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CPI"</span>, <span class="st">"ci.lo"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">cfi_arf_res</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"importance"</span>, <span class="st">"conf_lower"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CPI"</span>, <span class="st">"ci.lo"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">cfi_arf_res</span><span class="op">[</span>, <span class="va">method</span> <span class="op">:=</span> <span class="st">"CFI+ARF"</span><span class="op">]</span></span></code></pre></div>
 <p>We can now compare all three methods:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">cpi_res</span>, <span class="va">cfi_cpi_res</span>, <span class="va">cfi_arf_res</span><span class="op">)</span>, fill <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">cpi_res</span>, <span class="va">cfi_cpi_res</span>, <span class="va">cfi_arf_res</span><span class="op">)</span>, fill <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">feature</span>, x <span class="op">=</span> <span class="va">CPI</span>, color <span class="op">=</span> <span class="va">method</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>position <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_errorbar</a></span><span class="op">(</span></span>
@@ -448,7 +448,7 @@ specifically the Wilcoxon-, Fisher-, or binomial test:</p>
 <span><span class="co">#&gt; 3:        Inf</span></span>
 <span><span class="co">#&gt; 4:        Inf</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>        <span class="va">cfi_arf</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"cpi"</span><span class="op">)</span><span class="op">[</span>, <span class="va">test</span> <span class="op">:=</span> <span class="st">"t"</span><span class="op">]</span>,</span>
 <span>        <span class="va">cpi_res_wilcoxon</span><span class="op">[</span>, <span class="va">test</span> <span class="op">:=</span> <span class="st">"Wilcoxon"</span><span class="op">]</span>,</span>
@@ -562,8 +562,8 @@ proposed, for each set <span class="math inline">\(D_k\)</span> where
 <span><span class="co">#&gt; 4:      x4 0.03344017</span></span></code></pre></div>
 <p>The authors then propose to construct distribution-free confidence
 intervals, e.g. using a sign- or Wilcoxon test We can for example use
-[wilcoxon.test] to compute confidence intervals around the estimated
-pseudo-median:</p>
+<code>wilcoxon.test()</code> to compute confidence intervals around the
+estimated pseudo-median:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">loco_wilcox_ci</span> <span class="op">=</span> <span class="va">loco_obsloss</span><span class="op">[</span>,</span>
 <span>    <span class="op">{</span></span>

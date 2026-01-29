@@ -70,18 +70,6 @@ cor(task$data()[, c("x1", "x2")])
 # Note: x2 is highly correlated with x1 but has NO causal effect!
 ```
 
-### Expected Behavior
-
-- **Marginal methods (PFI, Marginal SAGE)**: Will falsely assign high
-  importance to x2 because permuting it breaks the correlation with x1,
-  creating unrealistic data that confuses the model
-- **Conditional methods (CFI, Conditional SAGE)**: Should correctly
-  assign near-zero importance to x2 because conditional sampling
-  preserves the correlation, revealing that x2 adds no information
-  beyond what x1 provides
-- **Key insight**: x2 is a spurious predictor - it appears predictive
-  due to correlation with x1 but has no causal effect on y
-
 ## 2. Mediated Effects DGP
 
 This DGP demonstrates the difference between total and direct causal
@@ -111,14 +99,6 @@ task <- sim_dgp_mediated(n = 500)
 # Total effect = 0.8 * 1.5 = 1.2 (through mediator)
 # Direct effect = 0 (no direct path to Y)
 ```
-
-### Expected Behavior
-
-- **PFI**: Shows total effects (exposure appears important with effect
-  approximately 1.2)
-- **CFI**: Shows direct effects (exposure appears unimportant when
-  conditioning on mediator)
-- **RFI with mediator**: Should show direct effects similar to CFI
 
 ## 3. Confounding DGP
 
@@ -152,16 +132,6 @@ task_observed$feature_names # both confounder and proxy available
 #> [1] "confounder"  "independent" "proxy"       "x1"
 ```
 
-### Expected Behavior
-
-- **PFI**: Will show inflated importance for x1 due to confounding (the
-  confounder H contributes to x1’s predictive power beyond its direct
-  effect)
-- **CFI**: Should partially account for confounding through conditional
-  sampling
-- **RFI conditioning on proxy**: Should reduce confounding bias by
-  conditioning on the noisy measurement of the confounder
-
 ## 4. Interaction Effects DGP
 
 This DGP demonstrates a pure interaction effect where features have no
@@ -187,17 +157,6 @@ task <- sim_dgp_interactions(n = 500)
 # Note: X1 and X2 have NO main effects
 # Their importance comes ONLY through their interaction
 ```
-
-### Expected Behavior
-
-- **PFI**: Should assign near-zero importance to x1 and x2 (no marginal
-  effect)
-- **CFI**: Should capture the interaction and assign high importance to
-  x1 and x2
-- **LOCO**: May show high importance for x1 and x2 (removing either
-  breaks the interaction)
-- **LOCI**: Should show near-zero importance for x1 and x2 (individually
-  useless)
 
 ## 5. Independent Features DGP (Baseline)
 

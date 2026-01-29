@@ -153,14 +153,14 @@ pfi <- PFI$new(
   measure = msr("regr.mse")
 )
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
-#>   (test set size: 333)
+#>   (test set size: 167)
 pfi$compute()
 pfi$importance()
 #> Key: <feature>
-#>    feature  importance
-#>     <char>       <num>
-#> 1:      x1  3.86637518
-#> 2:      x2  1.36427345
-#> 3:      x3  1.21619125
-#> 4:      x4 -0.01296581
+#>    feature   importance
+#>     <char>        <num>
+#> 1:      x1  3.527932276
+#> 2:      x2  0.924809854
+#> 3:      x3  1.313079583
+#> 4:      x4 -0.001277584
 ```

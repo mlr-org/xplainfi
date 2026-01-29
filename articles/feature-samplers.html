@@ -216,7 +216,7 @@ is broken</li>
 <span><span class="va">sampled</span> <span class="op">=</span> <span class="va">permutation</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span><span class="st">"bill_length"</span>, row_ids <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Compare original and sampled values</span></span>
-<span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>    original_bill <span class="op">=</span> <span class="va">original</span><span class="op">$</span><span class="va">bill_length</span>,</span>
 <span>    sampled_bill <span class="op">=</span> <span class="va">sampled</span><span class="op">$</span><span class="va">bill_length</span>,</span>
 <span>    sex <span class="op">=</span> <span class="va">original</span><span class="op">$</span><span class="va">sex</span> <span class="co"># Unchanged</span></span>
@@ -273,7 +273,7 @@ we keep the sampling infrastructure independent.</p>
 <span><span class="va">sampled</span> <span class="op">=</span> <span class="va">marginal_ref</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span><span class="st">"bill_length"</span>, row_ids <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Compare</span></span>
-<span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>    original_bill <span class="op">=</span> <span class="va">original</span><span class="op">$</span><span class="va">bill_length</span>,</span>
 <span>    sampled_bill <span class="op">=</span> <span class="va">sampled</span><span class="op">$</span><span class="va">bill_length</span>,</span>
 <span>    sex <span class="op">=</span> <span class="va">original</span><span class="op">$</span><span class="va">sex</span> <span class="co"># Unchanged</span></span>
@@ -315,7 +315,7 @@ as in <code>task_numeric</code>. Here, <code>x1</code> and
 <span><span class="va">cor_perm</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">sampled_perm</span><span class="op">$</span><span class="va">x1</span>, <span class="va">sampled_perm</span><span class="op">$</span><span class="va">x2</span><span class="op">)</span></span>
 <span><span class="va">cor_ref</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">sampled_ref</span><span class="op">$</span><span class="va">x1</span>, <span class="va">sampled_ref</span><span class="op">$</span><span class="va">x2</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>    method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Original"</span>, <span class="st">"Permutation"</span>, <span class="st">"Reference"</span><span class="op">)</span>,</span>
 <span>    correlation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">cor_original</span>, <span class="va">cor_perm</span>, <span class="va">cor_ref</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
@@ -376,7 +376,7 @@ distributions.</p>
 <span></span>
 <span><span class="co"># Compare original and conditionally sampled values</span></span>
 <span><span class="va">original</span> <span class="op">=</span> <span class="va">task_numeric</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span>rows <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>    original <span class="op">=</span> <span class="va">original</span><span class="op">$</span><span class="va">x1</span>,</span>
 <span>    sampled <span class="op">=</span> <span class="va">sampled</span><span class="op">$</span><span class="va">x1</span>,</span>
 <span>    x2 <span class="op">=</span> <span class="va">original</span><span class="op">$</span><span class="va">x2</span> <span class="co"># Conditioning feature (unchanged)</span></span>
@@ -429,7 +429,7 @@ large data)</li>
 <span></span>
 <span><span class="co"># Compare original and sampled island</span></span>
 <span><span class="va">original</span> <span class="op">=</span> <span class="va">task_mixed</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span>rows <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>    original_island <span class="op">=</span> <span class="va">original</span><span class="op">$</span><span class="va">island</span>,</span>
 <span>    sampled_island <span class="op">=</span> <span class="va">sampled</span><span class="op">$</span><span class="va">island</span>,</span>
 <span>    bill_length <span class="op">=</span> <span class="va">original</span><span class="op">$</span><span class="va">bill_length</span>, <span class="co"># Conditioning feature</span></span>
@@ -481,7 +481,7 @@ features)</li>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">original</span> <span class="op">=</span> <span class="va">task_mixed</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span>rows <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>    island <span class="op">=</span> <span class="va">original</span><span class="op">$</span><span class="va">island</span>, <span class="co"># Conditioning feature</span></span>
 <span>    original <span class="op">=</span> <span class="va">original</span><span class="op">$</span><span class="va">bill_length</span>,</span>
 <span>    sampled <span class="op">=</span> <span class="va">sampled</span><span class="op">$</span><span class="va">bill_length</span></span>
@@ -546,7 +546,7 @@ categorical (factor, ordered, logical)</li>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">original_numeric</span> <span class="op">=</span> <span class="va">task_numeric</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span>rows <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>    x2 <span class="op">=</span> <span class="va">original_numeric</span><span class="op">$</span><span class="va">x2</span>,</span>
 <span>    x3 <span class="op">=</span> <span class="va">original_numeric</span><span class="op">$</span><span class="va">x3</span>,</span>
 <span>    original_x1 <span class="op">=</span> <span class="va">original_numeric</span><span class="op">$</span><span class="va">x1</span>,</span>
@@ -575,7 +575,7 @@ categorical (factor, ordered, logical)</li>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">original_mixed</span> <span class="op">=</span> <span class="va">task_mixed</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span>rows <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>    island <span class="op">=</span> <span class="va">original_mixed</span><span class="op">$</span><span class="va">island</span>,</span>
 <span>    body_mass <span class="op">=</span> <span class="va">original_mixed</span><span class="op">$</span><span class="va">body_mass</span>,</span>
 <span>    original_bill <span class="op">=</span> <span class="va">original_mixed</span><span class="op">$</span><span class="va">bill_length</span>,</span>
@@ -630,7 +630,7 @@ general importance</li>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Original vs knockoff values</span></span>
-<span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>    x1_original <span class="op">=</span> <span class="va">original</span><span class="op">$</span><span class="va">x1</span>,</span>
 <span>    x1_knockoff <span class="op">=</span> <span class="va">knockoffs</span><span class="op">$</span><span class="va">x1</span>,</span>
 <span>    x2_original <span class="op">=</span> <span class="va">original</span><span class="op">$</span><span class="va">x2</span>,</span>

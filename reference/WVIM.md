@@ -157,12 +157,12 @@ wvim <- WVIM$new(
 )
 #> ℹ No <Measure> provided, using `measure = msr("regr.mse")`
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
-#>   (test set size: 333)
+#>   (test set size: 167)
 wvim$compute()
 wvim$importance()
 #> Key: <feature>
 #>        feature importance
 #>         <char>      <num>
-#> 1:  correlated   4.932899
-#> 2: independent   0.879166
+#> 1:  correlated   4.973365
+#> 2: independent   1.020356
 ```

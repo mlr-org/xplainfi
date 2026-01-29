@@ -92,6 +92,6 @@ sage = MarginalSAGE$new(
   n_samples = 20
 )
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
-#>   (test set size: 67)
+#>   (test set size: 33)
 sage$compute()
 ```

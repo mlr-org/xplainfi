@@ -96,11 +96,9 @@ Unlike other samplers, they do not allow sampling from new data with
 on the fly.
 
 - [`KnockoffSampler`](https://mlr-org.github.io/xplainfi/reference/KnockoffSampler.md)
-  : Knockoff-based Conditional Sampler
+  : Knockoff Sampler
 - [`KnockoffGaussianSampler`](https://mlr-org.github.io/xplainfi/reference/KnockoffGaussianSampler.md)
   : Gaussian Knockoff Conditional Sampler
-- [`KnockoffSequentialSampler`](https://mlr-org.github.io/xplainfi/reference/KnockoffSequentialSampler.md)
-  : Sequential Knockoff Conditional Sampler
 
 ## Utilities
 

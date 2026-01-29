@@ -97,13 +97,13 @@ Compute RFI scores
 
 - `conditioning_set`:
 
-  (character()) Set of features to condition on. If `NULL`, uses the
-  stored parameter value.
+  ([`character()`](https://rdrr.io/r/base/character.html)) Set of
+  features to condition on. If `NULL`, uses the stored parameter value.
 
 - `n_repeats`:
 
-  (integer(1)) Number of permutation iterations. If `NULL`, uses stored
-  value.
+  (`integer(1)`) Number of permutation iterations. If `NULL`, uses
+  stored value.
 
 - `batch_size`:
 
@@ -148,20 +148,20 @@ rfi = RFI$new(
 )
 #> ℹ No <ConditionalSampler> provided, using <ConditionalARFSampler> with default settings.
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
-#>   (test set size: 133)
+#>   (test set size: 67)
 rfi$compute()
 rfi$importance()
 #> Key: <feature>
 #>          feature  importance
 #>           <char>       <num>
 #>  1:   important1  0.00000000
-#>  2:   important2  4.33976685
-#>  3:   important3  1.28437108
-#>  4:   important4  5.74666239
-#>  5:   important5  2.59825282
-#>  6: unimportant1  0.24248317
-#>  7: unimportant2 -0.06911931
-#>  8: unimportant3  0.07063466
-#>  9: unimportant4 -0.02648508
-#> 10: unimportant5 -0.08099410
+#>  2:   important2  6.56214678
+#>  3:   important3  1.85528306
+#>  4:   important4  9.01753438
+#>  5:   important5  2.36772225
+#>  6: unimportant1  0.19616888
+#>  7: unimportant2  0.09921649
+#>  8: unimportant3  0.14696144
+#>  9: unimportant4 -0.37958579
+#> 10: unimportant5  0.34660008
 ```

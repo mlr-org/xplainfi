@@ -320,10 +320,10 @@ CFI methods on the same data:</p>
 <code class="sourceCode R"><span><span class="co"># Quick PFI and CFI comparison for context</span></span>
 <span><span class="va">pfi</span> <span class="op">=</span> <span class="va"><a href="../reference/PFI.html">PFI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">task</span>, <span class="va">learner</span>, <span class="va">measure</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> No <span style="color: #0000BB;">&lt;Resampling&gt;</span> provided, using `resampling = rsmp("holdout", ratio = 2/3)`</span></span>
-<span><span class="co">#&gt;   (test set size: <span style="color: #0000BB;">667</span>)</span></span>
+<span><span class="co">#&gt;   (test set size: <span style="color: #0000BB;">333</span>)</span></span>
 <span><span class="va">cfi</span> <span class="op">=</span> <span class="va"><a href="../reference/CFI.html">CFI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">task</span>, <span class="va">learner</span>, <span class="va">measure</span>, sampler <span class="op">=</span> <span class="va">sampler_gaussian</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> No <span style="color: #0000BB;">&lt;Resampling&gt;</span> provided, using `resampling = rsmp("holdout", ratio = 2/3)`</span></span>
-<span><span class="co">#&gt;   (test set size: <span style="color: #0000BB;">667</span>)</span></span>
+<span><span class="co">#&gt;   (test set size: <span style="color: #0000BB;">333</span>)</span></span>
 <span></span>
 <span><span class="va">pfi</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">cfi</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>

@@ -206,7 +206,7 @@ Sample from external data conditionally.
 
 - `newdata`:
 
-  ([`data.table`](https://rdatatable.gitlab.io/data.table/reference/data.table.html))
+  ([`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html))
   External data to use.
 
 - `conditioning_set`:

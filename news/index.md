@@ -18,6 +18,9 @@ is now considered “released”.
   their settings.
 - Reduce runtime of tests (mostly by using less ARF and mor Gaussian
   sampling)
+- Remove `KnockoffSequentialSampler` as the `seqknockoff` package is not
+  available on CRAN or R-universe. `KnockoffSampler` with the
+  corresponding `knockoff_fun = seqknockoff::knockoffs_seq` still works.
 
 ## xplainfi 0.2.1
 

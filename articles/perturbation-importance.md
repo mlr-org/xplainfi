@@ -42,10 +42,10 @@ data_int <- task_int$data()
 
 **Causal Structure:**
 
-The key insight: x1 and x2 have **NO direct effects** - they affect y
-ONLY through their interaction (thick red arrow). However, PFI will
-still show them as important because permuting either feature destroys
-the crucial interaction term.
+x1 and x2 have **no direct effects** - they affect y only through their
+interaction (thick red arrow). However, PFI will still show them as
+important because permuting either feature destroys the crucial
+interaction term.
 
 ### Analysis
 
@@ -153,11 +153,10 @@ rfi_int_x1$compute()
 - **x2 given x1**: 1.579 (How important is x2 when we condition on x1)  
 - **x3 given x2**: 1.979 (How important is x3 when we condition on x2)
 
-**Key insight**: In the pure interaction case (y = 2·x1·x2 + x3), when
-we condition on one interacting feature, the other becomes extremely
-important because they only matter together. This demonstrates RFI’s
-power to answer targeted questions like “Given I already know x2, how
-much does x1 add?”
+In the pure interaction case (y = 2·x1·x2 + x3), when we condition on
+one interacting feature, the other becomes extremely important because
+they only matter together. This demonstrates RFI’s power to answer
+targeted questions like “Given I already know x2, how much does x1 add?”
 
 #### Comparing Methods on Interactions
 
@@ -172,7 +171,7 @@ scores across features. Second shows RFI importance scores when
 conditioning on
 x2.](perturbation-importance_files/figure-html/compare-interactions-2.png)
 
-### Key Insights: Interaction Effects
+### Interaction Effects
 
 ``` r
 # Combine results and calculate ratios

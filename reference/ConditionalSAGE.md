@@ -101,8 +101,8 @@ The objects of this class are cloneable with this method.
 library(mlr3)
 task = tgen("friedman1")$generate(n = 100)
 
-if (FALSE) { # \dontrun{
-# Using default ConditionalARFSampler
+# \donttest{
+# Using default ConditionalARFSampler (also handles all mixed data)
 sage = ConditionalSAGE$new(
   task = task,
   learner = lrn("regr.ranger", num.trees = 50),
@@ -110,8 +110,11 @@ sage = ConditionalSAGE$new(
   n_permutations = 3L,
   n_samples = 20
 )
+#> ℹ No <ConditionalSampler> provided, using <ConditionalARFSampler> with default settings.
+#> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
+#>   (test set size: 33)
 sage$compute()
-} # }
+# }
 # \donttest{
 # For alternative conditional samplers:
 custom_sampler = ConditionalGaussianSampler$new(
@@ -126,7 +129,7 @@ sage_custom = ConditionalSAGE$new(
   sampler = custom_sampler
 )
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
-#>   (test set size: 67)
+#>   (test set size: 33)
 sage_custom$compute()
 # }
 ```

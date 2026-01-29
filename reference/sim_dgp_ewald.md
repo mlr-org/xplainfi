@@ -20,17 +20,16 @@ sim_dgp_ewald(n = 500)
 
 A regression task
 ([mlr3::TaskRegr](https://mlr3.mlr-org.com/reference/TaskRegr.html))
-with
-[data.table](https://rdatatable.gitlab.io/data.table/reference/data.table.html)
+with [data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
 backend.
 
 ## Details
 
 **Mathematical Model:** \$\$X_1, X_3, X_5 \sim \text{Uniform}(0,1)\$\$
-\$\$X_2 = X_1 + \varepsilon_2, \quad \varepsilon_2 \sim N(0, 0.001)\$\$
-\$\$X_4 = X_3 + \varepsilon_4, \quad \varepsilon_4 \sim N(0, 0.1)\$\$
-\$\$Y = X_4 + X_5 + X_4 \cdot X_5 + \varepsilon, \quad \varepsilon \sim
-N(0, 0.1)\$\$
+\$\$X_2 = X_1 + \varepsilon_2, \quad \varepsilon_2 \sim N(0,
+\sqrt{0.001})\$\$ \$\$X_4 = X_3 + \varepsilon_4, \quad \varepsilon_4
+\sim N(0, \sqrt{0.1})\$\$ \$\$Y = X_4 + X_5 + X_4 \cdot X_5 +
+\varepsilon, \quad \varepsilon \sim N(0, \sqrt{0.1})\$\$
 
 **Feature Properties:**
 
@@ -38,7 +37,7 @@ N(0, 0.1)\$\$
 
 - X2: Nearly perfect copy of X1 (correlation approximately 0.99)
 
-- X4: Noisy copy of X3 (correlation approximately 0.67)
+- X4: Noisy copy of X3 (correlation approximately 0.94)
 
 - Y depends on X4, X5, and their interaction
 

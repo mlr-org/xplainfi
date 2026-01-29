@@ -89,8 +89,8 @@ Compute CFI scores
 
 - `n_repeats`:
 
-  (integer(1)) Number of permutation iterations. If `NULL`, uses stored
-  value.
+  (`integer(1)`) Number of permutation iterations. If `NULL`, uses
+  stored value.
 
 - `batch_size`:
 
@@ -138,7 +138,7 @@ cfi <- CFI$new(
 )
 #> ℹ No `sampler` provided, using <ConditionalARFSampler> with default settings.
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
-#>   (test set size: 333)
+#>   (test set size: 167)
 cfi$compute()
 cfi$importance()
 #> Key: <feature>

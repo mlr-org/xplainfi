@@ -138,50 +138,50 @@ assumes features are independent.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3.mlr-org.com" class="external-link">mlr3</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tgen</a></span><span class="op">(</span><span class="st">"2dnormals"</span><span class="op">)</span><span class="op">$</span><span class="fu">generate</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">task</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          y         x1         x2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;fctr&gt;      &lt;num&gt;      &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:      A  0.7982296  2.2068573</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2:      B -1.2354196 -0.5875541</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3:      A  0.1509640  1.3277959</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4:      B -1.3994408 -0.5458946</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5:      B -1.2539472 -1.5003423</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:      A  2.1400989  0.1583906</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:      B  0.4780871 -2.3614850</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:      B -1.7427055 -0.9942252</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:      B -0.8380797 -1.6470720</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:      A  1.5556170  1.3060192</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          y          x1         x2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;fctr&gt;       &lt;num&gt;      &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:      B -0.62965001 -1.6683784</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:      B -0.08001655 -3.8871235</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:      B -1.84888994 -2.4336265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:      B -0.76591719 -1.4743742</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:      A  1.14671304 -0.5613565</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:      A -1.15062835 -0.7063118</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:      B -0.06612565 -1.5379414</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:      B -0.75505266 -1.7142646</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:      A  0.97286802  2.1950540</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:      B -0.65541353 -0.4925467</span>
 <span class="r-in"><span><span class="va">sampler</span> <span class="op">=</span> <span class="va">MarginalPermutationSampler</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Sample using row_ids from stored task</span></span></span>
 <span class="r-in"><span><span class="va">sampler</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span><span class="st">"x1"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          y         x1         x2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;fctr&gt;      &lt;num&gt;      &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:      A -1.7427055  2.2068573</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2:      B  0.7982296 -0.5875541</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3:      A -1.3994408  1.3277959</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4:      B -0.8380797 -0.5458946</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5:      B -1.2539472 -1.5003423</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:      A -1.2354196  0.1583906</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:      B  2.1400989 -2.3614850</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:      B  0.1509640 -0.9942252</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:      B  0.4780871 -1.6470720</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:      A  1.5556170  1.3060192</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          y          x1         x2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;fctr&gt;       &lt;num&gt;      &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:      B -0.65541353 -1.6683784</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:      B  1.14671304 -3.8871235</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:      B -0.62965001 -2.4336265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:      B -0.06612565 -1.4743742</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:      A -1.15062835 -0.5613565</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:      A -0.08001655 -0.7063118</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:      B -1.84888994 -1.5379414</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:      B -0.75505266 -1.7142646</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:      A  0.97286802  2.1950540</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:      B -0.76591719 -0.4925467</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Or use external data</span></span></span>
 <span class="r-in"><span><span class="va">data</span> <span class="op">=</span> <span class="va">task</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">sampler</span><span class="op">$</span><span class="fu">sample_newdata</span><span class="op">(</span><span class="st">"x1"</span>, newdata <span class="op">=</span> <span class="va">data</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          y         x1         x2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;fctr&gt;      &lt;num&gt;      &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:      A  0.1509640  2.2068573</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2:      B -0.8380797 -0.5875541</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3:      A  0.7982296  1.3277959</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4:      B  1.5556170 -0.5458946</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5:      B -1.7427055 -1.5003423</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:      A -1.2354196  0.1583906</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:      B  2.1400989 -2.3614850</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:      B -1.2539472 -0.9942252</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:      B -1.3994408 -1.6470720</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:      A  0.4780871  1.3060192</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          y          x1         x2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;fctr&gt;       &lt;num&gt;      &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:      B -1.84888994 -1.6683784</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:      B -0.62965001 -3.8871235</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:      B -0.75505266 -2.4336265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:      B -0.76591719 -1.4743742</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:      A -0.06612565 -0.5613565</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:      A -0.08001655 -0.7063118</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:      B  1.14671304 -1.5379414</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:      B -1.15062835 -1.7142646</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:      A -0.65541353  2.1950540</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:      B  0.97286802 -0.4925467</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -79,8 +79,8 @@ Creates a new instance using Gaussian knockoffs via
 
 - `iters`:
 
-  (`integer(1)`: 1) Number of repetitions the `knockoff_fun` is applied
-  to create multiple `x_tilde` instances per observation.
+  (`integer(1)`: `1`) Number of repetitions the `knockoff_fun` is
+  applied to create multiple `x_tilde` instances per observation.
 
 ------------------------------------------------------------------------
 

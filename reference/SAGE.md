@@ -48,7 +48,7 @@ Information Processing Systems*, volume 33, 17212–17223.
 
 - `convergence_history`:
 
-  ([`data.table`](https://rdatatable.gitlab.io/data.table/reference/data.table.html))
+  ([`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html))
   History of SAGE values during computation.
 
 - `converged`:

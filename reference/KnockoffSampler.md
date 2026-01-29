@@ -1,17 +1,20 @@
-# Knockoff-based Conditional Sampler
+# Knockoff Sampler
 
 Implements conditional sampling using Knockoffs.
 
 ## Details
 
-The KnockoffSampler samples
+The `KnockoffSampler` samples
 [Knockoffs](https://rdrr.io/pkg/knockoff/man/knockoff.html) based on the
 task data. This class allows arbitrary `knockoff_fun`, which also means
 that no input checking against supported feature types can be done. Use
 [KnockoffGaussianSampler](https://mlr-org.github.io/xplainfi/reference/KnockoffGaussianSampler.md)
-or
-[KnockoffSequentialSampler](https://mlr-org.github.io/xplainfi/reference/KnockoffSequentialSampler.md)
-for these variants specifically.
+for the Gaussian knockoff sampler for numeric features. Alternative
+knockoff samplers include `knockoff_seq()` from the `seqknockoff`
+package available on GitHub: <https://github.com/kormama1/seqknockoff>.
+
+Knockoffs are related to the `ConditionalSampler` familty, with key
+differences: They do not allow specifying a `conditioning_set`
 
 ## References
 
@@ -77,13 +80,14 @@ Creates a new instance of the KnockoffSampler class.
 
 - `knockoff_fun`:
 
-  (`function`) Step size for variance adjustment. Default are
-  second-order Gaussian knockoffs.
+  (`function`) Function used to create knockoff matrix. Default are
+  second-order Gaussian knockoffs
+  ([`knockoff::create.second_order()`](https://rdrr.io/pkg/knockoff/man/create.second_order.html))
 
 - `iters`:
 
-  (`integer(1)`: 1) Number of repetitions the `knockoff_fun` is applied
-  to create multiple `x_tilde` instances per observation.
+  (`integer(1)`: `1`) Number of repetitions the `knockoff_fun` is
+  applied to create multiple `x_tilde` instances per observation.
 
 ------------------------------------------------------------------------
 
@@ -137,12 +141,4 @@ task = tgen("2dnormals")$generate(n = 100)
 sampler = KnockoffSampler$new(task)
 # Sample using row_ids from stored task
 sampled_data = sampler$sample("x1")
-
-# Example with sequential knockoffs (https://github.com/kormama1/seqknockoff)
-# Not on CRAN, install via pak::pak("kormama1/seqknockoff")
-if (FALSE) { # \dontrun{
-task = tgen("simplex")$generate(n = 100)
-sampler_seq = KnockoffSampler$new(task, knockoff_fun = seqknockoff::knockoffs_seq)
-sampled_seq = sampler_seq$sample("x1")
-} # }
 ```

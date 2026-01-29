@@ -134,10 +134,10 @@ capture:</p>
 <span><span class="va">data_int</span> <span class="op">&lt;-</span> <span class="va">task_int</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Causal Structure:</strong></p>
 <div class="grViz html-widget html-fill-item" id="htmlwidget-ac96cb3ee4656e2e9ec3" style="width:768px;height:384px;"></div>
-<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"diagram":"\ndigraph interaction_dag {\n  rankdir=TB;\n  node [shape=circle, style=filled, fontname=\"Arial\", fontsize=12];\n  \n  # Feature nodes\n  x1 [fillcolor=\"lightblue\", label=\"x1\"];\n  x2 [fillcolor=\"lightblue\", label=\"x2\"];  \n  x3 [fillcolor=\"lightblue\", label=\"x3\"];\n  # noise1 [fillcolor=\"lightgray\", label=\"noise1\"];\n  # noise2 [fillcolor=\"lightgray\", label=\"noise2\"];\n  \n  # Interaction node\n  interaction [fillcolor=\"yellow\", label=\"x1×x2\", shape=diamond];\n  \n  # Outcome\n  y [fillcolor=\"greenyellow\", label=\"y\"];\n  \n  # NO direct effects from x1 and x2\n  x3 -> y [label=\"1.0\", color=\"blue\"];\n  \n  # Pure interaction effect\n  x1 -> interaction [style=dashed];\n  x2 -> interaction [style=dashed];\n  interaction -> y [label=\"2.0\", color=\"red\", penwidth=3];\n  \n  # Layout\n  {rank=same; x1, x2, x3, noise1, noise2}\n  {rank=same; interaction}\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p>The key insight: x1 and x2 have <strong>NO direct effects</strong> -
-they affect y ONLY through their interaction (thick red arrow). However,
-PFI will still show them as important because permuting either feature
-destroys the crucial interaction term.</p>
+<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"diagram":"\ndigraph interaction_dag {\n  rankdir=TB;\n  node [shape=circle, style=filled, fontname=\"Arial\", fontsize=12];\n  \n  # Feature nodes\n  x1 [fillcolor=\"lightblue\", label=\"x1\"];\n  x2 [fillcolor=\"lightblue\", label=\"x2\"];  \n  x3 [fillcolor=\"lightblue\", label=\"x3\"];\n  # noise1 [fillcolor=\"lightgray\", label=\"noise1\"];\n  # noise2 [fillcolor=\"lightgray\", label=\"noise2\"];\n  \n  # Interaction node\n  interaction [fillcolor=\"yellow\", label=\"x1×x2\", shape=diamond];\n  \n  # Outcome\n  y [fillcolor=\"greenyellow\", label=\"y\"];\n  \n  # NO direct effects from x1 and x2\n  x3 -> y [label=\"1.0\", color=\"blue\"];\n  \n  # Pure interaction effect\n  x1 -> interaction [style=dashed];\n  x2 -> interaction [style=dashed];\n  interaction -> y [label=\"2.0\", color=\"red\", penwidth=3];\n  \n  # Layout\n  {rank=same; x1, x2, x3, noise1, noise2}\n  {rank=same; interaction}\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p>x1 and x2 have <strong>no direct effects</strong> - they affect y
+only through their interaction (thick red arrow). However, PFI will
+still show them as important because permuting either feature destroys
+the crucial interaction term.</p>
 <div class="section level3">
 <h3 id="analysis">Analysis<a class="anchor" aria-label="anchor" href="#analysis"></a>
 </h3>
@@ -247,11 +247,11 @@ condition on x1)<br>
 <strong>x3 given x2</strong>: 1.979 (How important is x3 when we
 condition on x2)</li>
 </ul>
-<p><strong>Key insight</strong>: In the pure interaction case (y =
-2·x1·x2 + x3), when we condition on one interacting feature, the other
-becomes extremely important because they only matter together. This
-demonstrates RFI’s power to answer targeted questions like “Given I
-already know x2, how much does x1 add?”</p>
+<p>In the pure interaction case (y = 2·x1·x2 + x3), when we condition on
+one interacting feature, the other becomes extremely important because
+they only matter together. This demonstrates RFI’s power to answer
+targeted questions like “Given I already know x2, how much does x1
+add?”</p>
 </div>
 <div class="section level4">
 <h4 id="comparing-methods-on-interactions">Comparing Methods on Interactions<a class="anchor" aria-label="anchor" href="#comparing-methods-on-interactions"></a>
@@ -261,19 +261,19 @@ already know x2, how much does x1 add?”</p>
 </div>
 </div>
 <div class="section level3">
-<h3 id="key-insights-interaction-effects">Key Insights: Interaction Effects<a class="anchor" aria-label="anchor" href="#key-insights-interaction-effects"></a>
+<h3 id="interaction-effects">Interaction Effects<a class="anchor" aria-label="anchor" href="#interaction-effects"></a>
 </h3>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Combine results and calculate ratios</span></span>
-<span><span class="va">comp_int</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span><span class="va">comp_int</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    <span class="va">pfi_int</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">feature</span>, <span class="va">importance</span>, method <span class="op">=</span> <span class="st">"PFI"</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>    <span class="va">cfi_int</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">feature</span>, <span class="va">importance</span>, method <span class="op">=</span> <span class="st">"CFI"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Calculate the ratio of CFI to PFI importance for interacting features</span></span>
-<span><span class="va">int_ratio</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/dcast.data.table.html" class="external-link">dcast</a></span><span class="op">(</span><span class="va">comp_int</span><span class="op">[</span><span class="va">feature</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"x2"</span><span class="op">)</span><span class="op">]</span>, <span class="va">feature</span> <span class="op">~</span> <span class="va">method</span>, value.var <span class="op">=</span> <span class="st">"importance"</span><span class="op">)</span></span>
+<span><span class="va">int_ratio</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/dcast.data.table.html" class="external-link">dcast</a></span><span class="op">(</span><span class="va">comp_int</span><span class="op">[</span><span class="va">feature</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"x2"</span><span class="op">)</span><span class="op">]</span>, <span class="va">feature</span> <span class="op">~</span> <span class="va">method</span>, value.var <span class="op">=</span> <span class="st">"importance"</span><span class="op">)</span></span>
 <span><span class="va">int_ratio</span><span class="op">[</span>, <span class="va">cfi_pfi_ratio</span> <span class="op">:=</span> <span class="va">CFI</span> <span class="op">/</span> <span class="va">PFI</span><span class="op">]</span></span>
-<span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">int_ratio</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PFI"</span>, <span class="st">"CFI"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pfi_importance"</span>, <span class="st">"cfi_importance"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">int_ratio</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PFI"</span>, <span class="st">"CFI"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pfi_importance"</span>, <span class="st">"cfi_importance"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">int_ratio</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
@@ -494,7 +494,7 @@ truly causally related to y).</p>
 </h3>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Show how conditioning affects importance estimates</span></span>
-<span><span class="va">conf_wide</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/dcast.data.table.html" class="external-link">dcast</a></span><span class="op">(</span><span class="va">comp_conf_long</span>, <span class="va">feature</span> <span class="op">~</span> <span class="va">method</span>, value.var <span class="op">=</span> <span class="st">"importance"</span><span class="op">)</span></span>
+<span><span class="va">conf_wide</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/dcast.data.table.html" class="external-link">dcast</a></span><span class="op">(</span><span class="va">comp_conf_long</span>, <span class="va">feature</span> <span class="op">~</span> <span class="va">method</span>, value.var <span class="op">=</span> <span class="st">"importance"</span><span class="op">)</span></span>
 <span><span class="va">conf_summary</span> <span class="op">&lt;-</span> <span class="va">conf_wide</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span></span>
 <span>    <span class="va">feature</span>,</span>
 <span>    pfi_importance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">PFI</span>, <span class="fl">3</span><span class="op">)</span>,</span>
@@ -803,7 +803,7 @@ different sampler:</p>
 </h3>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Calculate coefficient of variation for each feature across methods</span></span>
-<span><span class="va">comp_ind_wide</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/dcast.data.table.html" class="external-link">dcast</a></span><span class="op">(</span><span class="va">comp_ind_long</span>, <span class="va">feature</span> <span class="op">~</span> <span class="va">method</span>, value.var <span class="op">=</span> <span class="st">"importance"</span><span class="op">)</span></span>
+<span><span class="va">comp_ind_wide</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/dcast.data.table.html" class="external-link">dcast</a></span><span class="op">(</span><span class="va">comp_ind_long</span>, <span class="va">feature</span> <span class="op">~</span> <span class="va">method</span>, value.var <span class="op">=</span> <span class="st">"importance"</span><span class="op">)</span></span>
 <span><span class="va">comp_ind_wide</span><span class="op">[</span>,</span>
 <span>    <span class="fu">`:=`</span><span class="op">(</span></span>
 <span>        mean_importance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">.SD</span><span class="op">)</span>,</span>

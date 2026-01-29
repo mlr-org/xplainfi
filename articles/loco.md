@@ -460,9 +460,9 @@ For our interaction data where \\y = 2 \cdot x_1 \cdot x_2 + x_3 +
   substantial prediction alone, while the `interaction_pair` (x1, x2)
   has limited predictive power in isolation
 
-This highlights a key insight: features that interact strongly may show
-high importance in leave-out (they matter for the full model) but low
-importance in leave-in (they don’t work well alone).
+Features that interact strongly may show high importance in leave-out
+(they matter for the full model) but low importance in leave-in (they
+don’t work well alone).
 
 ### Practical Considerations
 

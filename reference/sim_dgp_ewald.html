@@ -82,18 +82,18 @@ feature importance methods. Includes correlated features and interaction effects
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A regression task (<a href="https://mlr3.mlr-org.com/reference/TaskRegr.html" class="external-link">mlr3::TaskRegr</a>) with <a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a> backend.</p>
+    <p>A regression task (<a href="https://mlr3.mlr-org.com/reference/TaskRegr.html" class="external-link">mlr3::TaskRegr</a>) with <a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a> backend.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><strong>Mathematical Model:</strong>
 $$X_1, X_3, X_5 \sim \text{Uniform}(0,1)$$
-$$X_2 = X_1 + \varepsilon_2, \quad \varepsilon_2 \sim N(0, 0.001)$$
-$$X_4 = X_3 + \varepsilon_4, \quad \varepsilon_4 \sim N(0, 0.1)$$
-$$Y = X_4 + X_5 + X_4 \cdot X_5 + \varepsilon, \quad \varepsilon \sim N(0, 0.1)$$</p>
+$$X_2 = X_1 + \varepsilon_2, \quad \varepsilon_2 \sim N(0, \sqrt{0.001})$$
+$$X_4 = X_3 + \varepsilon_4, \quad \varepsilon_4 \sim N(0, \sqrt{0.1})$$
+$$Y = X_4 + X_5 + X_4 \cdot X_5 + \varepsilon, \quad \varepsilon \sim N(0, \sqrt{0.1})$$</p>
 <p><strong>Feature Properties:</strong></p><ul><li><p>X1, X3, X5: Independent uniform(0,1) distributions</p></li>
 <li><p>X2: Nearly perfect copy of X1 (correlation approximately 0.99)</p></li>
-<li><p>X4: Noisy copy of X3 (correlation approximately 0.67)</p></li>
+<li><p>X4: Noisy copy of X3 (correlation approximately 0.94)</p></li>
 <li><p>Y depends on X4, X5, and their interaction</p></li>
 </ul></div>
     <div class="section level2">

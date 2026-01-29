@@ -100,15 +100,15 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3learners.mlr-org.com" class="external-link">mlr3learners</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
-<p>The <strong>xplainfi</strong> package provides feature importance
-methods for machine learning models. It implements several approaches
-for measuring how much each feature contributes to model predictions,
-with a focus on model-agnostic methods that work with any learner.</p>
+<p><strong>xplainfi</strong> provides feature importance methods for
+machine learning models. It implements several approaches for measuring
+how much each feature contributes to model performance, with a focus on
+model-agnostic methods that work with any learner.</p>
 <div class="section level2">
 <h2 id="core-concepts">Core Concepts<a class="anchor" aria-label="anchor" href="#core-concepts"></a>
 </h2>
-<p>Feature importance methods in xplainfi address different but related
-questions:</p>
+<p>Feature importance methods in <code>xplainfi</code> address different
+but related questions:</p>
 <ul>
 <li>
 <strong>How much does each feature contribute to model
@@ -260,7 +260,7 @@ of each feature when all other features are present.</p>
 <span><span class="co">#&gt; 10: unimportant5 -0.5959717</span></span></code></pre></div>
 <p>LOCO is computationally expensive as it requires retraining for each
 feature, but provides clear interpretation: higher values mean larger
-performance drop when the feature is removed. LOCO, however, cannot
+performance drop when the feature is removed. However, it cannot
 distinguish between direct effects and indirect effects through
 correlated features.</p>
 </div>
@@ -271,8 +271,8 @@ correlated features.</p>
 provides different sampling strategies. While PFI uses simple
 permutation (marginal sampling), conditional samplers can preserve
 feature relationships.</p>
-<p>Let’s demonstrate conditional sampling using Adversarial Random
-Forests, which preserves relationships between features when
+<p>Let’s demonstrate conditional sampling using adversarial random
+rorests (ARF), which preserves relationships between features when
 sampling:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">arf_sampler</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/ConditionalARFSampler.html">ConditionalARFSampler</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span>
@@ -432,9 +432,9 @@ detailed scores:</p>
 <p>We can also summarize the scoring structure:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfi</span><span class="op">$</span><span class="fu">scores</span><span class="op">(</span><span class="op">)</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span></span>
-<span>    features <span class="op">=</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/duplicated.html" class="external-link">uniqueN</a></span><span class="op">(</span><span class="va">feature</span><span class="op">)</span>,</span>
-<span>    resampling_folds <span class="op">=</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/duplicated.html" class="external-link">uniqueN</a></span><span class="op">(</span><span class="va">iter_rsmp</span><span class="op">)</span>,</span>
-<span>    permutation_iters <span class="op">=</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/duplicated.html" class="external-link">uniqueN</a></span><span class="op">(</span><span class="va">iter_repeat</span><span class="op">)</span>,</span>
+<span>    features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/duplicated.html" class="external-link">uniqueN</a></span><span class="op">(</span><span class="va">feature</span><span class="op">)</span>,</span>
+<span>    resampling_folds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/duplicated.html" class="external-link">uniqueN</a></span><span class="op">(</span><span class="va">iter_rsmp</span><span class="op">)</span>,</span>
+<span>    permutation_iters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/duplicated.html" class="external-link">uniqueN</a></span><span class="op">(</span><span class="va">iter_repeat</span><span class="op">)</span>,</span>
 <span>    total_scores <span class="op">=</span> <span class="va">.N</span></span>
 <span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;    features resampling_folds permutation_iters total_scores</span></span>

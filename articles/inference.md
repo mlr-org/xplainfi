@@ -507,7 +507,7 @@ loco_thetas
 
 The authors then propose to construct distribution-free confidence
 intervals, e.g. using a sign- or Wilcoxon test We can for example use
-\[wilcoxon.test\] to compute confidence intervals around the estimated
+`wilcoxon.test()` to compute confidence intervals around the estimated
 pseudo-median:
 
 ``` r

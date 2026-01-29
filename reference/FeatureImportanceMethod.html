@@ -125,7 +125,7 @@ Not all methods support groups (e.g., <a href="SAGE.html">SAGE</a>).</p></dd>
 
 
 <dt><code>predictions</code></dt>
-<dd><p>(<a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a>) Feature-specific prediction objects provided for some methods (<a href="PFI.html">PFI</a>, <a href="WVIM.html">WVIM</a>). Contains columns for feature of interest, resampling iteration, refit or perturbation iteration, and <a href="https://mlr3.mlr-org.com/reference/Prediction.html" class="external-link">mlr3::Prediction</a> objects.</p></dd>
+<dd><p>(<a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a>) Feature-specific prediction objects provided for some methods (<a href="PFI.html">PFI</a>, <a href="WVIM.html">WVIM</a>). Contains columns for feature of interest, resampling iteration, refit or perturbation iteration, and <a href="https://mlr3.mlr-org.com/reference/Prediction.html" class="external-link">mlr3::Prediction</a> objects.</p></dd>
 
 
 </dl><p></p></div>
@@ -261,7 +261,7 @@ Analogously, the <code>"nadeau_bengio"</code> correction was recommended for the
 
 <div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
-<p>(<a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a>) Aggregated importance scores with columns <code>"feature"</code>, <code>"importance"</code>,
+<p>(<a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a>) Aggregated importance scores with columns <code>"feature"</code>, <code>"importance"</code>,
 and depending on <code>ci_method</code> also <code>"se"</code>, <code>"conf_lower"</code>, <code>"conf_upper"</code>.</p>
 </div>
 
@@ -286,7 +286,7 @@ relation between baseline and post-modification loss, i.e. <a href="Perturbation
 </div>
 <div class="section">
 <h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
-<p>(<a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a>) Observation-wise losses and importance scores with columns
+<p>(<a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a>) Observation-wise losses and importance scores with columns
 <code>"feature"</code>, <code>"iter_rsmp"</code>, <code>"iter_repeat"</code> (if applicable), <code>"row_ids"</code>, <code>"loss_baseline"</code>, <code>"loss_post"</code>, and <code>"obs_importance"</code>.</p>
 </div>
 
@@ -335,7 +335,7 @@ relation between baseline and post-modification loss, i.e. <a href="Perturbation
 </div>
 <div class="section">
 <h4 id="returns-2">Returns<a class="anchor" aria-label="anchor" href="#returns-2"></a></h4>
-<p>(<a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a>) Iteration-wise importance scores with columns for
+<p>(<a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a>) Iteration-wise importance scores with columns for
 <code>"feature"</code>, iteration indices, baseline and post-modification scores, and <code>"importance"</code>.</p>
 </div>
 

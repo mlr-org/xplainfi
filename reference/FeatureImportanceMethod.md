@@ -70,7 +70,7 @@ Intelligence*, 456–479. ISBN 978-3-031-44064-9,
 
 - `predictions`:
 
-  ([data.table](https://rdatatable.gitlab.io/data.table/reference/data.table.html))
+  ([data.table](https://rdrr.io/pkg/data.table/man/data.table.html))
   Feature-specific prediction objects provided for some methods
   ([PFI](https://mlr-org.github.io/xplainfi/reference/PFI.md),
   [WVIM](https://mlr-org.github.io/xplainfi/reference/WVIM.md)).
@@ -257,7 +257,7 @@ the mean, variance estimation currently will always use
 
 #### Returns
 
-([data.table](https://rdatatable.gitlab.io/data.table/reference/data.table.html))
+([data.table](https://rdrr.io/pkg/data.table/man/data.table.html))
 Aggregated importance scores with columns `"feature"`, `"importance"`,
 and depending on `ci_method` also `"se"`, `"conf_lower"`,
 `"conf_upper"`.
@@ -295,7 +295,7 @@ decomposable.
 
 #### Returns
 
-([data.table](https://rdatatable.gitlab.io/data.table/reference/data.table.html))
+([data.table](https://rdrr.io/pkg/data.table/man/data.table.html))
 Observation-wise losses and importance scores with columns `"feature"`,
 `"iter_rsmp"`, `"iter_repeat"` (if applicable), `"row_ids"`,
 `"loss_baseline"`, `"loss_post"`, and `"obs_importance"`.
@@ -361,7 +361,7 @@ only a different relation is needed.
 
 #### Returns
 
-([data.table](https://rdatatable.gitlab.io/data.table/reference/data.table.html))
+([data.table](https://rdrr.io/pkg/data.table/man/data.table.html))
 Iteration-wise importance scores with columns for `"feature"`, iteration
 indices, baseline and post-modification scores, and `"importance"`.
 

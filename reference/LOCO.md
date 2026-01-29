@@ -143,14 +143,14 @@ loco <- LOCO$new(
   measure = msr("regr.mse")
 )
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
-#>   (test set size: 333)
+#>   (test set size: 167)
 loco$compute()
 loco$importance()
 #> Key: <feature>
 #>    feature importance
 #>     <char>      <num>
-#> 1:      x1  0.9742173
-#> 2:      x2  0.2233854
-#> 3:      x3  1.1159889
-#> 4:      x4  0.0746354
+#> 1:      x1 0.84715546
+#> 2:      x2 0.07287656
+#> 3:      x3 0.98646457
+#> 4:      x4 0.01761997
 ```

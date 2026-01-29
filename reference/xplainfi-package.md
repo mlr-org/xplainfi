@@ -3,10 +3,10 @@
 Provides a consistent interface for common feature importance methods as
 described in Ewald et al. (2024)
 [doi:10.1007/978-3-031-63797-1_22](https://doi.org/10.1007/978-3-031-63797-1_22)
-, including permutation feature importance ('PFI'), conditional and
-relative feature importance ('CFI', 'RFI'), 'leave-one-covariate-out'
-('LOCO'), and 'Shapley Additive Global importancE' ('SAGE'), as well as
-feature sampling mechanisms to support conditional importance methods.
+, including permutation feature importance (PFI), conditional and
+relative feature importance (CFI, RFI), leave one covariate out (LOCO),
+and Shapley additive global importance (SAGE), as well as feature
+sampling mechanisms to support conditional importance methods.
 
 ## See also
 

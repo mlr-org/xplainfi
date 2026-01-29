@@ -145,7 +145,7 @@ method to support the additional `"cpi"` ci_method.
 
 #### Returns
 
-([data.table](https://rdatatable.gitlab.io/data.table/reference/data.table.html))
+([data.table](https://rdrr.io/pkg/data.table/man/data.table.html))
 Aggregated importance scores.
 
 ------------------------------------------------------------------------

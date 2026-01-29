@@ -69,6 +69,7 @@
 <li>Adjusted the <code>min_permutations</code> default in <code>SAGE</code> methods to 10 rather than 3, since the previous value was found to lead to spurious early stopping.</li>
 <li>Fix <code>sim_dgp_ewald</code> lading to erroneous variances when compared to their settings.</li>
 <li>Reduce runtime of tests (mostly by using less ARF and mor Gaussian sampling)</li>
+<li>Remove <code>KnockoffSequentialSampler</code> as the <code>seqknockoff</code> package is not available on CRAN or R-universe. <code>KnockoffSampler</code> with the corresponding <code>knockoff_fun = seqknockoff::knockoffs_seq</code> still works.</li>
 </ul></div>
 </div>
     <div class="section level2">
