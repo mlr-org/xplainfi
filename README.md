@@ -71,7 +71,7 @@ pfi = PFI$new(
     learner = learner,
     measure = measure,
     resampling = rsmp("cv", folds = 3),
-    n_repeats = 10
+    n_repeats = 30
 )
 ```
 
@@ -81,18 +81,18 @@ Compute and print PFI scores:
 pfi$compute()
 pfi$importance()
 #> Key: <feature>
-#>          feature  importance
-#>           <char>       <num>
-#>  1:   important1  8.26830487
-#>  2:   important2  7.56661552
-#>  3:   important3  1.54377613
-#>  4:   important4 12.60915426
-#>  5:   important5  2.71382429
-#>  6: unimportant1  0.02113506
-#>  7: unimportant2 -0.01250122
-#>  8: unimportant3 -0.04414584
-#>  9: unimportant4 -0.05157362
-#> 10: unimportant5  0.04819212
+#>          feature   importance
+#>           <char>        <num>
+#>  1:   important1  8.183995584
+#>  2:   important2  7.481268675
+#>  3:   important3  1.571760349
+#>  4:   important4 12.585739572
+#>  5:   important5  2.810875567
+#>  6: unimportant1  0.030667439
+#>  7: unimportant2 -0.002837696
+#>  8: unimportant3 -0.044922079
+#>  9: unimportant4 -0.060054450
+#> 10: unimportant5  0.060148388
 ```
 
 If it aids interpretation, importances can also be calculated as the
@@ -104,16 +104,16 @@ pfi$importance(relation = "ratio")
 #> Key: <feature>
 #>          feature importance
 #>           <char>      <num>
-#>  1:   important1  2.7167932
-#>  2:   important2  2.5798917
-#>  3:   important3  1.3234729
-#>  4:   important4  3.6334554
-#>  5:   important5  1.5680305
-#>  6: unimportant1  1.0047822
-#>  7: unimportant2  0.9972307
-#>  8: unimportant3  0.9907595
-#>  9: unimportant4  0.9890062
-#> 10: unimportant5  1.0100964
+#>  1:   important1  2.6987668
+#>  2:   important2  2.5598945
+#>  3:   important3  1.3294180
+#>  4:   important4  3.6278508
+#>  5:   important5  1.5874860
+#>  6: unimportant1  1.0067957
+#>  7: unimportant2  0.9994507
+#>  8: unimportant3  0.9905990
+#>  9: unimportant4  0.9874657
+#> 10: unimportant5  1.0126572
 ```
 
 When PFI is computed based on resampling with multiple iterations, and /
@@ -122,13 +122,13 @@ retrieved as a `data.table`:
 
 ``` r
 str(pfi$scores())
-#> Classes 'data.table' and 'data.frame':   300 obs. of  6 variables:
+#> Classes 'data.table' and 'data.frame':   900 obs. of  6 variables:
 #>  $ feature          : chr  "important1" "important1" "important1" "important1" ...
 #>  $ iter_rsmp        : int  1 1 1 1 1 1 1 1 1 1 ...
 #>  $ iter_repeat      : int  1 2 3 4 5 6 7 8 9 10 ...
 #>  $ regr.mse_baseline: num  4.56 4.56 4.56 4.56 4.56 ...
-#>  $ regr.mse_post    : num  11.4 11.5 12.7 12.9 10.7 ...
-#>  $ importance       : num  6.83 6.96 8.15 8.35 6.09 ...
+#>  $ regr.mse_post    : num  12.3 11.9 11.3 12.1 13.6 ...
+#>  $ importance       : num  7.77 7.33 6.74 7.56 9.06 ...
 #>  - attr(*, ".internal.selfref")=<externalptr>
 ```
 
@@ -177,23 +177,23 @@ pfi = PFI$new(
     measure = msr("regr.rsq")
 )
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
-#>   (test set size: 667)
+#> (test set size: 667)
 
 pfi$compute()
 pfi$importance()
 #> Key: <feature>
-#>          feature    importance
-#>           <char>         <num>
-#>  1:   important1  0.3538670264
-#>  2:   important2  0.3078201501
-#>  3:   important3  0.0684752046
-#>  4:   important4  0.5509192405
-#>  5:   important5  0.1324330936
-#>  6: unimportant1 -0.0033190271
-#>  7: unimportant2  0.0002369042
-#>  8: unimportant3 -0.0020602383
-#>  9: unimportant4 -0.0016842988
-#> 10: unimportant5 -0.0007178819
+#>          feature   importance
+#>           <char>        <num>
+#>  1:   important1  0.357241267
+#>  2:   important2  0.321728559
+#>  3:   important3  0.071805956
+#>  4:   important4  0.487525994
+#>  5:   important5  0.124534253
+#>  6: unimportant1  0.004134264
+#>  7: unimportant2  0.002655723
+#>  8: unimportant3 -0.002909764
+#>  9: unimportant4  0.004227081
+#> 10: unimportant5  0.000863502
 ```
 
 See `vignette("xplainfi")` for more examples.

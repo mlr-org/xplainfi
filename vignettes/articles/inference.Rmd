@@ -85,7 +85,7 @@ pfi = PFI$new(
 	learner = learner,
 	resampling = rsmp("subsampling", repeats = 15),
 	measure = measure,
-	n_repeats = 10 # for stability within resampling iters
+	n_repeats = 20 # for stability within resampling iters
 )
 
 pfi$compute()
