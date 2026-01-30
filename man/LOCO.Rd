@@ -68,7 +68,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   measure = NULL,
   resampling = NULL,
   features = NULL,
-  n_repeats = 10L
+  n_repeats = 30L
 )}\if{html}{\out{</div>}}
 }
 
@@ -86,7 +86,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 
 \item{\code{features}}{(\code{character()}) Features to compute importance for. Defaults to all features.}
 
-\item{\code{n_repeats}}{(\code{integer(1)}: \code{1L}) Number of refit iterations per resampling iteration.}
+\item{\code{n_repeats}}{(\code{integer(1)}: \code{30L}) Number of refit iterations per resampling iteration.}
 }
 \if{html}{\out{</div>}}
 }

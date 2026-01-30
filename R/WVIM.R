@@ -44,7 +44,7 @@ WVIM = R6Class(
 		#' @param task,learner,measure,resampling,features,groups Passed to `FeatureImportanceMethod` for construction.
 		#' @param direction (`character(1)`) Either "leave-out" or "leave-in".
 		#' @param label (`character(1)`) Method label.
-		#' @param n_repeats (`integer(1)`) Number of refit iterations per resampling iteration.
+		#' @param n_repeats (`integer(1)`: `30L`) Number of refit iterations per resampling iteration.
 		initialize = function(
 			task,
 			learner,
@@ -54,7 +54,7 @@ WVIM = R6Class(
 			groups = NULL,
 			direction = c("leave-out", "leave-in"),
 			label = "Williamson's Variable Importance Measure (WVIM)",
-			n_repeats = 10L
+			n_repeats = 30L
 		) {
 			require_package("mlr3fselect")
 
@@ -302,14 +302,14 @@ LOCO = R6Class(
 		#'   `classif.ce` for classification and `regr.mse` for regression.
 		#' @param resampling ([mlr3::Resampling]) Resampling strategy. Defaults to holdout.
 		#' @param features (`character()`) Features to compute importance for. Defaults to all features.
-		#' @param n_repeats (`integer(1)`: `1L`) Number of refit iterations per resampling iteration.
+		#' @param n_repeats (`integer(1)`: `30L`) Number of refit iterations per resampling iteration.
 		initialize = function(
 			task,
 			learner,
 			measure = NULL,
 			resampling = NULL,
 			features = NULL,
-			n_repeats = 10L
+			n_repeats = 30L
 		) {
 			if (!is.null(features)) {
 				# LOCO specifically does not "allow" grouped features
