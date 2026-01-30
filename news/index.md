@@ -1,5 +1,7 @@
 # Changelog
 
+## xplainfi (development version)
+
 ## xplainfi 1.0.0 - Initial CRAN release
 
 CRAN release: 2026-01-30
