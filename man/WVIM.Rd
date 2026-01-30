@@ -82,7 +82,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   groups = NULL,
   direction = c("leave-out", "leave-in"),
   label = "Williamson's Variable Importance Measure (WVIM)",
-  n_repeats = 1L
+  n_repeats = 10L
 )}\if{html}{\out{</div>}}
 }
 

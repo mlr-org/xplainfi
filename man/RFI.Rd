@@ -63,7 +63,7 @@ Creates a new instance of the RFI class
   groups = NULL,
   conditioning_set = NULL,
   relation = "difference",
-  n_repeats = 1L,
+  n_repeats = 30L,
   batch_size = NULL,
   sampler = NULL
 )}\if{html}{\out{</div>}}

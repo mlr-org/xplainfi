@@ -68,7 +68,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   measure = NULL,
   resampling = NULL,
   features = NULL,
-  n_repeats = 1L
+  n_repeats = 10L
 )}\if{html}{\out{</div>}}
 }
 

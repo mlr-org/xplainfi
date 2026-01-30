@@ -85,7 +85,7 @@ Creates a new instance of the PFI class
   features = NULL,
   groups = NULL,
   relation = "difference",
-  n_repeats = 1L,
+  n_repeats = 30L,
   batch_size = NULL
 )}\if{html}{\out{</div>}}
 }

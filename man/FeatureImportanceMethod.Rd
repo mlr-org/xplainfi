@@ -163,11 +163,11 @@ An approach leading to still imperfect, but improved variance estimates could be
   measure = msr("regr.mse"),
   # Subsampling instead of bootstrapping due to RF
   resampling = rsmp("subsampling", repeats = 15),
-  n_repeats = 5
+  n_repeats = 20
 )
 }\if{html}{\out{</div>}}
 
-\code{n_repeats = 5} in this context only improves the stability of the PFI estimate within the resampling iteration, whereas \code{rsmp("subsampling", repeats = 15)}
+\code{n_repeats = 20} in this context only improves the stability of the PFI estimate within the resampling iteration, whereas \code{rsmp("subsampling", repeats = 15)}
 is used to account for learner variance and necessitates variance correction.
 
 This approach can in principle also be applied to \code{CFI} and \code{RFI}, but beware that a conditional sample such as \link{ConditionalARFSampler} also needs to be trained on data,
