@@ -1,3 +1,5 @@
+# xplainfi (development version)
+
 # xplainfi 1.0.0 - Initial CRAN release
 
 The major version bump is largely to mark the occasion that the package is now considered "released".
