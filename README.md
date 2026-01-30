@@ -21,14 +21,13 @@ implementation of importance measures.
 
 ## Installation
 
-Once released, you can install `xplainfi` from CRAN:
+Install `xplainfi` from CRAN:
 
 ``` r
 install.packages("xplainfi")
 ```
 
-You can also install `xplainfi` from
-[R-universe](https://mlr-org.r-universe.dev):
+Or install `xplainfi` from [R-universe](https://mlr-org.r-universe.dev):
 
 ``` r
 install.packages("xplainfi", repos = c("https://mlr-org.r-universe.dev", "https://cloud.r-project.org"))
@@ -53,9 +52,9 @@ The `friedman1` task has the following structure:
 
 $$y = 10 \sin(\pi x_1 x_2) + 20(x_3 - 0.5)^2 + 10x_4 + 5x_5 + \varepsilon$$
 
-Where $x_{1,2,3,4,5}$ are named `important1` through `important5` in the
-`Task`, with additional numbered `unimportant` features without effect
-on $y$.
+Where $x_{\{1,2,3,4,5\}}$ are named `important1` through `important5` in
+the `Task`, with additional numbered `unimportant` features without
+effect on $y$.
 
 ``` r
 library(xplainfi)
@@ -177,23 +176,23 @@ pfi = PFI$new(
     measure = msr("regr.rsq")
 )
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
-#> (test set size: 667)
+#> (test set size: 333)
 
 pfi$compute()
 pfi$importance()
 #> Key: <feature>
 #>          feature   importance
 #>           <char>        <num>
-#>  1:   important1  0.357241267
-#>  2:   important2  0.321728559
-#>  3:   important3  0.071805956
-#>  4:   important4  0.487525994
-#>  5:   important5  0.124534253
-#>  6: unimportant1  0.004134264
-#>  7: unimportant2  0.002655723
-#>  8: unimportant3 -0.002909764
-#>  9: unimportant4  0.004227081
-#> 10: unimportant5  0.000863502
+#>  1:   important1  0.329915393
+#>  2:   important2  0.297695022
+#>  3:   important3  0.063613087
+#>  4:   important4  0.493673768
+#>  5:   important5  0.121794662
+#>  6: unimportant1  0.003972813
+#>  7: unimportant2  0.002157623
+#>  8: unimportant3 -0.002780577
+#>  9: unimportant4  0.001914150
+#> 10: unimportant5  0.001366645
 ```
 
 See `vignette("xplainfi")` for more examples.

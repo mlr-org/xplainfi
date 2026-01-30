@@ -38,14 +38,13 @@ importance measures.
 
 ## Installation
 
-Once released, you can install `xplainfi` from CRAN:
+Install `xplainfi` from CRAN:
 
 ```r
 install.packages("xplainfi")
 ```
 
-You can also install `xplainfi` from
-[R-universe](https://mlr-org.r-universe.dev):
+Or install `xplainfi` from [R-universe](https://mlr-org.r-universe.dev):
 
 ```r
 install.packages("xplainfi", repos = c("https://mlr-org.r-universe.dev", "https://cloud.r-project.org"))
@@ -62,14 +61,13 @@ pak::pak("mlr-org/xplainfi")
 
 Here is a basic example on how to calculate PFI for a given learner and task,
 using repeated cross-validation as resampling strategy and computing PFI within
-each resampling 10 times on the `friedman1` task (see
-`?mlbench::mlbench.friedman1`).
+each resampling 10 times on the `friedman1` task (see `?mlbench::mlbench.friedman1`).
 
 The `friedman1` task has the following structure:
 
 $$y = 10 \sin(\pi x_1 x_2) + 20(x_3 - 0.5)^2 + 10x_4 + 5x_5 + \varepsilon$$
 
-Where $x_{1,2,3,4,5}$ are named `important1` through `important5` in the `Task`,
+Where $x_{\{1,2,3,4,5\}}$ are named `important1` through `important5` in the `Task`,
 with additional numbered `unimportant` features without effect on $y$.
 
 ```{r setup}
