@@ -15,7 +15,7 @@ PerturbationImportance = R6Class(
 		#' @param task,learner,measure,resampling,features,groups Passed to [FeatureImportanceMethod].
 		#' @param sampler ([FeatureSampler]) Sampler to use for feature perturbation.
 		#' @param relation (`character(1)`: `"difference"`) How to relate perturbed and baseline scores. Can also be `"ratio"`.
-		#' @param n_repeats (`integer(1)`: `1L`) Number of permutation/conditional sampling iterations. Can be overridden in `$compute()`.
+		#' @param n_repeats (`integer(1)`: `30L`) Number of permutation/conditional sampling iterations. Can also be overridden in `$compute()`.
 		#' @param batch_size (`integer(1)` | `NULL`: `NULL`) Maximum number of rows to predict at once. When `NULL`, predicts all `test_size * n_repeats` rows in one call. Use smaller values to reduce memory usage at the cost of more prediction calls. Can be overridden in `$compute()`.
 		initialize = function(
 			task,
@@ -26,7 +26,7 @@ PerturbationImportance = R6Class(
 			groups = NULL,
 			sampler = NULL,
 			relation = "difference",
-			n_repeats = 1L,
+			n_repeats = 30L,
 			batch_size = NULL
 		) {
 			super$initialize(
@@ -366,7 +366,7 @@ PFI = R6Class(
 			features = NULL,
 			groups = NULL,
 			relation = "difference",
-			n_repeats = 1L,
+			n_repeats = 30L,
 			batch_size = NULL
 		) {
 			super$initialize(
@@ -447,7 +447,7 @@ CFI = R6Class(
 			features = NULL,
 			groups = NULL,
 			relation = "difference",
-			n_repeats = 1L,
+			n_repeats = 30L,
 			batch_size = NULL,
 			sampler = NULL
 		) {
@@ -558,7 +558,7 @@ RFI = R6Class(
 			groups = NULL,
 			conditioning_set = NULL,
 			relation = "difference",
-			n_repeats = 1L,
+			n_repeats = 30L,
 			batch_size = NULL,
 			sampler = NULL
 		) {

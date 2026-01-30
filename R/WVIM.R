@@ -54,7 +54,7 @@ WVIM = R6Class(
 			groups = NULL,
 			direction = c("leave-out", "leave-in"),
 			label = "Williamson's Variable Importance Measure (WVIM)",
-			n_repeats = 1L
+			n_repeats = 10L
 		) {
 			require_package("mlr3fselect")
 
@@ -309,7 +309,7 @@ LOCO = R6Class(
 			measure = NULL,
 			resampling = NULL,
 			features = NULL,
-			n_repeats = 1L
+			n_repeats = 10L
 		) {
 			if (!is.null(features)) {
 				# LOCO specifically does not "allow" grouped features

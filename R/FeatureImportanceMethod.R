@@ -140,11 +140,11 @@ FeatureImportanceMethod = R6Class(
 		#'   measure = msr("regr.mse"),
 		#'   # Subsampling instead of bootstrapping due to RF
 		#'   resampling = rsmp("subsampling", repeats = 15),
-		#'   n_repeats = 5
+		#'   n_repeats = 20
 		#' )
 		#' ```
 		#'
-		#' `n_repeats = 5` in this context only improves the stability of the PFI estimate within the resampling iteration, whereas `rsmp("subsampling", repeats = 15)`
+		#' `n_repeats = 20` in this context only improves the stability of the PFI estimate within the resampling iteration, whereas `rsmp("subsampling", repeats = 15)`
 		#' is used to account for learner variance and necessitates variance correction.
 		#'
 		#' This approach can in principle also be applied to `CFI` and `RFI`, but beware that a conditional sample such as [ConditionalARFSampler] also needs to be trained on data,
