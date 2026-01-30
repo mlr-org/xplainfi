@@ -2,6 +2,8 @@
 
 ## xplainfi 1.0.0 - Initial CRAN release
 
+CRAN release: 2026-01-30
+
 The major version bump is largely to mark the occasion that the package
 is now considered “released”.
 
