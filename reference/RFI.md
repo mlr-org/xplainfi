@@ -53,7 +53,7 @@ Creates a new instance of the RFI class
       groups = NULL,
       conditioning_set = NULL,
       relation = "difference",
-      n_repeats = 1L,
+      n_repeats = 30L,
       batch_size = NULL,
       sampler = NULL
     )
@@ -155,13 +155,13 @@ rfi$importance()
 #>          feature  importance
 #>           <char>       <num>
 #>  1:   important1  0.00000000
-#>  2:   important2  6.56214678
-#>  3:   important3  1.85528306
-#>  4:   important4  9.01753438
-#>  5:   important5  2.36772225
-#>  6: unimportant1  0.19616888
-#>  7: unimportant2  0.09921649
-#>  8: unimportant3  0.14696144
-#>  9: unimportant4 -0.37958579
-#> 10: unimportant5  0.34660008
+#>  2:   important2  3.98572044
+#>  3:   important3  0.70127228
+#>  4:   important4  8.68608941
+#>  5:   important5  1.66898162
+#>  6: unimportant1  0.07271123
+#>  7: unimportant2 -0.13309431
+#>  8: unimportant3  0.04559203
+#>  9: unimportant4  0.18750985
+#> 10: unimportant5 -0.07063373
 ```

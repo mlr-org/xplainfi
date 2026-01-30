@@ -60,7 +60,7 @@ pfi_int <- PFI$new(
     learner = learner,
     measure = measure,
     resampling = resampling,
-    n_repeats = 5
+    n_repeats = 20
 )
 
 # Compute importance scores
@@ -69,11 +69,11 @@ pfi_int$importance(relation = "difference")
 #> Key: <feature>
 #>    feature  importance
 #>     <char>       <num>
-#> 1:  noise1 0.003847893
-#> 2:  noise2 0.020582945
-#> 3:      x1 2.278858182
-#> 4:      x2 2.001683415
-#> 5:      x3 1.935324704
+#> 1:  noise1 0.007709169
+#> 2:  noise2 0.010890405
+#> 3:      x1 2.235765433
+#> 4:      x2 2.113462681
+#> 5:      x3 2.089067824
 ```
 
 Expected: x1 and x2 will show high importance with PFI because permuting
@@ -94,7 +94,7 @@ cfi_int <- CFI$new(
     learner = learner,
     measure = measure,
     resampling = resampling,
-    n_repeats = 5,
+    n_repeats = 20,
     sampler = sampler_int
 )
 
@@ -102,13 +102,13 @@ cfi_int <- CFI$new(
 cfi_int$compute()
 cfi_int$importance(relation = "difference")
 #> Key: <feature>
-#>    feature importance
-#>     <char>      <num>
-#> 1:  noise1 0.02435625
-#> 2:  noise2 0.02051248
-#> 3:      x1 2.03202059
-#> 4:      x2 1.69961194
-#> 5:      x3 1.96597388
+#>    feature   importance
+#>     <char>        <num>
+#> 1:  noise1  0.002804323
+#> 2:  noise2 -0.001548059
+#> 3:      x1  2.071614103
+#> 4:      x2  1.746959285
+#> 5:      x3  1.990800605
 ```
 
 Expected: CFI should show somewhat lower importance for x1 and x2
@@ -129,7 +129,7 @@ rfi_int_x2 <- RFI$new(
     measure = measure,
     resampling = resampling,
     conditioning_set = "x2", # Condition on x2
-    n_repeats = 5,
+    n_repeats = 20,
     sampler = sampler_int
 )
 rfi_int_x2$compute()
@@ -141,7 +141,7 @@ rfi_int_x1 <- RFI$new(
     measure = measure,
     resampling = resampling,
     conditioning_set = "x1", # Condition on x1
-    n_repeats = 5,
+    n_repeats = 20,
     sampler = sampler_int
 )
 rfi_int_x1$compute()
@@ -149,9 +149,9 @@ rfi_int_x1$compute()
 
 **RFI Results:**
 
-- **x1 given x2**: 2.170 (How important is x1 when we condition on x2)
-- **x2 given x1**: 1.579 (How important is x2 when we condition on x1)  
-- **x3 given x2**: 1.979 (How important is x3 when we condition on x2)
+- **x1 given x2**: 2.243 (How important is x1 when we condition on x2)
+- **x2 given x1**: 1.863 (How important is x2 when we condition on x1)  
+- **x3 given x2**: 2.055 (How important is x3 when we condition on x2)
 
 In the pure interaction case (y = 2·x1·x2 + x3), when we condition on
 one interacting feature, the other becomes extremely important because
@@ -194,8 +194,8 @@ int_ratio |>
 
 | feature | cfi_importance | pfi_importance | cfi_pfi_ratio |
 |:--------|---------------:|---------------:|--------------:|
-| x1      |          2.032 |          2.279 |         0.892 |
-| x2      |          1.700 |          2.002 |         0.849 |
+| x1      |          2.072 |          2.236 |         0.927 |
+| x2      |          1.747 |          2.113 |         0.827 |
 
 CFI vs PFI for Interacting Features
 
@@ -249,7 +249,7 @@ pfi_conf <- PFI$new(
     learner = learner,
     measure = measure,
     resampling = resampling,
-    n_repeats = 5
+    n_repeats = 20
 )
 
 pfi_conf$compute()
@@ -257,9 +257,9 @@ pfi_conf$importance()
 #> Key: <feature>
 #>        feature importance
 #>         <char>      <num>
-#> 1: independent   1.571777
-#> 2:       proxy   1.289117
-#> 3:          x1   3.586063
+#> 1: independent   1.589470
+#> 2:       proxy   1.083619
+#> 3:          x1   3.843644
 ```
 
 #### RFI Conditioning on Proxy
@@ -281,7 +281,7 @@ rfi_conf <- RFI$new(
     measure = measure,
     resampling = resampling,
     conditioning_set = "proxy", # Condition on proxy to reduce confounding
-    n_repeats = 5,
+    n_repeats = 20,
     sampler = sampler_conf
 )
 
@@ -290,9 +290,9 @@ rfi_conf$importance()
 #> Key: <feature>
 #>        feature importance
 #>         <char>      <num>
-#> 1: independent   1.622194
+#> 1: independent   1.597174
 #> 2:       proxy   0.000000
-#> 3:          x1   1.749965
+#> 3:          x1   1.714698
 ```
 
 #### Also trying CFI for comparison
@@ -303,7 +303,7 @@ cfi_conf <- CFI$new(
     learner = learner,
     measure = measure,
     resampling = resampling,
-    n_repeats = 5,
+    n_repeats = 20,
     sampler = sampler_conf
 )
 #> Warning: ! Provided sampler has a pre-configured `conditioning_set`.
@@ -315,9 +315,9 @@ cfi_conf$importance()
 #> Key: <feature>
 #>        feature importance
 #>         <char>      <num>
-#> 1: independent  1.5586791
-#> 2:       proxy  0.2084425
-#> 3:          x1  1.6674019
+#> 1: independent  1.5623424
+#> 2:       proxy  0.2479059
+#> 3:          x1  1.6977570
 ```
 
 #### Observable Confounder Scenario
@@ -344,19 +344,19 @@ rfi_conf_obs <- RFI$new(
     measure = measure,
     resampling = resampling,
     conditioning_set = "confounder", # Condition on true confounder
-    n_repeats = 5,
+    n_repeats = 20,
     sampler = sampler_conf_obs
 )
 
 rfi_conf_obs$compute()
 rfi_conf_obs$importance()
 #> Key: <feature>
-#>        feature   importance
-#>         <char>        <num>
-#> 1:  confounder  0.000000000
-#> 2: independent  1.539426725
-#> 3:       proxy -0.002651167
-#> 4:          x1  0.549141497
+#>        feature importance
+#>         <char>      <num>
+#> 1:  confounder 0.00000000
+#> 2: independent 1.43713482
+#> 3:       proxy 0.01481911
+#> 4:          x1 0.54425680
 
 # Compare with PFI on the same data
 pfi_conf_obs <- PFI$new(
@@ -364,21 +364,21 @@ pfi_conf_obs <- PFI$new(
     learner = learner,
     measure = measure,
     resampling = resampling,
-    n_repeats = 5
+    n_repeats = 20
 )
 pfi_conf_obs$compute()
 pfi_conf_obs$importance()
 #> Key: <feature>
 #>        feature importance
 #>         <char>      <num>
-#> 1:  confounder 1.62325668
-#> 2: independent 1.62540310
-#> 3:       proxy 0.05759922
-#> 4:          x1 2.18558022
+#> 1:  confounder  1.6772911
+#> 2: independent  1.4332083
+#> 3:       proxy  0.1429327
+#> 4:          x1  1.6693868
 ```
 
-- **x1 importance**: PFI = 2.186, RFI\|confounder = 0.549
-- **independent importance**: PFI = 1.625, RFI\|confounder = 1.539
+- **x1 importance**: PFI = 1.669, RFI\|confounder = 0.544
+- **independent importance**: PFI = 1.433, RFI\|confounder = 1.437
 
 When conditioning on the true confounder, RFI should show reduced
 importance for x1 (since much of its apparent importance was due to
@@ -417,9 +417,9 @@ conf_summary |>
 
 | feature     | pfi_importance | cfi_importance | rfi_proxy_importance | pfi_rfi_diff |
 |:------------|---------------:|---------------:|---------------------:|-------------:|
-| independent |          1.572 |          1.559 |                1.622 |       -0.050 |
-| proxy       |          1.289 |          0.208 |                0.000 |        1.289 |
-| x1          |          3.586 |          1.667 |                1.750 |        1.836 |
+| independent |          1.589 |          1.562 |                1.597 |       -0.008 |
+| proxy       |          1.084 |          0.248 |                0.000 |        1.084 |
+| x1          |          3.844 |          1.698 |                1.715 |        2.129 |
 
 Effect of Conditioning on Proxy in Confounded Scenario
 
@@ -472,18 +472,18 @@ pfi_cor <- PFI$new(
     learner = learner,
     measure = measure,
     resampling = resampling,
-    n_repeats = 5
+    n_repeats = 20
 )
 
 pfi_cor$compute()
 pfi_cor$importance()
 #> Key: <feature>
-#>    feature   importance
-#>     <char>        <num>
-#> 1:      x1  5.156513945
-#> 2:      x2  0.521717907
-#> 3:      x3  1.683942121
-#> 4:      x4 -0.001536471
+#>    feature    importance
+#>     <char>         <num>
+#> 1:      x1  4.760001e+00
+#> 2:      x2  4.996568e-01
+#> 3:      x3  1.691757e+00
+#> 4:      x4 -1.259272e-05
 ```
 
 Expected: PFI will show high importance for BOTH x1 and x2, even though
@@ -502,19 +502,19 @@ cfi_cor <- CFI$new(
     learner = learner,
     measure = measure,
     resampling = resampling,
-    n_repeats = 5,
+    n_repeats = 20,
     sampler = sampler_cor
 )
 
 cfi_cor$compute()
 cfi_cor$importance()
 #> Key: <feature>
-#>    feature   importance
-#>     <char>        <num>
-#> 1:      x1  2.040455912
-#> 2:      x2  0.101151870
-#> 3:      x3  1.638895975
-#> 4:      x4 -0.001503762
+#>    feature    importance
+#>     <char>         <num>
+#> 1:      x1  1.672411e+00
+#> 2:      x2  5.157227e-02
+#> 3:      x3  1.591436e+00
+#> 4:      x4 -4.946158e-05
 ```
 
 Expected: CFI should show high importance for x1 (the true causal
@@ -532,7 +532,7 @@ rfi_cor_x1 <- RFI$new(
     measure = measure,
     resampling = resampling,
     conditioning_set = "x1",
-    n_repeats = 5,
+    n_repeats = 20,
     sampler = sampler_cor
 )
 rfi_cor_x1$compute()
@@ -544,14 +544,14 @@ rfi_cor_x2 <- RFI$new(
     measure = measure,
     resampling = resampling,
     conditioning_set = "x2",
-    n_repeats = 5,
+    n_repeats = 20,
     sampler = sampler_cor
 )
 rfi_cor_x2$compute()
 ```
 
-- **x2 given x1**: 0.083 (How much does x2 add when we already know x1?)
-- **x1 given x2**: 1.962 (How much does x1 add when we already know x2?)
+- **x2 given x1**: 0.044 (How much does x2 add when we already know x1?)
+- **x1 given x2**: 1.744 (How much does x1 add when we already know x2?)
 
 Expected: When conditioning on x1, the importance of x2 should be near
 zero (and vice versa) because they’re almost identical - knowing one
@@ -573,10 +573,10 @@ cor_ratio |>
     )
 ```
 
-| feature |   CFI |   PFI | cfi_pfi_ratio |
-|:--------|------:|------:|--------------:|
-| x1      | 2.040 | 5.157 |         0.396 |
-| x2      | 0.101 | 0.522 |         0.194 |
+| feature |   CFI |  PFI | cfi_pfi_ratio |
+|:--------|------:|-----:|--------------:|
+| x1      | 1.672 | 4.76 |         0.351 |
+| x2      | 0.052 | 0.50 |         0.103 |
 
 CFI vs PFI for Highly Correlated Features
 
@@ -628,7 +628,7 @@ pfi_ind <- PFI$new(
     learner = learner,
     measure = measure,
     resampling = resampling,
-    n_repeats = 5
+    n_repeats = 20
 )
 pfi_ind$compute()
 ```
@@ -642,7 +642,7 @@ cfi_ind <- CFI$new(
     learner = learner,
     measure = measure,
     resampling = resampling,
-    n_repeats = 5,
+    n_repeats = 20,
     sampler = sampler_ind
 )
 cfi_ind$compute()
@@ -658,7 +658,7 @@ rfi_ind <- RFI$new(
     measure = measure,
     resampling = resampling,
     conditioning_set = character(0), # Empty set
-    n_repeats = 5,
+    n_repeats = 20,
     sampler = sampler_ind
 )
 rfi_ind$compute()
@@ -698,11 +698,11 @@ comp_ind_wide[, .(
 
 | Feature      | Mean Importance | Coef. of Variation | Agreement Level |
 |:-------------|----------------:|-------------------:|:----------------|
-| important1   |           6.362 |              0.055 | High            |
-| important2   |           1.759 |              0.288 | Low             |
-| important3   |           0.292 |              0.073 | High            |
-| unimportant1 |          -0.003 |             -1.190 | High            |
-| unimportant2 |          -0.003 |             -0.301 | High            |
+| important1   |           7.740 |              0.194 | Moderate        |
+| important2   |           1.574 |              0.076 | High            |
+| important3   |           0.299 |              0.196 | Moderate        |
+| unimportant1 |           0.003 |              2.376 | Low             |
+| unimportant2 |          -0.011 |             -1.012 | High            |
 
 Method Agreement on Independent Features
 

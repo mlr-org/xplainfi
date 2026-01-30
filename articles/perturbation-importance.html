@@ -152,7 +152,7 @@ the crucial interaction term.</p>
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span></span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">20</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Compute importance scores</span></span>
@@ -161,11 +161,11 @@ the crucial interaction term.</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature  importance</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  noise1 0.003847893</span></span>
-<span><span class="co">#&gt; 2:  noise2 0.020582945</span></span>
-<span><span class="co">#&gt; 3:      x1 2.278858182</span></span>
-<span><span class="co">#&gt; 4:      x2 2.001683415</span></span>
-<span><span class="co">#&gt; 5:      x3 1.935324704</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:  noise1 0.007709169</span></span>
+<span><span class="co">#&gt; 2:  noise2 0.010890405</span></span>
+<span><span class="co">#&gt; 3:      x1 2.235765433</span></span>
+<span><span class="co">#&gt; 4:      x2 2.113462681</span></span>
+<span><span class="co">#&gt; 5:      x3 2.089067824</span></span></code></pre></div>
 <p>Expected: x1 and x2 will show high importance with PFI because
 permuting either feature destroys the interaction term x1×x2, which is
 crucial for prediction. This demonstrates a key limitation of PFI with
@@ -185,7 +185,7 @@ interaction effect:</p>
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>    sampler <span class="op">=</span> <span class="va">sampler_int</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -193,13 +193,13 @@ interaction effect:</p>
 <span><span class="va">cfi_int</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">cfi_int</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>relation <span class="op">=</span> <span class="st">"difference"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature importance</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  noise1 0.02435625</span></span>
-<span><span class="co">#&gt; 2:  noise2 0.02051248</span></span>
-<span><span class="co">#&gt; 3:      x1 2.03202059</span></span>
-<span><span class="co">#&gt; 4:      x2 1.69961194</span></span>
-<span><span class="co">#&gt; 5:      x3 1.96597388</span></span></code></pre></div>
+<span><span class="co">#&gt;    feature   importance</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  noise1  0.002804323</span></span>
+<span><span class="co">#&gt; 2:  noise2 -0.001548059</span></span>
+<span><span class="co">#&gt; 3:      x1  2.071614103</span></span>
+<span><span class="co">#&gt; 4:      x2  1.746959285</span></span>
+<span><span class="co">#&gt; 5:      x3  1.990800605</span></span></code></pre></div>
 <p>Expected: CFI should show somewhat lower importance for x1 and x2
 compared to PFI because it better preserves the interaction structure
 during conditional sampling, providing a more nuanced importance
@@ -218,7 +218,7 @@ Let’s explore what happens when we condition on different features:</p>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
 <span>    conditioning_set <span class="op">=</span> <span class="st">"x2"</span>, <span class="co"># Condition on x2</span></span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>    sampler <span class="op">=</span> <span class="va">sampler_int</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">rfi_int_x2</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
@@ -230,21 +230,21 @@ Let’s explore what happens when we condition on different features:</p>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
 <span>    conditioning_set <span class="op">=</span> <span class="st">"x1"</span>, <span class="co"># Condition on x1</span></span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>    sampler <span class="op">=</span> <span class="va">sampler_int</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">rfi_int_x1</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><strong>RFI Results:</strong></p>
 <ul>
 <li>
-<strong>x1 given x2</strong>: 2.170 (How important is x1 when we
+<strong>x1 given x2</strong>: 2.243 (How important is x1 when we
 condition on x2)</li>
 <li>
-<strong>x2 given x1</strong>: 1.579 (How important is x2 when we
+<strong>x2 given x1</strong>: 1.863 (How important is x2 when we
 condition on x1)<br>
 </li>
 <li>
-<strong>x3 given x2</strong>: 1.979 (How important is x3 when we
+<strong>x3 given x2</strong>: 2.055 (How important is x3 when we
 condition on x2)</li>
 </ul>
 <p>In the pure interaction case (y = 2·x1·x2 + x3), when we condition on
@@ -291,15 +291,15 @@ add?”</p>
 <tbody>
 <tr class="odd">
 <td align="left">x1</td>
-<td align="right">2.032</td>
-<td align="right">2.279</td>
-<td align="right">0.892</td>
+<td align="right">2.072</td>
+<td align="right">2.236</td>
+<td align="right">0.927</td>
 </tr>
 <tr class="even">
 <td align="left">x2</td>
-<td align="right">1.700</td>
-<td align="right">2.002</td>
-<td align="right">0.849</td>
+<td align="right">1.747</td>
+<td align="right">2.113</td>
+<td align="right">0.827</td>
 </tr>
 </tbody>
 </table>
@@ -346,7 +346,7 @@ affects both features and the outcome.</p>
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span></span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">20</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pfi_conf</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
@@ -354,9 +354,9 @@ affects both features and the outcome.</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;        feature importance</span></span>
 <span><span class="co">#&gt;         &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: independent   1.571777</span></span>
-<span><span class="co">#&gt; 2:       proxy   1.289117</span></span>
-<span><span class="co">#&gt; 3:          x1   3.586063</span></span></code></pre></div>
+<span><span class="co">#&gt; 1: independent   1.589470</span></span>
+<span><span class="co">#&gt; 2:       proxy   1.083619</span></span>
+<span><span class="co">#&gt; 3:          x1   3.843644</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="rfi-conditioning-on-proxy">RFI Conditioning on Proxy<a class="anchor" aria-label="anchor" href="#rfi-conditioning-on-proxy"></a>
@@ -377,7 +377,7 @@ affects both features and the outcome.</p>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
 <span>    conditioning_set <span class="op">=</span> <span class="st">"proxy"</span>, <span class="co"># Condition on proxy to reduce confounding</span></span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>    sampler <span class="op">=</span> <span class="va">sampler_conf</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -386,9 +386,9 @@ affects both features and the outcome.</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;        feature importance</span></span>
 <span><span class="co">#&gt;         &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: independent   1.622194</span></span>
+<span><span class="co">#&gt; 1: independent   1.597174</span></span>
 <span><span class="co">#&gt; 2:       proxy   0.000000</span></span>
-<span><span class="co">#&gt; 3:          x1   1.749965</span></span></code></pre></div>
+<span><span class="co">#&gt; 3:          x1   1.714698</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="also-trying-cfi-for-comparison">Also trying CFI for comparison<a class="anchor" aria-label="anchor" href="#also-trying-cfi-for-comparison"></a>
@@ -399,7 +399,7 @@ affects both features and the outcome.</p>
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>    sampler <span class="op">=</span> <span class="va">sampler_conf</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: <span style="color: #BBBB00;">!</span> Provided sampler has a pre-configured `conditioning_set`.</span></span>
@@ -411,9 +411,9 @@ affects both features and the outcome.</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;        feature importance</span></span>
 <span><span class="co">#&gt;         &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: independent  1.5586791</span></span>
-<span><span class="co">#&gt; 2:       proxy  0.2084425</span></span>
-<span><span class="co">#&gt; 3:          x1  1.6674019</span></span></code></pre></div>
+<span><span class="co">#&gt; 1: independent  1.5623424</span></span>
+<span><span class="co">#&gt; 2:       proxy  0.2479059</span></span>
+<span><span class="co">#&gt; 3:          x1  1.6977570</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="observable-confounder-scenario">Observable Confounder Scenario<a class="anchor" aria-label="anchor" href="#observable-confounder-scenario"></a>
@@ -439,19 +439,19 @@ performs when we can condition directly on the true confounder:</p>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
 <span>    conditioning_set <span class="op">=</span> <span class="st">"confounder"</span>, <span class="co"># Condition on true confounder</span></span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>    sampler <span class="op">=</span> <span class="va">sampler_conf_obs</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">rfi_conf_obs</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">rfi_conf_obs</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;        feature   importance</span></span>
-<span><span class="co">#&gt;         &lt;char&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  confounder  0.000000000</span></span>
-<span><span class="co">#&gt; 2: independent  1.539426725</span></span>
-<span><span class="co">#&gt; 3:       proxy -0.002651167</span></span>
-<span><span class="co">#&gt; 4:          x1  0.549141497</span></span>
+<span><span class="co">#&gt;        feature importance</span></span>
+<span><span class="co">#&gt;         &lt;char&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  confounder 0.00000000</span></span>
+<span><span class="co">#&gt; 2: independent 1.43713482</span></span>
+<span><span class="co">#&gt; 3:       proxy 0.01481911</span></span>
+<span><span class="co">#&gt; 4:          x1 0.54425680</span></span>
 <span></span>
 <span><span class="co"># Compare with PFI on the same data</span></span>
 <span><span class="va">pfi_conf_obs</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/PFI.html">PFI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -459,24 +459,24 @@ performs when we can condition directly on the true confounder:</p>
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span></span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">20</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">pfi_conf_obs</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">pfi_conf_obs</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;        feature importance</span></span>
 <span><span class="co">#&gt;         &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  confounder 1.62325668</span></span>
-<span><span class="co">#&gt; 2: independent 1.62540310</span></span>
-<span><span class="co">#&gt; 3:       proxy 0.05759922</span></span>
-<span><span class="co">#&gt; 4:          x1 2.18558022</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:  confounder  1.6772911</span></span>
+<span><span class="co">#&gt; 2: independent  1.4332083</span></span>
+<span><span class="co">#&gt; 3:       proxy  0.1429327</span></span>
+<span><span class="co">#&gt; 4:          x1  1.6693868</span></span></code></pre></div>
 <ul>
 <li>
-<strong>x1 importance</strong>: PFI = 2.186, RFI|confounder =
-0.549</li>
+<strong>x1 importance</strong>: PFI = 1.669, RFI|confounder =
+0.544</li>
 <li>
-<strong>independent importance</strong>: PFI = 1.625, RFI|confounder
-= 1.539</li>
+<strong>independent importance</strong>: PFI = 1.433, RFI|confounder
+= 1.437</li>
 </ul>
 <p>When conditioning on the true confounder, RFI should show reduced
 importance for x1 (since much of its apparent importance was due to
@@ -527,24 +527,24 @@ Scenario</caption>
 <tbody>
 <tr class="odd">
 <td align="left">independent</td>
-<td align="right">1.572</td>
-<td align="right">1.559</td>
-<td align="right">1.622</td>
-<td align="right">-0.050</td>
+<td align="right">1.589</td>
+<td align="right">1.562</td>
+<td align="right">1.597</td>
+<td align="right">-0.008</td>
 </tr>
 <tr class="even">
 <td align="left">proxy</td>
-<td align="right">1.289</td>
-<td align="right">0.208</td>
+<td align="right">1.084</td>
+<td align="right">0.248</td>
 <td align="right">0.000</td>
-<td align="right">1.289</td>
+<td align="right">1.084</td>
 </tr>
 <tr class="odd">
 <td align="left">x1</td>
-<td align="right">3.586</td>
-<td align="right">1.667</td>
-<td align="right">1.750</td>
-<td align="right">1.836</td>
+<td align="right">3.844</td>
+<td align="right">1.698</td>
+<td align="right">1.715</td>
+<td align="right">2.129</td>
 </tr>
 </tbody>
 </table>
@@ -596,18 +596,18 @@ features:</p>
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span></span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">20</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pfi_cor</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">pfi_cor</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature   importance</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  5.156513945</span></span>
-<span><span class="co">#&gt; 2:      x2  0.521717907</span></span>
-<span><span class="co">#&gt; 3:      x3  1.683942121</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.001536471</span></span></code></pre></div>
+<span><span class="co">#&gt;    feature    importance</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  4.760001e+00</span></span>
+<span><span class="co">#&gt; 2:      x2  4.996568e-01</span></span>
+<span><span class="co">#&gt; 3:      x3  1.691757e+00</span></span>
+<span><span class="co">#&gt; 4:      x4 -1.259272e-05</span></span></code></pre></div>
 <p>Expected: PFI will show high importance for BOTH x1 and x2, even
 though only x1 has a true causal effect. This happens because x2 is
 highly correlated with x1, so permuting x2 destroys predictive
@@ -625,19 +625,19 @@ information about x1.</p>
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>    sampler <span class="op">=</span> <span class="va">sampler_cor</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">cfi_cor</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">cfi_cor</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature   importance</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  2.040455912</span></span>
-<span><span class="co">#&gt; 2:      x2  0.101151870</span></span>
-<span><span class="co">#&gt; 3:      x3  1.638895975</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.001503762</span></span></code></pre></div>
+<span><span class="co">#&gt;    feature    importance</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  1.672411e+00</span></span>
+<span><span class="co">#&gt; 2:      x2  5.157227e-02</span></span>
+<span><span class="co">#&gt; 3:      x3  1.591436e+00</span></span>
+<span><span class="co">#&gt; 4:      x4 -4.946158e-05</span></span></code></pre></div>
 <p>Expected: CFI should show high importance for x1 (the true causal
 feature) but near-zero importance for x2 (the spurious correlated
 feature) because conditional sampling preserves the correlation
@@ -655,7 +655,7 @@ predictors.</p>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
 <span>    conditioning_set <span class="op">=</span> <span class="st">"x1"</span>,</span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>    sampler <span class="op">=</span> <span class="va">sampler_cor</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">rfi_cor_x1</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
@@ -667,16 +667,16 @@ predictors.</p>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
 <span>    conditioning_set <span class="op">=</span> <span class="st">"x2"</span>,</span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>    sampler <span class="op">=</span> <span class="va">sampler_cor</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">rfi_cor_x2</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <ul>
 <li>
-<strong>x2 given x1</strong>: 0.083 (How much does x2 add when we
+<strong>x2 given x1</strong>: 0.044 (How much does x2 add when we
 already know x1?)</li>
 <li>
-<strong>x1 given x2</strong>: 1.962 (How much does x1 add when we
+<strong>x1 given x2</strong>: 1.744 (How much does x1 add when we
 already know x2?)</li>
 </ul>
 <p>Expected: When conditioning on x1, the importance of x2 should be
@@ -709,15 +709,15 @@ one tells you almost everything about the other.</p>
 <tbody>
 <tr class="odd">
 <td align="left">x1</td>
-<td align="right">2.040</td>
-<td align="right">5.157</td>
-<td align="right">0.396</td>
+<td align="right">1.672</td>
+<td align="right">4.76</td>
+<td align="right">0.351</td>
 </tr>
 <tr class="even">
 <td align="left">x2</td>
-<td align="right">0.101</td>
-<td align="right">0.522</td>
-<td align="right">0.194</td>
+<td align="right">0.052</td>
+<td align="right">0.50</td>
+<td align="right">0.103</td>
 </tr>
 </tbody>
 </table>
@@ -767,7 +767,7 @@ has only a direct effect on y (or no effect in the case of noise).</p>
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span></span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">20</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">pfi_ind</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Now CFI with the ARF sampler:</p>
@@ -778,7 +778,7 @@ has only a direct effect on y (or no effect in the case of noise).</p>
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>    sampler <span class="op">=</span> <span class="va">sampler_ind</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">cfi_ind</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -791,7 +791,7 @@ different sampler:</p>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
 <span>    conditioning_set <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>, <span class="co"># Empty set</span></span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>    sampler <span class="op">=</span> <span class="va">sampler_ind</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">rfi_ind</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -834,32 +834,32 @@ different sampler:</p>
 <tbody>
 <tr class="odd">
 <td align="left">important1</td>
-<td align="right">6.362</td>
-<td align="right">0.055</td>
-<td align="left">High</td>
+<td align="right">7.740</td>
+<td align="right">0.194</td>
+<td align="left">Moderate</td>
 </tr>
 <tr class="even">
 <td align="left">important2</td>
-<td align="right">1.759</td>
-<td align="right">0.288</td>
-<td align="left">Low</td>
+<td align="right">1.574</td>
+<td align="right">0.076</td>
+<td align="left">High</td>
 </tr>
 <tr class="odd">
 <td align="left">important3</td>
-<td align="right">0.292</td>
-<td align="right">0.073</td>
-<td align="left">High</td>
+<td align="right">0.299</td>
+<td align="right">0.196</td>
+<td align="left">Moderate</td>
 </tr>
 <tr class="even">
 <td align="left">unimportant1</td>
-<td align="right">-0.003</td>
-<td align="right">-1.190</td>
-<td align="left">High</td>
+<td align="right">0.003</td>
+<td align="right">2.376</td>
+<td align="left">Low</td>
 </tr>
 <tr class="odd">
 <td align="left">unimportant2</td>
-<td align="right">-0.003</td>
-<td align="right">-0.301</td>
+<td align="right">-0.011</td>
+<td align="right">-1.012</td>
 <td align="left">High</td>
 </tr>
 </tbody>

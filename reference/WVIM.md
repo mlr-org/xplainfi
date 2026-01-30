@@ -67,7 +67,7 @@ Creates a new instance of this
       groups = NULL,
       direction = c("leave-out", "leave-in"),
       label = "Williamson's Variable Importance Measure (WVIM)",
-      n_repeats = 1L
+      n_repeats = 30L
     )
 
 #### Arguments
@@ -86,7 +86,8 @@ Creates a new instance of this
 
 - `n_repeats`:
 
-  (`integer(1)`) Number of refit iterations per resampling iteration.
+  (`integer(1)`: `30L`) Number of refit iterations per resampling
+  iteration.
 
 ------------------------------------------------------------------------
 
@@ -163,6 +164,6 @@ wvim$importance()
 #> Key: <feature>
 #>        feature importance
 #>         <char>      <num>
-#> 1:  correlated   4.973365
-#> 2: independent   1.020356
+#> 1:  correlated   4.722423
+#> 2: independent   1.206976
 ```

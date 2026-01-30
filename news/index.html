@@ -61,6 +61,15 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="xplainfi-development-version">xplainfi (development version)<a class="anchor" aria-label="anchor" href="#xplainfi-development-version"></a></h2>
+<div class="section level3">
+<h3 id="minor-user-facing-changes-development-version">Minor user-facing changes<a class="anchor" aria-label="anchor" href="#minor-user-facing-changes-development-version"></a></h3>
+<ul><li>Bump the defaults for <code>n_repeats</code> in favor of stability
+<ul><li>For<code>PerturbationImportance</code> methods (<code>PFI</code>, <code>CFI</code>, <code>RFI</code>): <code>n_repeats</code> is now 30</li>
+<li>
+<code>LOCO</code> and <code>WVIM</code>: <code>n_repeats</code> is now 30 as well.</li>
+<li>Since the refitting methods will be more expensive than the perturbation-based methods, users will have to decrease this value if runtime becomes impractical, but now at least the package default is no longer <code>n_repeats = 1</code>, which is obviously too small.</li>
+</ul></li>
+</ul></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.0" id="xplainfi-100---initial-cran-release">xplainfi 1.0.0 - Initial CRAN release<a class="anchor" aria-label="anchor" href="#xplainfi-100---initial-cran-release"></a></h2><p class="text-muted">CRAN release: 2026-01-30</p>

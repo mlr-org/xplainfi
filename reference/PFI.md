@@ -76,7 +76,7 @@ Creates a new instance of the PFI class
       features = NULL,
       groups = NULL,
       relation = "difference",
-      n_repeats = 1L,
+      n_repeats = 30L,
       batch_size = NULL
     )
 
@@ -157,10 +157,10 @@ pfi <- PFI$new(
 pfi$compute()
 pfi$importance()
 #> Key: <feature>
-#>    feature   importance
-#>     <char>        <num>
-#> 1:      x1  3.527932276
-#> 2:      x2  0.924809854
-#> 3:      x3  1.313079583
-#> 4:      x4 -0.001277584
+#>    feature importance
+#>     <char>      <num>
+#> 1:      x1 4.65742717
+#> 2:      x2 0.28491793
+#> 3:      x3 1.44533438
+#> 4:      x4 0.01224582
 ```

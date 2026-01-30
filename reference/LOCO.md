@@ -58,7 +58,7 @@ Creates a new instance of this
       measure = NULL,
       resampling = NULL,
       features = NULL,
-      n_repeats = 1L
+      n_repeats = 30L
     )
 
 #### Arguments
@@ -91,7 +91,7 @@ Creates a new instance of this
 
 - `n_repeats`:
 
-  (`integer(1)`: `1L`) Number of refit iterations per resampling
+  (`integer(1)`: `30L`) Number of refit iterations per resampling
   iteration.
 
 ------------------------------------------------------------------------
@@ -149,8 +149,8 @@ loco$importance()
 #> Key: <feature>
 #>    feature importance
 #>     <char>      <num>
-#> 1:      x1 0.84715546
-#> 2:      x2 0.07287656
-#> 3:      x3 0.98646457
-#> 4:      x4 0.01761997
+#> 1:      x1  0.9657516
+#> 2:      x2  0.2995086
+#> 3:      x3  1.4123144
+#> 4:      x4  0.0883162
 ```

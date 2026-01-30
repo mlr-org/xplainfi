@@ -52,7 +52,7 @@ Creates a new instance of the CFI class
       features = NULL,
       groups = NULL,
       relation = "difference",
-      n_repeats = 1L,
+      n_repeats = 30L,
       batch_size = NULL,
       sampler = NULL
     )
@@ -144,8 +144,8 @@ cfi$importance()
 #> Key: <feature>
 #>    feature  importance
 #>     <char>       <num>
-#> 1:      x1 2.985885240
-#> 2:      x2 0.171542034
-#> 3:      x3 1.525342471
-#> 4:      x4 0.005701918
+#> 1:      x1  2.30619753
+#> 2:      x2  0.13534473
+#> 3:      x3  1.55134940
+#> 4:      x4 -0.01195141
 ```

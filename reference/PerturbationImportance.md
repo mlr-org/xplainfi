@@ -50,7 +50,7 @@ Creates a new instance of the PerturbationImportance class
       groups = NULL,
       sampler = NULL,
       relation = "difference",
-      n_repeats = 1L,
+      n_repeats = 30L,
       batch_size = NULL
     )
 
@@ -73,8 +73,8 @@ Creates a new instance of the PerturbationImportance class
 
 - `n_repeats`:
 
-  (`integer(1)`: `1L`) Number of permutation/conditional sampling
-  iterations. Can be overridden in `$compute()`.
+  (`integer(1)`: `30L`) Number of permutation/conditional sampling
+  iterations. Can also be overridden in `$compute()`.
 
 - `batch_size`:
 

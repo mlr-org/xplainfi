@@ -46,7 +46,7 @@ pfi = PFI$new(
     learner = learner,
     resampling = rsmp("subsampling", repeats = 15),
     measure = measure,
-    n_repeats = 10 # for stability within resampling iters
+    n_repeats = 20 # for stability within resampling iters
 )
 
 pfi$compute()
@@ -54,10 +54,10 @@ pfi$importance()
 #> Key: <feature>
 #>    feature   importance
 #>     <char>        <num>
-#> 1:      x1  6.451498301
-#> 2:      x2  0.094961175
-#> 3:      x3  1.801051193
-#> 4:      x4 -0.001016452
+#> 1:      x1  6.476555494
+#> 2:      x2  0.095842584
+#> 3:      x3  1.793989195
+#> 4:      x4 -0.000962437
 ```
 
 If we want **unadjusted** confidence intervals based on a
@@ -68,12 +68,12 @@ optimistic and hence invalid for inference:
 pfi_ci_raw = pfi$importance(ci_method = "raw")
 pfi_ci_raw
 #> Key: <feature>
-#>    feature   importance           se   conf_lower    conf_upper
-#>     <char>        <num>        <num>        <num>         <num>
-#> 1:      x1  6.451498301 0.0777539664  6.284732629  6.6182639734
-#> 2:      x2  0.094961175 0.0041677716  0.086022194  0.1039001566
-#> 3:      x3  1.801051193 0.0157425383  1.767286806  1.8348155792
-#> 4:      x4 -0.001016452 0.0003145202 -0.001691031 -0.0003418737
+#>    feature   importance           se  conf_lower    conf_upper
+#>     <char>        <num>        <num>       <num>         <num>
+#> 1:      x1  6.476555494 0.0707450088  6.32482254  6.6282884472
+#> 2:      x2  0.095842584 0.0042155496  0.08680113  0.1048840389
+#> 3:      x3  1.793989195 0.0132950768  1.76547409  1.8225042988
+#> 4:      x4 -0.000962437 0.0002849623 -0.00157362 -0.0003512536
 ```
 
 Analogously we can retrieve the **Nadeau & Bengio**-adjusted standard
@@ -86,10 +86,10 @@ pfi_ci_corrected
 #> Key: <feature>
 #>    feature   importance           se   conf_lower   conf_upper
 #>     <char>        <num>        <num>        <num>        <num>
-#> 1:      x1  6.451498301 0.2267648327  5.965136107 6.9378604959
-#> 2:      x2  0.094961175 0.0121550589  0.068891167 0.1210311840
-#> 3:      x3  1.801051193 0.0459121794  1.702579361 1.8995230240
-#> 4:      x4 -0.001016452 0.0009172796 -0.002983821 0.0009509165
+#> 1:      x1  6.476555494 0.2063236235  6.034035333 6.9190756552
+#> 2:      x2  0.095842584 0.0122944003  0.069473718 0.1222114505
+#> 3:      x3  1.793989195 0.0387743032  1.710826586 1.8771518043
+#> 4:      x4 -0.000962437 0.0008310757 -0.002744917 0.0008200431
 ```
 
 ## Empirical quantiles
@@ -105,10 +105,10 @@ pfi_ci_quantile
 #> Key: <feature>
 #>    feature   importance   conf_lower   conf_upper
 #>     <char>        <num>        <num>        <num>
-#> 1:      x1  6.451498301  5.953713874 6.9244524536
-#> 2:      x2  0.094961175  0.074956969 0.1216748325
-#> 3:      x3  1.801051193  1.695615492 1.9012580196
-#> 4:      x4 -0.001016452 -0.003636112 0.0005228665
+#> 1:      x1  6.476555494  6.108602488 6.8752121255
+#> 2:      x2  0.095842584  0.071144370 0.1213703258
+#> 3:      x3  1.793989195  1.736434146 1.8848348302
+#> 4:      x4 -0.000962437 -0.003342628 0.0006686405
 ```
 
 To highlight the differences between parametric and empirical
@@ -176,18 +176,18 @@ setnames(cpi_res, "Variable", "feature")
 cpi_res[, method := "CPI"]
 
 cpi_res
-#>    feature          CPI          SE   test   statistic     estimate
-#>     <char>        <num>       <num> <char>       <num>        <num>
-#> 1:      x1 4.554770e+00 0.142063012      t 32.06161590 4.554770e+00
-#> 2:      x2 2.479253e-03 0.003012508      t  0.82298643 2.479253e-03
-#> 3:      x3 1.848159e+00 0.058189043      t 31.76129690 1.848159e+00
-#> 4:      x4 4.283886e-05 0.000696889      t  0.06147158 4.283886e-05
+#>    feature           CPI          SE   test  statistic      estimate
+#>     <char>         <num>       <num> <char>      <num>         <num>
+#> 1:      x1  4.5092929912 0.147978747      t 30.4725717  4.5092929912
+#> 2:      x2  0.0029567621 0.003362453      t  0.8793467  0.0029567621
+#> 3:      x3  1.8536055915 0.060102228      t 30.8408797  1.8536055915
+#> 4:      x4 -0.0008885688 0.000770307      t -1.1535255 -0.0008885688
 #>          p.value        ci.lo method
 #>            <num>        <num> <char>
-#> 1: 1.209450e-182  4.320988517    CPI
-#> 2:  2.053069e-01 -0.002478179    CPI
-#> 3: 6.961317e-180  1.752402643    CPI
-#> 4:  4.754949e-01 -0.001103973    CPI
+#> 1: 3.859678e-168  4.265776760    CPI
+#> 2:  1.896595e-01 -0.002576545    CPI
+#> 3: 1.768282e-171  1.754700388    CPI
+#> 4:  8.755837e-01 -0.002156198    CPI
 ```
 
 ### CPI with knockoffs
@@ -211,6 +211,11 @@ cfi = CFI$new(
     measure = measure,
     sampler = knockoff_gaussian
 )
+#> Requested `n_repeats = 30` permutations with <KnockoffGaussianSampler>
+#> ! A <KnockoffSampler> was constructed with 1 iterations
+#> ℹ Proceeding with `n_repeats = 1`
+#> ℹ Reconstruct <KnockoffGaussianSampler> with `iters >= 30` or use
+#>   <ConditionalARFSampler> if repeated sampling is required.
 
 cfi$compute()
 
@@ -218,12 +223,12 @@ cfi$compute()
 cfi_cpi_res = cfi$importance(ci_method = "cpi")
 cfi_cpi_res
 #> Key: <feature>
-#>    feature    importance           se  statistic       p.value   conf_lower
-#>     <char>         <num>        <num>      <num>         <num>        <num>
-#> 1:      x1  4.6427559476 0.1478836872 31.3946456 1.587955e-176  4.399396149
-#> 2:      x2  0.0026423506 0.0033612948  0.7861109  2.159478e-01 -0.002889051
-#> 3:      x3  1.7620712330 0.0582790374 30.2350779 5.393726e-166  1.666166302
-#> 4:      x4 -0.0002589976 0.0007047195 -0.3675188  6.433645e-01 -0.001418696
+#>    feature   importance           se  statistic       p.value   conf_lower
+#>     <char>        <num>        <num>      <num>         <num>        <num>
+#> 1:      x1  4.362355571 0.1355320358 32.1868962 8.486605e-184  4.139321851
+#> 2:      x2  0.001742650 0.0029223989  0.5963079  2.755185e-01 -0.003066498
+#> 3:      x3  1.769344462 0.0548657780 32.2485988 2.290447e-184  1.679056446
+#> 4:      x4 -0.000470146 0.0009370589 -0.5017251  6.920419e-01 -0.002012185
 #>    conf_upper
 #>         <num>
 #> 1:        Inf
@@ -295,12 +300,12 @@ cfi_arf$compute()
 cfi_arf_res = cfi_arf$importance(ci_method = "cpi")
 cfi_arf_res
 #> Key: <feature>
-#>    feature   importance           se statistic       p.value    conf_lower
-#>     <char>        <num>        <num>     <num>         <num>         <num>
-#> 1:      x1  4.030582334 0.1301510177 30.968504 1.222410e-172  3.8164037048
-#> 2:      x2  0.004954503 0.0032955819  1.503377  6.644987e-02 -0.0004687601
-#> 3:      x3  1.709224166 0.0535822827 31.899055 3.781474e-181  1.6210482908
-#> 4:      x4 -0.001110782 0.0007197487 -1.543292  9.385409e-01 -0.0022952124
+#>    feature    importance           se statistic    p.value   conf_lower
+#>     <char>         <num>        <num>     <num>      <num>        <num>
+#> 1:      x1  3.9865071718 0.0715166883 55.742335 0.00000000  3.868818148
+#> 2:      x2  0.0053611218 0.0025570164  2.096632 0.01807579  0.001153254
+#> 3:      x3  1.7527732858 0.0325190020 53.899972 0.00000000  1.699259488
+#> 4:      x4 -0.0009391978 0.0004918991 -1.909330 0.97181872 -0.001748675
 #>    conf_upper
 #>         <num>
 #> 1:        Inf
@@ -350,12 +355,12 @@ specifically the Wilcoxon-, Fisher-, or binomial test:
 ``` r
 (cpi_res_wilcoxon = cfi_arf$importance(ci_method = "cpi", test = "wilcoxon"))
 #> Key: <feature>
-#>    feature   importance           se statistic       p.value    conf_lower
-#>     <char>        <num>        <num>     <num>         <num>         <num>
-#> 1:      x1  4.030582334 0.1301510177   1967386 3.716827e-309  2.5659825422
-#> 2:      x2  0.004954503 0.0032955819    992983  5.390444e-01 -0.0008211084
-#> 3:      x3  1.709224166 0.0535822827   1929081 1.697037e-288  1.1465162882
-#> 4:      x4 -0.001110782 0.0007197487    964259  8.802801e-01 -0.0005923333
+#>    feature    importance           se statistic      p.value    conf_lower
+#>     <char>         <num>        <num>     <num>        <num>         <num>
+#> 1:      x1  3.9865071718 0.0715166883   2001000 0.000000e+00  3.2285614819
+#> 2:      x2  0.0053611218 0.0025570164   1194853 2.647776e-14  0.0031150313
+#> 3:      x3  1.7527732858 0.0325190020   2000886 0.000000e+00  1.4036366255
+#> 4:      x4 -0.0009391978 0.0004918991   1031351 1.161633e-01 -0.0001004833
 #>    conf_upper
 #>         <num>
 #> 1:        Inf
@@ -365,20 +370,20 @@ specifically the Wilcoxon-, Fisher-, or binomial test:
 # Fisher test with same default for B as in cpi()
 (cpi_res_fisher = cfi_arf$importance(ci_method = "cpi", test = "fisher", B = 1999))
 #> Key: <feature>
-#>    feature   importance           se p.value    conf_lower conf_upper
-#>     <char>        <num>        <num>   <num>         <num>      <num>
-#> 1:      x1  4.030582334 0.1301510177  0.0005  3.7836382934        Inf
-#> 2:      x2  0.004954503 0.0032955819  0.0750 -0.0006203853        Inf
-#> 3:      x3  1.709224166 0.0535822827  0.0005  1.5992602629        Inf
-#> 4:      x4 -0.001110782 0.0007197487  0.9320 -0.0023060964        Inf
+#>    feature    importance           se p.value   conf_lower conf_upper
+#>     <char>         <num>        <num>   <num>        <num>      <num>
+#> 1:      x1  3.9865071718 0.0715166883  0.0005  3.802012761        Inf
+#> 2:      x2  0.0053611218 0.0025570164  0.0215  0.001095074        Inf
+#> 3:      x3  1.7527732858 0.0325190020  0.0005  1.668688790        Inf
+#> 4:      x4 -0.0009391978 0.0004918991  0.9670 -0.001773247        Inf
 (cpi_res_binom = cfi_arf$importance(ci_method = "cpi", test = "binomial"))
 #> Key: <feature>
-#>    feature   importance           se statistic       p.value conf_lower
-#>     <char>        <num>        <num>     <num>         <num>      <num>
-#> 1:      x1  4.030582334 0.1301510177      1861  0.000000e+00  0.9204192
-#> 2:      x2  0.004954503 0.0032955819       991  6.645228e-01  0.4768744
-#> 3:      x3  1.709224166 0.0535822827      1781 3.333550e-304  0.8783373
-#> 4:      x4 -0.001110782 0.0007197487       962  9.574574e-01  0.4624027
+#>    feature    importance           se statistic      p.value conf_lower
+#>     <char>         <num>        <num>     <num>        <num>      <num>
+#> 1:      x1  3.9865071718 0.0715166883      2000 0.000000e+00  0.9985033
+#> 2:      x2  0.0053611218 0.0025570164      1215 2.994368e-22  0.5891816
+#> 3:      x3  1.7527732858 0.0325190020      1995 0.000000e+00  0.9947507
+#> 4:      x4 -0.0009391978 0.0004918991      1094 1.430053e-05  0.5283991
 #>    conf_upper
 #>         <num>
 #> 1:        Inf
@@ -449,10 +454,10 @@ loco$importance()
 #> Key: <feature>
 #>    feature importance
 #>     <char>      <num>
-#> 1:      x1 0.98148070
-#> 2:      x2 0.05038684
-#> 3:      x3 0.62258117
-#> 4:      x4 0.05334160
+#> 1:      x1 0.98413241
+#> 2:      x2 0.04153689
+#> 3:      x3 0.60559674
+#> 4:      x4 0.04711029
 ```
 
 This is **not** exactly what the authors propose, because `$score()`
@@ -474,12 +479,12 @@ loco_obsloss = loco$obs_loss()
 head(loco_obsloss)
 #>    feature iter_rsmp iter_repeat row_ids loss_baseline loss_post obs_importance
 #>     <char>     <int>       <num>   <int>         <num>     <num>          <num>
-#> 1:      x1         1           1       4    0.11147320 1.0227631     0.91128990
-#> 2:      x1         1           1       7    0.30561825 0.8431147     0.53749646
-#> 3:      x1         1           1      15    0.23994174 2.5361659     2.29622412
-#> 4:      x1         1           1      20    0.21063594 0.1680135    -0.04262239
-#> 5:      x1         1           1      22    0.07570713 2.9775583     2.90185118
-#> 6:      x1         1           1      23    0.02199827 2.5518444     2.52984614
+#> 1:      x1         1           2       1    0.06837518 0.3866730     0.31829787
+#> 2:      x1         1           2       3    0.33656952 0.4282341     0.09166453
+#> 3:      x1         1           2      14    0.14554173 1.2629784     1.11743664
+#> 4:      x1         1           2      18    0.21779867 0.6605524     0.44275371
+#> 5:      x1         1           2      25    0.07254430 1.0481222     0.97557794
+#> 6:      x1         1           2      28    0.22369548 1.0455213     0.82182579
 ```
 
 `obs_importance` here refers to the difference
@@ -499,10 +504,10 @@ loco_thetas = loco_obsloss[, list(theta = median(obs_importance)), by = c("featu
 loco_thetas
 #>    feature      theta
 #>     <char>      <num>
-#> 1:      x1 0.83911185
-#> 2:      x2 0.02684860
-#> 3:      x3 0.51935341
-#> 4:      x4 0.03344017
+#> 1:      x1 0.79280654
+#> 2:      x2 0.01851736
+#> 3:      x3 0.52224336
+#> 4:      x4 0.02133066
 ```
 
 The authors then propose to construct distribution-free confidence
@@ -530,10 +535,10 @@ loco_wilcox_ci = loco_obsloss[,
 ]
 
 loco_wilcox_ci
-#>    feature statistic   estimate      p.value conf_lower conf_upper
-#>     <char>     <num>      <num>        <num>      <num>      <num>
-#> 1:      x1    216917 0.91943944 1.012455e-99 0.85057682 0.98969443
-#> 2:      x2    144722 0.03419386 2.149646e-11 0.02424473 0.04449679
-#> 3:      x3    213532 0.59231575 1.508448e-93 0.54444761 0.64071906
-#> 4:      x4    162767 0.04423316 5.712254e-25 0.03565144 0.05305982
+#>    feature statistic   estimate       p.value conf_lower conf_upper
+#>     <char>     <num>      <num>         <num>      <num>      <num>
+#> 1:      x1 194641130 0.90926043  0.000000e+00 0.89581673 0.92270736
+#> 2:      x2 121302167 0.02405662 2.317954e-148 0.02219018 0.02590611
+#> 3:      x3 190309637 0.57687593  0.000000e+00 0.56827659 0.58544169
+#> 4:      x4 134365884 0.03178195  0.000000e+00 0.03022359 0.03337264
 ```

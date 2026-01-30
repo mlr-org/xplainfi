@@ -159,11 +159,11 @@ drop when removed).</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature importance</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  noise1 -1.1374749</span></span>
-<span><span class="co">#&gt; 2:  noise2  0.7842797</span></span>
-<span><span class="co">#&gt; 3:      x1  2.7728001</span></span>
-<span><span class="co">#&gt; 4:      x2  2.7157750</span></span>
-<span><span class="co">#&gt; 5:      x3 -0.1077573</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:  noise1 -0.7663935</span></span>
+<span><span class="co">#&gt; 2:  noise2 -0.5653578</span></span>
+<span><span class="co">#&gt; 3:      x1  2.8024966</span></span>
+<span><span class="co">#&gt; 4:      x2  2.8173232</span></span>
+<span><span class="co">#&gt; 5:      x3  0.7637862</span></span></code></pre></div>
 <p>The <code>$importance()</code> method returns a
 <code>data.table</code> with aggregated importance scores per
 feature.</p>
@@ -253,6 +253,1166 @@ each feature, resampling iteration, and refit:</p>
 <td align="right">1.5334</td>
 <td align="right">-0.1078</td>
 </tr>
+<tr class="even">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">1.6412</td>
+<td align="right">0.3395</td>
+<td align="right">-1.3017</td>
+</tr>
+<tr class="odd">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">1.6412</td>
+<td align="right">0.6961</td>
+<td align="right">-0.9451</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">1.6412</td>
+<td align="right">4.3600</td>
+<td align="right">2.7188</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">1.6412</td>
+<td align="right">4.3539</td>
+<td align="right">2.7127</td>
+</tr>
+<tr class="even">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">1.6412</td>
+<td align="right">1.5806</td>
+<td align="right">-0.0606</td>
+</tr>
+<tr class="odd">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">1.6412</td>
+<td align="right">0.5525</td>
+<td align="right">-1.0887</td>
+</tr>
+<tr class="even">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">1.6412</td>
+<td align="right">0.4151</td>
+<td align="right">-1.2261</td>
+</tr>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">1.6412</td>
+<td align="right">4.3785</td>
+<td align="right">2.7373</td>
+</tr>
+<tr class="even">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">1.6412</td>
+<td align="right">4.5405</td>
+<td align="right">2.8993</td>
+</tr>
+<tr class="odd">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">1.6412</td>
+<td align="right">2.0501</td>
+<td align="right">0.4090</td>
+</tr>
+<tr class="even">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">1.6412</td>
+<td align="right">0.4572</td>
+<td align="right">-1.1840</td>
+</tr>
+<tr class="odd">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">1.6412</td>
+<td align="right">0.4825</td>
+<td align="right">-1.1587</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">1.6412</td>
+<td align="right">4.4059</td>
+<td align="right">2.7647</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">1.6412</td>
+<td align="right">4.5385</td>
+<td align="right">2.8973</td>
+</tr>
+<tr class="even">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">1.6412</td>
+<td align="right">1.5518</td>
+<td align="right">-0.0894</td>
+</tr>
+<tr class="odd">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">5</td>
+<td align="right">1.6412</td>
+<td align="right">2.1520</td>
+<td align="right">0.5108</td>
+</tr>
+<tr class="even">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">5</td>
+<td align="right">1.6412</td>
+<td align="right">2.1923</td>
+<td align="right">0.5511</td>
+</tr>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">5</td>
+<td align="right">1.6412</td>
+<td align="right">4.4073</td>
+<td align="right">2.7661</td>
+</tr>
+<tr class="even">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">5</td>
+<td align="right">1.6412</td>
+<td align="right">4.4150</td>
+<td align="right">2.7738</td>
+</tr>
+<tr class="odd">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">5</td>
+<td align="right">1.6412</td>
+<td align="right">3.4026</td>
+<td align="right">1.7614</td>
+</tr>
+<tr class="even">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">6</td>
+<td align="right">1.6412</td>
+<td align="right">0.3191</td>
+<td align="right">-1.3221</td>
+</tr>
+<tr class="odd">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">6</td>
+<td align="right">1.6412</td>
+<td align="right">0.6673</td>
+<td align="right">-0.9739</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">6</td>
+<td align="right">1.6412</td>
+<td align="right">4.3718</td>
+<td align="right">2.7306</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">6</td>
+<td align="right">1.6412</td>
+<td align="right">4.4436</td>
+<td align="right">2.8024</td>
+</tr>
+<tr class="even">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">6</td>
+<td align="right">1.6412</td>
+<td align="right">3.1771</td>
+<td align="right">1.5359</td>
+</tr>
+<tr class="odd">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">7</td>
+<td align="right">1.6412</td>
+<td align="right">0.3678</td>
+<td align="right">-1.2734</td>
+</tr>
+<tr class="even">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">7</td>
+<td align="right">1.6412</td>
+<td align="right">2.1868</td>
+<td align="right">0.5456</td>
+</tr>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">7</td>
+<td align="right">1.6412</td>
+<td align="right">4.3799</td>
+<td align="right">2.7387</td>
+</tr>
+<tr class="even">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">7</td>
+<td align="right">1.6412</td>
+<td align="right">4.5199</td>
+<td align="right">2.8787</td>
+</tr>
+<tr class="odd">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">7</td>
+<td align="right">1.6412</td>
+<td align="right">3.4146</td>
+<td align="right">1.7734</td>
+</tr>
+<tr class="even">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">8</td>
+<td align="right">1.6412</td>
+<td align="right">0.3781</td>
+<td align="right">-1.2631</td>
+</tr>
+<tr class="odd">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">8</td>
+<td align="right">1.6412</td>
+<td align="right">0.6634</td>
+<td align="right">-0.9778</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">8</td>
+<td align="right">1.6412</td>
+<td align="right">4.4323</td>
+<td align="right">2.7911</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">8</td>
+<td align="right">1.6412</td>
+<td align="right">4.4617</td>
+<td align="right">2.8206</td>
+</tr>
+<tr class="even">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">8</td>
+<td align="right">1.6412</td>
+<td align="right">3.0936</td>
+<td align="right">1.4524</td>
+</tr>
+<tr class="odd">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">9</td>
+<td align="right">1.6412</td>
+<td align="right">0.4903</td>
+<td align="right">-1.1509</td>
+</tr>
+<tr class="even">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">9</td>
+<td align="right">1.6412</td>
+<td align="right">0.4487</td>
+<td align="right">-1.1924</td>
+</tr>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">9</td>
+<td align="right">1.6412</td>
+<td align="right">4.9077</td>
+<td align="right">3.2665</td>
+</tr>
+<tr class="even">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">9</td>
+<td align="right">1.6412</td>
+<td align="right">4.4057</td>
+<td align="right">2.7645</td>
+</tr>
+<tr class="odd">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">9</td>
+<td align="right">1.6412</td>
+<td align="right">2.0469</td>
+<td align="right">0.4057</td>
+</tr>
+<tr class="even">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">10</td>
+<td align="right">1.6412</td>
+<td align="right">2.2065</td>
+<td align="right">0.5653</td>
+</tr>
+<tr class="odd">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">10</td>
+<td align="right">1.6412</td>
+<td align="right">2.4424</td>
+<td align="right">0.8012</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">10</td>
+<td align="right">1.6412</td>
+<td align="right">4.4225</td>
+<td align="right">2.7813</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">10</td>
+<td align="right">1.6412</td>
+<td align="right">4.5354</td>
+<td align="right">2.8942</td>
+</tr>
+<tr class="even">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">10</td>
+<td align="right">1.6412</td>
+<td align="right">3.1510</td>
+<td align="right">1.5098</td>
+</tr>
+<tr class="odd">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">11</td>
+<td align="right">1.6412</td>
+<td align="right">0.4136</td>
+<td align="right">-1.2276</td>
+</tr>
+<tr class="even">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">11</td>
+<td align="right">1.6412</td>
+<td align="right">0.4517</td>
+<td align="right">-1.1895</td>
+</tr>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">11</td>
+<td align="right">1.6412</td>
+<td align="right">4.3770</td>
+<td align="right">2.7358</td>
+</tr>
+<tr class="even">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">11</td>
+<td align="right">1.6412</td>
+<td align="right">4.4683</td>
+<td align="right">2.8271</td>
+</tr>
+<tr class="odd">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">11</td>
+<td align="right">1.6412</td>
+<td align="right">3.4263</td>
+<td align="right">1.7851</td>
+</tr>
+<tr class="even">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">12</td>
+<td align="right">1.6412</td>
+<td align="right">0.7947</td>
+<td align="right">-0.8465</td>
+</tr>
+<tr class="odd">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">12</td>
+<td align="right">1.6412</td>
+<td align="right">0.4695</td>
+<td align="right">-1.1717</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">12</td>
+<td align="right">1.6412</td>
+<td align="right">4.3769</td>
+<td align="right">2.7357</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">12</td>
+<td align="right">1.6412</td>
+<td align="right">4.4106</td>
+<td align="right">2.7694</td>
+</tr>
+<tr class="even">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">12</td>
+<td align="right">1.6412</td>
+<td align="right">1.2868</td>
+<td align="right">-0.3544</td>
+</tr>
+<tr class="odd">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">13</td>
+<td align="right">1.6412</td>
+<td align="right">0.5204</td>
+<td align="right">-1.1208</td>
+</tr>
+<tr class="even">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">13</td>
+<td align="right">1.6412</td>
+<td align="right">0.3796</td>
+<td align="right">-1.2615</td>
+</tr>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">13</td>
+<td align="right">1.6412</td>
+<td align="right">4.3671</td>
+<td align="right">2.7259</td>
+</tr>
+<tr class="even">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">13</td>
+<td align="right">1.6412</td>
+<td align="right">4.3307</td>
+<td align="right">2.6895</td>
+</tr>
+<tr class="odd">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">13</td>
+<td align="right">1.6412</td>
+<td align="right">1.4689</td>
+<td align="right">-0.1723</td>
+</tr>
+<tr class="even">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">14</td>
+<td align="right">1.6412</td>
+<td align="right">0.3273</td>
+<td align="right">-1.3139</td>
+</tr>
+<tr class="odd">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">14</td>
+<td align="right">1.6412</td>
+<td align="right">0.3281</td>
+<td align="right">-1.3131</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">14</td>
+<td align="right">1.6412</td>
+<td align="right">4.6119</td>
+<td align="right">2.9708</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">14</td>
+<td align="right">1.6412</td>
+<td align="right">4.5548</td>
+<td align="right">2.9136</td>
+</tr>
+<tr class="even">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">14</td>
+<td align="right">1.6412</td>
+<td align="right">2.1357</td>
+<td align="right">0.4945</td>
+</tr>
+<tr class="odd">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">15</td>
+<td align="right">1.6412</td>
+<td align="right">2.4582</td>
+<td align="right">0.8170</td>
+</tr>
+<tr class="even">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">15</td>
+<td align="right">1.6412</td>
+<td align="right">2.1874</td>
+<td align="right">0.5463</td>
+</tr>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">15</td>
+<td align="right">1.6412</td>
+<td align="right">4.4017</td>
+<td align="right">2.7605</td>
+</tr>
+<tr class="even">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">15</td>
+<td align="right">1.6412</td>
+<td align="right">4.4171</td>
+<td align="right">2.7759</td>
+</tr>
+<tr class="odd">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">15</td>
+<td align="right">1.6412</td>
+<td align="right">2.0632</td>
+<td align="right">0.4221</td>
+</tr>
+<tr class="even">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">16</td>
+<td align="right">1.6412</td>
+<td align="right">0.3843</td>
+<td align="right">-1.2569</td>
+</tr>
+<tr class="odd">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">16</td>
+<td align="right">1.6412</td>
+<td align="right">2.0078</td>
+<td align="right">0.3666</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">16</td>
+<td align="right">1.6412</td>
+<td align="right">4.5522</td>
+<td align="right">2.9110</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">16</td>
+<td align="right">1.6412</td>
+<td align="right">4.4199</td>
+<td align="right">2.7788</td>
+</tr>
+<tr class="even">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">16</td>
+<td align="right">1.6412</td>
+<td align="right">3.4535</td>
+<td align="right">1.8123</td>
+</tr>
+<tr class="odd">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">17</td>
+<td align="right">1.6412</td>
+<td align="right">2.3772</td>
+<td align="right">0.7360</td>
+</tr>
+<tr class="even">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">17</td>
+<td align="right">1.6412</td>
+<td align="right">0.3810</td>
+<td align="right">-1.2602</td>
+</tr>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">17</td>
+<td align="right">1.6412</td>
+<td align="right">4.3415</td>
+<td align="right">2.7003</td>
+</tr>
+<tr class="even">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">17</td>
+<td align="right">1.6412</td>
+<td align="right">4.4422</td>
+<td align="right">2.8010</td>
+</tr>
+<tr class="odd">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">17</td>
+<td align="right">1.6412</td>
+<td align="right">3.3226</td>
+<td align="right">1.6814</td>
+</tr>
+<tr class="even">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">18</td>
+<td align="right">1.6412</td>
+<td align="right">0.3992</td>
+<td align="right">-1.2420</td>
+</tr>
+<tr class="odd">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">18</td>
+<td align="right">1.6412</td>
+<td align="right">1.5704</td>
+<td align="right">-0.0708</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">18</td>
+<td align="right">1.6412</td>
+<td align="right">4.5080</td>
+<td align="right">2.8668</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">18</td>
+<td align="right">1.6412</td>
+<td align="right">4.3562</td>
+<td align="right">2.7150</td>
+</tr>
+<tr class="even">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">18</td>
+<td align="right">1.6412</td>
+<td align="right">1.3775</td>
+<td align="right">-0.2636</td>
+</tr>
+<tr class="odd">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">19</td>
+<td align="right">1.6412</td>
+<td align="right">0.4326</td>
+<td align="right">-1.2086</td>
+</tr>
+<tr class="even">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">19</td>
+<td align="right">1.6412</td>
+<td align="right">0.8192</td>
+<td align="right">-0.8220</td>
+</tr>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">19</td>
+<td align="right">1.6412</td>
+<td align="right">4.4174</td>
+<td align="right">2.7762</td>
+</tr>
+<tr class="even">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">19</td>
+<td align="right">1.6412</td>
+<td align="right">4.6142</td>
+<td align="right">2.9731</td>
+</tr>
+<tr class="odd">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">19</td>
+<td align="right">1.6412</td>
+<td align="right">2.6475</td>
+<td align="right">1.0063</td>
+</tr>
+<tr class="even">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">20</td>
+<td align="right">1.6412</td>
+<td align="right">0.4000</td>
+<td align="right">-1.2411</td>
+</tr>
+<tr class="odd">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">20</td>
+<td align="right">1.6412</td>
+<td align="right">0.4064</td>
+<td align="right">-1.2348</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">20</td>
+<td align="right">1.6412</td>
+<td align="right">4.3610</td>
+<td align="right">2.7198</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">20</td>
+<td align="right">1.6412</td>
+<td align="right">4.3750</td>
+<td align="right">2.7338</td>
+</tr>
+<tr class="even">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">20</td>
+<td align="right">1.6412</td>
+<td align="right">3.4978</td>
+<td align="right">1.8566</td>
+</tr>
+<tr class="odd">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">21</td>
+<td align="right">1.6412</td>
+<td align="right">2.1700</td>
+<td align="right">0.5288</td>
+</tr>
+<tr class="even">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">21</td>
+<td align="right">1.6412</td>
+<td align="right">0.3211</td>
+<td align="right">-1.3201</td>
+</tr>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">21</td>
+<td align="right">1.6412</td>
+<td align="right">4.3831</td>
+<td align="right">2.7420</td>
+</tr>
+<tr class="even">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">21</td>
+<td align="right">1.6412</td>
+<td align="right">4.4739</td>
+<td align="right">2.8327</td>
+</tr>
+<tr class="odd">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">21</td>
+<td align="right">1.6412</td>
+<td align="right">3.1603</td>
+<td align="right">1.5191</td>
+</tr>
+<tr class="even">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">22</td>
+<td align="right">1.6412</td>
+<td align="right">0.4562</td>
+<td align="right">-1.1850</td>
+</tr>
+<tr class="odd">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">22</td>
+<td align="right">1.6412</td>
+<td align="right">0.5797</td>
+<td align="right">-1.0614</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">22</td>
+<td align="right">1.6412</td>
+<td align="right">4.3896</td>
+<td align="right">2.7484</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">22</td>
+<td align="right">1.6412</td>
+<td align="right">4.3513</td>
+<td align="right">2.7101</td>
+</tr>
+<tr class="even">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">22</td>
+<td align="right">1.6412</td>
+<td align="right">1.7523</td>
+<td align="right">0.1111</td>
+</tr>
+<tr class="odd">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">23</td>
+<td align="right">1.6412</td>
+<td align="right">0.3755</td>
+<td align="right">-1.2656</td>
+</tr>
+<tr class="even">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">23</td>
+<td align="right">1.6412</td>
+<td align="right">2.2953</td>
+<td align="right">0.6542</td>
+</tr>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">23</td>
+<td align="right">1.6412</td>
+<td align="right">4.3746</td>
+<td align="right">2.7334</td>
+</tr>
+<tr class="even">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">23</td>
+<td align="right">1.6412</td>
+<td align="right">4.5952</td>
+<td align="right">2.9540</td>
+</tr>
+<tr class="odd">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">23</td>
+<td align="right">1.6412</td>
+<td align="right">1.7771</td>
+<td align="right">0.1360</td>
+</tr>
+<tr class="even">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">24</td>
+<td align="right">1.6412</td>
+<td align="right">0.5510</td>
+<td align="right">-1.0902</td>
+</tr>
+<tr class="odd">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">24</td>
+<td align="right">1.6412</td>
+<td align="right">0.4084</td>
+<td align="right">-1.2328</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">24</td>
+<td align="right">1.6412</td>
+<td align="right">4.5573</td>
+<td align="right">2.9161</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">24</td>
+<td align="right">1.6412</td>
+<td align="right">4.4462</td>
+<td align="right">2.8050</td>
+</tr>
+<tr class="even">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">24</td>
+<td align="right">1.6412</td>
+<td align="right">3.1122</td>
+<td align="right">1.4711</td>
+</tr>
+<tr class="odd">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">25</td>
+<td align="right">1.6412</td>
+<td align="right">0.9175</td>
+<td align="right">-0.7236</td>
+</tr>
+<tr class="even">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">25</td>
+<td align="right">1.6412</td>
+<td align="right">0.5273</td>
+<td align="right">-1.1139</td>
+</tr>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">25</td>
+<td align="right">1.6412</td>
+<td align="right">4.3814</td>
+<td align="right">2.7402</td>
+</tr>
+<tr class="even">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">25</td>
+<td align="right">1.6412</td>
+<td align="right">4.5403</td>
+<td align="right">2.8992</td>
+</tr>
+<tr class="odd">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">25</td>
+<td align="right">1.6412</td>
+<td align="right">3.4504</td>
+<td align="right">1.8092</td>
+</tr>
+<tr class="even">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">26</td>
+<td align="right">1.6412</td>
+<td align="right">0.7085</td>
+<td align="right">-0.9327</td>
+</tr>
+<tr class="odd">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">26</td>
+<td align="right">1.6412</td>
+<td align="right">1.1625</td>
+<td align="right">-0.4787</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">26</td>
+<td align="right">1.6412</td>
+<td align="right">4.3979</td>
+<td align="right">2.7567</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">26</td>
+<td align="right">1.6412</td>
+<td align="right">4.3710</td>
+<td align="right">2.7298</td>
+</tr>
+<tr class="even">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">26</td>
+<td align="right">1.6412</td>
+<td align="right">1.5139</td>
+<td align="right">-0.1273</td>
+</tr>
+<tr class="odd">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">27</td>
+<td align="right">1.6412</td>
+<td align="right">0.6355</td>
+<td align="right">-1.0057</td>
+</tr>
+<tr class="even">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">27</td>
+<td align="right">1.6412</td>
+<td align="right">2.4203</td>
+<td align="right">0.7791</td>
+</tr>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">27</td>
+<td align="right">1.6412</td>
+<td align="right">4.5544</td>
+<td align="right">2.9132</td>
+</tr>
+<tr class="even">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">27</td>
+<td align="right">1.6412</td>
+<td align="right">4.5420</td>
+<td align="right">2.9008</td>
+</tr>
+<tr class="odd">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">27</td>
+<td align="right">1.6412</td>
+<td align="right">1.4426</td>
+<td align="right">-0.1985</td>
+</tr>
+<tr class="even">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">28</td>
+<td align="right">1.6412</td>
+<td align="right">1.2738</td>
+<td align="right">-0.3674</td>
+</tr>
+<tr class="odd">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">28</td>
+<td align="right">1.6412</td>
+<td align="right">1.2608</td>
+<td align="right">-0.3804</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">28</td>
+<td align="right">1.6412</td>
+<td align="right">4.5174</td>
+<td align="right">2.8763</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">28</td>
+<td align="right">1.6412</td>
+<td align="right">4.5452</td>
+<td align="right">2.9040</td>
+</tr>
+<tr class="even">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">28</td>
+<td align="right">1.6412</td>
+<td align="right">1.2841</td>
+<td align="right">-0.3571</td>
+</tr>
+<tr class="odd">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">29</td>
+<td align="right">1.6412</td>
+<td align="right">0.7091</td>
+<td align="right">-0.9321</td>
+</tr>
+<tr class="even">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">29</td>
+<td align="right">1.6412</td>
+<td align="right">0.3951</td>
+<td align="right">-1.2461</td>
+</tr>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">29</td>
+<td align="right">1.6412</td>
+<td align="right">4.5503</td>
+<td align="right">2.9091</td>
+</tr>
+<tr class="even">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">29</td>
+<td align="right">1.6412</td>
+<td align="right">4.3965</td>
+<td align="right">2.7553</td>
+</tr>
+<tr class="odd">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">29</td>
+<td align="right">1.6412</td>
+<td align="right">1.6742</td>
+<td align="right">0.0330</td>
+</tr>
+<tr class="even">
+<td align="left">noise1</td>
+<td align="right">1</td>
+<td align="right">30</td>
+<td align="right">1.6412</td>
+<td align="right">2.1727</td>
+<td align="right">0.5315</td>
+</tr>
+<tr class="odd">
+<td align="left">noise2</td>
+<td align="right">1</td>
+<td align="right">30</td>
+<td align="right">1.6412</td>
+<td align="right">1.2831</td>
+<td align="right">-0.3581</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">1</td>
+<td align="right">30</td>
+<td align="right">1.6412</td>
+<td align="right">4.4099</td>
+<td align="right">2.7687</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">1</td>
+<td align="right">30</td>
+<td align="right">1.6412</td>
+<td align="right">4.5334</td>
+<td align="right">2.8922</td>
+</tr>
+<tr class="even">
+<td align="left">x3</td>
+<td align="right">1</td>
+<td align="right">30</td>
+<td align="right">1.6412</td>
+<td align="right">3.3006</td>
+<td align="right">1.6594</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -267,7 +1427,7 @@ each resampling iteration, which improves stability:</p>
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">rsmp</a></span><span class="op">(</span><span class="st">"cv"</span>, folds <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
-<span>    n_repeats <span class="op">=</span> <span class="fl">20</span></span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">10</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">loco_multi</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
@@ -275,11 +1435,11 @@ each resampling iteration, which improves stability:</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature importance</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  noise1 0.09783824</span></span>
-<span><span class="co">#&gt; 2:  noise2 0.11159219</span></span>
-<span><span class="co">#&gt; 3:      x1 3.52161054</span></span>
-<span><span class="co">#&gt; 4:      x2 3.54195239</span></span>
-<span><span class="co">#&gt; 5:      x3 1.19103822</span></span>
+<span><span class="co">#&gt; 1:  noise1  0.2379570</span></span>
+<span><span class="co">#&gt; 2:  noise2  0.3506664</span></span>
+<span><span class="co">#&gt; 3:      x1  4.0299444</span></span>
+<span><span class="co">#&gt; 4:      x2  3.9218550</span></span>
+<span><span class="co">#&gt; 5:      x3  1.3056282</span></span>
 <span></span>
 <span><span class="co"># Check individual scores with multiple refits</span></span>
 <span><span class="va">loco_multi</span><span class="op">$</span><span class="fu">scores</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -308,81 +1468,81 @@ each resampling iteration, which improves stability:</p>
 <td align="left">noise1</td>
 <td align="right">1</td>
 <td align="right">1</td>
-<td align="right">0.7395</td>
-<td align="right">0.5781</td>
-<td align="right">-0.1614</td>
+<td align="right">0.3493</td>
+<td align="right">0.4164</td>
+<td align="right">0.0671</td>
 </tr>
 <tr class="even">
 <td align="left">noise2</td>
 <td align="right">1</td>
 <td align="right">1</td>
-<td align="right">0.7395</td>
-<td align="right">0.4073</td>
-<td align="right">-0.3322</td>
+<td align="right">0.3493</td>
+<td align="right">0.3919</td>
+<td align="right">0.0426</td>
 </tr>
 <tr class="odd">
 <td align="left">x1</td>
 <td align="right">1</td>
 <td align="right">1</td>
-<td align="right">0.7395</td>
-<td align="right">4.2616</td>
-<td align="right">3.5222</td>
+<td align="right">0.3493</td>
+<td align="right">4.2540</td>
+<td align="right">3.9047</td>
 </tr>
 <tr class="even">
 <td align="left">x2</td>
 <td align="right">1</td>
 <td align="right">1</td>
-<td align="right">0.7395</td>
-<td align="right">4.4070</td>
-<td align="right">3.6675</td>
+<td align="right">0.3493</td>
+<td align="right">4.0460</td>
+<td align="right">3.6967</td>
 </tr>
 <tr class="odd">
 <td align="left">x3</td>
 <td align="right">1</td>
 <td align="right">1</td>
-<td align="right">0.7395</td>
-<td align="right">3.2243</td>
-<td align="right">2.4848</td>
+<td align="right">0.3493</td>
+<td align="right">2.0329</td>
+<td align="right">1.6836</td>
 </tr>
 <tr class="even">
 <td align="left">noise1</td>
 <td align="right">1</td>
 <td align="right">2</td>
-<td align="right">0.7395</td>
-<td align="right">0.3963</td>
-<td align="right">-0.3431</td>
+<td align="right">0.3493</td>
+<td align="right">1.1548</td>
+<td align="right">0.8055</td>
 </tr>
 <tr class="odd">
 <td align="left">noise2</td>
 <td align="right">1</td>
 <td align="right">2</td>
-<td align="right">0.7395</td>
-<td align="right">0.4867</td>
-<td align="right">-0.2528</td>
+<td align="right">0.3493</td>
+<td align="right">0.5136</td>
+<td align="right">0.1643</td>
 </tr>
 <tr class="even">
 <td align="left">x1</td>
 <td align="right">1</td>
 <td align="right">2</td>
-<td align="right">0.7395</td>
-<td align="right">4.3106</td>
-<td align="right">3.5711</td>
+<td align="right">0.3493</td>
+<td align="right">4.1198</td>
+<td align="right">3.7705</td>
 </tr>
 <tr class="odd">
 <td align="left">x2</td>
 <td align="right">1</td>
 <td align="right">2</td>
-<td align="right">0.7395</td>
-<td align="right">4.3204</td>
-<td align="right">3.5809</td>
+<td align="right">0.3493</td>
+<td align="right">4.0961</td>
+<td align="right">3.7467</td>
 </tr>
 <tr class="even">
 <td align="left">x3</td>
 <td align="right">1</td>
 <td align="right">2</td>
-<td align="right">0.7395</td>
-<td align="right">3.3890</td>
-<td align="right">2.6495</td>
+<td align="right">0.3493</td>
+<td align="right">1.3335</td>
+<td align="right">0.9842</td>
 </tr>
 </tbody>
 </table>
@@ -433,11 +1593,11 @@ model (faster)</li>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature       loco          pfi</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  noise1 -1.1374749  0.002236380</span></span>
-<span><span class="co">#&gt; 2:  noise2  0.7842797 -0.001500455</span></span>
-<span><span class="co">#&gt; 3:      x1  2.7728001  8.487047597</span></span>
-<span><span class="co">#&gt; 4:      x2  2.7157750  7.320215120</span></span>
-<span><span class="co">#&gt; 5:      x3 -0.1077573  1.968836648</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:  noise1 -0.7663935 -0.002685962</span></span>
+<span><span class="co">#&gt; 2:  noise2 -0.5653578  0.002991822</span></span>
+<span><span class="co">#&gt; 3:      x1  2.8024966  6.496274359</span></span>
+<span><span class="co">#&gt; 4:      x2  2.8173232  6.578501614</span></span>
+<span><span class="co">#&gt; 5:      x3  0.7637862  1.770219866</span></span></code></pre></div>
 <p><strong>Note:</strong> Using the same instantiated resampling ensures
 we evaluate both methods on identical train/test splits. Even so,
 stochastic learners like <code>ranger</code> will produce slightly
@@ -486,13 +1646,13 @@ resulting in the LOCO procedure.</p>
 <span></span>
 <span><span class="va">comparison_wvim</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature       loco        wvim</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  noise1 -1.1374749  1.73855081</span></span>
-<span><span class="co">#&gt; 2:  noise2  0.7842797 -0.09143021</span></span>
-<span><span class="co">#&gt; 3:      x1  2.7728001  3.87166836</span></span>
-<span><span class="co">#&gt; 4:      x2  2.7157750  3.97399402</span></span>
-<span><span class="co">#&gt; 5:      x3 -0.1077573  1.11061754</span></span></code></pre></div>
+<span><span class="co">#&gt;    feature       loco       wvim</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  noise1 -0.7663935 -1.1171265</span></span>
+<span><span class="co">#&gt; 2:  noise2 -0.5653578 -1.4339895</span></span>
+<span><span class="co">#&gt; 3:      x1  2.8024966  2.2075487</span></span>
+<span><span class="co">#&gt; 4:      x2  2.8173232  2.2197634</span></span>
+<span><span class="co">#&gt; 5:      x3  0.7637862 -0.1849607</span></span></code></pre></div>
 <p><strong>Note:</strong> To get comparable results between methods, we
 must use the same instantiated resampling. Even then, stochastic
 learners like <code>ranger</code> will produce slightly different
@@ -524,13 +1684,13 @@ trivial to compute if desired:</p>
 <span><span class="va">wvim_loci</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">wvim_loci</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature  importance</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  noise1 -0.03103653</span></span>
-<span><span class="co">#&gt; 2:  noise2 -0.03631880</span></span>
-<span><span class="co">#&gt; 3:      x1 -0.14861338</span></span>
-<span><span class="co">#&gt; 4:      x2 -0.19616698</span></span>
-<span><span class="co">#&gt; 5:      x3  0.98570545</span></span></code></pre></div>
+<span><span class="co">#&gt;    feature   importance</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  noise1 -0.005507611</span></span>
+<span><span class="co">#&gt; 2:  noise2 -0.030116216</span></span>
+<span><span class="co">#&gt; 3:      x1 -6.172977924</span></span>
+<span><span class="co">#&gt; 4:      x2 -0.276415375</span></span>
+<span><span class="co">#&gt; 5:      x3  0.986802222</span></span></code></pre></div>
 <p>LOCI interprets importance differently from LOCO:</p>
 <ul>
 <li>
@@ -622,9 +1782,9 @@ f(X)))\]</span></p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;             feature importance</span></span>
 <span><span class="co">#&gt;              &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: interaction_pair  3.7911190</span></span>
-<span><span class="co">#&gt; 2:      main_effect  1.6739042</span></span>
-<span><span class="co">#&gt; 3:   noise_features  0.1539716</span></span></code></pre></div>
+<span><span class="co">#&gt; 1: interaction_pair  3.3780282</span></span>
+<span><span class="co">#&gt; 2:      main_effect  1.3852866</span></span>
+<span><span class="co">#&gt; 3:   noise_features -0.3314483</span></span></code></pre></div>
 <p><strong>Interpretation:</strong></p>
 <ul>
 <li>
@@ -661,11 +1821,11 @@ features.</p>
 <span><span class="va">wvim_groups_in</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">wvim_groups_in</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;             feature  importance</span></span>
-<span><span class="co">#&gt;              &lt;char&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: interaction_pair  2.17798793</span></span>
-<span><span class="co">#&gt; 2:      main_effect  0.99212768</span></span>
-<span><span class="co">#&gt; 3:   noise_features -0.07272751</span></span></code></pre></div>
+<span><span class="co">#&gt;             feature importance</span></span>
+<span><span class="co">#&gt;              &lt;char&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: interaction_pair  3.6348866</span></span>
+<span><span class="co">#&gt; 2:      main_effect  0.9813703</span></span>
+<span><span class="co">#&gt; 3:   noise_features -0.2612117</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="comparing-leave-out-vs-leave-in-for-groups">Comparing Leave-Out vs Leave-In for Groups<a class="anchor" aria-label="anchor" href="#comparing-leave-out-vs-leave-in-for-groups"></a>
@@ -701,11 +1861,11 @@ baseline</li>
 <span></span>
 <span><span class="va">comparison_directions</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;             feature leave_out    leave_in</span></span>
-<span><span class="co">#&gt;              &lt;char&gt;     &lt;num&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: interaction_pair 3.7911190  2.17798793</span></span>
-<span><span class="co">#&gt; 2:      main_effect 1.6739042  0.99212768</span></span>
-<span><span class="co">#&gt; 3:   noise_features 0.1539716 -0.07272751</span></span></code></pre></div>
+<span><span class="co">#&gt;             feature  leave_out   leave_in</span></span>
+<span><span class="co">#&gt;              &lt;char&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: interaction_pair  3.3780282  3.6348866</span></span>
+<span><span class="co">#&gt; 2:      main_effect  1.3852866  0.9813703</span></span>
+<span><span class="co">#&gt; 3:   noise_features -0.3314483 -0.2612117</span></span></code></pre></div>
 <p>For our interaction data where <span class="math inline">\(y = 2
 \cdot x_1 \cdot x_2 + x_3 + \epsilon\)</span>:</p>
 <ul>

@@ -72,18 +72,18 @@ pfi <- PFI$new(
 pfi$compute()
 pfi$importance()
 #> Key: <feature>
-#>          feature   importance
-#>           <char>        <num>
-#>  1:   important1  4.858724892
-#>  2:   important2  8.155693005
-#>  3:   important3  1.109254345
-#>  4:   important4 10.784727349
-#>  5:   important5  2.395793708
-#>  6: unimportant1  0.009618005
-#>  7: unimportant2  0.080903445
-#>  8: unimportant3  0.044057887
-#>  9: unimportant4 -0.082032243
-#> 10: unimportant5 -0.137666350
+#>          feature  importance
+#>           <char>       <num>
+#>  1:   important1  5.65832510
+#>  2:   important2  9.27071901
+#>  3:   important3  1.23080752
+#>  4:   important4 12.58085212
+#>  5:   important5  2.10532639
+#>  6: unimportant1 -0.01161106
+#>  7: unimportant2  0.11012382
+#>  8: unimportant3  0.07585563
+#>  9: unimportant4 -0.04562983
+#> 10: unimportant5 -0.08762484
 ```
 
 The `importance` column shows the performance difference when each
@@ -107,18 +107,18 @@ pfi_stable <- PFI$new(
 pfi_stable$compute()
 pfi_stable$importance()
 #> Key: <feature>
-#>          feature   importance
-#>           <char>        <num>
-#>  1:   important1  5.632865193
-#>  2:   important2  8.217424105
-#>  3:   important3  1.127171028
-#>  4:   important4 12.610746815
-#>  5:   important5  2.156205784
-#>  6: unimportant1 -0.002932088
-#>  7: unimportant2  0.004595318
-#>  8: unimportant3  0.052577152
-#>  9: unimportant4  0.066657519
-#> 10: unimportant5 -0.035436306
+#>          feature  importance
+#>           <char>       <num>
+#>  1:   important1  5.69009142
+#>  2:   important2  8.51851192
+#>  3:   important3  1.35925926
+#>  4:   important4 11.99230271
+#>  5:   important5  1.81738150
+#>  6: unimportant1 -0.04982420
+#>  7: unimportant2  0.05955861
+#>  8: unimportant3 -0.06882424
+#>  9: unimportant4 -0.02720205
+#> 10: unimportant5 -0.00145781
 ```
 
 We can also use ratio instead of difference for the importance
@@ -130,16 +130,16 @@ pfi_stable$importance(relation = "ratio")
 #> Key: <feature>
 #>          feature importance
 #>           <char>      <num>
-#>  1:   important1  1.8557162
-#>  2:   important2  2.2483409
-#>  3:   important3  1.1709915
-#>  4:   important4  2.9043526
-#>  5:   important5  1.3261294
-#>  6: unimportant1  0.9993403
-#>  7: unimportant2  1.0008185
-#>  8: unimportant3  1.0065982
-#>  9: unimportant4  1.0098395
-#> 10: unimportant5  0.9945623
+#>  1:   important1  1.8066687
+#>  2:   important2  2.2139272
+#>  3:   important3  1.1928610
+#>  4:   important4  2.6727517
+#>  5:   important5  1.2618911
+#>  6: unimportant1  0.9915111
+#>  7: unimportant2  1.0086204
+#>  8: unimportant3  0.9893331
+#>  9: unimportant4  0.9972700
+#> 10: unimportant5  0.9998240
 ```
 
 ## Leave-One-Covariate-Out (LOCO)
@@ -161,16 +161,16 @@ loco$importance()
 #> Key: <feature>
 #>          feature importance
 #>           <char>      <num>
-#>  1:   important1  3.2146916
-#>  2:   important2  5.2024952
-#>  3:   important3  0.4812675
-#>  4:   important4  7.2416733
-#>  5:   important5  0.3338383
-#>  6: unimportant1 -0.6559862
-#>  7: unimportant2 -0.5292880
-#>  8: unimportant3 -0.7172825
-#>  9: unimportant4 -0.3425903
-#> 10: unimportant5 -0.5959717
+#>  1:   important1  3.5085806
+#>  2:   important2  5.3550364
+#>  3:   important3  0.8200906
+#>  4:   important4  7.5367223
+#>  5:   important5  0.5861361
+#>  6: unimportant1 -0.2583327
+#>  7: unimportant2 -0.1602426
+#>  8: unimportant3 -0.2885216
+#>  9: unimportant4 -0.3449341
+#> 10: unimportant5 -0.3606014
 ```
 
 LOCO is computationally expensive as it requires retraining for each
@@ -224,11 +224,11 @@ sample_data[, .(important1, important2, important3)]
 sampled_conditional[, .(important1, important2, important3)]
 #>    important1  important2 important3
 #>         <num>       <num>      <num>
-#> 1:  0.2436298 0.784575267  0.2372297
-#> 2:  0.4299974 0.009429905  0.6864904
-#> 3:  0.8416970 0.779065883  0.2258184
-#> 4:  0.8402944 0.729390652  0.3184946
-#> 5:  0.3115287 0.630131853  0.1739838
+#> 1:  0.4239519 0.784575267  0.2372297
+#> 2:  0.1837310 0.009429905  0.6864904
+#> 3:  0.5781874 0.779065883  0.2258184
+#> 4:  0.3806457 0.729390652  0.3184946
+#> 5:  0.4622495 0.630131853  0.1739838
 ```
 
 This conditional sampling is essential for methods like CFI and RFI that
@@ -250,18 +250,18 @@ pfi$scores() |>
     knitr::kable(digits = 4, caption = "Detailed PFI scores (first 10 rows)")
 ```
 
-| feature      | iter_rsmp | iter_repeat | regr.mse_baseline | regr.mse_post | importance |
-|:-------------|----------:|------------:|------------------:|--------------:|-----------:|
-| important1   |         1 |           1 |            4.3358 |        8.4459 |     4.1102 |
-| important2   |         1 |           1 |            4.3358 |       10.9357 |     6.6000 |
-| important3   |         1 |           1 |            4.3358 |        5.2284 |     0.8926 |
-| important4   |         1 |           1 |            4.3358 |       15.4558 |    11.1200 |
-| important5   |         1 |           1 |            4.3358 |        6.5032 |     2.1674 |
-| unimportant1 |         1 |           1 |            4.3358 |        4.3324 |    -0.0033 |
-| unimportant2 |         1 |           1 |            4.3358 |        4.3681 |     0.0323 |
-| unimportant3 |         1 |           1 |            4.3358 |        4.4284 |     0.0927 |
-| unimportant4 |         1 |           1 |            4.3358 |        4.3111 |    -0.0247 |
-| unimportant5 |         1 |           1 |            4.3358 |        4.1194 |    -0.2163 |
+| feature    | iter_rsmp | iter_repeat | regr.mse_baseline | regr.mse_post | importance |
+|:-----------|----------:|------------:|------------------:|--------------:|-----------:|
+| important1 |         1 |           1 |            4.3358 |        9.5208 |     5.1850 |
+| important1 |         1 |           2 |            4.3358 |       10.6373 |     6.3015 |
+| important1 |         1 |           3 |            4.3358 |        9.2000 |     4.8643 |
+| important1 |         1 |           4 |            4.3358 |       10.5931 |     6.2573 |
+| important1 |         1 |           5 |            4.3358 |        9.7336 |     5.3979 |
+| important1 |         1 |           6 |            4.3358 |        9.6753 |     5.3396 |
+| important1 |         1 |           7 |            4.3358 |        8.4808 |     4.1451 |
+| important1 |         1 |           8 |            4.3358 |        8.1783 |     3.8425 |
+| important1 |         1 |           9 |            4.3358 |        9.4762 |     5.1404 |
+| important1 |         1 |          10 |            4.3358 |        9.9178 |     5.5820 |
 
 Detailed PFI scores (first 10 rows)
 
@@ -276,7 +276,7 @@ pfi$scores()[, .(
 )]
 #>    features resampling_folds permutation_iters total_scores
 #>       <int>            <int>             <int>        <int>
-#> 1:       10                3                 1           30
+#> 1:       10                3                30          900
 ```
 
 So `$importance()` always gives us the aggregated importances across
@@ -294,18 +294,18 @@ pfi$scores(relation = "ratio") |>
     knitr::kable(digits = 4, caption = "PFI scores using the ratio (first 10 rows)")
 ```
 
-| feature      | iter_rsmp | iter_repeat | regr.mse_baseline | regr.mse_post | importance |
-|:-------------|----------:|------------:|------------------:|--------------:|-----------:|
-| important1   |         1 |           1 |            4.3358 |        8.4459 |     1.9480 |
-| important2   |         1 |           1 |            4.3358 |       10.9357 |     2.5222 |
-| important3   |         1 |           1 |            4.3358 |        5.2284 |     1.2059 |
-| important4   |         1 |           1 |            4.3358 |       15.4558 |     3.5647 |
-| important5   |         1 |           1 |            4.3358 |        6.5032 |     1.4999 |
-| unimportant1 |         1 |           1 |            4.3358 |        4.3324 |     0.9992 |
-| unimportant2 |         1 |           1 |            4.3358 |        4.3681 |     1.0075 |
-| unimportant3 |         1 |           1 |            4.3358 |        4.4284 |     1.0214 |
-| unimportant4 |         1 |           1 |            4.3358 |        4.3111 |     0.9943 |
-| unimportant5 |         1 |           1 |            4.3358 |        4.1194 |     0.9501 |
+| feature    | iter_rsmp | iter_repeat | regr.mse_baseline | regr.mse_post | importance |
+|:-----------|----------:|------------:|------------------:|--------------:|-----------:|
+| important1 |         1 |           1 |            4.3358 |        9.5208 |     2.1959 |
+| important1 |         1 |           2 |            4.3358 |       10.6373 |     2.4534 |
+| important1 |         1 |           3 |            4.3358 |        9.2000 |     2.1219 |
+| important1 |         1 |           4 |            4.3358 |       10.5931 |     2.4432 |
+| important1 |         1 |           5 |            4.3358 |        9.7336 |     2.2450 |
+| important1 |         1 |           6 |            4.3358 |        9.6753 |     2.2315 |
+| important1 |         1 |           7 |            4.3358 |        8.4808 |     1.9560 |
+| important1 |         1 |           8 |            4.3358 |        8.1783 |     1.8862 |
+| important1 |         1 |           9 |            4.3358 |        9.4762 |     2.1856 |
+| important1 |         1 |          10 |            4.3358 |        9.9178 |     2.2874 |
 
 PFI scores using the ratio (first 10 rows)
 
@@ -318,32 +318,32 @@ analogously to `$scores()` and `$importances()` but even more detailed:
 
 ``` r
 pfi$obs_loss()
-#>            feature iter_rsmp iter_repeat row_ids loss_baseline   loss_post
-#>             <char>     <int>       <int>   <int>         <num>       <num>
-#>    1:   important1         1           1       1     3.3403244  0.26184209
-#>    2:   important1         1           1       9     0.4640003  0.00316609
-#>    3:   important1         1           1      11     1.0938319 10.11218211
-#>    4:   important1         1           1      12     2.0091331  2.28764800
-#>    5:   important1         1           1      15    11.4484770 38.11092543
-#>   ---                                                                     
-#> 2996: unimportant5         3           1     290    16.8041217 16.80412169
-#> 2997: unimportant5         3           1     294     0.4212832  0.45933049
-#> 2998: unimportant5         3           1     295     8.0016602  7.86721528
-#> 2999: unimportant5         3           1     296     0.2308082  0.26544478
-#> 3000: unimportant5         3           1     298    18.8129904 18.81299041
-#>       obs_importance
-#>                <num>
-#>    1:    -3.07848231
-#>    2:    -0.46083425
-#>    3:     9.01835017
-#>    4:     0.27851489
-#>    5:    26.66244838
-#>   ---               
-#> 2996:     0.00000000
-#> 2997:     0.03804724
-#> 2998:    -0.13444495
-#> 2999:     0.03463658
-#> 3000:     0.00000000
+#>             feature iter_rsmp iter_repeat row_ids loss_baseline  loss_post
+#>              <char>     <int>       <int>   <int>         <num>      <num>
+#>     1:   important1         1           1       1     3.3403244  0.4756261
+#>     2:   important1         1           1       9     0.4640003 13.8393080
+#>     3:   important1         1           1      11     1.0938319  9.5233606
+#>     4:   important1         1           1      12     2.0091331  1.2088093
+#>     5:   important1         1           1      15    11.4484770 20.9659162
+#>    ---                                                                    
+#> 89996: unimportant5         3          30     290    16.8041217 16.8041217
+#> 89997: unimportant5         3          30     294     0.4212832  0.4715050
+#> 89998: unimportant5         3          30     295     8.0016602  8.9656018
+#> 89999: unimportant5         3          30     296     0.2308082  0.1863293
+#> 90000: unimportant5         3          30     298    18.8129904 18.7329169
+#>        obs_importance
+#>                 <num>
+#>     1:    -2.86469831
+#>     2:    13.37530770
+#>     3:     8.42952866
+#>     4:    -0.80032386
+#>     5:     9.51743920
+#>    ---               
+#> 89996:     0.00000000
+#> 89997:     0.05022177
+#> 89998:     0.96394160
+#> 89999:    -0.04447890
+#> 90000:    -0.08007353
 ```
 
 Since we computed PFI using the mean squared error (`msr("regr.mse")`),

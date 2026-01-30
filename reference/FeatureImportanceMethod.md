@@ -230,10 +230,10 @@ could be:
       measure = msr("regr.mse"),
       # Subsampling instead of bootstrapping due to RF
       resampling = rsmp("subsampling", repeats = 15),
-      n_repeats = 5
+      n_repeats = 20
     )
 
-`n_repeats = 5` in this context only improves the stability of the PFI
+`n_repeats = 20` in this context only improves the stability of the PFI
 estimate within the resampling iteration, whereas
 `rsmp("subsampling", repeats = 15)` is used to account for learner
 variance and necessitates variance correction.
