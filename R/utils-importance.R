@@ -65,7 +65,7 @@ importance_raw = function(scores, aggregator, conf_level, n_iters) {
 #' @noRd
 importance_nadeau_bengio = function(scores, aggregator, conf_level, resampling, n_iters) {
 	# The data.table NSE tax
-	importance <- se <- NULL
+	importance <- se <- statistic <- NULL
 
 	# Validate resampling type
 	if (!(resampling$id %in% c("bootstrap", "subsampling")) | resampling$iters < 10) {
@@ -107,8 +107,16 @@ importance_nadeau_bengio = function(scores, aggregator, conf_level, resampling, 
 
 	agg_importance = agg_importance[sds, on = "feature"]
 
+	# Two-sided t-test: H0: importance = 0 vs H1: importance != 0
+	# Test statistic: t = importance / se
+	# se is corrected by factor at this point
+	# P-value from t-distribution (two-sided)
+	df = n_iters - 1
+	agg_importance[, statistic := importance / se]
+	agg_importance[, p.value := 2 * stats::pt(abs(statistic), df = df, lower.tail = FALSE)]
+
 	alpha = 1 - conf_level
-	quant = stats::qt(1 - alpha / 2, df = n_iters - 1)
+	quant = stats::qt(1 - alpha / 2, df = df)
 
 	agg_importance[, let(
 		conf_lower = importance - quant * se,
