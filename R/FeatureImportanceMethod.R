@@ -118,50 +118,95 @@ FeatureImportanceMethod = R6Class(
 		#'   These methods are model-agnostic and rely on suitable `resampling`s, e.g. subsampling with 15 repeats for `"nadeau_bengio"`.
 		#'   See details.
 		#' @param conf_level (`numeric(1)`: `0.95`) Confidence level to use for confidence interval construction when `ci_method != "none"`.
+		#' @param alternative (`character(1)`: `"greater"`) Type of alternative hypothesis for statistical tests.
+		#'   `"greater"` tests H0: importance <= 0 vs H1: importance > 0 (one-sided).
+		#'   `"two.sided"` tests H0: importance = 0 vs H1: importance != 0.
+		#'   Only used when `ci_method != "none"`.
 		#' @param ... Additional arguments passed to specialized methods, if any.
 		#' @return ([data.table][data.table::data.table]) Aggregated importance scores with columns `"feature"`, `"importance"`,
-		#' and depending on `ci_method` also `"se"`, `"conf_lower"`, `"conf_upper"`.
+		#' and depending on `ci_method` also `"se"`, `"statistic"`, `"p.value"`, `"conf_lower"`, `"conf_upper"`.
 		#'
 		#' @details
-		#' Variance estimates for importance scores are biased due to the resampling procedure. Molnar et al. (2023) suggest to use
-		#' the variance correction factor proposed by Nadeau & Bengio (2003) of n2/n1, where n2 and n1 are the sizes of the test- and train set, respectively.
-		#' This should then be combined with approx. 15 iterations of either bootstrapping or subsampling.
 		#'
-		#' The use of bootstrapping in this context can lead to problematic information leakage when combined with learners
-		#' that perform bootstrapping themselves, e.g., Random Forest learners.
-		#' In such cases, observations may be used as train- and test instances simultaneously, leading to erroneous performance estimates.
+		#' ## Confidence Interval Methods
 		#'
-		#' An approach leading to still imperfect, but improved variance estimates could be:
+		#' All methods (except `"none"`) return standard error (`se`), test statistic (`statistic`),
+		#' p-value (`p.value`), and confidence bounds (`conf_lower`, `conf_upper`).
+		#'
+		#' ### `"raw"`: Uncorrected (!) t-test
+		#' Uses a standard t-test assuming independence of resampling iterations.
+		#' - SE = sd(resampling scores) / sqrt(n_iters)
+		#' - Test statistic: t = importance / SE with df = n_iters - 1
+		#' - P-value: From t-distribution (one-sided or two-sided depending on `alternative`)
+		#' - CIs: importance +/- qt(1 - alpha, df) * SE
+		#'
+		#' **Warning**: These CIs are too narrow because resampling iterations share
+		#' training data and are not independent.
+		#' This method is included only for demonstration purposes.
+		#'
+		#' ### `"nadeau_bengio"`: Corrected t-test
+		#' Applies the Nadeau & Bengio (2003) correction to account for correlation between
+		#' resampling iterations due to overlapping training sets.
+		#' - Correction factor: (1/n_iters + n_test/n_train)
+		#' - SE = sqrt(correction_factor * var(resampling scores))
+		#' - Test statistic and p-value: As in `"raw"`, but with corrected SE
+		#'
+		#' Recommended with bootstrap or subsampling (>= 10 iterations).
+		#'
+
+		#' ### `"quantile"`: Non-parametric empirical method
+		#' Uses the resampling distribution directly without parametric assumptions.
+		#' - SE = sd(resampling scores) / sqrt(n_iters)
+		#' - Test statistic: importance / SE (z-score like)
+		#' - P-value: Empirical, using the Phipson & Smyth (2010) correction `(b + 1) / (n + 1)`
+		#'   where b is the count of resampling iterations with importance <= 0 (one-sided)
+		#'   or |importance| >= |observed| (two-sided)
+		#' - CIs: Empirical quantiles of the resampling distribution
+		#'
+		#' ## Method-Specific CI Methods
+		#'
+		#' Some importance methods provide additional CI methods tailored to their approach:
+		#'
+		#' - **[CFI]**: Adds `"cpi"` (Conditional Predictive Impact), which uses observation-wise
+		#'   loss differences with holdout resampling. Supports t-test, Wilcoxon, Fisher permutation,
+		#'   and binomial tests. See Watson & Wright (2021).
+		#'
+		#' ## Practical Recommendations
+		#'
+		#' Variance estimates for importance scores are biased due to the resampling procedure.
+		#' Molnar et al. (2023) suggest using the Nadeau & Bengio correction with approximately
+		#' 15 iterations of subsampling.
+		#'
+		#' Bootstrapping can cause information leakage with learners that bootstrap internally
+		#' (e.g., Random Forests), as observations may appear in both train and test sets.
+		#' Prefer subsampling in such cases:
 		#'
 		#' ```r
 		#' PFI$new(
 		#'   task = sim_dgp_interactions(n = 1000),
 		#'   learner = lrn("regr.ranger", num.trees = 100),
 		#'   measure = msr("regr.mse"),
-		#'   # Subsampling instead of bootstrapping due to RF
 		#'   resampling = rsmp("subsampling", repeats = 15),
 		#'   n_repeats = 20
 		#' )
 		#' ```
 		#'
-		#' `n_repeats = 20` in this context only improves the stability of the PFI estimate within the resampling iteration, whereas `rsmp("subsampling", repeats = 15)`
-		#' is used to account for learner variance and necessitates variance correction.
-		#'
-		#' This approach can in principle also be applied to `CFI` and `RFI`, but beware that a conditional sample such as [ConditionalARFSampler] also needs to be trained on data,
-		#' which would need to be taken account by the variance estimation method.
-		#' Analogously, the `"nadeau_bengio"` correction was recommended for the use with [PFI] by Molnar et al., so its use with other methods like [LOCO] or [SAGE] is experimental.
-		#'
-		#' Note that even if `measure` uses an `aggregator` function that is not the mean, variance estimation currently will always use [mean()] and [var()].
+		#' The `"nadeau_bengio"` correction was validated for PFI; its use with other methods
+		#' like LOCO or SAGE is experimental.
 		#'
 		#' @references
 		#' `r print_bib("nadaeu_2003")`
+		#'
 		#' `r print_bib("molnar_2023")`
+		#'
+		#' `r print_bib("phipson_2010")`
 		#'
 		importance = function(
 			relation = NULL,
 			standardize = FALSE,
 			ci_method = c("none", "raw", "nadeau_bengio", "quantile"),
 			conf_level = 0.95,
+			alternative = c("greater", "two.sided"),
 			...
 		) {
 			if (is.null(private$.scores)) {
@@ -177,6 +222,7 @@ FeatureImportanceMethod = R6Class(
 			}
 			checkmate::assert_choice(ci_method, choices = private$.ci_methods)
 			checkmate::assert_number(conf_level, lower = 0, upper = 1)
+			alternative = match.arg(alternative)
 
 			# Get aggregator and scores
 			aggregator = self$measure$aggregator %||% mean
@@ -191,15 +237,22 @@ FeatureImportanceMethod = R6Class(
 			agg_importance = switch(
 				ci_method,
 				none = importance_none(scores, aggregator, conf_level),
-				raw = importance_raw(scores, aggregator, conf_level, self$resample_result$iters),
+				raw = importance_raw(
+					scores,
+					aggregator,
+					conf_level,
+					alternative,
+					self$resample_result$iters
+				),
 				nadeau_bengio = importance_nadeau_bengio(
 					scores,
 					aggregator,
 					conf_level,
+					alternative,
 					self$resampling,
 					self$resample_result$iters
 				),
-				quantile = importance_quantile(scores, aggregator, conf_level),
+				quantile = importance_quantile(scores, aggregator, conf_level, alternative),
 				cli::cli_abort(c(
 					"Variance method {.val {ci_method}} not found.",
 					i = "Available methods: {.val {private$.ci_methods}}"
