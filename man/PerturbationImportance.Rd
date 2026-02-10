@@ -76,13 +76,15 @@ Creates a new instance of the PerturbationImportance class
 \if{latex}{\out{\hypertarget{method-PerturbationImportance-importance}{}}}
 \subsection{Method \code{importance()}}{
 Get aggregated importance scores.
-Extends the base \verb{$importance()} method to support the additional \code{"cpi"} ci_method.
+Extends the base \verb{$importance()} method to support \code{ci_method = "cpi"}.
+For details, see \link{CFI}, which is the only sub-method for which it is known to be valid.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PerturbationImportance$importance(
   relation = NULL,
   standardize = FALSE,
   ci_method = c("none", "raw", "nadeau_bengio", "quantile", "cpi"),
   conf_level = 0.95,
+  alternative = c("greater", "two.sided"),
   test = c("t", "wilcoxon", "fisher", "binomial"),
   B = 1999,
   ...
@@ -101,6 +103,10 @@ perturbation methods support \code{"cpi"} (Conditional Predictive Impact).
 CPI is specifically designed for \link{CFI} with knockoff samplers and uses one-sided hypothesis tests.}
 
 \item{\code{conf_level}}{(\code{numeric(1)}: \code{0.95}) Confidence level for confidence intervals when \code{ci_method != "none"}.}
+
+\item{\code{alternative}}{(\code{character(1)}: \code{"greater"}) Type of alternative hypothesis for statistical tests.
+\code{"greater"} tests H0: importance <= 0 vs H1: importance > 0 (one-sided).
+\code{"two.sided"} tests H0: importance = 0 vs H1: importance != 0.}
 
 \item{\code{test}}{(\code{character(1)}: \code{"t"}) Test to use for CPI. One of \code{"t"}, \code{"wilcoxon"}, \code{"fisher"}, or \code{"binomial"}. Only used when \code{ci_method = "cpi"}.}
 

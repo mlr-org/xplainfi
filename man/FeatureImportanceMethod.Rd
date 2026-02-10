@@ -13,10 +13,16 @@ Nadeau C, Bengio Y (2003).
 \dQuote{Inference for the Generalization Error.}
 \emph{Machine Learning}, \bold{52}(3), 239--281.
 \doi{10.1023/A:1024068626366}.
+
 Molnar C, Freiesleben T, König G, Herbinger J, Reisinger T, Casalicchio G, Wright M, Bischl B (2023).
 \dQuote{Relating the Partial Dependence Plot and Permutation Feature Importance to the Data Generating Process.}
 In Longo L (ed.), \emph{Explainable Artificial Intelligence}, 456--479.
 ISBN 978-3-031-44064-9, \doi{10.1007/978-3-031-44064-9_24}.
+
+Phipson B, Smyth G (2010).
+\dQuote{Permutation P-values Should Never Be Zero: Calculating Exact P-values When Permutations Are Randomly Drawn.}
+\emph{Statistical Applications in Genetics and Molecular Biology}, \bold{9}(1), Article 39.
+\doi{10.2202/1544-6115.1585}.
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -118,6 +124,7 @@ across resampling iterations and, depending on the method use, permutations (\li
   standardize = FALSE,
   ci_method = c("none", "raw", "nadeau_bengio", "quantile"),
   conf_level = 0.95,
+  alternative = c("greater", "two.sided"),
   ...
 )}\if{html}{\out{</div>}}
 }
@@ -142,44 +149,100 @@ See details.}
 
 \item{\code{conf_level}}{(\code{numeric(1)}: \code{0.95}) Confidence level to use for confidence interval construction when \code{ci_method != "none"}.}
 
+\item{\code{alternative}}{(\code{character(1)}: \code{"greater"}) Type of alternative hypothesis for statistical tests.
+\code{"greater"} tests H0: importance <= 0 vs H1: importance > 0 (one-sided).
+\code{"two.sided"} tests H0: importance = 0 vs H1: importance != 0.
+Only used when \code{ci_method != "none"}.}
+
 \item{\code{...}}{Additional arguments passed to specialized methods, if any.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Details}{
-Variance estimates for importance scores are biased due to the resampling procedure. Molnar et al. (2023) suggest to use
-the variance correction factor proposed by Nadeau & Bengio (2003) of n2/n1, where n2 and n1 are the sizes of the test- and train set, respectively.
-This should then be combined with approx. 15 iterations of either bootstrapping or subsampling.
+\subsection{Confidence Interval Methods}{
 
-The use of bootstrapping in this context can lead to problematic information leakage when combined with learners
-that perform bootstrapping themselves, e.g., Random Forest learners.
-In such cases, observations may be used as train- and test instances simultaneously, leading to erroneous performance estimates.
+All methods (except \code{"none"}) return standard error (\code{se}), test statistic (\code{statistic}),
+p-value (\code{p.value}), and confidence bounds (\code{conf_lower}, \code{conf_upper}).
+\subsection{\code{"raw"}: Uncorrected (!) t-test}{
 
-An approach leading to still imperfect, but improved variance estimates could be:
+Uses a standard t-test assuming independence of resampling iterations.
+\itemize{
+\item SE = sd(resampling scores) / sqrt(n_iters)
+\item Test statistic: t = importance / SE with df = n_iters - 1
+\item P-value: From t-distribution (one-sided or two-sided depending on \code{alternative})
+\item CIs: importance +/- qt(1 - alpha, df) * SE
+}
+
+\strong{Warning}: These CIs are too narrow because resampling iterations share
+training data and are not independent.
+This method is included only for demonstration purposes.
+}
+
+\subsection{\code{"nadeau_bengio"}: Corrected t-test}{
+
+Applies the Nadeau & Bengio (2003) correction to account for correlation between
+resampling iterations due to overlapping training sets.
+\itemize{
+\item Correction factor: (1/n_iters + n_test/n_train)
+\item SE = sqrt(correction_factor * var(resampling scores))
+\item Test statistic and p-value: As in \code{"raw"}, but with corrected SE
+}
+
+Recommended with bootstrap or subsampling (>= 10 iterations).
+}
+
+\subsection{\code{"quantile"}: Non-parametric empirical method}{
+
+Uses the resampling distribution directly without parametric assumptions.
+\itemize{
+\item SE = sd(resampling scores) / sqrt(n_iters)
+\item Test statistic: importance / SE (z-score like)
+\item P-value: Empirical, using the Phipson & Smyth (2010) correction \code{(b + 1) / (n + 1)}
+where b is the count of resampling iterations with importance <= 0 (one-sided)
+or |importance| >= |observed| (two-sided)
+\item CIs: Empirical quantiles of the resampling distribution
+}
+}
+
+}
+
+\subsection{Method-Specific CI Methods}{
+
+Some importance methods provide additional CI methods tailored to their approach:
+\itemize{
+\item \strong{\link{CFI}}: Adds \code{"cpi"} (Conditional Predictive Impact), which uses observation-wise
+loss differences with holdout resampling. Supports t-test, Wilcoxon, Fisher permutation,
+and binomial tests. See Watson & Wright (2021).
+}
+}
+
+\subsection{Practical Recommendations}{
+
+Variance estimates for importance scores are biased due to the resampling procedure.
+Molnar et al. (2023) suggest using the Nadeau & Bengio correction with approximately
+15 iterations of subsampling.
+
+Bootstrapping can cause information leakage with learners that bootstrap internally
+(e.g., Random Forests), as observations may appear in both train and test sets.
+Prefer subsampling in such cases:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{PFI$new(
   task = sim_dgp_interactions(n = 1000),
   learner = lrn("regr.ranger", num.trees = 100),
   measure = msr("regr.mse"),
-  # Subsampling instead of bootstrapping due to RF
   resampling = rsmp("subsampling", repeats = 15),
   n_repeats = 20
 )
 }\if{html}{\out{</div>}}
 
-\code{n_repeats = 20} in this context only improves the stability of the PFI estimate within the resampling iteration, whereas \code{rsmp("subsampling", repeats = 15)}
-is used to account for learner variance and necessitates variance correction.
-
-This approach can in principle also be applied to \code{CFI} and \code{RFI}, but beware that a conditional sample such as \link{ConditionalARFSampler} also needs to be trained on data,
-which would need to be taken account by the variance estimation method.
-Analogously, the \code{"nadeau_bengio"} correction was recommended for the use with \link{PFI} by Molnar et al., so its use with other methods like \link{LOCO} or \link{SAGE} is experimental.
-
-Note that even if \code{measure} uses an \code{aggregator} function that is not the mean, variance estimation currently will always use \code{\link[=mean]{mean()}} and \code{\link[=var]{var()}}.
+The \code{"nadeau_bengio"} correction was validated for PFI; its use with other methods
+like LOCO or SAGE is experimental.
+}
 }
 
 \subsection{Returns}{
 (\link[data.table:data.table]{data.table}) Aggregated importance scores with columns \code{"feature"}, \code{"importance"},
-and depending on \code{ci_method} also \code{"se"}, \code{"conf_lower"}, \code{"conf_upper"}.
+and depending on \code{ci_method} also \code{"se"}, \code{"statistic"}, \code{"p.value"}, \code{"conf_lower"}, \code{"conf_upper"}.
 }
 }
 \if{html}{\out{<hr>}}
