@@ -18,15 +18,20 @@ importance_none = function(scores, aggregator, conf_level) {
 	agg_importance
 }
 
-#' Raw variance estimation without correction (too narrow CIs)
-#' @param scores ([data.table::data.table]) with feature and importance columns, must include iter_rsmp
-#' @param aggregator (`function`) to aggregate importance scores
-#' @param conf_level (`numeric(1)`) confidence level for intervals
-#' @param n_iters (`integer(1)`) number of resampling iterations
+#' Raw variance estimation without correction
+#'
+#' Standard t-test on resampling scores. CIs are too narrow due to non-independence.
+#' SE = sd(scores) / sqrt(n), t-statistic with df = n - 1.
+#'
+#' @param scores data.table with feature, importance, iter_rsmp columns
+#' @param aggregator function to aggregate importance scores
+#' @param conf_level confidence level for intervals
+#' @param alternative "greater" (one-sided) or "two.sided"
+#' @param n_iters number of resampling iterations
 #' @noRd
-importance_raw = function(scores, aggregator, conf_level, n_iters) {
+importance_raw = function(scores, aggregator, conf_level, alternative, n_iters) {
 	# The data.table NSE tax
-	importance <- se <- NULL
+	importance <- se <- statistic <- NULL
 	agg_importance = scores[,
 		list(importance = aggregator(importance)),
 		by = "feature"
@@ -45,25 +50,50 @@ importance_raw = function(scores, aggregator, conf_level, n_iters) {
 
 	agg_importance = agg_importance[sds, on = "feature"]
 
-	alpha = 1 - conf_level
-	quant = stats::qt(1 - alpha / 2, df = n_iters - 1)
+	# t-test: H0: importance = 0
+	df = n_iters - 1
+	agg_importance[, statistic := importance / se]
 
-	agg_importance[, let(
-		conf_lower = importance - quant * se,
-		conf_upper = importance + quant * se
-	)]
+	alpha = 1 - conf_level
+	if (alternative == "greater") {
+		agg_importance[, p.value := stats::pt(statistic, df = df, lower.tail = FALSE)]
+		quant = stats::qt(1 - alpha, df = df)
+		agg_importance[, let(
+			conf_lower = importance - quant * se,
+			conf_upper = Inf
+		)]
+	} else {
+		agg_importance[, p.value := 2 * stats::pt(abs(statistic), df = df, lower.tail = FALSE)]
+		quant = stats::qt(1 - alpha / 2, df = df)
+		agg_importance[, let(
+			conf_lower = importance - quant * se,
+			conf_upper = importance + quant * se
+		)]
+	}
 
 	agg_importance
 }
 
 #' Nadeau & Bengio (2003) corrected variance estimation
-#' @param scores ([data.table::data.table]) with feature and importance columns, must include iter_rsmp
-#' @param aggregator (`function`) to aggregate importance scores
-#' @param conf_level (`numeric(1)`) confidence level for intervals
-#' @param resampling ([mlr3::Resampling]) resampling object
-#' @param n_iters (`integer(1)`) number of resampling iterations
+#'
+#' Corrected t-test accounting for correlation between resampling iterations.
+#' Correction factor: (1/n_iters + n_test/n_train). SE = sqrt(factor * var(scores)).
+#'
+#' @param scores data.table with feature, importance, iter_rsmp columns
+#' @param aggregator function to aggregate importance scores
+#' @param conf_level confidence level for intervals
+#' @param alternative "greater" (one-sided) or "two.sided"
+#' @param resampling mlr3 Resampling object (for test/train ratio)
+#' @param n_iters number of resampling iterations
 #' @noRd
-importance_nadeau_bengio = function(scores, aggregator, conf_level, resampling, n_iters) {
+importance_nadeau_bengio = function(
+	scores,
+	aggregator,
+	conf_level,
+	alternative,
+	resampling,
+	n_iters
+) {
 	# The data.table NSE tax
 	importance <- se <- statistic <- NULL
 
@@ -107,32 +137,42 @@ importance_nadeau_bengio = function(scores, aggregator, conf_level, resampling, 
 
 	agg_importance = agg_importance[sds, on = "feature"]
 
-	# Two-sided t-test: H0: importance = 0 vs H1: importance != 0
-	# Test statistic: t = importance / se
-	# se is corrected by factor at this point
-	# P-value from t-distribution (two-sided)
+	# t-test: H0: importance = 0, se is corrected by Nadeau & Bengio factor
 	df = n_iters - 1
 	agg_importance[, statistic := importance / se]
-	agg_importance[, p.value := 2 * stats::pt(abs(statistic), df = df, lower.tail = FALSE)]
 
 	alpha = 1 - conf_level
-	quant = stats::qt(1 - alpha / 2, df = df)
-
-	agg_importance[, let(
-		conf_lower = importance - quant * se,
-		conf_upper = importance + quant * se
-	)]
+	if (alternative == "greater") {
+		agg_importance[, p.value := stats::pt(statistic, df = df, lower.tail = FALSE)]
+		quant = stats::qt(1 - alpha, df = df)
+		agg_importance[, let(
+			conf_lower = importance - quant * se,
+			conf_upper = Inf
+		)]
+	} else {
+		agg_importance[, p.value := 2 * stats::pt(abs(statistic), df = df, lower.tail = FALSE)]
+		quant = stats::qt(1 - alpha / 2, df = df)
+		agg_importance[, let(
+			conf_lower = importance - quant * se,
+			conf_upper = importance + quant * se
+		)]
+	}
 
 	agg_importance
 }
 
-#' Empirical quantile-based confidence intervals
-#' Uses quantile() to construct confidence-like intervals from resampling distribution
-#' @param scores ([data.table::data.table]) with feature and importance columns, must include iter_rsmp
-#' @param aggregator (`function`) to aggregate importance scores (used for point estimate)
-#' @param conf_level (`numeric(1)`) confidence level for intervals
+#' Empirical quantile-based confidence intervals and p-values
+#'
+#' Non-parametric inference from resampling distribution. CIs from empirical quantiles.
+#' P-value uses Phipson & Smyth (2010) formula: (b + 1) / (n + 1) where b is the count
+#' of iterations with importance <= 0 (one-sided) or |importance| >= |observed| (two-sided).
+#'
+#' @param scores data.table with feature, importance, iter_rsmp columns
+#' @param aggregator function to aggregate importance scores
+#' @param conf_level confidence level for intervals
+#' @param alternative "greater" (one-sided) or "two.sided"
 #' @noRd
-importance_quantile = function(scores, aggregator, conf_level) {
+importance_quantile = function(scores, aggregator, conf_level, alternative) {
 	# The data.table NSE tax
 	importance <- feature <- NULL
 
@@ -142,45 +182,80 @@ importance_quantile = function(scores, aggregator, conf_level) {
 		by = c("iter_rsmp", "feature")
 	]
 
-	# For each feature, compute quantiles
+	# For each feature, compute quantiles and empirical p-values
 	result_list = lapply(unique(means_rsmp$feature), function(feat) {
 		feat_scores = means_rsmp[feature == feat, importance]
+		n = length(feat_scores)
 
 		# Point estimate using aggregator
 		point_est = aggregator(feat_scores)
 
+		# Empirical SE
+		se = sd(feat_scores) / sqrt(n)
+
+		# Empirical test statistic (z-score like)
+		statistic = point_est / se
+
+		# Empirical p-value based on resampling distribution
+		if (alternative == "greater") {
+			# Proportion of iterations with importance <= 0
+			p.value = (sum(feat_scores <= 0) + 1) / (n + 1)
+		} else {
+			# Two-sided: proportion of iterations at least as extreme
+			p.value = (sum(abs(feat_scores) >= abs(point_est)) + 1) / (n + 1)
+		}
+
 		# Compute empirical quantiles for CI
 		alpha = 1 - conf_level
-		probs = c(alpha / 2, 1 - alpha / 2)
-		ci_vals = quantile(feat_scores, probs = probs, na.rm = TRUE)
+		if (alternative == "greater") {
+			probs = alpha
+			ci_lower = quantile(feat_scores, probs = probs, na.rm = TRUE)
+			ci_upper = Inf
+		} else {
+			probs = c(alpha / 2, 1 - alpha / 2)
+			ci_vals = quantile(feat_scores, probs = probs, na.rm = TRUE)
+			ci_lower = ci_vals[1]
+			ci_upper = ci_vals[2]
+		}
 
 		data.table(
 			feature = feat,
 			importance = point_est,
-			conf_lower = ci_vals[1],
-			conf_upper = ci_vals[2]
+			se = se,
+			statistic = statistic,
+			p.value = p.value,
+			conf_lower = ci_lower,
+			conf_upper = ci_upper
 		)
 	})
 
 	rbindlist(result_list)
 }
 
-#' Conditional Predictive Impact (CPI) using one-sided t-test
-#' CPI is specifically designed for CFI with knockoff samplers
-#' Based on Watson et al. (2021) and implemented in the cpi package
-#' @param conf_level (`numeric(1)`) confidence level for one-sided CI
-#' @param test (`character(1)`) Type of test to perform. Fisher is recommended
-#' @param B (`integer(1)`) Number of replications for Fisher test
-#' @param method_obj feature importance method object (needs $obs_loss(), $resampling, class info)
+#' Conditional Predictive Impact (CPI) test
+#'
+#' Tests on observation-wise loss differences for CFI with knockoff samplers.
+#' Available tests: t-test, Wilcoxon, Fisher permutation, binomial.
+#' Fisher test uses Phipson & Smyth (2010) p-value correction.
+#'
+#' @param conf_level confidence level for CI
+#' @param alternative "greater" (one-sided) or "two.sided"
+#' @param test "t", "wilcoxon", "fisher", or "binomial"
+#' @param B number of replications for Fisher test
+#' @param method_obj importance method object (needs $obs_loss())
 #' @noRd
 importance_cpi = function(
 	conf_level,
+	alternative = c("greater", "two.sided"),
 	test = c("t", "wilcoxon", "fisher", "binomial"),
 	B = 1999,
 	method_obj
 ) {
 	# The data.table NSE tax
 	N <- obs_importance <- feature <- sd <- NULL
+
+	alternative = match.arg(alternative)
+
 	# CPI requires observation-wise losses
 	if (is.null(method_obj$obs_loss())) {
 		cli::cli_abort(c(
@@ -220,26 +295,31 @@ importance_cpi = function(
 		test,
 		t = stats::t.test,
 		wilcoxon = stats::wilcox.test,
-		fisher = fisher_one_sided,
-		binomial = binom_one_sided
+		fisher = fisher_test,
+		binomial = binom_test
 	)
-	# For each feature, perform one-sided test (alternative = "greater")
-	# H0: importance <= 0, H1: importance > 0
+
 	result_list = lapply(unique(obs_loss_agg$feature), function(feat) {
 		feat_obs = obs_loss_agg[feature == feat, obs_importance]
 
 		if (mean(feat_obs) == 0) {
-			htest_result = list(
-				estimate = 0,
-				statistic = 0,
-				p.value = 1,
-				conf.int = 0
-			)
+			if (alternative == "greater") {
+				htest_result = list(
+					statistic = 0,
+					p.value = 1,
+					conf.int = c(0, Inf)
+				)
+			} else {
+				htest_result = list(
+					statistic = 0,
+					p.value = 1,
+					conf.int = c(0, 0)
+				)
+			}
 		} else {
-			# One-sided test
 			htest_result = test_function(
 				feat_obs,
-				alternative = "greater",
+				alternative = alternative,
 				conf.level = conf_level,
 				conf.int = TRUE
 			)
@@ -252,7 +332,7 @@ importance_cpi = function(
 			statistic = htest_result$statistic,
 			p.value = htest_result$p.value,
 			conf_lower = htest_result$conf.int[1],
-			conf_upper = Inf # One-sided test upper bound is infinity
+			conf_upper = htest_result$conf.int[2]
 		)
 	})
 
