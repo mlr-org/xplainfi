@@ -167,9 +167,9 @@ test_that("quantile variance method works", {
 	# Check structure
 	expect_importance_dt(imp_quantile, features = pfi$features)
 
-	# Verify all inference columns exist (consistent with other methods)
-	expected_cols = c("feature", "importance", "se", "statistic", "p.value", "conf_lower", "conf_upper")
-	expect_true(all(expected_cols %in% names(imp_quantile)))
+	# Quantile method only returns confidence bounds, not se/statistic/p.value
+	expected_cols = c("feature", "importance", "conf_lower", "conf_upper")
+	expect_equal(names(imp_quantile), expected_cols)
 
 	# All CIs should be valid intervals (two-sided has finite bounds)
 	expect_true(all(imp_quantile$conf_lower <= imp_quantile$conf_upper))
@@ -243,9 +243,12 @@ test_that("alternative='greater' produces one-sided CIs and tests", {
 	expect_true(all(is.infinite(imp_nb$conf_upper)))
 	expect_true(all(c("statistic", "p.value") %in% names(imp_nb)))
 
-	# Test quantile with greater alternative
+	# Test quantile with greater alternative (no statistic/p.value)
 	imp_quantile = pfi$importance(ci_method = "quantile", alternative = "greater")
 	expect_true(all(is.infinite(imp_quantile$conf_upper)))
+	# Quantile method doesn't have statistic/p.value
+	expect_false("statistic" %in% names(imp_quantile))
+	expect_false("p.value" %in% names(imp_quantile))
 })
 
 test_that("alternative='two.sided' produces two-sided CIs and tests", {
@@ -276,9 +279,11 @@ test_that("alternative='two.sided' produces two-sided CIs and tests", {
 	expect_true(all(is.finite(imp_nb$conf_upper)))
 	expect_true(all(c("statistic", "p.value") %in% names(imp_nb)))
 
-	# Test quantile
+	# Test quantile (no statistic/p.value for quantile method)
 	imp_quantile = pfi$importance(ci_method = "quantile", alternative = "two.sided")
 	expect_true(all(is.finite(imp_quantile$conf_upper)))
+	expect_false("statistic" %in% names(imp_quantile))
+	expect_false("p.value" %in% names(imp_quantile))
 })
 
 test_that("two-sided p-values are larger than one-sided for positive importance", {

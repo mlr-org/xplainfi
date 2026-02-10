@@ -16,7 +16,6 @@ FeatureImportanceMethod = R6Class(
 		resampling = NULL,
 		#' @field resample_result ([mlr3::ResampleResult]) of the original `learner` and `task`, used for baseline scores.
 		resample_result = NULL,
-		# TODO: list of features, for grouped importance
 		#' @field features (`character`: `NULL`) Features of interest. By default, importances will be computed for each feature
 		#'   in `task`, but optionally this can be restricted to at least one feature. Ignored if `groups` is specified.
 		features = NULL,
@@ -130,8 +129,9 @@ FeatureImportanceMethod = R6Class(
 		#'
 		#' ## Confidence Interval Methods
 		#'
-		#' All methods (except `"none"`) return standard error (`se`), test statistic (`statistic`),
-		#' p-value (`p.value`), and confidence bounds (`conf_lower`, `conf_upper`).
+		#' The parametric methods (`"raw"`, `"nadeau_bengio"`) return standard error (`se`),
+		#' test statistic (`statistic`), p-value (`p.value`), and confidence bounds
+		#' (`conf_lower`, `conf_upper`). The `"quantile"` method returns only lower and upper bounds.
 		#'
 		#' ### `"raw"`: Uncorrected (!) t-test
 		#' Uses a standard t-test assuming independence of resampling iterations.
@@ -156,12 +156,9 @@ FeatureImportanceMethod = R6Class(
 
 		#' ### `"quantile"`: Non-parametric empirical method
 		#' Uses the resampling distribution directly without parametric assumptions.
-		#' - SE = sd(resampling scores) / sqrt(n_iters)
-		#' - Test statistic: importance / SE (z-score like)
-		#' - P-value: Empirical, using the Phipson & Smyth (2010) correction `(b + 1) / (n + 1)`
-		#'   where b is the count of resampling iterations with importance <= 0 (one-sided)
-		#'   or |importance| >= |observed| (two-sided)
 		#' - CIs: Empirical quantiles of the resampling distribution
+		#'
+		#' This method does not provide `se`, `statistic`, or `p.value`.
 		#'
 		#' ## Method-Specific CI Methods
 		#'

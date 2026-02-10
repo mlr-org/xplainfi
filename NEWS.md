@@ -7,6 +7,21 @@
   - `LOCO` and `WVIM`: `n_repeats` is now 30 as well.
   - Since the refitting methods will be more expensive than the perturbation-based methods, users will have to decrease this value if runtime becomes impractical, but now at least the package default is no longer `n_repeats = 1`, which is obviously too small.
 
+## Inference
+
+- Parametric `ci_method`s (`"raw"`, `"nadeau_bengio"`) return `se`, `statistic`, `p.value`,
+  `conf_lower`, and `conf_upper` columns. The `"quantile"` method returns only `conf_lower`
+  and `conf_upper` (no `se`, `statistic`, or `p.value`).
+- Parametric `ci_method`s support `alternative = "greater"` (one-sided, the default) or
+  `alternative = "two.sided"` to test H0: importance <= 0 vs H1: importance > 0, or
+  H0: importance = 0 vs H1: importance != 0, respectively.
+  For `"quantile"`, `alternative` controls whether the confidence interval is one-sided
+  (`"greater"`: finite lower bound, `conf_upper = Inf`) or two-sided (both bounds finite).
+- Improved documentation for all CI methods in `FeatureImportanceMethod`, explaining
+  how p-values and confidence intervals are calculated for each method.
+- CFI documentation distinguishes between CPI (knockoff-based inference, Watson & Wright 2021)
+  and cARFi (ARF-based inference, Blesch et al. 2025).
+
 # xplainfi 1.0.0 - Initial CRAN release
 
 The major version bump is largely to mark the occasion that the package is now considered "released".

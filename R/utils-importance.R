@@ -161,11 +161,11 @@ importance_nadeau_bengio = function(
 	agg_importance
 }
 
-#' Empirical quantile-based confidence intervals and p-values
+#' Empirical quantile-based confidence intervals
 #'
 #' Non-parametric inference from resampling distribution. CIs from empirical quantiles.
-#' P-value uses Phipson & Smyth (2010) formula: (b + 1) / (n + 1) where b is the count
-#' of iterations with importance <= 0 (one-sided) or |importance| >= |observed| (two-sided).
+#' Does not provide p-values or test statistics as these would require a different
+#' methodology than the quantile-based CIs.
 #'
 #' @param scores data.table with feature, importance, iter_rsmp columns
 #' @param aggregator function to aggregate importance scores
@@ -182,28 +182,12 @@ importance_quantile = function(scores, aggregator, conf_level, alternative) {
 		by = c("iter_rsmp", "feature")
 	]
 
-	# For each feature, compute quantiles and empirical p-values
+	# For each feature, compute quantiles
 	result_list = lapply(unique(means_rsmp$feature), function(feat) {
 		feat_scores = means_rsmp[feature == feat, importance]
-		n = length(feat_scores)
 
 		# Point estimate using aggregator
 		point_est = aggregator(feat_scores)
-
-		# Empirical SE
-		se = sd(feat_scores) / sqrt(n)
-
-		# Empirical test statistic (z-score like)
-		statistic = point_est / se
-
-		# Empirical p-value based on resampling distribution
-		if (alternative == "greater") {
-			# Proportion of iterations with importance <= 0
-			p.value = (sum(feat_scores <= 0) + 1) / (n + 1)
-		} else {
-			# Two-sided: proportion of iterations at least as extreme
-			p.value = (sum(abs(feat_scores) >= abs(point_est)) + 1) / (n + 1)
-		}
 
 		# Compute empirical quantiles for CI
 		alpha = 1 - conf_level
@@ -221,9 +205,6 @@ importance_quantile = function(scores, aggregator, conf_level, alternative) {
 		data.table(
 			feature = feat,
 			importance = point_est,
-			se = se,
-			statistic = statistic,
-			p.value = p.value,
 			conf_lower = ci_lower,
 			conf_upper = ci_upper
 		)
