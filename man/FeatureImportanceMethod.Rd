@@ -13,16 +13,10 @@ Nadeau C, Bengio Y (2003).
 \dQuote{Inference for the Generalization Error.}
 \emph{Machine Learning}, \bold{52}(3), 239--281.
 \doi{10.1023/A:1024068626366}.
-
 Molnar C, Freiesleben T, König G, Herbinger J, Reisinger T, Casalicchio G, Wright M, Bischl B (2023).
 \dQuote{Relating the Partial Dependence Plot and Permutation Feature Importance to the Data Generating Process.}
 In Longo L (ed.), \emph{Explainable Artificial Intelligence}, 456--479.
 ISBN 978-3-031-44064-9, \doi{10.1007/978-3-031-44064-9_24}.
-
-Phipson B, Smyth G (2010).
-\dQuote{Permutation P-values Should Never Be Zero: Calculating Exact P-values When Permutations Are Randomly Drawn.}
-\emph{Statistical Applications in Genetics and Molecular Biology}, \bold{9}(1), Article 39.
-\doi{10.2202/1544-6115.1585}.
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -161,8 +155,9 @@ Only used when \code{ci_method != "none"}.}
 \subsection{Details}{
 \subsection{Confidence Interval Methods}{
 
-All methods (except \code{"none"}) return standard error (\code{se}), test statistic (\code{statistic}),
-p-value (\code{p.value}), and confidence bounds (\code{conf_lower}, \code{conf_upper}).
+The parametric methods (\code{"raw"}, \code{"nadeau_bengio"}) return standard error (\code{se}),
+test statistic (\code{statistic}), p-value (\code{p.value}), and confidence bounds
+(\code{conf_lower}, \code{conf_upper}). The \code{"quantile"} method returns only lower and upper bounds.
 \subsection{\code{"raw"}: Uncorrected (!) t-test}{
 
 Uses a standard t-test assuming independence of resampling iterations.
@@ -195,13 +190,10 @@ Recommended with bootstrap or subsampling (>= 10 iterations).
 
 Uses the resampling distribution directly without parametric assumptions.
 \itemize{
-\item SE = sd(resampling scores) / sqrt(n_iters)
-\item Test statistic: importance / SE (z-score like)
-\item P-value: Empirical, using the Phipson & Smyth (2010) correction \code{(b + 1) / (n + 1)}
-where b is the count of resampling iterations with importance <= 0 (one-sided)
-or |importance| >= |observed| (two-sided)
 \item CIs: Empirical quantiles of the resampling distribution
 }
+
+This method does not provide \code{se}, \code{statistic}, or \code{p.value}.
 }
 
 }

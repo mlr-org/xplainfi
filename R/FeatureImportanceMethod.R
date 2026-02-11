@@ -193,10 +193,7 @@ FeatureImportanceMethod = R6Class(
 		#'
 		#' @references
 		#' `r print_bib("nadaeu_2003")`
-		#'
 		#' `r print_bib("molnar_2023")`
-		#'
-		#' `r print_bib("phipson_2010")`
 		#'
 		importance = function(
 			relation = NULL,
