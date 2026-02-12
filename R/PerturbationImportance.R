@@ -71,13 +71,17 @@ PerturbationImportance = R6Class(
 
 		#' @description
 		#' Get aggregated importance scores.
-		#' Extends the base `$importance()` method to support the additional `"cpi"` ci_method.
+		#' Extends the base `$importance()` method to support `ci_method = "cpi"`.
+		#' For details, see [CFI], which is the only sub-method for which it is known to be valid.
 		#' @param relation (`character(1)`) How to relate perturbed scores to originals ("difference" or "ratio"). If `NULL`, uses stored parameter value.
 		#' @param standardize (`logical(1)`: `FALSE`) If `TRUE`, importances are standardized by the highest score so all scores fall in `[-1, 1]`.
 		#' @param ci_method (`character(1)`: `"none"`) Variance estimation method. In addition to base methods (`"none"`, `"raw"`, `"nadeau_bengio"`, `"quantile"`),
 		#'   perturbation methods support `"cpi"` (Conditional Predictive Impact).
 		#'   CPI is specifically designed for [CFI] with knockoff samplers and uses one-sided hypothesis tests.
 		#' @param conf_level (`numeric(1)`: `0.95`) Confidence level for confidence intervals when `ci_method != "none"`.
+		#' @param alternative (`character(1)`: `"greater"`) Type of alternative hypothesis for statistical tests.
+		#'   `"greater"` tests H0: importance <= 0 vs H1: importance > 0 (one-sided).
+		#'   `"two.sided"` tests H0: importance = 0 vs H1: importance != 0.
 		#' @param test (`character(1)`: `"t"`) Test to use for CPI. One of `"t"`, `"wilcoxon"`, `"fisher"`, or `"binomial"`. Only used when `ci_method = "cpi"`.
 		#' @param B (`integer(1)`: `1999`) Number of replications for Fisher test. Only used when `ci_method = "cpi"` and `test = "fisher"`.
 		#' @param ... Additional arguments passed to the base method.
@@ -87,6 +91,7 @@ PerturbationImportance = R6Class(
 			standardize = FALSE,
 			ci_method = c("none", "raw", "nadeau_bengio", "quantile", "cpi"),
 			conf_level = 0.95,
+			alternative = c("greater", "two.sided"),
 			test = c("t", "wilcoxon", "fisher", "binomial"),
 			B = 1999,
 			...
@@ -95,6 +100,7 @@ PerturbationImportance = R6Class(
 			if (length(ci_method) > 1) {
 				ci_method = ci_method[1]
 			}
+			alternative = match.arg(alternative)
 
 			if (ci_method == "cpi") {
 				# CPI requires special handling
@@ -120,6 +126,7 @@ PerturbationImportance = R6Class(
 				test = match.arg(test)
 				agg_importance = importance_cpi(
 					conf_level = conf_level,
+					alternative = alternative,
 					test = test,
 					B = B,
 					method_obj = self
@@ -134,6 +141,7 @@ PerturbationImportance = R6Class(
 					standardize = standardize,
 					ci_method = ci_method,
 					conf_level = conf_level,
+					alternative = alternative,
 					...
 				)
 			}
@@ -414,7 +422,32 @@ PFI = R6Class(
 #'
 #' @description Implementation of CFI using modular sampling approach
 #'
-#' @references `r print_bib("blesch_2025")`
+#' @details
+#'
+#' CFI replaces feature values with conditional samples from the distribution of
+#' the feature given the other features. Any [ConditionalSampler] or [KnockoffSampler] can be used.
+#'
+#' ## Statistical Inference
+#'
+#' Two approaches for statistical inference are primarily supported via
+#' `$importance(ci_method = "cpi")`:
+#'
+#' - **CPI** (Watson & Wright, 2021): The original Conditional Predictive Impact method,
+#'   designed for use with knockoff samplers ([KnockoffGaussianSampler]).
+#'
+#' - **cARFi** (Blesch et al., 2025): CFI with ARF-based conditional sampling
+#'   ([ConditionalARFSampler]), using the same CPI inference framework.
+#'
+#' Both require a decomposable measure (e.g., MSE) and holdout resampling
+#' so each observation appears at most once in the test set.
+#'
+#' Available tests: `"t"` (t-test), `"wilcoxon"` (signed-rank), `"fisher"` (permutation),
+#' `"binomial"` (sign test). The Fisher test is recommended.
+#'
+#' Method-agnostic inference methods (`"raw"`, `"nadeau_bengio"`, `"quantile"`) are also
+#' available; see [FeatureImportanceMethod] for details.
+#'
+#' @references `r print_bib("watson_2021", "blesch_2025")`
 #'
 #' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE) && requireNamespace("arf", quietly = TRUE)
 #' library(mlr3)

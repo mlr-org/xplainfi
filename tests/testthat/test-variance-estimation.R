@@ -1,5 +1,5 @@
 test_that("importance() accepts all ci_method values", {
-		task = sim_dgp_independent(n = 100)
+	task = sim_dgp_independent(n = 100)
 
 	pfi = PFI$new(
 		task = task,
@@ -26,7 +26,7 @@ test_that("importance() accepts all ci_method values", {
 })
 
 test_that("ci_method='none' produces no variance columns", {
-		task = sim_dgp_independent(n = 100)
+	task = sim_dgp_independent(n = 100)
 
 	pfi = PFI$new(
 		task = task,
@@ -44,7 +44,7 @@ test_that("ci_method='none' produces no variance columns", {
 })
 
 test_that("raw CIs are narrower than nadeau_bengio corrected CIs", {
-		task = sim_dgp_independent(n = 200)
+	task = sim_dgp_independent(n = 200)
 
 	pfi = PFI$new(
 		task = task,
@@ -56,8 +56,9 @@ test_that("raw CIs are narrower than nadeau_bengio corrected CIs", {
 
 	pfi$compute()
 
-	imp_raw = pfi$importance(ci_method = "raw")
-	imp_nb = pfi$importance(ci_method = "nadeau_bengio")
+	# Use two-sided to compare finite CI widths
+	imp_raw = pfi$importance(ci_method = "raw", alternative = "two.sided")
+	imp_nb = pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided")
 
 	# Calculate CI widths
 	width_raw = imp_raw$conf_upper - imp_raw$conf_lower
@@ -70,7 +71,7 @@ test_that("raw CIs are narrower than nadeau_bengio corrected CIs", {
 })
 
 test_that("nadeau_bengio correction requires appropriate resampling", {
-		task = sim_dgp_independent(n = 100)
+	task = sim_dgp_independent(n = 100)
 
 	# Cross-validation is not supported for nadeau_bengio
 	pfi = PFI$new(
@@ -95,7 +96,7 @@ test_that("nadeau_bengio correction requires appropriate resampling", {
 })
 
 test_that("confidence level parameter works correctly", {
-		task = sim_dgp_independent(n = 100)
+	task = sim_dgp_independent(n = 100)
 
 	pfi = PFI$new(
 		task = task,
@@ -107,10 +108,10 @@ test_that("confidence level parameter works correctly", {
 
 	pfi$compute()
 
-	# Test different confidence levels
-	imp_90 = pfi$importance(ci_method = "raw", conf_level = 0.90)
-	imp_95 = pfi$importance(ci_method = "raw", conf_level = 0.95)
-	imp_99 = pfi$importance(ci_method = "raw", conf_level = 0.99)
+	# Test different confidence levels with two-sided CIs to compare widths
+	imp_90 = pfi$importance(ci_method = "raw", conf_level = 0.90, alternative = "two.sided")
+	imp_95 = pfi$importance(ci_method = "raw", conf_level = 0.95, alternative = "two.sided")
+	imp_99 = pfi$importance(ci_method = "raw", conf_level = 0.99, alternative = "two.sided")
 
 	# Calculate CI widths
 	width_90 = imp_90$conf_upper - imp_90$conf_lower
@@ -123,7 +124,7 @@ test_that("confidence level parameter works correctly", {
 })
 
 test_that("variance estimation works with bootstrap resampling", {
-		task = sim_dgp_independent(n = 100)
+	task = sim_dgp_independent(n = 100)
 
 	pfi = PFI$new(
 		task = task,
@@ -148,7 +149,7 @@ test_that("variance estimation works with bootstrap resampling", {
 })
 
 test_that("quantile variance method works", {
-		task = sim_dgp_independent(n = 200)
+	task = sim_dgp_independent(n = 200)
 
 	pfi = PFI$new(
 		task = task,
@@ -160,17 +161,17 @@ test_that("quantile variance method works", {
 
 	pfi$compute()
 
-	imp_quantile = pfi$importance(ci_method = "quantile")
+	# Use two-sided for testing finite CI bounds
+	imp_quantile = pfi$importance(ci_method = "quantile", alternative = "two.sided")
 
 	# Check structure
 	expect_importance_dt(imp_quantile, features = pfi$features)
 
-	# Verify CI columns exist (no se for quantile method)
+	# Quantile method only returns confidence bounds, not se/statistic/p.value
 	expected_cols = c("feature", "importance", "conf_lower", "conf_upper")
-	expect_true(all(expected_cols %in% names(imp_quantile)))
-	expect_false("se" %in% names(imp_quantile))
+	expect_equal(names(imp_quantile), expected_cols)
 
-	# All CIs should be valid intervals
+	# All CIs should be valid intervals (two-sided has finite bounds)
 	expect_true(all(imp_quantile$conf_lower <= imp_quantile$conf_upper))
 
 	# Point estimates should be between lower and upper bounds (or close)
@@ -186,7 +187,7 @@ test_that("quantile variance method works", {
 })
 
 test_that("quantile CIs differ from parametric methods", {
-		task = sim_dgp_independent(n = 200)
+	task = sim_dgp_independent(n = 200)
 
 	pfi = PFI$new(
 		task = task,
@@ -198,8 +199,9 @@ test_that("quantile CIs differ from parametric methods", {
 
 	pfi$compute()
 
-	imp_raw = pfi$importance(ci_method = "raw")
-	imp_quantile = pfi$importance(ci_method = "quantile")
+	# Use two-sided to compare finite CI bounds
+	imp_raw = pfi$importance(ci_method = "raw", alternative = "two.sided")
+	imp_quantile = pfi$importance(ci_method = "quantile", alternative = "two.sided")
 
 	# Point estimates should be the same (both use mean)
 	expect_equal(imp_raw$importance, imp_quantile$importance)
@@ -208,4 +210,127 @@ test_that("quantile CIs differ from parametric methods", {
 	# (quantile is non-parametric, raw assumes normality)
 	expect_false(all(imp_raw$conf_lower == imp_quantile$conf_lower))
 	expect_false(all(imp_raw$conf_upper == imp_quantile$conf_upper))
+})
+
+test_that("alternative='greater' produces one-sided CIs and tests", {
+	task = sim_dgp_independent(n = 200)
+
+	pfi = PFI$new(
+		task = task,
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("subsampling", repeats = 11),
+		n_repeats = 3
+	)
+
+	pfi$compute()
+
+	# Test raw method with greater alternative
+	imp_raw = pfi$importance(ci_method = "raw", alternative = "greater")
+
+	# Should have statistic and p.value columns
+	expect_true(all(c("statistic", "p.value") %in% names(imp_raw)))
+
+	# Upper bound should be Inf for one-sided
+	expect_true(all(is.infinite(imp_raw$conf_upper)))
+	expect_true(all(imp_raw$conf_upper > 0)) # Inf, not -Inf
+
+	# Lower bound should be finite
+	expect_true(all(is.finite(imp_raw$conf_lower)))
+
+	# Test nadeau_bengio with greater alternative
+	imp_nb = pfi$importance(ci_method = "nadeau_bengio", alternative = "greater")
+	expect_true(all(is.infinite(imp_nb$conf_upper)))
+	expect_true(all(c("statistic", "p.value") %in% names(imp_nb)))
+
+	# Test quantile with greater alternative (no statistic/p.value)
+	imp_quantile = pfi$importance(ci_method = "quantile", alternative = "greater")
+	expect_true(all(is.infinite(imp_quantile$conf_upper)))
+	# Quantile method doesn't have statistic/p.value
+	expect_false("statistic" %in% names(imp_quantile))
+	expect_false("p.value" %in% names(imp_quantile))
+})
+
+test_that("alternative='two.sided' produces two-sided CIs and tests", {
+	task = sim_dgp_independent(n = 200)
+
+	pfi = PFI$new(
+		task = task,
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("subsampling", repeats = 11),
+		n_repeats = 3
+	)
+
+	pfi$compute()
+
+	# Test raw method with two.sided alternative
+	imp_raw = pfi$importance(ci_method = "raw", alternative = "two.sided")
+
+	# Should have statistic and p.value columns
+	expect_true(all(c("statistic", "p.value") %in% names(imp_raw)))
+
+	# Both bounds should be finite
+	expect_true(all(is.finite(imp_raw$conf_lower)))
+	expect_true(all(is.finite(imp_raw$conf_upper)))
+
+	# Test nadeau_bengio
+	imp_nb = pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided")
+	expect_true(all(is.finite(imp_nb$conf_upper)))
+	expect_true(all(c("statistic", "p.value") %in% names(imp_nb)))
+
+	# Test quantile (no statistic/p.value for quantile method)
+	imp_quantile = pfi$importance(ci_method = "quantile", alternative = "two.sided")
+	expect_true(all(is.finite(imp_quantile$conf_upper)))
+	expect_false("statistic" %in% names(imp_quantile))
+	expect_false("p.value" %in% names(imp_quantile))
+})
+
+test_that("two-sided p-values are larger than one-sided for positive importance", {
+	task = sim_dgp_independent(n = 200)
+
+	pfi = PFI$new(
+		task = task,
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("subsampling", repeats = 11),
+		n_repeats = 3
+	)
+
+	pfi$compute()
+
+	imp_greater = pfi$importance(ci_method = "raw", alternative = "greater")
+	imp_twosided = pfi$importance(ci_method = "raw", alternative = "two.sided")
+
+	# For features with positive importance, two-sided p-values should be ~2x one-sided
+	positive_mask = imp_greater$importance > 0
+	if (any(positive_mask)) {
+		expect_true(all(
+			imp_twosided$p.value[positive_mask] >= imp_greater$p.value[positive_mask]
+		))
+	}
+
+	# Test statistics should be identical regardless of alternative
+	expect_equal(imp_greater$statistic, imp_twosided$statistic)
+})
+
+test_that("default alternative is 'greater' (one-sided)", {
+	task = sim_dgp_independent(n = 100)
+
+	pfi = PFI$new(
+		task = task,
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("subsampling", repeats = 5),
+		n_repeats = 2
+	)
+
+	pfi$compute()
+
+	# Default should be one-sided
+	imp_default = pfi$importance(ci_method = "raw")
+	imp_greater = pfi$importance(ci_method = "raw", alternative = "greater")
+
+	expect_equal(imp_default$conf_upper, imp_greater$conf_upper)
+	expect_equal(imp_default$p.value, imp_greater$p.value)
 })

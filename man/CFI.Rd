@@ -6,6 +6,30 @@
 \description{
 Implementation of CFI using modular sampling approach
 }
+\details{
+CFI replaces feature values with conditional samples from the distribution of
+the feature given the other features. Any \link{ConditionalSampler} or \link{KnockoffSampler} can be used.
+\subsection{Statistical Inference}{
+
+Two approaches for statistical inference are primarily supported via
+\verb{$importance(ci_method = "cpi")}:
+\itemize{
+\item \strong{CPI} (Watson & Wright, 2021): The original Conditional Predictive Impact method,
+designed for use with knockoff samplers (\link{KnockoffGaussianSampler}).
+\item \strong{cARFi} (Blesch et al., 2025): CFI with ARF-based conditional sampling
+(\link{ConditionalARFSampler}), using the same CPI inference framework.
+}
+
+Both require a decomposable measure (e.g., MSE) and holdout resampling
+so each observation appears at most once in the test set.
+
+Available tests: \code{"t"} (t-test), \code{"wilcoxon"} (signed-rank), \code{"fisher"} (permutation),
+\code{"binomial"} (sign test). The Fisher test is recommended.
+
+Method-agnostic inference methods (\code{"raw"}, \code{"nadeau_bengio"}, \code{"quantile"}) are also
+available; see \link{FeatureImportanceMethod} for details.
+}
+}
 \examples{
 \dontshow{if (requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE) && requireNamespace("arf", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 library(mlr3)
@@ -24,6 +48,11 @@ cfi$importance()
 \dontshow{\}) # examplesIf}
 }
 \references{
+Watson D, Wright M (2021).
+\dQuote{Testing Conditional Independence in Supervised Learning Algorithms.}
+\emph{Machine Learning}, \bold{110}(8), 2107--2129.
+\doi{10.1007/s10994-021-06030-6}.
+
 Blesch K, Koenen N, Kapar J, Golchian P, Burk L, Loecher M, Wright M (2025).
 \dQuote{Conditional Feature Importance with Generative Modeling Using Adversarial Random Forests.}
 \emph{Proceedings of the AAAI Conference on Artificial Intelligence}, \bold{39}(15), 15596--15604.
