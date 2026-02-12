@@ -84,6 +84,7 @@ reference:
   - title: Utilities
   - contents:
       - wvim_design_matrix
+      - rsmp_all_test
       - starts_with("check")
       - starts_with("op-")
       - xplain_opt

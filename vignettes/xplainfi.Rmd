@@ -230,15 +230,16 @@ pfi_pretrained$importance()
 ```
 
 A common real-world scenario is that the learner was trained on some dataset and you want to explain the model on entirely new, unseen data.
-In that case, create a task from the new data and use `rsmp("custom")` to designate all rows as the test set.
-The resampling here is purely a technical utility used for internal consistency, and the train set is irrelevant since the learner is already trained.
+In that case, create a task from the new data (via `as_task_regr()` for example) and use `rsmp("custom")` to designate all rows as the test set.
+The resampling here is purely a technicality used for internal consistency, and the train set is irrelevant since the learner is already trained.
+A utility function `rsmp_all_test()` can be used as a shortcute do achieve the same goal.
 
 ```{r pretrained-custom}
 # Simulate: learner was trained elsewhere, we have new data to use
 new_data <- tgen("friedman1")$generate(n = 100)
 
-resampling_custom <- rsmp("custom")
-resampling_custom$instantiate(
+# Same as rsmp_all_test(task)
+resampling_custom <- rsmp("custom")$instantiate(
 	new_data,
 	train_sets = list(integer(0)),
 	test_sets = list(new_data$row_ids)

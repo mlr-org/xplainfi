@@ -104,3 +104,29 @@ assemble_rr = function(
 		)
 	}
 }
+
+#' Create a resampling with all data being test data
+#'
+#' Utility for use with a pretrained learner in importance methods which support it
+#'
+#' Note that the resulting Resampling will have an
+#' empty train set, making it useless for any
+#' other purpose than the use with a pretrained learner.
+#' @param task ([mlr3::Task])
+#' @return [mlr3::Resampling] with an empty `train_set` and a single `test_set` identical to all of the given `Task`.
+#' @export
+#' @examples
+#' library(mlr3)
+#' # Create custom task from some data.frame
+#' custom_task <- as_task_regr(mtcars, target = "mpg")
+#' # Create matching Resampling with all-test data
+#' resampling_custom <- rsmp_all_test(custom_task)
+rsmp_all_test = function(task) {
+	mlr3::assert_task(task)
+
+	rsmp("custom")$instantiate(
+		task,
+		train_sets = list(integer(0)),
+		test_sets = list(task$row_ids)
+	)
+}
