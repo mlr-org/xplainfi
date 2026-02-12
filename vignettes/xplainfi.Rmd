@@ -204,9 +204,9 @@ In other cases, the corresponding `obs_loss()` is just not yet implemented in [`
 
 ## Using Pre-trained Learners
 
-By default, `xplainfi` trains the learner internally via `mlr3::resample()`. 
-However, if you have already trained a learner (for example because training is expensive or you want to explain a specific model) you can pass it directly to importance methods that do not require refitting (i.e., `LOCO` / `WVIM`). 
-The only requirement is that the `resampling` must be instantiated and have exactly one iteration (i.e., a single test test). 
+By default, `xplainfi` trains the learner internally via `mlr3::resample()`.
+However, if you have already trained a learner (for example because training is expensive or you want to explain a specific model) you can pass it directly to perturbation-based methods (`PFI`, `CFI`, `RFI`) and `SAGE` methods. Refit-based methods (`LOCO` / `WVIM`) require retraining by design and will warn if given a pretrained learner.
+The only requirement is that the `resampling` must be instantiated and have exactly one iteration (i.e., a single test set).
 This is necessary because a pre-trained learner corresponds to a single fitted model, and there is no meaningful way to associate it with multiple resampling folds.
 
 A holdout resampling is the natural choice here.
