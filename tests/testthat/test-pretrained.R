@@ -3,42 +3,33 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# is_pretrained() unit tests
+# assert_pretrained() unit tests
 # -----------------------------------------------------------------------------
 
-test_that("is_pretrained returns FALSE for untrained learner", {
+test_that("assert_pretrained returns FALSE for untrained learner", {
 	task = tsk("mtcars")
 	learner = lrn("regr.rpart")
 	resampling = rsmp("holdout")$instantiate(task)
 
-	expect_false(is_pretrained(learner, task, resampling))
+	expect_false(assert_pretrained(learner, task, resampling))
 })
 
-test_that("is_pretrained returns TRUE for valid pretrained setup", {
+test_that("assert_pretrained returns TRUE for valid pretrained setup", {
 	task = tsk("mtcars")
 	learner = lrn("regr.rpart")
 	learner$train(task)
 	resampling = rsmp("holdout")$instantiate(task)
 
-	expect_true(is_pretrained(learner, task, resampling))
+	expect_true(assert_pretrained(learner, task, resampling))
 })
 
-test_that("is_pretrained errors when trained learner has non-instantiated resampling", {
-	task = tsk("mtcars")
-	learner = lrn("regr.rpart")
-	learner$train(task)
-	resampling = rsmp("holdout")
-
-	expect_error(is_pretrained(learner, task, resampling), "not compatible")
-})
-
-test_that("is_pretrained errors when trained learner has multi-fold resampling", {
+test_that("assert_pretrained errors when trained learner has multi-fold resampling", {
 	task = tsk("mtcars")
 	learner = lrn("regr.rpart")
 	learner$train(task)
 	resampling = rsmp("cv", folds = 3)$instantiate(task)
 
-	expect_error(is_pretrained(learner, task, resampling), "not compatible")
+	expect_error(assert_pretrained(learner, task, resampling), "not compatible")
 })
 
 # -----------------------------------------------------------------------------

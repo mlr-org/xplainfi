@@ -22,47 +22,42 @@ has_obs_loss <- function(x) {
 
 #' Check if a learner can be considered pretrained
 #'
-#' Also checks if resampling is single-iteration and instatiated
-#' and the task row_ids are compatible with the resampling.
-#' The task check `mlr3::assert_learnable(learner, task)` is assumed to have passed.
+#' Returns `TRUE` if the learner has a model and the resampling is a compatible
+#' single-iteration setup. Returns `FALSE` for untrained learners.
+#' Errors if the learner is trained but the resampling is incompatible
+#' (multi-fold or mismatched row IDs).
+#'
+#' Assumes `resampling` is already instantiated (enforced by
+#' `FeatureImportanceMethod$initialize()` before this is called).
 #'
 #' @param learner,task,resampling ([mlr3::Learner], [mlr3::Task], [mlr3::Resampling])
 #'
-#' @return `logical(1)`: `TRUE` if the learner is trained and task and resampling are compatible
+#' @return `logical(1)`: `TRUE` if pretrained and compatible, `FALSE` if untrained
 #' @keywords internal
 #' @noRd
-#'
-is_pretrained = function(learner, task, resampling) {
-	# Learner must be trained -> must have stored model
-	learner_ok = !is.null(learner$model)
-	# Early return if learner isn't trained anyway
-	if (!learner_ok) {
+assert_pretrained = function(learner, task, resampling) {
+	# Untrained learner -> not pretrained, nothing to validate
+	if (is.null(learner$model)) {
 		return(FALSE)
 	}
-	# Resampling must be instantiated and have 1 iteration / 1 test set
-	resampling_ok = resampling$is_instantiated & (resampling$iters == 1)
 
-	# Resampling test row IDs must be compatible with task row IDs
-	# (not fool proof but would be an obvious issue)
-	if (resampling_ok) {
-		task_ok = length(setdiff(resampling$test_set(1), task$row_ids)) == 0
-	}
-
-	if (learner_ok & !resampling_ok) {
+	# Learner is trained: resampling must have exactly 1 iteration
+	if (resampling$iters != 1L) {
 		cli::cli_abort(c(
 			"Given {.code resampling} is not compatible with using a pre-trained {.cls Learner}",
-			i = "If {.code learner} is pre-trained, {.code resampling} must be instantiated and have exactly 1 iteration"
+			i = "If {.code learner} is pre-trained, {.code resampling} must have exactly 1 iteration (e.g. holdout)"
 		))
 	}
 
-	if (!task_ok) {
+	# Resampling test row IDs must be a subset of task row IDs
+	if (length(setdiff(resampling$test_set(1), task$row_ids)) > 0) {
 		cli::cli_abort(c(
 			"Provided {.code task} has row_ids not compatible with provided {.code resampling}",
 			i = "Make sure {.code resampling} was instantiated on the correct {.code task}"
 		))
 	}
 
-	learner_ok & (resampling_ok & task_ok)
+	TRUE
 }
 
 #' Create ResampleResult object
@@ -82,7 +77,7 @@ assemble_rr = function(
 	store_models = TRUE,
 	store_backends = TRUE
 ) {
-	if (is_pretrained(learner = learner, task = task, resampling = resampling)) {
+	if (assert_pretrained(learner = learner, task = task, resampling = resampling)) {
 		if (xplain_opt("debug")) {
 			cli::cli_alert_info("Using pretrained learner")
 		}
@@ -90,7 +85,7 @@ assemble_rr = function(
 
 		# Clone learner: as_resample_result() clones internally but resets the model
 		# on the object it receives, which would wipe the user's original via R6 reference
-		resample_result = mlr3::as_resample_result(
+		mlr3::as_resample_result(
 			x = list(list(test = pred)),
 			task = task,
 			learners = list(learner$clone()),
@@ -100,7 +95,7 @@ assemble_rr = function(
 		if (xplain_opt("debug")) {
 			cli::cli_alert_info("Using {.fun resample}")
 		}
-		resample_result = resample(
+		pNEWSresample(
 			task,
 			learner,
 			resampling,

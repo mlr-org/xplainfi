@@ -103,7 +103,7 @@ FeatureImportanceMethod = R6Class(
 			self$resampling = resampling
 
 			# Check pretrained learner compatibility (multi-fold with pretrained learner)
-			is_pretrained(self$learner, self$task, self$resampling)
+			assert_pretrained(self$learner, self$task, self$resampling)
 		},
 
 		#' @description
