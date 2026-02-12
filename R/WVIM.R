@@ -73,6 +73,16 @@ WVIM = R6Class(
 				n_repeats = n_repeats
 			)
 
+			# If learner is already trained, warn that the model will be ignored
+			# Note that resample() clones the learner anyway later.
+			if (!is.null(learner$model)) {
+				cli::cli_warn(c(
+					"{.cls Learner} is already trained, which is not compatible with refit-based importance methods",
+					"!" = "Given {.cls Learner} will be cloned.",
+					"i" = "Provide an untrained {.cls Learner} to avoid this warning."
+				))
+			}
+
 			super$initialize(
 				task = task,
 				learner = learner,
