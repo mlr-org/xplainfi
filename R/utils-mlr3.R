@@ -115,6 +115,7 @@ assemble_rr = function(
 #' @param task ([mlr3::Task])
 #' @return [mlr3::Resampling] with an empty `train_set` and a single `test_set` identical to all of the given `Task`.
 #' @export
+#' @importFrom mlr3 assert_task rsmp
 #' @examples
 #' library(mlr3)
 #' # Create custom task from some data.frame
@@ -124,7 +125,7 @@ assemble_rr = function(
 rsmp_all_test = function(task) {
 	mlr3::assert_task(task)
 
-	rsmp("custom")$instantiate(
+	mlr3::rsmp("custom")$instantiate(
 		task,
 		train_sets = list(integer(0)),
 		test_sets = list(task$row_ids)
