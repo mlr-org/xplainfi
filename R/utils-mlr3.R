@@ -95,7 +95,7 @@ assemble_rr = function(
 		if (xplain_opt("debug")) {
 			cli::cli_alert_info("Using {.fun resample}")
 		}
-		pNEWSresample(
+		resample(
 			task,
 			learner,
 			resampling,
