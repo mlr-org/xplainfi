@@ -43,10 +43,10 @@ pak::pak("mlr-org/xplainfi")
 
 ## Example: PFI
 
-Here is a basic example on how to calculate PFI for a given learner and
-task, using repeated cross-validation as resampling strategy and
-computing PFI within each resampling 10 times on the `friedman1` task
-(see `?mlbench::mlbench.friedman1`).
+Here is a basic example on how to calculate PFI for an untrained learner
+and task, using cross-validation for resampling and computing PFI within
+each resampling iteration 10 times on the `friedman1` task (see
+`?mlbench::mlbench.friedman1`).
 
 The `friedman1` task has the following structure:
 
@@ -78,6 +78,7 @@ Compute and print PFI scores:
 
 ``` r
 pfi$compute()
+#> ℹ Using `resample()`
 pfi$importance()
 #> Key: <feature>
 #>          feature   importance
@@ -179,6 +180,7 @@ pfi = PFI$new(
 #> (test set size: 333)
 
 pfi$compute()
+#> ℹ Using `resample()`
 pfi$importance()
 #> Key: <feature>
 #>          feature   importance
