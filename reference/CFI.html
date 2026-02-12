@@ -66,8 +66,34 @@
 
 
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>CFI replaces feature values with conditional samples from the distribution of
+the feature given the other features. Any <a href="ConditionalSampler.html">ConditionalSampler</a> or <a href="KnockoffSampler.html">KnockoffSampler</a> can be used.</p><div class="section">
+<h3 id="statistical-inference">Statistical Inference<a class="anchor" aria-label="anchor" href="#statistical-inference"></a></h3>
+
+
+<p>Two approaches for statistical inference are primarily supported via
+<code>$importance(ci_method = "cpi")</code>:</p><ul><li><p><strong>CPI</strong> (Watson &amp; Wright, 2021): The original Conditional Predictive Impact method,
+designed for use with knockoff samplers (<a href="KnockoffGaussianSampler.html">KnockoffGaussianSampler</a>).</p></li>
+<li><p><strong>cARFi</strong> (Blesch et al., 2025): CFI with ARF-based conditional sampling
+(<a href="ConditionalARFSampler.html">ConditionalARFSampler</a>), using the same CPI inference framework.</p></li>
+</ul><p>Both require a decomposable measure (e.g., MSE) and holdout resampling
+so each observation appears at most once in the test set.</p>
+<p>Available tests: <code>"t"</code> (t-test), <code>"wilcoxon"</code> (signed-rank), <code>"fisher"</code> (permutation),
+<code>"binomial"</code> (sign test). The Fisher test is recommended.</p>
+<p>Method-agnostic inference methods (<code>"raw"</code>, <code>"nadeau_bengio"</code>, <code>"quantile"</code>) are also
+available; see <a href="FeatureImportanceMethod.html">FeatureImportanceMethod</a> for details.</p>
+</div>
+
+    </div>
+    <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>Blesch K, Koenen N, Kapar J, Golchian P, Burk L, Loecher M, Wright M (2025).
+    <p>Watson D, Wright M (2021).
+“Testing Conditional Independence in Supervised Learning Algorithms.”
+<em>Machine Learning</em>, <b>110</b>(8), 2107–2129.
+<a href="https://doi.org/10.1007/s10994-021-06030-6" class="external-link">doi:10.1007/s10994-021-06030-6</a>
+.</p>
+<p>Blesch K, Koenen N, Kapar J, Golchian P, Burk L, Loecher M, Wright M (2025).
 “Conditional Feature Importance with Generative Modeling Using Adversarial Random Forests.”
 <em>Proceedings of the AAAI Conference on Artificial Intelligence</em>, <b>39</b>(15), 15596–15604.
 <a href="https://doi.org/10.1609/aaai.v39i15.33712" class="external-link">doi:10.1609/aaai.v39i15.33712</a>

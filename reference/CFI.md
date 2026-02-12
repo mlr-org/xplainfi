@@ -2,7 +2,47 @@
 
 Implementation of CFI using modular sampling approach
 
+## Details
+
+CFI replaces feature values with conditional samples from the
+distribution of the feature given the other features. Any
+[ConditionalSampler](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.md)
+or
+[KnockoffSampler](https://mlr-org.github.io/xplainfi/reference/KnockoffSampler.md)
+can be used.
+
+### Statistical Inference
+
+Two approaches for statistical inference are primarily supported via
+`$importance(ci_method = "cpi")`:
+
+- **CPI** (Watson & Wright, 2021): The original Conditional Predictive
+  Impact method, designed for use with knockoff samplers
+  ([KnockoffGaussianSampler](https://mlr-org.github.io/xplainfi/reference/KnockoffGaussianSampler.md)).
+
+- **cARFi** (Blesch et al., 2025): CFI with ARF-based conditional
+  sampling
+  ([ConditionalARFSampler](https://mlr-org.github.io/xplainfi/reference/ConditionalARFSampler.md)),
+  using the same CPI inference framework.
+
+Both require a decomposable measure (e.g., MSE) and holdout resampling
+so each observation appears at most once in the test set.
+
+Available tests: `"t"` (t-test), `"wilcoxon"` (signed-rank), `"fisher"`
+(permutation), `"binomial"` (sign test). The Fisher test is recommended.
+
+Method-agnostic inference methods (`"raw"`, `"nadeau_bengio"`,
+`"quantile"`) are also available; see
+[FeatureImportanceMethod](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+for details.
+
 ## References
+
+Watson D, Wright M (2021). “Testing Conditional Independence in
+Supervised Learning Algorithms.” *Machine Learning*, **110**(8),
+2107–2129.
+[doi:10.1007/s10994-021-06030-6](https://doi.org/10.1007/s10994-021-06030-6)
+.
 
 Blesch K, Koenen N, Kapar J, Golchian P, Burk L, Loecher M, Wright M
 (2025). “Conditional Feature Importance with Generative Modeling Using

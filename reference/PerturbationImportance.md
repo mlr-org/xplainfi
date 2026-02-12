@@ -88,7 +88,9 @@ Creates a new instance of the PerturbationImportance class
 ### Method `importance()`
 
 Get aggregated importance scores. Extends the base `$importance()`
-method to support the additional `"cpi"` ci_method.
+method to support `ci_method = "cpi"`. For details, see
+[CFI](https://mlr-org.github.io/xplainfi/reference/CFI.md), which is the
+only sub-method for which it is known to be valid.
 
 #### Usage
 
@@ -97,6 +99,7 @@ method to support the additional `"cpi"` ci_method.
       standardize = FALSE,
       ci_method = c("none", "raw", "nadeau_bengio", "quantile", "cpi"),
       conf_level = 0.95,
+      alternative = c("greater", "two.sided"),
       test = c("t", "wilcoxon", "fisher", "binomial"),
       B = 1999,
       ...
@@ -127,6 +130,13 @@ method to support the additional `"cpi"` ci_method.
 
   (`numeric(1)`: `0.95`) Confidence level for confidence intervals when
   `ci_method != "none"`.
+
+- `alternative`:
+
+  (`character(1)`: `"greater"`) Type of alternative hypothesis for
+  statistical tests. `"greater"` tests H0: importance \<= 0 vs H1:
+  importance \> 0 (one-sided). `"two.sided"` tests H0: importance = 0 vs
+  H1: importance != 0.
 
 - `test`:
 

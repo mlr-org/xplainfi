@@ -65,42 +65,65 @@ t-distribution, we can ask for them, but note these are too narrow /
 optimistic and hence invalid for inference:
 
 ``` r
-pfi_ci_raw = pfi$importance(ci_method = "raw")
+pfi_ci_raw = pfi$importance(ci_method = "raw", alternative = "two.sided")
 pfi_ci_raw
 #> Key: <feature>
-#>    feature   importance           se  conf_lower    conf_upper
-#>     <char>        <num>        <num>       <num>         <num>
-#> 1:      x1  6.476555494 0.0707450088  6.32482254  6.6282884472
-#> 2:      x2  0.095842584 0.0042155496  0.08680113  0.1048840389
-#> 3:      x3  1.793989195 0.0132950768  1.76547409  1.8225042988
-#> 4:      x4 -0.000962437 0.0002849623 -0.00157362 -0.0003512536
+#>    feature   importance           se  statistic      p.value  conf_lower
+#>     <char>        <num>        <num>      <num>        <num>       <num>
+#> 1:      x1  6.476555494 0.0707450088  91.547879 7.519530e-21  6.32482254
+#> 2:      x2  0.095842584 0.0042155496  22.735490 1.879277e-12  0.08680113
+#> 3:      x3  1.793989195 0.0132950768 134.936355 3.311520e-23  1.76547409
+#> 4:      x4 -0.000962437 0.0002849623  -3.377418 4.511052e-03 -0.00157362
+#>       conf_upper
+#>            <num>
+#> 1:  6.6282884472
+#> 2:  0.1048840389
+#> 3:  1.8225042988
+#> 4: -0.0003512536
 ```
+
+The parametric CI methods (`"raw"` and `"nadeau_bengio"`) return `se`,
+`statistic`, `p.value`, `conf_lower`, and `conf_upper`. The
+`alternative` parameter controls whether a one-sided test (`"greater"`,
+the default, testing H0: importance \<= 0) or two-sided test
+(`"two.sided"`) is performed. Here we use `alternative = "two.sided"`
+for visualization purposes so that `conf_upper` is finite.
 
 Analogously we can retrieve the **Nadeau & Bengio**-adjusted standard
 errors and derived confidence intervals which were demonstrated to have
 better (but still imperfect) coverage:
 
 ``` r
-pfi_ci_corrected = pfi$importance(ci_method = "nadeau_bengio")
+pfi_ci_corrected = pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided")
 pfi_ci_corrected
 #> Key: <feature>
-#>    feature   importance           se   conf_lower   conf_upper
-#>     <char>        <num>        <num>        <num>        <num>
-#> 1:      x1  6.476555494 0.2063236235  6.034035333 6.9190756552
-#> 2:      x2  0.095842584 0.0122944003  0.069473718 0.1222114505
-#> 3:      x3  1.793989195 0.0387743032  1.710826586 1.8771518043
-#> 4:      x4 -0.000962437 0.0008310757 -0.002744917 0.0008200431
+#>    feature   importance           se statistic      p.value   conf_lower
+#>     <char>        <num>        <num>     <num>        <num>        <num>
+#> 1:      x1  6.476555494 0.2063236235 31.390276 2.231930e-14  6.034035333
+#> 2:      x2  0.095842584 0.0122944003  7.795629 1.848448e-06  0.069473718
+#> 3:      x3  1.793989195 0.0387743032 46.267477 1.027030e-16  1.710826586
+#> 4:      x4 -0.000962437 0.0008310757 -1.158062 2.662136e-01 -0.002744917
+#>      conf_upper
+#>           <num>
+#> 1: 6.9190756552
+#> 2: 0.1222114505
+#> 3: 1.8771518043
+#> 4: 0.0008200431
 ```
 
 ## Empirical quantiles
 
 Both `"raw"` and `"nadeau_bengio"` methods assume normally distributed
 importance scores and use parametric confidence intervals based on the
-t-distribution. As a alternative, we can use empirical quantiles to
-construct confidence-like intervals without any coverage guarantees.
+t-distribution. As an alternative, we can use empirical quantiles to
+construct confidence-like intervals without parametric assumptions.
+
+The `"quantile"` method returns only confidence bounds (`conf_lower`,
+`conf_upper`) without `se`, `statistic`, or `p.value`, as empirical
+quantiles and hypothesis testing require different methodologies.
 
 ``` r
-pfi_ci_quantile = pfi$importance(ci_method = "quantile")
+pfi_ci_quantile = pfi$importance(ci_method = "quantile", alternative = "two.sided")
 pfi_ci_quantile
 #> Key: <feature>
 #>    feature   importance   conf_lower   conf_upper
@@ -151,10 +174,17 @@ intervals are.
 
 ## Conditional predictive impact (CPI)
 
-CPI is implemented by [the cpi
-package](https://bips-hb.github.io/cpi/articles/intro.html), and
-provides conditional variable importance using knockoffs. It works with
-`mlr3` and its output on our data looks like this:
+CPI (Conditional Predictive Impact) was introduced by Watson & Wright
+(2021) for statistical inference with conditional feature importance
+using knockoffs. Two main approaches are supported:
+
+- **CPI with knockoffs**: The original method using model-X knockoffs
+  for conditional sampling.
+- **cARFi** (Blesch et al., 2025): Uses Adversarial Random Forests for
+  conditional sampling, which works without Gaussian assumptions and
+  supports mixed data. CPI is also implemented by [the cpi
+  package](https://bips-hb.github.io/cpi/articles/intro.html). It works
+  with `mlr3` and its output on our data looks like this:
 
 ``` r
 library(cpi)
@@ -219,7 +249,7 @@ cfi = CFI$new(
 
 cfi$compute()
 
-# CPI uses observation-wise losses with one-sided t-test by default
+# CPI uses observation-wise losses; default is one-sided test (alternative = "greater")
 cfi_cpi_res = cfi$importance(ci_method = "cpi")
 cfi_cpi_res
 #> Key: <feature>
@@ -271,12 +301,12 @@ horizontal error bars.](inference_files/figure-html/cpi-cfi-plot-1.png)
 A noteable caveat of the knockoff approach is that they are not readily
 available for mixed data (with categorical features).
 
-### CPI with ARF
+### cARFi: CPI with ARF
 
 An alternative is available using ARF as conditional sampler rather than
-knockoffs (see [Blesch et
-al. (2025)](https://doi.org/10.1609/aaai.v39i15.33712)), which we can
-perform analogously:
+knockoffs. This approach, called cARFi, was introduced by [Blesch et
+al. (2025)](https://doi.org/10.1609/aaai.v39i15.33712) and works without
+Gaussian assumptions:
 
 ``` r
 arf_sampler = ConditionalARFSampler$new(
@@ -296,7 +326,7 @@ cfi_arf = CFI$new(
 
 cfi_arf$compute()
 
-# CPI uses observation-wise losses with one-sided t-test
+# CPI inference with ARF sampler (cARFi)
 cfi_arf_res = cfi_arf$importance(ci_method = "cpi")
 cfi_arf_res
 #> Key: <feature>
@@ -370,12 +400,18 @@ specifically the Wilcoxon-, Fisher-, or binomial test:
 # Fisher test with same default for B as in cpi()
 (cpi_res_fisher = cfi_arf$importance(ci_method = "cpi", test = "fisher", B = 1999))
 #> Key: <feature>
-#>    feature    importance           se p.value   conf_lower conf_upper
-#>     <char>         <num>        <num>   <num>        <num>      <num>
-#> 1:      x1  3.9865071718 0.0715166883  0.0005  3.802012761        Inf
-#> 2:      x2  0.0053611218 0.0025570164  0.0215  0.001095074        Inf
-#> 3:      x3  1.7527732858 0.0325190020  0.0005  1.668688790        Inf
-#> 4:      x4 -0.0009391978 0.0004918991  0.9670 -0.001773247        Inf
+#>    feature    importance           se     statistic p.value   conf_lower
+#>     <char>         <num>        <num>         <num>   <num>        <num>
+#> 1:      x1  3.9865071718 0.0715166883  3.9865071718  0.0005  3.802012761
+#> 2:      x2  0.0053611218 0.0025570164  0.0053611218  0.0215  0.001095074
+#> 3:      x3  1.7527732858 0.0325190020  1.7527732858  0.0005  1.668688790
+#> 4:      x4 -0.0009391978 0.0004918991 -0.0009391978  0.9670 -0.001773247
+#>    conf_upper
+#>         <num>
+#> 1:        Inf
+#> 2:        Inf
+#> 3:        Inf
+#> 4:        Inf
 (cpi_res_binom = cfi_arf$importance(ci_method = "cpi", test = "binomial"))
 #> Key: <feature>
 #>    feature    importance           se statistic      p.value conf_lower
@@ -386,10 +422,10 @@ specifically the Wilcoxon-, Fisher-, or binomial test:
 #> 4:      x4 -0.0009391978 0.0004918991      1094 1.430053e-05  0.5283991
 #>    conf_upper
 #>         <num>
-#> 1:        Inf
-#> 2:        Inf
-#> 3:        Inf
-#> 4:        Inf
+#> 1:          1
+#> 2:          1
+#> 3:          1
+#> 4:          1
 
 rbindlist(
     list(
@@ -422,8 +458,9 @@ x-axis. Four colored series for t, Wilcoxon, Fisher, and Binomial tests
 with horizontal error
 bars.](inference_files/figure-html/cpi-tests-1.png)
 
-Given the width of the resulting confidence intervals, the Fisher- or
-t-test are generally recommended.
+The choice of test depends on distributional assumptions: the t-test
+assumes normality, while Fisher and Wilcoxon are non-parametric
+alternatives.
 
 ## Custom inference with LOCO
 

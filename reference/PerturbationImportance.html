@@ -137,13 +137,15 @@
 </div><p></p><hr><a id="method-PerturbationImportance-importance"></a><div class="section">
 <h3 id="method-importance-">Method <code>importance()</code><a class="anchor" aria-label="anchor" href="#method-importance-"></a></h3>
 <p>Get aggregated importance scores.
-Extends the base <code>$importance()</code> method to support the additional <code>"cpi"</code> ci_method.</p><div class="section">
+Extends the base <code>$importance()</code> method to support <code>ci_method = "cpi"</code>.
+For details, see <a href="CFI.html">CFI</a>, which is the only sub-method for which it is known to be valid.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PerturbationImportance</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span></span>
 <span>  relation <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  standardize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  ci_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"raw"</span>, <span class="st">"nadeau_bengio"</span>, <span class="st">"quantile"</span>, <span class="st">"cpi"</span><span class="op">)</span>,</span>
 <span>  conf_level <span class="op">=</span> <span class="fl">0.95</span>,</span>
+<span>  alternative <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"greater"</span>, <span class="st">"two.sided"</span><span class="op">)</span>,</span>
 <span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t"</span>, <span class="st">"wilcoxon"</span>, <span class="st">"fisher"</span>, <span class="st">"binomial"</span><span class="op">)</span>,</span>
 <span>  B <span class="op">=</span> <span class="fl">1999</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -168,6 +170,12 @@ CPI is specifically designed for <a href="CFI.html">CFI</a> with knockoff sample
 
 <dt><code>conf_level</code></dt>
 <dd><p>(<code>numeric(1)</code>: <code>0.95</code>) Confidence level for confidence intervals when <code>ci_method != "none"</code>.</p></dd>
+
+
+<dt><code>alternative</code></dt>
+<dd><p>(<code>character(1)</code>: <code>"greater"</code>) Type of alternative hypothesis for statistical tests.
+<code>"greater"</code> tests H0: importance &lt;= 0 vs H1: importance &gt; 0 (one-sided).
+<code>"two.sided"</code> tests H0: importance = 0 vs H1: importance != 0.</p></dd>
 
 
 <dt><code>test</code></dt>

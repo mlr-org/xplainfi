@@ -197,6 +197,7 @@ across resampling iterations and, depending on the method use, permutations (<a 
 <span>  standardize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  ci_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"raw"</span>, <span class="st">"nadeau_bengio"</span>, <span class="st">"quantile"</span><span class="op">)</span>,</span>
 <span>  conf_level <span class="op">=</span> <span class="fl">0.95</span>,</span>
+<span>  alternative <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"greater"</span>, <span class="st">"two.sided"</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -228,6 +229,13 @@ See details.</p></dd>
 <dd><p>(<code>numeric(1)</code>: <code>0.95</code>) Confidence level to use for confidence interval construction when <code>ci_method != "none"</code>.</p></dd>
 
 
+<dt><code>alternative</code></dt>
+<dd><p>(<code>character(1)</code>: <code>"greater"</code>) Type of alternative hypothesis for statistical tests.
+<code>"greater"</code> tests H0: importance &lt;= 0 vs H1: importance &gt; 0 (one-sided).
+<code>"two.sided"</code> tests H0: importance = 0 vs H1: importance != 0.
+Only used when <code>ci_method != "none"</code>.</p></dd>
+
+
 <dt><code>...</code></dt>
 <dd><p>Additional arguments passed to specialized methods, if any.</p></dd>
 
@@ -236,33 +244,84 @@ See details.</p></dd>
 </div>
 <div class="section">
 <h4 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h4>
-<p>Variance estimates for importance scores are biased due to the resampling procedure. Molnar et al. (2023) suggest to use
-the variance correction factor proposed by Nadeau &amp; Bengio (2003) of n2/n1, where n2 and n1 are the sizes of the test- and train set, respectively.
-This should then be combined with approx. 15 iterations of either bootstrapping or subsampling.</p>
-<p>The use of bootstrapping in this context can lead to problematic information leakage when combined with learners
-that perform bootstrapping themselves, e.g., Random Forest learners.
-In such cases, observations may be used as train- and test instances simultaneously, leading to erroneous performance estimates.</p>
-<p>An approach leading to still imperfect, but improved variance estimates could be:</p>
+
+<div class="section">
+<h5 id="confidence-interval-methods">Confidence Interval Methods<a class="anchor" aria-label="anchor" href="#confidence-interval-methods"></a></h5>
+
+
+<p>The parametric methods (<code>"raw"</code>, <code>"nadeau_bengio"</code>) return standard error (<code>se</code>),
+test statistic (<code>statistic</code>), p-value (<code>p.value</code>), and confidence bounds
+(<code>conf_lower</code>, <code>conf_upper</code>). The <code>"quantile"</code> method returns only lower and upper bounds.</p><div class="section">
+<h6 id="-raw-uncorrected-t-test"><code>"raw"</code>: Uncorrected (!) t-test<a class="anchor" aria-label="anchor" href="#-raw-uncorrected-t-test"></a></h6>
+
+
+<p>Uses a standard t-test assuming independence of resampling iterations.</p><ul><li><p>SE = sd(resampling scores) / sqrt(n_iters)</p></li>
+<li><p>Test statistic: t = importance / SE with df = n_iters - 1</p></li>
+<li><p>P-value: From t-distribution (one-sided or two-sided depending on <code>alternative</code>)</p></li>
+<li><p>CIs: importance +/- qt(1 - alpha, df) * SE</p></li>
+</ul><p><strong>Warning</strong>: These CIs are too narrow because resampling iterations share
+training data and are not independent.
+This method is included only for demonstration purposes.</p>
+</div>
+
+<div class="section">
+<h6 id="-nadeau-bengio-corrected-t-test"><code>"nadeau_bengio"</code>: Corrected t-test<a class="anchor" aria-label="anchor" href="#-nadeau-bengio-corrected-t-test"></a></h6>
+
+
+<p>Applies the Nadeau &amp; Bengio (2003) correction to account for correlation between
+resampling iterations due to overlapping training sets.</p><ul><li><p>Correction factor: (1/n_iters + n_test/n_train)</p></li>
+<li><p>SE = sqrt(correction_factor * var(resampling scores))</p></li>
+<li><p>Test statistic and p-value: As in <code>"raw"</code>, but with corrected SE</p></li>
+</ul><p>Recommended with bootstrap or subsampling (&gt;= 10 iterations).</p>
+</div>
+
+<div class="section">
+<h6 id="-quantile-non-parametric-empirical-method"><code>"quantile"</code>: Non-parametric empirical method<a class="anchor" aria-label="anchor" href="#-quantile-non-parametric-empirical-method"></a></h6>
+
+
+<p>Uses the resampling distribution directly without parametric assumptions.</p><ul><li><p>CIs: Empirical quantiles of the resampling distribution</p></li>
+</ul><p>This method does not provide <code>se</code>, <code>statistic</code>, or <code>p.value</code>.</p>
+</div>
+
+
+</div>
+
+<div class="section">
+<h5 id="method-specific-ci-methods">Method-Specific CI Methods<a class="anchor" aria-label="anchor" href="#method-specific-ci-methods"></a></h5>
+
+
+<p>Some importance methods provide additional CI methods tailored to their approach:</p><ul><li><p><strong><a href="CFI.html">CFI</a></strong>: Adds <code>"cpi"</code> (Conditional Predictive Impact), which uses observation-wise
+loss differences with holdout resampling. Supports t-test, Wilcoxon, Fisher permutation,
+and binomial tests. See Watson &amp; Wright (2021).</p></li>
+</ul></div>
+
+<div class="section">
+<h5 id="practical-recommendations">Practical Recommendations<a class="anchor" aria-label="anchor" href="#practical-recommendations"></a></h5>
+
+
+<p>Variance estimates for importance scores are biased due to the resampling procedure.
+Molnar et al. (2023) suggest using the Nadeau &amp; Bengio correction with approximately
+15 iterations of subsampling.</p>
+<p>Bootstrapping can cause information leakage with learners that bootstrap internally
+(e.g., Random Forests), as observations may appear in both train and test sets.
+Prefer subsampling in such cases:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va"><a href="../reference/PFI.html">PFI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  task <span class="op">=</span> <span class="fu"><a href="../reference/sim_dgp_scenarios.html">sim_dgp_interactions</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span>,</span>
 <span>  learner <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.ranger"</span>, num.trees <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>,</span>
 <span>  measure <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span>,</span>
-<span>  <span class="co"># Subsampling instead of bootstrapping due to RF</span></span>
 <span>  resampling <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">rsmp</a></span><span class="op">(</span><span class="st">"subsampling"</span>, repeats <span class="op">=</span> <span class="fl">15</span><span class="op">)</span>,</span>
 <span>  n_repeats <span class="op">=</span> <span class="fl">20</span></span>
 <span><span class="op">)</span></span></code></pre><p></p></div>
-<p><code>n_repeats = 20</code> in this context only improves the stability of the PFI estimate within the resampling iteration, whereas <code>rsmp("subsampling", repeats = 15)</code>
-is used to account for learner variance and necessitates variance correction.</p>
-<p>This approach can in principle also be applied to <code>CFI</code> and <code>RFI</code>, but beware that a conditional sample such as <a href="ConditionalARFSampler.html">ConditionalARFSampler</a> also needs to be trained on data,
-which would need to be taken account by the variance estimation method.
-Analogously, the <code>"nadeau_bengio"</code> correction was recommended for the use with <a href="PFI.html">PFI</a> by Molnar et al., so its use with other methods like <a href="LOCO.html">LOCO</a> or <a href="SAGE.html">SAGE</a> is experimental.</p>
-<p>Note that even if <code>measure</code> uses an <code>aggregator</code> function that is not the mean, variance estimation currently will always use <code><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean()</a></code> and <code><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var()</a></code>.</p>
+<p>The <code>"nadeau_bengio"</code> correction was validated for PFI; its use with other methods
+like LOCO or SAGE is experimental.</p>
+</div>
+
 </div>
 
 <div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>(<a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a>) Aggregated importance scores with columns <code>"feature"</code>, <code>"importance"</code>,
-and depending on <code>ci_method</code> also <code>"se"</code>, <code>"conf_lower"</code>, <code>"conf_upper"</code>.</p>
+and depending on <code>ci_method</code> also <code>"se"</code>, <code>"statistic"</code>, <code>"p.value"</code>, <code>"conf_lower"</code>, <code>"conf_upper"</code>.</p>
 </div>
 
 </div><p></p><hr><a id="method-FeatureImportanceMethod-obs_loss"></a><div class="section">

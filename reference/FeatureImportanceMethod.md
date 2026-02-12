@@ -161,6 +161,7 @@ or refits [LOCO](https://mlr-org.github.io/xplainfi/reference/LOCO.md)).
       standardize = FALSE,
       ci_method = c("none", "raw", "nadeau_bengio", "quantile"),
       conf_level = 0.95,
+      alternative = c("greater", "two.sided"),
       ...
     )
 
@@ -202,65 +203,102 @@ or refits [LOCO](https://mlr-org.github.io/xplainfi/reference/LOCO.md)).
   (`numeric(1)`: `0.95`) Confidence level to use for confidence interval
   construction when `ci_method != "none"`.
 
+- `alternative`:
+
+  (`character(1)`: `"greater"`) Type of alternative hypothesis for
+  statistical tests. `"greater"` tests H0: importance \<= 0 vs H1:
+  importance \> 0 (one-sided). `"two.sided"` tests H0: importance = 0 vs
+  H1: importance != 0. Only used when `ci_method != "none"`.
+
 - `...`:
 
   Additional arguments passed to specialized methods, if any.
 
 #### Details
 
+##### Confidence Interval Methods
+
+The parametric methods (`"raw"`, `"nadeau_bengio"`) return standard
+error (`se`), test statistic (`statistic`), p-value (`p.value`), and
+confidence bounds (`conf_lower`, `conf_upper`). The `"quantile"` method
+returns only lower and upper bounds.
+
+###### `"raw"`: Uncorrected (!) t-test
+
+Uses a standard t-test assuming independence of resampling iterations.
+
+- SE = sd(resampling scores) / sqrt(n_iters)
+
+- Test statistic: t = importance / SE with df = n_iters - 1
+
+- P-value: From t-distribution (one-sided or two-sided depending on
+  `alternative`)
+
+- CIs: importance +/- qt(1 - alpha, df) \* SE
+
+**Warning**: These CIs are too narrow because resampling iterations
+share training data and are not independent. This method is included
+only for demonstration purposes.
+
+###### `"nadeau_bengio"`: Corrected t-test
+
+Applies the Nadeau & Bengio (2003) correction to account for correlation
+between resampling iterations due to overlapping training sets.
+
+- Correction factor: (1/n_iters + n_test/n_train)
+
+- SE = sqrt(correction_factor \* var(resampling scores))
+
+- Test statistic and p-value: As in `"raw"`, but with corrected SE
+
+Recommended with bootstrap or subsampling (\>= 10 iterations).
+
+###### `"quantile"`: Non-parametric empirical method
+
+Uses the resampling distribution directly without parametric
+assumptions.
+
+- CIs: Empirical quantiles of the resampling distribution
+
+This method does not provide `se`, `statistic`, or `p.value`.
+
+##### Method-Specific CI Methods
+
+Some importance methods provide additional CI methods tailored to their
+approach:
+
+- **[CFI](https://mlr-org.github.io/xplainfi/reference/CFI.md)**: Adds
+  `"cpi"` (Conditional Predictive Impact), which uses observation-wise
+  loss differences with holdout resampling. Supports t-test, Wilcoxon,
+  Fisher permutation, and binomial tests. See Watson & Wright (2021).
+
+##### Practical Recommendations
+
 Variance estimates for importance scores are biased due to the
-resampling procedure. Molnar et al. (2023) suggest to use the variance
-correction factor proposed by Nadeau & Bengio (2003) of n2/n1, where n2
-and n1 are the sizes of the test- and train set, respectively. This
-should then be combined with approx. 15 iterations of either
-bootstrapping or subsampling.
+resampling procedure. Molnar et al. (2023) suggest using the Nadeau &
+Bengio correction with approximately 15 iterations of subsampling.
 
-The use of bootstrapping in this context can lead to problematic
-information leakage when combined with learners that perform
-bootstrapping themselves, e.g., Random Forest learners. In such cases,
-observations may be used as train- and test instances simultaneously,
-leading to erroneous performance estimates.
-
-An approach leading to still imperfect, but improved variance estimates
-could be:
+Bootstrapping can cause information leakage with learners that bootstrap
+internally (e.g., Random Forests), as observations may appear in both
+train and test sets. Prefer subsampling in such cases:
 
     PFI$new(
       task = sim_dgp_interactions(n = 1000),
       learner = lrn("regr.ranger", num.trees = 100),
       measure = msr("regr.mse"),
-      # Subsampling instead of bootstrapping due to RF
       resampling = rsmp("subsampling", repeats = 15),
       n_repeats = 20
     )
 
-`n_repeats = 20` in this context only improves the stability of the PFI
-estimate within the resampling iteration, whereas
-`rsmp("subsampling", repeats = 15)` is used to account for learner
-variance and necessitates variance correction.
-
-This approach can in principle also be applied to `CFI` and `RFI`, but
-beware that a conditional sample such as
-[ConditionalARFSampler](https://mlr-org.github.io/xplainfi/reference/ConditionalARFSampler.md)
-also needs to be trained on data, which would need to be taken account
-by the variance estimation method. Analogously, the `"nadeau_bengio"`
-correction was recommended for the use with
-[PFI](https://mlr-org.github.io/xplainfi/reference/PFI.md) by Molnar et
-al., so its use with other methods like
-[LOCO](https://mlr-org.github.io/xplainfi/reference/LOCO.md) or
-[SAGE](https://mlr-org.github.io/xplainfi/reference/SAGE.md) is
-experimental.
-
-Note that even if `measure` uses an `aggregator` function that is not
-the mean, variance estimation currently will always use
-[`mean()`](https://rdrr.io/r/base/mean.html) and
-[`var()`](https://rdrr.io/r/stats/cor.html).
+The `"nadeau_bengio"` correction was validated for PFI; its use with
+other methods like LOCO or SAGE is experimental.
 
 #### Returns
 
 ([data.table](https://rdrr.io/pkg/data.table/man/data.table.html))
 Aggregated importance scores with columns `"feature"`, `"importance"`,
-and depending on `ci_method` also `"se"`, `"conf_lower"`,
-`"conf_upper"`.
+and depending on `ci_method` also `"se"`, `"statistic"`, `"p.value"`,
+`"conf_lower"`, `"conf_upper"`.
 
 ------------------------------------------------------------------------
 
