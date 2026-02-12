@@ -50,7 +50,7 @@ is_pretrained = function(learner, task, resampling) {
 
 	if (learner_ok & !resampling_ok) {
 		cli::cli_abort(c(
-			"{.code resampling} is not compatible with using a pre-trained {.code learner}",
+			"Given {.code resampling} is not compatible with using a pre-trained {.cls Learner}",
 			i = "If {.code learner} is pre-trained, {.code resampling} must be instantiated and have exactly 1 iteration"
 		))
 	}
@@ -88,10 +88,12 @@ assemble_rr = function(
 		}
 		pred = learner$predict(task, row_ids = resampling$test_set(1))
 
+		# Clone learner: as_resample_result() clones internally but resets the model
+		# on the object it receives, which would wipe the user's original via R6 reference
 		resample_result = mlr3::as_resample_result(
 			x = list(list(test = pred)),
 			task = task,
-			learners = list(learner),
+			learners = list(learner$clone()),
 			resampling = resampling
 		)
 	} else {

@@ -64,6 +64,9 @@ test_that("PFI works with pretrained learner", {
 	pfi$compute()
 	expect_importance_dt(pfi$importance(), features = pfi$features)
 	checkmate::expect_r6(pfi$resample_result, "ResampleResult")
+
+	# Original learner must still have its model after compute
+	expect_false(is.null(learner$model))
 })
 
 test_that("PFI pretrained and non-pretrained produce comparable results", {
@@ -103,21 +106,39 @@ test_that("PFI pretrained and non-pretrained produce comparable results", {
 	expect_setequal(pfi_pre$importance()$feature, pfi_fresh$importance()$feature)
 })
 
-test_that("PFI with pretrained learner errors on multi-fold resampling", {
+test_that("PFI with pretrained learner errors on non-instantiated resampling", {
 	task = tsk("mtcars")
 	learner = lrn("regr.rpart")
 	learner$train(task)
 	measure = msr("regr.mse")
 
-	pfi = PFI$new(
-		task = task,
-		learner = learner,
-		measure = measure,
-		resampling = rsmp("cv", folds = 3),
-		n_repeats = 2L
+	expect_error(
+		PFI$new(
+			task = task,
+			learner = learner,
+			measure = measure,
+			resampling = rsmp("holdout")
+		),
+		"instantiated"
 	)
+})
 
-	expect_error(pfi$compute(), "not compatible")
+test_that("PFI with pretrained learner errors on multi-fold resampling at construction", {
+	task = tsk("mtcars")
+	learner = lrn("regr.rpart")
+	learner$train(task)
+	measure = msr("regr.mse")
+
+	expect_error(
+		PFI$new(
+			task = task,
+			learner = learner,
+			measure = measure,
+			resampling = rsmp("cv", folds = 3)$instantiate(task),
+			n_repeats = 2L
+		),
+		"not compatible"
+	)
 })
 
 test_that("PFI with pretrained learner works for classification", {
@@ -204,22 +225,42 @@ test_that("MarginalSAGE pretrained and non-pretrained produce comparable results
 	expect_setequal(sage_pre$importance()$feature, sage_fresh$importance()$feature)
 })
 
-test_that("MarginalSAGE with pretrained learner errors on multi-fold resampling", {
+test_that("MarginalSAGE with pretrained learner errors on non-instantiated resampling", {
 	task = tsk("mtcars")
 	learner = lrn("regr.rpart")
 	learner$train(task)
 	measure = msr("regr.mse")
 
-	sage = MarginalSAGE$new(
-		task = task,
-		learner = learner,
-		measure = measure,
-		resampling = rsmp("cv", folds = 3),
-		n_permutations = 2L,
-		n_samples = 20L
+	expect_error(
+		MarginalSAGE$new(
+			task = task,
+			learner = learner,
+			measure = measure,
+			resampling = rsmp("holdout"),
+			n_permutations = 2L,
+			n_samples = 20L
+		),
+		"instantiated"
 	)
+})
 
-	expect_error(sage$compute(), "not compatible")
+test_that("MarginalSAGE with pretrained learner errors on multi-fold resampling at construction", {
+	task = tsk("mtcars")
+	learner = lrn("regr.rpart")
+	learner$train(task)
+	measure = msr("regr.mse")
+
+	expect_error(
+		MarginalSAGE$new(
+			task = task,
+			learner = learner,
+			measure = measure,
+			resampling = rsmp("cv", folds = 3)$instantiate(task),
+			n_permutations = 2L,
+			n_samples = 20L
+		),
+		"not compatible"
+	)
 })
 
 test_that("MarginalSAGE with pretrained learner works for classification", {
@@ -241,4 +282,23 @@ test_that("MarginalSAGE with pretrained learner works for classification", {
 
 	sage$compute()
 	expect_importance_dt(sage$importance(), features = sage$features)
+})
+
+# -----------------------------------------------------------------------------
+# LOCO warns for pretrained learner (refit-based methods)
+# -----------------------------------------------------------------------------
+
+test_that("LOCO warns when given a pretrained learner", {
+	task = tsk("mtcars")
+	learner = lrn("regr.rpart")
+	learner$train(task)
+
+	expect_warning(
+		LOCO$new(
+			task = task,
+			learner = learner,
+			measure = msr("regr.mse")
+		),
+		"already trained"
+	)
 })
