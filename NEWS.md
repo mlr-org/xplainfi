@@ -13,6 +13,14 @@
   - `LOCO` and `WVIM`: `n_repeats` is now 30 as well.
   - Since the refitting methods will be more expensive than the perturbation-based methods, users will have to decrease this value if runtime becomes impractical, but now at least the package default is no longer `n_repeats = 1`, which is obviously too small.
 
+## Testing improvements
+
+- Replaced `ranger` with `rpart` in most tests where a flexible learner was unnecessary, reducing test runtime and removing conditional `skip_if_not_installed("ranger")` guards so these tests always run.
+- Added omnibus `expect_method_output()` expectation that validates all three main outputs (`$importance()`, `$scores()`, `$obs_loss()`) of a computed method.
+- Removed overly abstract test helper functions (`test_basic_workflow`, `test_with_resampling`, `test_custom_sampler`) and inlined their logic at call sites for better readability.
+- Use `ConditionalGaussianSampler` instead of `ConditionalARFSampler` in tests that don't specifically test ARF functionality.
+- Set explicit `n_repeats` values in all tests (1L for functional, 5L for plausibility).
+
 ## Inference
 
 - Parametric `ci_method`s (`"raw"`, `"nadeau_bengio"`) return `se`, `statistic`, `p.value`,
