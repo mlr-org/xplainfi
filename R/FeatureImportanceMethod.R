@@ -86,11 +86,24 @@ FeatureImportanceMethod = R6Class(
 			} else {
 				# Clone the resampling to avoid instantiating the resampling in the user's workspace
 				resampling = mlr3::assert_resampling(resampling)$clone()
+
+				# A pretrained learner requires a user-provided instantiated resampling
+				# to define the test set explicitly. Auto-instantiation would pick an
+				# arbitrary split unrelated to how the learner was trained.
+				if (!is.null(learner$model) && !resampling$is_instantiated) {
+					cli::cli_abort(c(
+						"A pre-trained {.cls Learner} requires an instantiated {.cls Resampling}",
+						i = "Instantiate the {.cls Resampling} before passing it, e.g. {.code rsmp(\"holdout\")$instantiate(task)}"
+					))
+				}
 			}
 			if (!resampling$is_instantiated) {
 				resampling$instantiate(task)
 			}
 			self$resampling = resampling
+
+			# Check pretrained learner compatibility (multi-fold with pretrained learner)
+			assert_pretrained(self$learner, self$task, self$resampling)
 		},
 
 		#' @description

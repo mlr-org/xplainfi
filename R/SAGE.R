@@ -153,10 +153,10 @@ SAGE = R6Class(
 			check_interval = resolve_param(check_interval, self$param_set$values$check_interval, 1L)
 
 			# Initial resampling to get trained learners
-			rr = resample(
-				self$task,
-				self$learner,
-				self$resampling,
+			rr = assemble_rr(
+				task = self$task,
+				learner = self$learner,
+				resampling = self$resampling,
 				store_models = TRUE,
 				store_backends = store_backends
 			)
