@@ -78,6 +78,14 @@
 </ul></li>
 </ul></div>
 <div class="section level3">
+<h3 id="testing-improvements-development-version">Testing improvements<a class="anchor" aria-label="anchor" href="#testing-improvements-development-version"></a></h3>
+<ul><li>Replaced <code>ranger</code> with <code>rpart</code> in most tests where a flexible learner was unnecessary, reducing test runtime and removing conditional <code>skip_if_not_installed("ranger")</code> guards so these tests always run.</li>
+<li>Added omnibus <code>expect_method_output()</code> expectation that validates all three main outputs (<code>$importance()</code>, <code>$scores()</code>, <code>$obs_loss()</code>) of a computed method.</li>
+<li>Removed overly abstract test helper functions (<code>test_basic_workflow</code>, <code>test_with_resampling</code>, <code>test_custom_sampler</code>) and inlined their logic at call sites for better readability.</li>
+<li>Use <code>ConditionalGaussianSampler</code> instead of <code>ConditionalARFSampler</code> in tests that don’t specifically test ARF functionality.</li>
+<li>Set explicit <code>n_repeats</code> values in all tests (1L for functional, 5L for plausibility).</li>
+</ul></div>
+<div class="section level3">
 <h3 id="inference-development-version">Inference<a class="anchor" aria-label="anchor" href="#inference-development-version"></a></h3>
 <ul><li>Parametric <code>ci_method</code>s (<code>"raw"</code>, <code>"nadeau_bengio"</code>) return <code>se</code>, <code>statistic</code>, <code>p.value</code>, <code>conf_lower</code>, and <code>conf_upper</code> columns. The <code>"quantile"</code> method returns only <code>conf_lower</code> and <code>conf_upper</code> (no <code>se</code>, <code>statistic</code>, or <code>p.value</code>).</li>
 <li>Parametric <code>ci_method</code>s support <code>alternative = "greater"</code> (one-sided, the default) or <code>alternative = "two.sided"</code> to test H0: importance &lt;= 0 vs H1: importance &gt; 0, or H0: importance = 0 vs H1: importance != 0, respectively. For <code>"quantile"</code>, <code>alternative</code> controls whether the confidence interval is one-sided (<code>"greater"</code>: finite lower bound, <code>conf_upper = Inf</code>) or two-sided (both bounds finite).</li>
