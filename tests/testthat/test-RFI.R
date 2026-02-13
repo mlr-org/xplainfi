@@ -9,31 +9,33 @@
 test_that("RFI default behavior with minimal parameters", {
 	skip_if_not_installed("arf")
 
-		# RFI warns when conditioning_set is not specified (defaults to empty)
+	# RFI warns when conditioning_set is not specified (defaults to empty)
 	expect_warning(
-		test_default_behavior(RFI, task_type = "regr")
+		test_default_behavior(RFI, task_type = "regr", n_repeats = 1L)
 	)
 })
 
 test_that("RFI basic workflow with classification", {
-	skip_if_not_installed("arf")
+	task = tgen("2dnormals")$generate(n = 100)
 
-		task = tgen("2dnormals")$generate(n = 100)
-
-	test_basic_workflow(
-		RFI,
+	rfi = RFI$new(
 		task = task,
 		learner = lrn("classif.rpart", predict_type = "prob"),
 		measure = msr("classif.ce"),
-		expected_classes = c("FeatureImportanceMethod", "PerturbationImportance", "RFI"),
-		conditioning_set = "x2"
+		conditioning_set = "x2",
+		sampler = ConditionalGaussianSampler$new(task),
+		n_repeats = 1L
 	)
+	checkmate::expect_r6(rfi, c("FeatureImportanceMethod", "PerturbationImportance", "RFI"))
+
+	rfi$compute()
+	expect_method_output(rfi)
 })
 
 test_that("RFI uses ConditionalARFSampler by default", {
 	skip_if_not_installed("arf")
 
-		task = tgen("xor")$generate(n = 100)
+	task = tgen("xor")$generate(n = 100)
 
 	rfi = RFI$new(
 		task = task,
@@ -49,7 +51,12 @@ test_that("RFI uses ConditionalARFSampler by default", {
 test_that("RFI featureless learner produces zero importance", {
 	skip_if_not_installed("arf")
 
-		test_featureless_zero_importance(RFI, task_type = "classif", conditioning_set = "x1")
+	test_featureless_zero_importance(
+		RFI,
+		task_type = "classif",
+		conditioning_set = "x1",
+		n_repeats = 1L
+	)
 })
 
 # -----------------------------------------------------------------------------
@@ -57,37 +64,31 @@ test_that("RFI featureless learner produces zero importance", {
 # -----------------------------------------------------------------------------
 
 test_that("RFI multiple repeats and scores structure", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
-	skip_if_not_installed("arf")
-
-		task = tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 100)
 
 	test_n_repeats_and_scores(
 		RFI,
 		task = task,
-		learner = lrn("regr.ranger", num.trees = 50),
+		learner = lrn("regr.rpart"),
 		measure = msr("regr.mse"),
 		n_repeats = 2L,
-		conditioning_set = "important1"
+		conditioning_set = "important1",
+		sampler = ConditionalGaussianSampler$new(task)
 	)
 })
 
 test_that("RFI single feature", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
-	skip_if_not_installed("arf")
-
-		task = tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 100)
 
 	test_single_feature(
 		RFI,
 		task = task,
-		learner = lrn("regr.ranger", num.trees = 50),
+		learner = lrn("regr.rpart"),
 		measure = msr("regr.mse"),
 		feature = "important4",
 		n_repeats = 2L,
-		conditioning_set = c("important1", "important2")
+		conditioning_set = c("important1", "important2"),
+		sampler = ConditionalGaussianSampler$new(task)
 	)
 })
 
@@ -96,18 +97,16 @@ test_that("RFI single feature", {
 # -----------------------------------------------------------------------------
 
 test_that("RFI difference vs ratio relations", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
-	skip_if_not_installed("arf")
-
-		task = tgen("2dnormals")$generate(n = 100)
+	task = tgen("2dnormals")$generate(n = 100)
 
 	test_relation_parameter(
 		RFI,
 		task = task,
-		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
+		learner = lrn("classif.rpart", predict_type = "prob"),
 		measure = msr("classif.ce"),
-		conditioning_set = character(0)
+		conditioning_set = character(0),
+		sampler = ConditionalGaussianSampler$new(task),
+		n_repeats = 1L
 	)
 })
 
@@ -116,15 +115,12 @@ test_that("RFI difference vs ratio relations", {
 # -----------------------------------------------------------------------------
 
 test_that("RFI friedman1 produces sensible ranking", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
 	skip_if_not_installed("arf")
 
-		test_friedman1_sensible_ranking(
+	test_friedman1_sensible_ranking(
 		RFI,
-		learner = lrn("regr.ranger", num.trees = 50),
-		measure = msr("regr.mse"),
-		conditioning_set = "important1"
+		conditioning_set = "important1",
+		n_repeats = 5L
 	)
 })
 
@@ -133,33 +129,27 @@ test_that("RFI friedman1 produces sensible ranking", {
 # -----------------------------------------------------------------------------
 
 test_that("RFI parameter validation", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
-	skip_if_not_installed("arf")
-
-		task = tgen("2dnormals")$generate(n = 50)
+	task = tgen("2dnormals")$generate(n = 50)
 
 	test_parameter_validation(
 		RFI,
 		task = task,
-		learner = lrn("classif.ranger", num.trees = 10, predict_type = "prob"),
+		learner = lrn("classif.rpart", predict_type = "prob"),
 		measure = msr("classif.ce"),
-		conditioning_set = "x1"
+		conditioning_set = "x1",
+		sampler = ConditionalGaussianSampler$new(task)
 	)
 })
 
 test_that("RFI rejects invalid conditioning_set", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
-	skip_if_not_installed("arf")
-
-		task = tgen("2dnormals")$generate(n = 50)
+	task = tgen("2dnormals")$generate(n = 50)
 
 	expect_error(RFI$new(
 		task = task,
-		learner = lrn("classif.ranger", num.trees = 10, predict_type = "prob"),
+		learner = lrn("classif.rpart", predict_type = "prob"),
 		measure = msr("classif.ce"),
-		conditioning_set = c("nonexistent_feature")
+		conditioning_set = c("nonexistent_feature"),
+		sampler = ConditionalGaussianSampler$new(task)
 	))
 })
 
@@ -168,9 +158,7 @@ test_that("RFI rejects invalid conditioning_set", {
 # -----------------------------------------------------------------------------
 
 test_that("RFI with feature groups", {
-	skip_if_not_installed("arf")
-
-		task = tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 100)
 
 	groups = list(
 		early_important = c("important1", "important2"),
@@ -185,7 +173,9 @@ test_that("RFI with feature groups", {
 		measure = msr("regr.mse"),
 		groups = groups,
 		expected_classes = c("FeatureImportanceMethod", "PerturbationImportance", "RFI"),
-		conditioning_set = "important5"
+		conditioning_set = "important5",
+		sampler = ConditionalGaussianSampler$new(task),
+		n_repeats = 1L
 	)
 })
 
@@ -194,21 +184,21 @@ test_that("RFI with feature groups", {
 # -----------------------------------------------------------------------------
 
 test_that("RFI with custom ARF sampler", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
 	skip_if_not_installed("arf")
 
-		task = tgen("spirals")$generate(n = 100)
+	task = tgen("spirals")$generate(n = 100)
 
-	test_custom_sampler(
-		RFI,
+	rfi = RFI$new(
 		task = task,
-		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
+		learner = lrn("classif.rpart", predict_type = "prob"),
 		measure = msr("classif.ce"),
 		sampler = ConditionalARFSampler$new(task),
-		expected_sampler_class = "ConditionalARFSampler",
-		conditioning_set = "x1"
+		conditioning_set = "x1",
+		n_repeats = 1L
 	)
+	checkmate::expect_r6(rfi$sampler, "ConditionalARFSampler")
+	rfi$compute()
+	expect_importance_dt(rfi$importance(), features = rfi$features)
 })
 
 # -----------------------------------------------------------------------------
@@ -216,16 +206,16 @@ test_that("RFI with custom ARF sampler", {
 # -----------------------------------------------------------------------------
 
 test_that("RFI with custom conditioning set", {
-	skip_if_not_installed("arf")
-
-		task = tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 100)
 	conditioning_set = c("important1", "important2")
 
 	rfi = RFI$new(
 		task = task,
 		learner = lrn("regr.rpart"),
 		measure = msr("regr.mse"),
-		conditioning_set = conditioning_set
+		conditioning_set = conditioning_set,
+		sampler = ConditionalGaussianSampler$new(task),
+		n_repeats = 1L
 	)
 
 	expect_identical(rfi$param_set$values$conditioning_set, conditioning_set)
@@ -235,16 +225,16 @@ test_that("RFI with custom conditioning set", {
 })
 
 test_that("RFI with empty conditioning set (equivalent to PFI)", {
-	skip_if_not_installed("arf")
-
-		task = tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 100)
 
 	# RFI with empty conditioning set warns
 	expect_warning({
 		rfi = RFI$new(
 			task = task,
 			learner = lrn("regr.rpart"),
-			measure = msr("regr.mse")
+			measure = msr("regr.mse"),
+			sampler = ConditionalGaussianSampler$new(task),
+			n_repeats = 1L
 		)
 	})
 
@@ -255,17 +245,15 @@ test_that("RFI with empty conditioning set (equivalent to PFI)", {
 })
 
 test_that("RFI with single conditioning feature", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
-	skip_if_not_installed("arf")
-
-		task = tgen("2dnormals")$generate(n = 100)
+	task = tgen("2dnormals")$generate(n = 100)
 
 	rfi = RFI$new(
 		task = task,
-		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
+		learner = lrn("classif.rpart", predict_type = "prob"),
 		measure = msr("classif.ce"),
-		conditioning_set = "x1"
+		conditioning_set = "x1",
+		sampler = ConditionalGaussianSampler$new(task),
+		n_repeats = 1L
 	)
 
 	expect_equal(length(rfi$param_set$values$conditioning_set), 1)
@@ -276,13 +264,10 @@ test_that("RFI with single conditioning feature", {
 })
 
 test_that("RFI different conditioning sets produce different results", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
-	skip_if_not_installed("arf")
-
-		task = tgen("friedman1")$generate(n = 200)
-	learner = lrn("regr.ranger", num.trees = 50)
+	task = tgen("friedman1")$generate(n = 100)
+	learner = lrn("regr.rpart")
 	measure = msr("regr.mse")
+	sampler = ConditionalGaussianSampler$new(task)
 
 	# RFI with empty conditioning set
 	rfi_empty = RFI$new(
@@ -290,7 +275,8 @@ test_that("RFI different conditioning sets produce different results", {
 		learner = learner,
 		measure = measure,
 		conditioning_set = character(0),
-		n_repeats = 2
+		sampler = sampler,
+		n_repeats = 2L
 	)
 
 	# RFI with one conditioning feature
@@ -299,7 +285,8 @@ test_that("RFI different conditioning sets produce different results", {
 		learner = learner,
 		measure = measure,
 		conditioning_set = "important1",
-		n_repeats = 2
+		sampler = sampler,
+		n_repeats = 2L
 	)
 
 	# RFI with multiple conditioning features
@@ -308,7 +295,8 @@ test_that("RFI different conditioning sets produce different results", {
 		learner = learner,
 		measure = measure,
 		conditioning_set = c("important1", "important2"),
-		n_repeats = 2
+		sampler = sampler,
+		n_repeats = 2L
 	)
 
 	rfi_empty$compute()

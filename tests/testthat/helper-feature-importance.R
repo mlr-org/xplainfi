@@ -54,50 +54,6 @@ test_default_behavior = function(method_class, task_type = "regr", ...) {
 }
 
 # -----------------------------------------------------------------------------
-# test_basic_workflow
-# -----------------------------------------------------------------------------
-
-#' Test the basic workflow: construct, compute, get importance
-#'
-#' @param method_class R6 class (PFI, CFI, or RFI)
-#' @param task mlr3 Task
-#' @param learner mlr3 Learner
-#' @param measure mlr3 Measure
-#' @param expected_classes Character vector of expected R6 class names
-#' @param ... Additional arguments passed to method constructor
-test_basic_workflow = function(
-	method_class,
-	task,
-	learner,
-	measure,
-	expected_classes = NULL,
-	...
-) {
-	method = method_class$new(
-		task = task,
-		learner = learner,
-		measure = measure,
-		...
-	)
-
-	# Check class hierarchy if specified
-	if (!is.null(expected_classes)) {
-		checkmate::expect_r6(method, expected_classes)
-	}
-
-	method$compute()
-
-	# Validate importance output
-	result = method$importance()
-	expect_importance_dt(result, features = method$features)
-
-	# Test default relation is "difference"
-	expect_identical(method$importance(), method$importance(relation = "difference"))
-
-	invisible(method)
-}
-
-# -----------------------------------------------------------------------------
 # test_featureless_zero_importance
 # -----------------------------------------------------------------------------
 
@@ -424,84 +380,6 @@ test_grouped_importance = function(
 	expect_equal(nrow(result), length(groups))
 	expect_equal(result$feature, names(groups))
 	expect_importance_dt(result, features = names(groups))
-
-	invisible(method)
-}
-
-# -----------------------------------------------------------------------------
-# test_with_resampling
-# -----------------------------------------------------------------------------
-
-#' Test method with explicit resampling
-#'
-#' @param method_class R6 class (PFI, CFI, or RFI)
-#' @param task mlr3 Task
-#' @param learner mlr3 Learner
-#' @param measure mlr3 Measure
-#' @param resampling mlr3 Resampling
-#' @param n_repeats Number of repeats
-#' @param ... Additional arguments passed to method constructor
-test_with_resampling = function(
-	method_class,
-	task,
-	learner,
-	measure,
-	resampling,
-	n_repeats = 2L,
-	...
-) {
-	method = method_class$new(
-		task = task,
-		learner = learner,
-		measure = measure,
-		resampling = resampling,
-		n_repeats = n_repeats,
-		...
-	)
-
-	method$compute()
-	result = method$importance()
-
-	expect_importance_dt(result, method$features)
-
-	invisible(method)
-}
-
-# -----------------------------------------------------------------------------
-# test_custom_sampler (for CFI and RFI)
-# -----------------------------------------------------------------------------
-
-#' Test method with custom sampler
-#'
-#' @param method_class R6 class (CFI or RFI)
-#' @param task mlr3 Task
-#' @param learner mlr3 Learner
-#' @param measure mlr3 Measure
-#' @param sampler ConditionalSampler instance
-#' @param expected_sampler_class Expected sampler class name
-#' @param ... Additional arguments passed to method constructor
-test_custom_sampler = function(
-	method_class,
-	task,
-	learner,
-	measure,
-	sampler,
-	expected_sampler_class,
-	...
-) {
-	method = method_class$new(
-		task = task,
-		learner = learner,
-		measure = measure,
-		sampler = sampler,
-		...
-	)
-
-	# Check sampler class
-	checkmate::expect_r6(method$sampler, expected_sampler_class)
-
-	method$compute()
-	expect_importance_dt(method$importance(), features = method$features)
 
 	invisible(method)
 }

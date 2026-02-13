@@ -223,11 +223,9 @@ test_that("MarginalSAGE SE tracking in convergence_history", {
 
 test_that("MarginalSAGE SE-based convergence detection", {
 	skip_on_cran() # ~1s - tests early stopping feature, not core SAGE
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
 
-		task = tgen("friedman1")$generate(n = 100)
-	learner = lrn("regr.ranger", num.trees = 50)
+	task = tgen("friedman1")$generate(n = 100)
+	learner = lrn("regr.rpart")
 	measure = msr("regr.mse")
 
 	sage = MarginalSAGE$new(
