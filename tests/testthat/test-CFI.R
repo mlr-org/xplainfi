@@ -13,14 +13,11 @@ test_that("CFI default behavior with minimal parameters", {
 })
 
 test_that("CFI basic workflow with classification", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
-
 	task = tgen("2dnormals")$generate(n = 100)
 
 	cfi = CFI$new(
 		task = task,
-		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
+		learner = lrn("classif.rpart", predict_type = "prob"),
 		measure = msr("classif.ce"),
 		sampler = ConditionalGaussianSampler$new(task),
 		n_repeats = 1L
@@ -32,15 +29,13 @@ test_that("CFI basic workflow with classification", {
 })
 
 test_that("CFI uses ConditionalARFSampler by default", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
 	skip_if_not_installed("arf")
 
 	task = tgen("xor")$generate(n = 100)
 
 	cfi = CFI$new(
 		task = task,
-		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
+		learner = lrn("classif.rpart", predict_type = "prob"),
 		measure = msr("classif.ce")
 	)
 
@@ -59,15 +54,12 @@ test_that("CFI featureless learner produces zero importance", {
 # -----------------------------------------------------------------------------
 
 test_that("CFI multiple repeats and scores structure", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
-
 	task = tgen("friedman1")$generate(n = 100)
 
 	test_n_repeats_and_scores(
 		CFI,
 		task = task,
-		learner = lrn("regr.ranger", num.trees = 50),
+		learner = lrn("regr.rpart"),
 		measure = msr("regr.mse"),
 		n_repeats = 2L,
 		sampler = ConditionalGaussianSampler$new(task)
@@ -75,15 +67,12 @@ test_that("CFI multiple repeats and scores structure", {
 })
 
 test_that("CFI single feature", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
-
 	task = tgen("friedman1")$generate(n = 100)
 
 	test_single_feature(
 		CFI,
 		task = task,
-		learner = lrn("regr.ranger", num.trees = 50),
+		learner = lrn("regr.rpart"),
 		measure = msr("regr.mse"),
 		feature = "important4",
 		n_repeats = 2L,
@@ -96,14 +85,10 @@ test_that("CFI single feature", {
 # -----------------------------------------------------------------------------
 
 test_that("CFI friedman1 produces sensible ranking", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
 	skip_if_not_installed("arf")
 
 	test_friedman1_sensible_ranking(
 		CFI,
-		learner = lrn("regr.ranger", num.trees = 50),
-		measure = msr("regr.mse"),
 		n_repeats = 5L
 	)
 })
@@ -113,14 +98,11 @@ test_that("CFI friedman1 produces sensible ranking", {
 # -----------------------------------------------------------------------------
 
 test_that("CFI with resampling", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
-
 	task = tgen("2dnormals")$generate(n = 100)
 
 	cfi = CFI$new(
 		task = task,
-		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
+		learner = lrn("classif.rpart", predict_type = "prob"),
 		measure = msr("classif.ce"),
 		resampling = rsmp("cv", folds = 3),
 		n_repeats = 2L,
@@ -175,15 +157,13 @@ test_that("CFI with feature groups", {
 # -----------------------------------------------------------------------------
 
 test_that("CFI with custom ARF sampler", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
 	skip_if_not_installed("arf")
 
 	task = tgen("spirals")$generate(n = 100)
 
 	cfi = CFI$new(
 		task = task,
-		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
+		learner = lrn("classif.rpart", predict_type = "prob"),
 		measure = msr("classif.ce"),
 		sampler = ConditionalARFSampler$new(task),
 		n_repeats = 1L
@@ -194,12 +174,10 @@ test_that("CFI with custom ARF sampler", {
 })
 
 test_that("CFI with KnockoffSampler and KnockoffGaussianSampler", {
-	skip_if_not_installed("ranger")
-	skip_if_not_installed("mlr3learners")
 	skip_if_not_installed("knockoff")
 
 	task = tgen("friedman1")$generate(n = 150)
-	learner = lrn("regr.ranger", num.trees = 50)
+	learner = lrn("regr.rpart")
 	measure = msr("regr.mse")
 
 	# Test with KnockoffSampler
