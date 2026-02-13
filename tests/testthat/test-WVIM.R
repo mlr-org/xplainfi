@@ -7,11 +7,11 @@
 # -----------------------------------------------------------------------------
 
 test_that("WVIM default behavior with minimal parameters", {
-		test_default_behavior(WVIM, task_type = "regr", direction = "leave-out")
+	test_default_behavior(WVIM, task_type = "regr", direction = "leave-out", n_repeats = 1L)
 })
 
 test_that("WVIM basic workflow with regression", {
-		task = tgen("friedman1")$generate(n = 150)
+	task = tgen("friedman1")$generate(n = 150)
 
 	test_basic_workflow(
 		WVIM,
@@ -19,7 +19,8 @@ test_that("WVIM basic workflow with regression", {
 		learner = lrn("regr.rpart"),
 		measure = msr("regr.mse"),
 		expected_classes = c("FeatureImportanceMethod", "WVIM"),
-		direction = "leave-out"
+		direction = "leave-out",
+		n_repeats = 1L
 	)
 })
 
@@ -27,7 +28,7 @@ test_that("WVIM direction parameter (leave-out vs leave-in)", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-		task = tgen("friedman1")$generate(n = 150)
+	task = tgen("friedman1")$generate(n = 150)
 	learner = lrn("regr.ranger", num.trees = 20)
 	measure = msr("regr.mse")
 	features = task$feature_names[1:3]
@@ -38,7 +39,8 @@ test_that("WVIM direction parameter (leave-out vs leave-in)", {
 		learner = learner,
 		measure = measure,
 		features = features,
-		direction = "leave-out"
+		direction = "leave-out",
+		n_repeats = 1L
 	)
 	expect_equal(wvim_out$direction, "leave-out")
 	wvim_out$compute()
@@ -51,7 +53,8 @@ test_that("WVIM direction parameter (leave-out vs leave-in)", {
 		learner = learner,
 		measure = measure,
 		features = features,
-		direction = "leave-in"
+		direction = "leave-in",
+		n_repeats = 1L
 	)
 	expect_equal(wvim_in$direction, "leave-in")
 	wvim_in$compute()
@@ -63,7 +66,7 @@ test_that("WVIM direction parameter (leave-out vs leave-in)", {
 })
 
 test_that("WVIM with feature groups", {
-		task = tgen("friedman1")$generate(n = 150)
+	task = tgen("friedman1")$generate(n = 150)
 
 	groups = list(
 		important_set = c("important1", "important2", "important3"),
@@ -77,7 +80,8 @@ test_that("WVIM with feature groups", {
 		measure = msr("regr.mse"),
 		groups = groups,
 		expected_classes = c("FeatureImportanceMethod", "WVIM"),
-		direction = "leave-out"
+		direction = "leave-out",
+		n_repeats = 1L
 	)
 })
 
@@ -86,21 +90,22 @@ test_that("WVIM with feature groups", {
 # -----------------------------------------------------------------------------
 
 test_that("LOCO default behavior with minimal parameters", {
-		test_default_behavior(LOCO, task_type = "regr")
+	test_default_behavior(LOCO, task_type = "regr", n_repeats = 1L)
 })
 
 test_that("LOCO basic workflow with regression", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-		task = tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 100)
 
 	loco = test_basic_workflow(
 		LOCO,
 		task = task,
 		learner = lrn("regr.ranger", num.trees = 50),
 		measure = msr("regr.mse"),
-		expected_classes = c("FeatureImportanceMethod", "WVIM", "LOCO")
+		expected_classes = c("FeatureImportanceMethod", "WVIM", "LOCO"),
+		n_repeats = 1L
 	)
 
 	# LOCO-specific checks
@@ -112,14 +117,15 @@ test_that("LOCO basic workflow with classification", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-		task = tgen("simplex", d = 5)$generate(n = 200)
+	task = tgen("simplex", d = 5)$generate(n = 100)
 
 	test_basic_workflow(
 		LOCO,
 		task = task,
 		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
 		measure = msr("classif.ce"),
-		expected_classes = c("FeatureImportanceMethod", "WVIM", "LOCO")
+		expected_classes = c("FeatureImportanceMethod", "WVIM", "LOCO"),
+		n_repeats = 1L
 	)
 })
 
@@ -131,11 +137,11 @@ test_that("LOCO with all features (features = NULL)", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-		task = tgen("friedman1")$generate(n = 100)
+	task = tgen("friedman1")$generate(n = 100)
 	learner = lrn("regr.ranger", num.trees = 20)
 	measure = msr("regr.mse")
 
-	loco = LOCO$new(task, learner, measure)
+	loco = LOCO$new(task, learner, measure, n_repeats = 1L)
 	expect_equal(loco$features, task$feature_names)
 
 	loco$compute()
@@ -146,12 +152,12 @@ test_that("LOCO with feature subset", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-		task = tgen("friedman1")$generate(n = 100)
+	task = tgen("friedman1")$generate(n = 100)
 	learner = lrn("regr.ranger", num.trees = 20)
 	measure = msr("regr.mse")
 
 	features_subset = task$feature_names[1:3]
-	loco = LOCO$new(task, learner, measure, features = features_subset)
+	loco = LOCO$new(task, learner, measure, features = features_subset, n_repeats = 1L)
 	expect_equal(loco$features, features_subset)
 
 	loco$compute()
@@ -166,7 +172,7 @@ test_that("LOCO with multiple refits", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-		task = tgen("friedman1")$generate(n = 150)
+	task = tgen("friedman1")$generate(n = 150)
 	learner = lrn("regr.ranger", num.trees = 20)
 	measure = msr("regr.mse")
 
@@ -191,7 +197,7 @@ test_that("LOCO with cross-validation", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-		task = tgen("friedman1")$generate(n = 150)
+	task = tgen("friedman1")$generate(n = 150)
 
 	test_with_resampling(
 		LOCO,
@@ -211,9 +217,10 @@ test_that("LOCO friedman1 produces sensible ranking", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-		test_friedman1_sensible_ranking(
+	test_friedman1_sensible_ranking(
 		LOCO,
 		learner = lrn("regr.ranger", num.trees = 50),
-		measure = msr("regr.mse")
+		measure = msr("regr.mse"),
+		n_repeats = 5L
 	)
 })

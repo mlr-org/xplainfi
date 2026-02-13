@@ -7,26 +7,27 @@
 # -----------------------------------------------------------------------------
 
 test_that("PFI default behavior with minimal parameters", {
-		test_default_behavior(PFI, task_type = "regr")
+	test_default_behavior(PFI, task_type = "regr", n_repeats = 1L)
 })
 
 test_that("PFI basic workflow with classification", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-		task = tgen("2dnormals")$generate(n = 100)
+	task = tgen("2dnormals")$generate(n = 100)
 
 	test_basic_workflow(
 		PFI,
 		task = task,
 		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
 		measure = msr("classif.ce"),
-		expected_classes = c("FeatureImportanceMethod", "PFI")
+		expected_classes = c("FeatureImportanceMethod", "PFI"),
+		n_repeats = 1L
 	)
 })
 
 test_that("PFI featureless learner produces zero importance", {
-		test_featureless_zero_importance(PFI, task_type = "classif")
+	test_featureless_zero_importance(PFI, task_type = "classif", n_repeats = 1L)
 })
 
 # -----------------------------------------------------------------------------
@@ -37,7 +38,7 @@ test_that("PFI multiple repeats and scores structure", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-		task = tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 200)
 
 	test_n_repeats_and_scores(
 		PFI,
@@ -52,7 +53,7 @@ test_that("PFI single feature", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-		task = tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 200)
 
 	test_single_feature(
 		PFI,
@@ -72,13 +73,14 @@ test_that("PFI difference vs ratio relations", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-		task = tgen("2dnormals")$generate(n = 100)
+	task = tgen("2dnormals")$generate(n = 100)
 
 	test_relation_parameter(
 		PFI,
 		task = task,
 		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
-		measure = msr("classif.ce")
+		measure = msr("classif.ce"),
+		n_repeats = 1L
 	)
 })
 
@@ -87,7 +89,7 @@ test_that("PFI difference vs ratio relations", {
 # -----------------------------------------------------------------------------
 
 test_that("PFI friedman1 produces sensible ranking", {
-		test_friedman1_sensible_ranking(PFI)
+	test_friedman1_sensible_ranking(PFI, n_repeats = 5L)
 })
 
 # -----------------------------------------------------------------------------
@@ -95,7 +97,7 @@ test_that("PFI friedman1 produces sensible ranking", {
 # -----------------------------------------------------------------------------
 
 test_that("PFI with feature groups", {
-		task = tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 200)
 
 	groups = list(
 		important_group = c("important1", "important2", "important3"),
@@ -108,7 +110,8 @@ test_that("PFI with feature groups", {
 		learner = lrn("regr.rpart"),
 		measure = msr("regr.mse"),
 		groups = groups,
-		expected_classes = c("FeatureImportanceMethod", "PFI")
+		expected_classes = c("FeatureImportanceMethod", "PFI"),
+		n_repeats = 1L
 	)
 })
 
@@ -117,7 +120,7 @@ test_that("PFI with feature groups", {
 # -----------------------------------------------------------------------------
 
 test_that("PFI scores and obs_losses agree", {
-		task = tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 200)
 
 	pfi = PFI$new(
 		task = task,

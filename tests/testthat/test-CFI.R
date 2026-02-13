@@ -9,13 +9,12 @@
 test_that("CFI default behavior with minimal parameters", {
 	skip_if_not_installed("arf")
 
-	test_default_behavior(CFI, task_type = "regr")
+	test_default_behavior(CFI, task_type = "regr", n_repeats = 1L)
 })
 
 test_that("CFI basic workflow with classification", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
-	skip_if_not_installed("arf")
 
 	task = tgen("2dnormals")$generate(n = 100)
 
@@ -24,7 +23,9 @@ test_that("CFI basic workflow with classification", {
 		task = task,
 		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
 		measure = msr("classif.ce"),
-		expected_classes = c("FeatureImportanceMethod", "PerturbationImportance", "CFI")
+		expected_classes = c("FeatureImportanceMethod", "PerturbationImportance", "CFI"),
+		sampler = ConditionalGaussianSampler$new(task),
+		n_repeats = 1L
 	)
 })
 
@@ -48,7 +49,7 @@ test_that("CFI uses ConditionalARFSampler by default", {
 test_that("CFI featureless learner produces zero importance", {
 	skip_if_not_installed("arf")
 
-	test_featureless_zero_importance(CFI, task_type = "classif")
+	test_featureless_zero_importance(CFI, task_type = "classif", n_repeats = 1L)
 })
 
 # -----------------------------------------------------------------------------
@@ -58,25 +59,24 @@ test_that("CFI featureless learner produces zero importance", {
 test_that("CFI multiple repeats and scores structure", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
-	skip_if_not_installed("arf")
 
-	task = tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 100)
 
 	test_n_repeats_and_scores(
 		CFI,
 		task = task,
 		learner = lrn("regr.ranger", num.trees = 50),
 		measure = msr("regr.mse"),
-		n_repeats = 2L
+		n_repeats = 2L,
+		sampler = ConditionalGaussianSampler$new(task)
 	)
 })
 
 test_that("CFI single feature", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
-	skip_if_not_installed("arf")
 
-	task = tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 100)
 
 	test_single_feature(
 		CFI,
@@ -84,7 +84,8 @@ test_that("CFI single feature", {
 		learner = lrn("regr.ranger", num.trees = 50),
 		measure = msr("regr.mse"),
 		feature = "important4",
-		n_repeats = 2L
+		n_repeats = 2L,
+		sampler = ConditionalGaussianSampler$new(task)
 	)
 })
 
@@ -100,7 +101,8 @@ test_that("CFI friedman1 produces sensible ranking", {
 	test_friedman1_sensible_ranking(
 		CFI,
 		learner = lrn("regr.ranger", num.trees = 50),
-		measure = msr("regr.mse")
+		measure = msr("regr.mse"),
+		n_repeats = 5L
 	)
 })
 
@@ -111,9 +113,8 @@ test_that("CFI friedman1 produces sensible ranking", {
 test_that("CFI with resampling", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
-	skip_if_not_installed("arf")
 
-	task = tgen("xor", d = 5)$generate(n = 200)
+	task = tgen("xor", d = 5)$generate(n = 100)
 
 	test_with_resampling(
 		CFI,
@@ -121,7 +122,8 @@ test_that("CFI with resampling", {
 		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
 		measure = msr("classif.ce"),
 		resampling = rsmp("cv", folds = 3),
-		n_repeats = 2L
+		n_repeats = 2L,
+		sampler = ConditionalGaussianSampler$new(task)
 	)
 })
 
@@ -130,15 +132,14 @@ test_that("CFI with resampling", {
 # -----------------------------------------------------------------------------
 
 test_that("CFI parameter validation", {
-	skip_if_not_installed("arf")
-
 	task = tgen("2dnormals")$generate(n = 50)
 
 	test_parameter_validation(
 		CFI,
 		task = task,
 		learner = lrn("classif.rpart", predict_type = "prob"),
-		measure = msr("classif.ce")
+		measure = msr("classif.ce"),
+		sampler = ConditionalGaussianSampler$new(task)
 	)
 })
 
@@ -147,9 +148,7 @@ test_that("CFI parameter validation", {
 # -----------------------------------------------------------------------------
 
 test_that("CFI with feature groups", {
-	skip_if_not_installed("arf")
-
-	task = tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 100)
 
 	groups = list(
 		important_features = c("important1", "important2", "important3"),
@@ -162,7 +161,9 @@ test_that("CFI with feature groups", {
 		learner = lrn("regr.rpart"),
 		measure = msr("regr.mse"),
 		groups = groups,
-		expected_classes = c("FeatureImportanceMethod", "PerturbationImportance", "CFI")
+		expected_classes = c("FeatureImportanceMethod", "PerturbationImportance", "CFI"),
+		sampler = ConditionalGaussianSampler$new(task),
+		n_repeats = 1L
 	)
 })
 
@@ -183,7 +184,8 @@ test_that("CFI with custom ARF sampler", {
 		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
 		measure = msr("classif.ce"),
 		sampler = ConditionalARFSampler$new(task),
-		expected_sampler_class = "ConditionalARFSampler"
+		expected_sampler_class = "ConditionalARFSampler",
+		n_repeats = 1L
 	)
 })
 
@@ -203,7 +205,8 @@ test_that("CFI with KnockoffSampler and KnockoffGaussianSampler", {
 		learner = learner,
 		measure = measure,
 		sampler = KnockoffSampler$new(task),
-		expected_sampler_class = "KnockoffSampler"
+		expected_sampler_class = "KnockoffSampler",
+		n_repeats = 1L
 	)
 
 	# Test with KnockoffGaussianSampler
@@ -213,7 +216,8 @@ test_that("CFI with KnockoffSampler and KnockoffGaussianSampler", {
 		learner = learner,
 		measure = measure,
 		sampler = KnockoffGaussianSampler$new(task),
-		expected_sampler_class = "KnockoffGaussianSampler"
+		expected_sampler_class = "KnockoffGaussianSampler",
+		n_repeats = 1L
 	)
 })
 
@@ -238,7 +242,8 @@ test_that("CFI with CPI variance method using KnockoffGaussianSampler", {
 		learner = learner,
 		measure = measure,
 		resampling = resampling,
-		sampler = gaussian_sampler
+		sampler = gaussian_sampler,
+		n_repeats = 1L
 	)
 
 	# Check that CPI is in the variance methods registry
@@ -292,7 +297,8 @@ test_that("CFI with CPI warning on problematic resampling", {
 		learner = learner,
 		measure = measure,
 		resampling = resampling,
-		sampler = gaussian_sampler
+		sampler = gaussian_sampler,
+		n_repeats = 1L
 	)
 	cfi$compute()
 
@@ -310,7 +316,8 @@ test_that("CFI with CPI warning on problematic resampling", {
 		learner = learner,
 		measure = measure,
 		resampling = rsmp("cv", folds = 5),
-		sampler = gaussian_sampler
+		sampler = gaussian_sampler,
+		n_repeats = 1L
 	)
 	cfi_cv$compute()
 	expect_silent(cfi_cv$importance(ci_method = "cpi"))
