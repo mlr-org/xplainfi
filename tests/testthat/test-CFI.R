@@ -18,15 +18,17 @@ test_that("CFI basic workflow with classification", {
 
 	task = tgen("2dnormals")$generate(n = 100)
 
-	test_basic_workflow(
-		CFI,
+	cfi = CFI$new(
 		task = task,
 		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
 		measure = msr("classif.ce"),
-		expected_classes = c("FeatureImportanceMethod", "PerturbationImportance", "CFI"),
 		sampler = ConditionalGaussianSampler$new(task),
 		n_repeats = 1L
 	)
+	checkmate::expect_r6(cfi, c("FeatureImportanceMethod", "PerturbationImportance", "CFI"))
+
+	cfi$compute()
+	expect_method_output(cfi)
 })
 
 test_that("CFI uses ConditionalARFSampler by default", {
@@ -114,10 +116,9 @@ test_that("CFI with resampling", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
 
-	task = tgen("xor", d = 5)$generate(n = 100)
+	task = tgen("2dnormals")$generate(n = 100)
 
-	test_with_resampling(
-		CFI,
+	cfi = CFI$new(
 		task = task,
 		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
 		measure = msr("classif.ce"),
@@ -125,6 +126,8 @@ test_that("CFI with resampling", {
 		n_repeats = 2L,
 		sampler = ConditionalGaussianSampler$new(task)
 	)
+	cfi$compute()
+	expect_method_output(cfi)
 })
 
 # -----------------------------------------------------------------------------
@@ -178,15 +181,16 @@ test_that("CFI with custom ARF sampler", {
 
 	task = tgen("spirals")$generate(n = 100)
 
-	test_custom_sampler(
-		CFI,
+	cfi = CFI$new(
 		task = task,
 		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
 		measure = msr("classif.ce"),
 		sampler = ConditionalARFSampler$new(task),
-		expected_sampler_class = "ConditionalARFSampler",
 		n_repeats = 1L
 	)
+	checkmate::expect_r6(cfi$sampler, "ConditionalARFSampler")
+	cfi$compute()
+	expect_importance_dt(cfi$importance(), features = cfi$features)
 })
 
 test_that("CFI with KnockoffSampler and KnockoffGaussianSampler", {
@@ -199,26 +203,28 @@ test_that("CFI with KnockoffSampler and KnockoffGaussianSampler", {
 	measure = msr("regr.mse")
 
 	# Test with KnockoffSampler
-	test_custom_sampler(
-		CFI,
+	cfi_ko = CFI$new(
 		task = task,
 		learner = learner,
 		measure = measure,
 		sampler = KnockoffSampler$new(task),
-		expected_sampler_class = "KnockoffSampler",
 		n_repeats = 1L
 	)
+	checkmate::expect_r6(cfi_ko$sampler, "KnockoffSampler")
+	cfi_ko$compute()
+	expect_importance_dt(cfi_ko$importance(), features = cfi_ko$features)
 
 	# Test with KnockoffGaussianSampler
-	test_custom_sampler(
-		CFI,
+	cfi_gko = CFI$new(
 		task = task,
 		learner = learner,
 		measure = measure,
 		sampler = KnockoffGaussianSampler$new(task),
-		expected_sampler_class = "KnockoffGaussianSampler",
 		n_repeats = 1L
 	)
+	checkmate::expect_r6(cfi_gko$sampler, "KnockoffGaussianSampler")
+	cfi_gko$compute()
+	expect_importance_dt(cfi_gko$importance(), features = cfi_gko$features)
 })
 
 # -----------------------------------------------------------------------------

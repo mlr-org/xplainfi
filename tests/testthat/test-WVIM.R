@@ -13,15 +13,17 @@ test_that("WVIM default behavior with minimal parameters", {
 test_that("WVIM basic workflow with regression", {
 	task = tgen("friedman1")$generate(n = 150)
 
-	test_basic_workflow(
-		WVIM,
+	wvim = WVIM$new(
 		task = task,
 		learner = lrn("regr.rpart"),
 		measure = msr("regr.mse"),
-		expected_classes = c("FeatureImportanceMethod", "WVIM"),
 		direction = "leave-out",
 		n_repeats = 1L
 	)
+	checkmate::expect_r6(wvim, c("FeatureImportanceMethod", "WVIM"))
+
+	wvim$compute()
+	expect_method_output(wvim)
 })
 
 test_that("WVIM direction parameter (leave-out vs leave-in)", {
@@ -99,14 +101,16 @@ test_that("LOCO basic workflow with regression", {
 
 	task = tgen("friedman1")$generate(n = 100)
 
-	loco = test_basic_workflow(
-		LOCO,
+	loco = LOCO$new(
 		task = task,
 		learner = lrn("regr.ranger", num.trees = 50),
 		measure = msr("regr.mse"),
-		expected_classes = c("FeatureImportanceMethod", "WVIM", "LOCO"),
 		n_repeats = 1L
 	)
+	checkmate::expect_r6(loco, c("FeatureImportanceMethod", "WVIM", "LOCO"))
+
+	loco$compute()
+	expect_method_output(loco)
 
 	# LOCO-specific checks
 	expect_equal(loco$direction, "leave-out")
@@ -119,14 +123,16 @@ test_that("LOCO basic workflow with classification", {
 
 	task = tgen("simplex", d = 5)$generate(n = 100)
 
-	test_basic_workflow(
-		LOCO,
+	loco = LOCO$new(
 		task = task,
 		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
 		measure = msr("classif.ce"),
-		expected_classes = c("FeatureImportanceMethod", "WVIM", "LOCO"),
 		n_repeats = 1L
 	)
+	checkmate::expect_r6(loco, c("FeatureImportanceMethod", "WVIM", "LOCO"))
+
+	loco$compute()
+	expect_method_output(loco)
 })
 
 # -----------------------------------------------------------------------------
@@ -199,14 +205,15 @@ test_that("LOCO with cross-validation", {
 
 	task = tgen("friedman1")$generate(n = 150)
 
-	test_with_resampling(
-		LOCO,
+	loco = LOCO$new(
 		task = task,
 		learner = lrn("regr.ranger", num.trees = 20),
 		measure = msr("regr.mse"),
 		resampling = rsmp("cv", folds = 3),
 		features = task$feature_names[1:2]
 	)
+	loco$compute()
+	expect_importance_dt(loco$importance(), features = loco$features)
 })
 
 # -----------------------------------------------------------------------------

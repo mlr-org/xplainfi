@@ -18,16 +18,18 @@ test_that("RFI default behavior with minimal parameters", {
 test_that("RFI basic workflow with classification", {
 	task = tgen("2dnormals")$generate(n = 100)
 
-	test_basic_workflow(
-		RFI,
+	rfi = RFI$new(
 		task = task,
 		learner = lrn("classif.rpart", predict_type = "prob"),
 		measure = msr("classif.ce"),
-		expected_classes = c("FeatureImportanceMethod", "PerturbationImportance", "RFI"),
 		conditioning_set = "x2",
 		sampler = ConditionalGaussianSampler$new(task),
 		n_repeats = 1L
 	)
+	checkmate::expect_r6(rfi, c("FeatureImportanceMethod", "PerturbationImportance", "RFI"))
+
+	rfi$compute()
+	expect_method_output(rfi)
 })
 
 test_that("RFI uses ConditionalARFSampler by default", {
@@ -201,16 +203,17 @@ test_that("RFI with custom ARF sampler", {
 
 	task = tgen("spirals")$generate(n = 100)
 
-	test_custom_sampler(
-		RFI,
+	rfi = RFI$new(
 		task = task,
 		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
 		measure = msr("classif.ce"),
 		sampler = ConditionalARFSampler$new(task),
-		expected_sampler_class = "ConditionalARFSampler",
 		conditioning_set = "x1",
 		n_repeats = 1L
 	)
+	checkmate::expect_r6(rfi$sampler, "ConditionalARFSampler")
+	rfi$compute()
+	expect_importance_dt(rfi$importance(), features = rfi$features)
 })
 
 # -----------------------------------------------------------------------------

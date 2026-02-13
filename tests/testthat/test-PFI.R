@@ -16,14 +16,16 @@ test_that("PFI basic workflow with classification", {
 
 	task = tgen("2dnormals")$generate(n = 100)
 
-	test_basic_workflow(
-		PFI,
+	pfi = PFI$new(
 		task = task,
 		learner = lrn("classif.ranger", num.trees = 50, predict_type = "prob"),
 		measure = msr("classif.ce"),
-		expected_classes = c("FeatureImportanceMethod", "PFI"),
 		n_repeats = 1L
 	)
+	checkmate::expect_r6(pfi, c("FeatureImportanceMethod", "PFI"))
+
+	pfi$compute()
+	expect_method_output(pfi)
 })
 
 test_that("PFI featureless learner produces zero importance", {
