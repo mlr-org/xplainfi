@@ -109,7 +109,7 @@
 <div class="section level2">
 <h2 id="example-pfi">Example: PFI<a class="anchor" aria-label="anchor" href="#example-pfi"></a>
 </h2>
-<p>Here is a basic example on how to calculate PFI for a given learner and task, using repeated cross-validation as resampling strategy and computing PFI within each resampling 10 times on the <code>friedman1</code> task (see <code><a href="https://rdrr.io/pkg/mlbench/man/mlbench.friedman1.html" class="external-link">?mlbench::mlbench.friedman1</a></code>).</p>
+<p>Here is a basic example on how to calculate PFI for an untrained learner and task, using cross-validation for resampling and computing PFI within each resampling iteration 10 times on the <code>friedman1</code> task (see <code><a href="https://rdrr.io/pkg/mlbench/man/mlbench.friedman1.html" class="external-link">?mlbench::mlbench.friedman1</a></code>).</p>
 <p>The <code>friedman1</code> task has the following structure:</p>
 <p><span class="math display">\[y = 10 \sin(\pi x_1 x_2) + 20(x_3 - 0.5)^2 + 10x_4 + 5x_5 + \varepsilon\]</span></p>
 <p>Where <span class="math inline">\(x_{\{1,2,3,4,5\}}\)</span> are named <code>important1</code> through <code>important5</code> in the <code>Task</code>, with additional numbered <code>unimportant</code> features without effect on <span class="math inline">\(y\)</span>.</p>
@@ -132,6 +132,7 @@
 <p>Compute and print PFI scores:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfi</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Using `resample()`</span></span>
 <span><span class="va">pfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;          feature   importance</span></span>
@@ -206,6 +207,7 @@
 <span><span class="co">#&gt; (test set size: 333)</span></span>
 <span></span>
 <span><span class="va">pfi</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Using `resample()`</span></span>
 <span><span class="va">pfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;          feature   importance</span></span>

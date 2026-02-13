@@ -2,6 +2,18 @@
 
 ## xplainfi (development version)
 
+### New features
+
+- Use of a pre-trained `mlr3` learner is now supported in
+  `PerturbationImportance` (`PFI`, `CFI`, `RFI`) and `SAGE` methods.
+  - Requires the provided `Resampling` to be instantiated and consist of
+    a single iteration, e.g. there must be only 1 test set.
+  - Internally, a `ResampleResult` will be constructed from the given
+    `learner`, `task`, and `resampling` arguments, which is then
+    consistent with the previous default of performing
+    [`resample()`](https://mlr3.mlr-org.com/reference/resample.html) to
+    get trained learners for each resampling iteration.
+
 ### Minor user-facing changes
 
 - Bump the defaults for `n_repeats` in favor of stability

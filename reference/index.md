@@ -105,6 +105,9 @@ on the fly.
 - [`wvim_design_matrix()`](https://mlr-org.github.io/xplainfi/reference/wvim_design_matrix.md)
   : Create Feature Selection Design Matrix
 
+- [`rsmp_all_test()`](https://mlr-org.github.io/xplainfi/reference/rsmp_all_test.md)
+  : Create a resampling with all data being test data
+
 - [`check_groups()`](https://mlr-org.github.io/xplainfi/reference/check_groups.md)
   : Check group specification
 

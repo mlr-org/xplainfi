@@ -365,6 +365,119 @@ implemented in
 [`mlr3measures`](https://CRAN.R-project.org/package=mlr3measures), but
 will likely be in the future.
 
+## Using Pre-trained Learners
+
+By default, `xplainfi` trains the learner internally via
+[`mlr3::resample()`](https://mlr3.mlr-org.com/reference/resample.html).
+However, if you have already trained a learner (for example because
+training is expensive or you want to explain a specific model) you can
+pass it directly to perturbation-based methods (`PFI`, `CFI`, `RFI`) and
+`SAGE` methods. Refit-based methods (`LOCO` / `WVIM`) require retraining
+by design and will warn if given a pretrained learner. The only
+requirement is that the `resampling` must be instantiated and have
+exactly one iteration (i.e., a single test set). This is necessary
+because a pre-trained learner corresponds to a single fitted model, and
+there is no meaningful way to associate it with multiple resampling
+folds.
+
+A holdout resampling is the natural choice here. We first train the
+learner on the train set and `PFI` will calculate importance using the
+trained learner and the corresponding test set defined by the
+`resampling`:
+
+``` r
+resampling_holdout <- rsmp("holdout")$instantiate(task)
+learner_trained <- lrn("regr.ranger", num.trees = 100)
+learner_trained$train(task, row_ids = resampling_holdout$train_set(1))
+
+pfi_pretrained <- PFI$new(
+    task = task,
+    learner = learner_trained,
+    measure = measure,
+    resampling = resampling_holdout,
+    n_repeats = 10
+)
+
+pfi_pretrained$compute()
+pfi_pretrained$importance()
+#> Key: <feature>
+#>          feature  importance
+#>           <char>       <num>
+#>  1:   important1  5.40113138
+#>  2:   important2  7.41302690
+#>  3:   important3  1.53601205
+#>  4:   important4 14.36245887
+#>  5:   important5  2.07014998
+#>  6: unimportant1 -0.01573699
+#>  7: unimportant2  0.07325885
+#>  8: unimportant3  0.16189938
+#>  9: unimportant4  0.01378138
+#> 10: unimportant5  0.01746879
+```
+
+A common real-world scenario is that the learner was trained on some
+dataset and you want to explain the model on entirely new, unseen data.
+In that case, create a task from the new data (via
+[`as_task_regr()`](https://mlr3.mlr-org.com/reference/as_task_regr.html)
+for example) and use `rsmp("custom")` to designate all rows as the test
+set. The resampling here is purely a technicality used for internal
+consistency, and the train set is irrelevant since the learner is
+already trained. A utility function
+[`rsmp_all_test()`](https://mlr-org.github.io/xplainfi/reference/rsmp_all_test.md)
+can be used as a shortcute do achieve the same goal.
+
+``` r
+# Simulate: learner was trained elsewhere, we have new data to use
+new_data <- tgen("friedman1")$generate(n = 100)
+
+# Same as rsmp_all_test(task)
+resampling_custom <- rsmp("custom")$instantiate(
+    new_data,
+    train_sets = list(integer(0)),
+    test_sets = list(new_data$row_ids)
+)
+
+pfi_newdata <- PFI$new(
+    task = new_data,
+    learner = learner_trained,
+    measure = measure,
+    resampling = resampling_custom,
+    n_repeats = 10
+)
+
+pfi_newdata$compute()
+pfi_newdata$importance()
+#> Key: <feature>
+#>          feature  importance
+#>           <char>       <num>
+#>  1:   important1  4.34309511
+#>  2:   important2  9.49786181
+#>  3:   important3  1.03711078
+#>  4:   important4 13.13643335
+#>  5:   important5  2.25419544
+#>  6: unimportant1  0.12679511
+#>  7: unimportant2 -0.16363612
+#>  8: unimportant3 -0.22700424
+#>  9: unimportant4 -0.12026119
+#> 10: unimportant5  0.09306718
+```
+
+If you pass a trained learner with a multi-fold or non-instantiated
+resampling, you will get an informative error at construction time:
+
+``` r
+PFI$new(
+    task = task,
+    learner = learner_trained,
+    measure = measure,
+    resampling = rsmp("cv", folds = 3)
+)
+#> Error in `super$initialize()`:
+#> ! A pre-trained <Learner> requires an instantiated <Resampling>
+#> ℹ Instantiate the <Resampling> before passing it, e.g.
+#>   `rsmp("holdout")$instantiate(task)`
+```
+
 ## Parallelization
 
 Both PFI/CFI/RFI and LOCO/WVIM support parallel execution to speed up

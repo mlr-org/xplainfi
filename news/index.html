@@ -62,6 +62,13 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="xplainfi-development-version">xplainfi (development version)<a class="anchor" aria-label="anchor" href="#xplainfi-development-version"></a></h2>
 <div class="section level3">
+<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<ul><li>Use of a pre-trained <code>mlr3</code> learner is now supported in <code>PerturbationImportance</code> (<code>PFI</code>, <code>CFI</code>, <code>RFI</code>) and <code>SAGE</code> methods.
+<ul><li>Requires the provided <code>Resampling</code> to be instantiated and consist of a single iteration, e.g. there must be only 1 test set.</li>
+<li>Internally, a <code>ResampleResult</code> will be constructed from the given <code>learner</code>, <code>task</code>, and <code>resampling</code> arguments, which is then consistent with the previous default of performing <code><a href="https://mlr3.mlr-org.com/reference/resample.html" class="external-link">resample()</a></code> to get trained learners for each resampling iteration.</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
 <h3 id="minor-user-facing-changes-development-version">Minor user-facing changes<a class="anchor" aria-label="anchor" href="#minor-user-facing-changes-development-version"></a></h3>
 <ul><li>Bump the defaults for <code>n_repeats</code> in favor of stability
 <ul><li>For<code>PerturbationImportance</code> methods (<code>PFI</code>, <code>CFI</code>, <code>RFI</code>): <code>n_repeats</code> is now 30</li>
