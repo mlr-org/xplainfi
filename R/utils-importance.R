@@ -36,20 +36,23 @@ adjust_pvalues = function(dt, p_adjust) {
 	dt
 }
 
-#' Warn if any test observation appears more than once
+#' Warn if any test observation appears in more than one resampling test set
 #'
 #' Both CPI and Lei et al. inference assume unique test observations.
-#' Duplicates may invalidate inference.
+#' The iter_repeat dimension (refit/sampling repeats) is averaged over and
+#' irrelevant here — what matters is whether a row_id appears in multiple
+#' resampling iterations (iter_rsmp), e.g. with subsampling.
 #'
-#' @param obs_loss_data data.table with columns feature, row_ids, iter_repeat
+#' @param obs_loss_data data.table with columns row_ids, iter_rsmp
 #' @noRd
 check_unique_test_obs = function(obs_loss_data) {
 	N <- NULL
-	dupes = obs_loss_data[, .N, by = c("feature", "row_ids", "iter_repeat")][N > 1]
+	obs_per_rsmp = unique(obs_loss_data[, .(row_ids, iter_rsmp)])
+	dupes = obs_per_rsmp[, .N, by = "row_ids"][N > 1]
 
 	if (nrow(dupes) >= 1) {
 		cli::cli_warn(c(
-			"Found {.val {length(unique(dupes[, row_ids]))}} duplicated observation{?s} in test sets.",
+			"Found {.val {nrow(dupes)}} observation{?s} appearing in multiple test sets.",
 			x = "Inference assumes unique test observations; duplicates may invalidate inference.",
 			i = "Use a resampling strategy where each observation appears at most once in the test set(s)."
 		))

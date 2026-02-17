@@ -319,7 +319,7 @@ test_that("LOCO ci_method='lei' warns about duplicated observations", {
 
 	expect_warning(
 		loco$importance(ci_method = "lei"),
-		regexp = "duplicated observation"
+		regexp = "multiple test sets"
 	)
 })
 

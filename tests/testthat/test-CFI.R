@@ -350,7 +350,7 @@ test_that("CFI with CPI warning on problematic resampling", {
 	# Should warn about duplicated observations
 	expect_warning(
 		cpi_result <- cfi$importance(ci_method = "cpi"),
-		regexp = "duplicated observation"
+		regexp = "multiple test sets"
 	)
 
 	expect_importance_dt(cpi_result, features = cfi$features)
