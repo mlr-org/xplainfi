@@ -93,6 +93,101 @@ WVIM = R6Class(
 				param_set = ps,
 				label = label
 			)
+
+			# Add Lei et al. (2018) inference to CI methods registry
+			private$.ci_methods = c(private$.ci_methods, "lei")
+		},
+
+		#' @description
+		#' Get aggregated importance scores.
+		#' Extends the base `$importance()` method to support `ci_method = "lei"`.
+		#'
+		#' This implements distribution-free inference based on Lei et al. (2018),
+		#' testing observation-wise loss differences using the Wilcoxon signed-rank test by default.
+		#'
+		#' Lei et al. (2018) proposed this method specifically for LOCO with L1 (absolute) loss,
+		#' median aggregation, and a test set where each observation appears at most once (e.g.,
+		#' holdout or cross-validation). While the aggregation function, statistical test, and
+		#' resampling strategy are parameterizable, deviating from these defaults may invalidate
+		#' the theoretical guarantees of distribution-free inference.
+		#'
+		#' @param relation (`character(1)`) How to relate perturbed scores to originals ("difference" or "ratio"). If `NULL`, uses stored parameter value.
+		#' @param standardize (`logical(1)`: `FALSE`) If `TRUE`, importances are standardized by the highest score so all scores fall in `[-1, 1]`.
+		#' @param ci_method (`character(1)`: `"none"`) Variance estimation method. In addition to base methods (`"none"`, `"raw"`, `"nadeau_bengio"`, `"quantile"`),
+		#'   WVIM methods support `"lei"` for distribution-free inference (Lei et al., 2018).
+		#' @param conf_level (`numeric(1)`: `0.95`) Confidence level to use for confidence interval construction when `ci_method != "none"`.
+		#' @param alternative (`character(1)`: `"greater"`) Type of alternative hypothesis for statistical tests.
+		#'   `"greater"` tests H0: importance <= 0 vs H1: importance > 0 (one-sided).
+		#'   `"two.sided"` tests H0: importance = 0 vs H1: importance != 0.
+		#' @param test (`character(1)`: `"wilcoxon"`) Test to use for Lei et al. inference. One of `"wilcoxon"`, `"t"`, `"fisher"`, or `"binomial"`.
+		#'   Only used when `ci_method = "lei"`.
+		#' @param B (`integer(1)`: `1999`) Number of replications for Fisher test. Only used when `ci_method = "lei"` and `test = "fisher"`.
+		#' @param aggregator (`function`: `stats::median`) Aggregation function for computing the point estimate from observation-wise
+		#'   importance values. Defaults to `stats::median` as proposed by Lei et al. (2018). Only used when `ci_method = "lei"`.
+		#' @param p_adjust (`character(1)`: `"none"`) Method for p-value adjustment for multiple comparisons.
+		#'   Accepts any method supported by [stats::p.adjust.methods], e.g. `"holm"`, `"bonferroni"`, `"BH"`, `"none"`.
+		#'   When `"bonferroni"`, confidence intervals are also adjusted (alpha/k).
+		#'   For other correction methods (e.g. `"holm"`, `"BH"`), only p-values are adjusted;
+		#'   confidence intervals remain at the nominal `conf_level` because these sequential/adaptive
+		#'   procedures do not have a clean per-comparison alpha for CI construction.
+		#' @param ... Additional arguments passed to the base method.
+		#' @return ([data.table][data.table::data.table]) Aggregated importance scores.
+		#' @references `r print_bib("lei_2018")`
+		importance = function(
+			relation = NULL,
+			standardize = FALSE,
+			ci_method = c("none", "raw", "nadeau_bengio", "quantile", "lei"),
+			conf_level = 0.95,
+			alternative = c("greater", "two.sided"),
+			test = c("wilcoxon", "t", "fisher", "binomial"),
+			B = 1999,
+			aggregator = NULL,
+			p_adjust = "none",
+			...
+		) {
+			if (length(ci_method) > 1) {
+				ci_method = ci_method[1]
+			}
+			alternative = match.arg(alternative)
+
+			if (ci_method == "lei") {
+				if (is.null(private$.scores)) {
+					cli::cli_inform(c(x = "No importances computed yet!"))
+					return(invisible(NULL))
+				}
+
+				# Default aggregator for Lei et al. is median
+				aggregator = aggregator %||% stats::median
+
+				test = match.arg(test)
+				agg_importance = importance_loco(
+					conf_level = conf_level,
+					alternative = alternative,
+					test = test,
+					aggregator = aggregator,
+					p_adjust = p_adjust,
+					B = B,
+					method_obj = self
+				)
+
+				if (standardize) {
+					agg_importance[, importance := importance / max(abs(importance), na.rm = TRUE)]
+				}
+
+				setkeyv(agg_importance, "feature")
+				return(agg_importance[])
+			}
+
+			# Default to parent method for other ci_methods
+			super$importance(
+				relation = relation,
+				standardize = standardize,
+				ci_method = ci_method,
+				conf_level = conf_level,
+				alternative = alternative,
+				p_adjust = p_adjust,
+				...
+			)
 		},
 
 		#' @description

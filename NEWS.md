@@ -23,6 +23,17 @@
 
 ## Inference
 
+- New `ci_method = "lei"` for WVIM/LOCO: distribution-free inference based on
+  Lei et al. (2018), testing observation-wise loss differences. Defaults to
+  Wilcoxon signed-rank test with median aggregation. Supports t-test, Fisher
+  permutation, and binomial (sign) tests. Requires a decomposable measure.
+- New `p_adjust` parameter in `$importance()` for multiplicity correction across
+  all `ci_method`s that produce p-values (`"raw"`, `"nadeau_bengio"`, `"cpi"`,
+  `"lei"`). Accepts any method from `stats::p.adjust.methods` (e.g. `"holm"`,
+  `"bonferroni"`, `"BH"`). Default is `"none"`. When `"bonferroni"`, confidence
+  intervals are also adjusted (alpha/k). For other methods, only p-values are
+  adjusted because sequential/adaptive procedures lack a clean per-comparison
+  alpha for CI construction.
 - Parametric `ci_method`s (`"raw"`, `"nadeau_bengio"`) return `se`, `statistic`, `p.value`,
   `conf_lower`, and `conf_upper` columns. The `"quantile"` method returns only `conf_lower`
   and `conf_upper` (no `se`, `statistic`, or `p.value`).

@@ -2,6 +2,60 @@
 # These functions provide different methods for aggregating importance scores
 # across resampling iterations and computing confidence intervals.
 
+# Multiplicity Adjustment Helpers ----
+
+#' Compute adjusted alpha for CI construction
+#'
+#' Only Bonferroni has a clean per-comparison alpha (alpha/k) for CI coverage.
+#' For all other methods, CIs use the nominal alpha unchanged.
+#'
+#' @param alpha nominal significance level (1 - conf_level)
+#' @param p_adjust p-value adjustment method name
+#' @param k number of comparisons (features)
+#' @return adjusted alpha for CI construction
+#' @noRd
+adjust_ci_alpha = function(alpha, p_adjust, k) {
+	if (p_adjust == "bonferroni" && k > 1) {
+		alpha / k
+	} else {
+		alpha
+	}
+}
+
+#' Apply p-value adjustment to importance results
+#'
+#' @param dt data.table with a p.value column
+#' @param p_adjust p-value adjustment method name
+#' @return dt (modified in place) with adjusted p-values
+#' @noRd
+adjust_pvalues = function(dt, p_adjust) {
+	p.value <- NULL
+	if (p_adjust != "none" && "p.value" %in% names(dt)) {
+		dt[, p.value := stats::p.adjust(p.value, method = p_adjust)]
+	}
+	dt
+}
+
+#' Warn if any test observation appears more than once
+#'
+#' Both CPI and Lei et al. inference assume unique test observations.
+#' Duplicates may invalidate inference.
+#'
+#' @param obs_loss_data data.table with columns feature, row_ids, iter_repeat
+#' @noRd
+check_unique_test_obs = function(obs_loss_data) {
+	N <- NULL
+	dupes = obs_loss_data[, .N, by = c("feature", "row_ids", "iter_repeat")][N > 1]
+
+	if (nrow(dupes) >= 1) {
+		cli::cli_warn(c(
+			"Found {.val {length(unique(dupes[, row_ids]))}} duplicated observation{?s} in test sets.",
+			x = "Inference assumes unique test observations; duplicates may invalidate inference.",
+			i = "Use a resampling strategy where each observation appears at most once in the test set(s)."
+		))
+	}
+}
+
 #' No variance estimation - just aggregated performance
 #' @param scores ([data.table::data.table]) with feature and importance columns
 #' @param aggregator (`function`) to aggregate importance scores
@@ -29,9 +83,9 @@ importance_none = function(scores, aggregator, conf_level) {
 #' @param alternative "greater" (one-sided) or "two.sided"
 #' @param n_iters number of resampling iterations
 #' @noRd
-importance_raw = function(scores, aggregator, conf_level, alternative, n_iters) {
+importance_raw = function(scores, aggregator, conf_level, alternative, n_iters, p_adjust = "none") {
 	# The data.table NSE tax
-	importance <- se <- statistic <- NULL
+	importance <- se <- statistic <- p.value <- NULL
 	agg_importance = scores[,
 		list(importance = aggregator(importance)),
 		by = "feature"
@@ -54,24 +108,26 @@ importance_raw = function(scores, aggregator, conf_level, alternative, n_iters) 
 	df = n_iters - 1
 	agg_importance[, statistic := importance / se]
 
-	alpha = 1 - conf_level
+	k = nrow(agg_importance)
+	ci_alpha = adjust_ci_alpha(1 - conf_level, p_adjust, k)
+
 	if (alternative == "greater") {
 		agg_importance[, p.value := stats::pt(statistic, df = df, lower.tail = FALSE)]
-		quant = stats::qt(1 - alpha, df = df)
+		quant = stats::qt(1 - ci_alpha, df = df)
 		agg_importance[, let(
 			conf_lower = importance - quant * se,
 			conf_upper = Inf
 		)]
 	} else {
 		agg_importance[, p.value := 2 * stats::pt(abs(statistic), df = df, lower.tail = FALSE)]
-		quant = stats::qt(1 - alpha / 2, df = df)
+		quant = stats::qt(1 - ci_alpha / 2, df = df)
 		agg_importance[, let(
 			conf_lower = importance - quant * se,
 			conf_upper = importance + quant * se
 		)]
 	}
 
-	agg_importance
+	adjust_pvalues(agg_importance, p_adjust)
 }
 
 #' Nadeau & Bengio (2003) corrected variance estimation
@@ -92,10 +148,11 @@ importance_nadeau_bengio = function(
 	conf_level,
 	alternative,
 	resampling,
-	n_iters
+	n_iters,
+	p_adjust = "none"
 ) {
 	# The data.table NSE tax
-	importance <- se <- statistic <- NULL
+	importance <- se <- statistic <- p.value <- NULL
 
 	# Validate resampling type
 	if (!(resampling$id %in% c("bootstrap", "subsampling")) | resampling$iters < 10) {
@@ -141,24 +198,26 @@ importance_nadeau_bengio = function(
 	df = n_iters - 1
 	agg_importance[, statistic := importance / se]
 
-	alpha = 1 - conf_level
+	k = nrow(agg_importance)
+	ci_alpha = adjust_ci_alpha(1 - conf_level, p_adjust, k)
+
 	if (alternative == "greater") {
 		agg_importance[, p.value := stats::pt(statistic, df = df, lower.tail = FALSE)]
-		quant = stats::qt(1 - alpha, df = df)
+		quant = stats::qt(1 - ci_alpha, df = df)
 		agg_importance[, let(
 			conf_lower = importance - quant * se,
 			conf_upper = Inf
 		)]
 	} else {
 		agg_importance[, p.value := 2 * stats::pt(abs(statistic), df = df, lower.tail = FALSE)]
-		quant = stats::qt(1 - alpha / 2, df = df)
+		quant = stats::qt(1 - ci_alpha / 2, df = df)
 		agg_importance[, let(
 			conf_lower = importance - quant * se,
 			conf_upper = importance + quant * se
 		)]
 	}
 
-	agg_importance
+	adjust_pvalues(agg_importance, p_adjust)
 }
 
 #' Empirical quantile-based confidence intervals
@@ -213,65 +272,34 @@ importance_quantile = function(scores, aggregator, conf_level, alternative) {
 	rbindlist(result_list)
 }
 
-#' Conditional Predictive Impact (CPI) test
+#' Per-feature hypothesis tests on observation-wise importance scores
 #'
-#' Tests on observation-wise loss differences for CFI with knockoff samplers.
-#' Available tests: t-test, Wilcoxon, Fisher permutation, binomial.
-#' Fisher test uses Phipson & Smyth (2010) p-value correction.
+#' Shared logic for CPI and Lei et al. inference. Runs a statistical test on the
+#' observation-wise loss differences for each feature, computes p-values and CIs,
+#' and applies multiplicity correction.
 #'
-#' @param conf_level confidence level for CI
-#' @param alternative "greater" (one-sided) or "two.sided"
+#' SE is only reported for the t-test; for other tests it is `NA`.
+#'
+#' @param obs_loss_agg data.table with columns `feature`, `row_ids`, `obs_importance`
+#'   (one row per observation per feature, already aggregated over repeats)
 #' @param test "t", "wilcoxon", "fisher", or "binomial"
-#' @param B number of replications for Fisher test
-#' @param method_obj importance method object (needs $obs_loss())
+#' @param alternative "greater" or "two.sided"
+#' @param conf_level confidence level for CI
+#' @param p_adjust p-value adjustment method (any of stats::p.adjust.methods)
+#' @param aggregator function to compute point estimate (default: mean)
+#' @return data.table with feature, importance, se, statistic, p.value, conf_lower, conf_upper
 #' @noRd
-importance_cpi = function(
+test_obs_importance = function(
+	obs_loss_agg,
+	test,
+	alternative,
 	conf_level,
-	alternative = c("greater", "two.sided"),
-	test = c("t", "wilcoxon", "fisher", "binomial"),
-	B = 1999,
-	method_obj
+	p_adjust,
+	aggregator = mean
 ) {
 	# The data.table NSE tax
-	N <- obs_importance <- feature <- sd <- NULL
+	obs_importance <- feature <- NULL
 
-	alternative = match.arg(alternative)
-
-	# CPI requires observation-wise losses
-	if (is.null(method_obj$obs_loss())) {
-		cli::cli_abort(c(
-			"CPI requires observation-wise losses.",
-			i = "Ensure {.code measure} has an {.fun $obs_loss} method."
-		))
-	}
-	if (class(method_obj)[[1]] != "CFI") {
-		cli::cli_warn(c(
-			"!" = "CPI is only known to yield valid inference for {.cls CFI}.",
-			x = "Inference with {.cls PFI} is known to be invalid and other methods are not studied yet."
-		))
-	}
-	# Get observation-wise importances (already computed as differences)
-	obs_loss_data = method_obj$obs_loss(relation = "difference")
-	# We need **at most** one row per feature and row_id for valid inference
-	# so we aggregate over iter_rsmp
-	dupes = obs_loss_data[, .N, by = c("feature", "row_ids", "iter_repeat")][N > 1]
-
-	if (nrow(dupes) >= 1) {
-		cli::cli_warn(c(
-			"Resampling is of type {.val {method_obj$resampling$id}} with {.val {method_obj$resampling$iters}} iterations.",
-			"Found {.val {length(unique(dupes[, row_ids]))}} duplicated observation{?s} in test sets",
-			x = "Confidence intervals will have wrong coverage!",
-			i = "CPI requires each observation to appear {.emph at most once} in the test set(s)",
-			i = "Use holdout resampling to ensure valid inference"
-		))
-	}
-	# Aggregating here over n_repeats
-	obs_loss_agg = obs_loss_data[,
-		list(obs_importance = mean(obs_importance)),
-		by = c("row_ids", "feature")
-	]
-
-	test = match.arg(test)
 	test_function = switch(
 		test,
 		t = stats::t.test,
@@ -280,7 +308,15 @@ importance_cpi = function(
 		binomial = binom_test
 	)
 
-	result_list = lapply(unique(obs_loss_agg$feature), function(feat) {
+	features_tested = unique(obs_loss_agg$feature)
+	k = length(features_tested)
+	ci_conf_level = 1 - adjust_ci_alpha(1 - conf_level, p_adjust, k)
+
+	# SE is only meaningful for the t-test (sd / sqrt(n)).
+	# For other tests (wilcoxon, fisher, binomial), SE is not well-defined.
+	report_se = test == "t"
+
+	result_list = lapply(features_tested, function(feat) {
 		feat_obs = obs_loss_agg[feature == feat, obs_importance]
 
 		if (mean(feat_obs) == 0) {
@@ -301,15 +337,15 @@ importance_cpi = function(
 			htest_result = test_function(
 				feat_obs,
 				alternative = alternative,
-				conf.level = conf_level,
+				conf.level = ci_conf_level,
 				conf.int = TRUE
 			)
 		}
 
 		data.table(
 			feature = feat,
-			importance = mean(feat_obs),
-			se = sd(feat_obs) / sqrt(length(feat_obs)),
+			importance = aggregator(feat_obs),
+			se = if (report_se) sd(feat_obs) / sqrt(length(feat_obs)) else NA_real_,
 			statistic = htest_result$statistic,
 			p.value = htest_result$p.value,
 			conf_lower = htest_result$conf.int[1],
@@ -317,5 +353,117 @@ importance_cpi = function(
 		)
 	})
 
-	rbindlist(result_list, fill = TRUE)
+	result = rbindlist(result_list, fill = TRUE)
+	adjust_pvalues(result, p_adjust)
+}
+
+#' Conditional Predictive Impact (CPI) test
+#'
+#' Tests on observation-wise loss differences for CFI with knockoff samplers.
+#' Available tests: t-test, Wilcoxon, Fisher permutation, binomial.
+#' Fisher test uses Phipson & Smyth (2010) p-value correction.
+#'
+#' @param conf_level confidence level for CI
+#' @param alternative "greater" (one-sided) or "two.sided"
+#' @param test "t", "wilcoxon", "fisher", or "binomial"
+#' @param p_adjust p-value adjustment method (any of stats::p.adjust.methods)
+#' @param B number of replications for Fisher test
+#' @param method_obj importance method object (needs $obs_loss())
+#' @noRd
+importance_cpi = function(
+	conf_level,
+	alternative = c("greater", "two.sided"),
+	test = c("t", "wilcoxon", "fisher", "binomial"),
+	p_adjust = "none",
+	B = 1999,
+	method_obj
+) {
+	# The data.table NSE tax
+	N <- obs_importance <- feature <- NULL
+
+	alternative = match.arg(alternative)
+
+	# CPI requires observation-wise losses
+	if (is.null(method_obj$obs_loss())) {
+		cli::cli_abort(c(
+			"CPI requires observation-wise losses.",
+			i = "Ensure {.code measure} has an {.fun $obs_loss} method."
+		))
+	}
+	if (class(method_obj)[[1]] != "CFI") {
+		cli::cli_warn(c(
+			"!" = "CPI is only known to yield valid inference for {.cls CFI}.",
+			x = "Inference with {.cls PFI} is known to be invalid and other methods are not studied yet."
+		))
+	}
+	# Get observation-wise importances (already computed as differences)
+	obs_loss_data = method_obj$obs_loss(relation = "difference")
+	check_unique_test_obs(obs_loss_data)
+	# Aggregate over n_repeats to get one value per observation per feature
+	obs_loss_agg = obs_loss_data[,
+		list(obs_importance = mean(obs_importance)),
+		by = c("row_ids", "feature")
+	]
+
+	test = match.arg(test)
+	test_obs_importance(obs_loss_agg, test, alternative, conf_level, p_adjust)
+}
+
+#' Distribution-free inference for refit-based importance (Lei et al., 2018)
+#'
+#' Tests on observation-wise loss differences for WVIM/LOCO.
+#' Available tests: Wilcoxon signed-rank (default), t-test, Fisher permutation, binomial.
+#'
+#' Lei et al. (2018) proposed this method specifically for LOCO with:
+#' - L1 (absolute) loss as the measure
+#' - Median as the aggregation function
+#' - A test set where each observation appears at most once (e.g., holdout or CV)
+#'
+#' While the implementation generalizes these choices (allowing other measures,
+#' aggregators, and resampling strategies), deviating from the original proposal
+#' may invalidate the theoretical guarantees.
+#'
+#' @param conf_level confidence level for CI
+#' @param alternative "greater" (one-sided) or "two.sided"
+#' @param test "wilcoxon", "t", "fisher", or "binomial"
+#' @param aggregator function to compute point estimate from obs_importance (default: median)
+#' @param p_adjust p-value adjustment method (any of stats::p.adjust.methods)
+#' @param B number of replications for Fisher test
+#' @param method_obj importance method object (needs $obs_loss())
+#' @noRd
+importance_loco = function(
+	conf_level,
+	alternative = c("greater", "two.sided"),
+	test = c("wilcoxon", "t", "fisher", "binomial"),
+	aggregator = stats::median,
+	p_adjust = "none",
+	B = 1999,
+	method_obj
+) {
+	# The data.table NSE tax
+	N <- obs_importance <- feature <- NULL
+
+	alternative = match.arg(alternative)
+
+	# Lei et al. inference requires observation-wise losses
+	if (is.null(method_obj$obs_loss())) {
+		cli::cli_abort(c(
+			"Lei et al. (2018) inference requires observation-wise losses.",
+			i = "Ensure {.code measure} has an {.fun $obs_loss} method (i.e. is decomposable)."
+		))
+	}
+
+	# Get observation-wise importances (already computed as differences)
+	obs_loss_data = method_obj$obs_loss(relation = "difference")
+
+	check_unique_test_obs(obs_loss_data)
+
+	# Aggregate over n_repeats (iter_repeat) to get one value per observation per feature
+	obs_loss_agg = obs_loss_data[,
+		list(obs_importance = mean(obs_importance)),
+		by = c("row_ids", "feature")
+	]
+
+	test = match.arg(test)
+	test_obs_importance(obs_loss_agg, test, alternative, conf_level, p_adjust, aggregator)
 }
