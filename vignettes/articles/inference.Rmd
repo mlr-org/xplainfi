@@ -73,7 +73,7 @@ DiagrammeR::grViz(
 )
 ```
 
-## Variance-correction
+## Corrected t-test (Nadeau & Bengio)
 
 When we calculate PFI using an appropriate resampling, such as subsampling with 15 repeats, we can use the approach recommended by Molnar et al. (2023) based on the proposed correction by Nadeau & Bengio (2003).
 
@@ -114,7 +114,7 @@ pfi_ci_corrected
 
 Both `"raw"` and `"nadeau_bengio"` methods assume normally distributed importance scores and use parametric confidence intervals based on the t-distribution. As an alternative, we can use empirical quantiles to construct confidence-like intervals without parametric assumptions.
 
-The `"quantile"` method returns only confidence bounds (`conf_lower`, `conf_upper`) without `se`, `statistic`, or `p.value`, as empirical quantiles and hypothesis testing require different methodologies.
+The `"quantile"` method returns only confidence bounds (`conf_lower`, `conf_upper`) without `se`, `statistic`, or `p.value`, as empirical quantiles are not statistical tests and even `conf_*` implies a mild misnomer, but the variable name is just kept for consistency with other methods to ease visualization.
 
 ```{r pfi-ci-quantile}
 pfi_ci_quantile = pfi$importance(ci_method = "quantile", alternative = "two.sided")
@@ -153,6 +153,29 @@ ggplot(pfi_cis, aes(y = feature, color = type)) +
 
 The results highlight just how optimistic the unadjusted, raw confidence intervals are.
 
+## Multiplicity correction
+
+When testing many features simultaneously, p-values should be adjusted to control the overall error rate. The `p_adjust` parameter accepts any method from `stats::p.adjust.methods` and defaults to `"none"` (no adjustment).
+
+```{r p-adjust-pfi}
+pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided", p_adjust = "none")
+```
+
+With Bonferroni correction, both p-values and confidence intervals are adjusted. The confidence intervals use an adjusted significance level of $\alpha / k$ where $k$ is the number of features, ensuring family-wise error rate control:
+
+```{r p-adjust-bonferroni}
+pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided", p_adjust = "bonferroni")
+```
+
+For other adjustment methods such as Holm or Benjamini-Hochberg, only p-values are adjusted. These sequential or adaptive procedures do not yield a clean per-comparison $\alpha$ that could be used for CI construction, so confidence intervals remain at the nominal level:
+
+```{r p-adjust-bh}
+pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided", p_adjust = "BH")
+```
+
+This applies to all `ci_method`s that produce p-values (`"raw"`, `"nadeau_bengio"`, `"cpi"`, `"lei"`).
+
+
 ## Conditional predictive impact (CPI)
 
 CPI (Conditional Predictive Impact) was introduced by Watson & Wright (2021) for statistical inference with conditional feature importance using knockoffs. Two main approaches are supported:
@@ -188,7 +211,7 @@ cpi_res
 
 Since `xplainfi` also includes knockoffs via the `KnockoffSampler` and the `KnockoffGaussianSampler`, the latter implementing the second order Gaussian knockoffs also used by default in `{cpi}`, we can recreate its results using `CFI` with the corresponding `sampler`.
 
-`CFI` with a knockoff sampler supports CPI inference directly via `ci_method = "cpi"`:
+`CFI` with a knockoff sampler supports CPI inference directly via `ci_method = "cpi"`.
 
 ```{r cfi-knockoff}
 knockoff_gaussian = KnockoffGaussianSampler$new(task)
@@ -203,7 +226,6 @@ cfi = CFI$new(
 
 cfi$compute()
 
-# CPI uses observation-wise losses; default is one-sided test (alternative = "greater")
 cfi_cpi_res = cfi$importance(ci_method = "cpi")
 cfi_cpi_res
 
@@ -331,10 +353,20 @@ rbindlist(
 
 The choice of test depends on distributional assumptions: the t-test assumes normality, while Fisher and Wilcoxon are non-parametric alternatives.
 
+Following Watson & Wright (2021), we can additionaly apply Benjamini-Hochberg FDR control (`p_adjust = "BH"`), which is often desirable in exploratory settings where many features are tested simultaneously:
 
-## Custom inference with LOCO
 
-[Lei et al. (2018)](https://doi.org/10.1080/01621459.2017.1307116) proposed inference for LOCO using the median absolute differences of the baseline- and post-refit loss differences
+```{r cpi-fdr-control}
+cfi_arf$importance(ci_method = "cpi", p_adjust = "BH")
+```
+
+Note that multiplcity adjustment is in the general case limited to p-values, and only the general Bonferroni method is easily applicable to confidence intervals.
+
+
+## Distribution-free inference for LOCO (Lei et al., 2018)
+
+[Lei et al. (2018)](https://doi.org/10.1080/01621459.2017.1307116) proposed distribution-free inference for LOCO importance based on observation-wise loss differences.
+The key idea is to test whether the excess test error from removing feature $j$ is significantly greater than zero:
 
 $$
 \theta_j = \mathrm{med}\left(
@@ -342,11 +374,18 @@ $$
 \right)
 $$
 
-If we apply `LOCO` as implemented in `xplainfi` using the median absolute error (MAE) as our measure including the median as the aggregation function, we unfortunately get something else, though:
+The paper proposes:
 
-```{r loco-mae}
+- **L1 (absolute) loss** as the measure
+- **Median** as the aggregation function
+- A **test set** where each observation appears at most once (e.g., holdout or cross-validation)
+- A **Wilcoxon signed-rank test** (or sign test) for inference
+- **Bonferroni correction** for multiple comparisons
+
+This is available in `xplainfi` via `ci_method = "lei"`:
+
+```{r loco-lei}
 measure_mae = msr("regr.mae")
-measure_mae$aggregator = median
 
 loco = LOCO$new(
 	task = task,
@@ -356,59 +395,47 @@ loco = LOCO$new(
 )
 
 loco$compute()
-loco$importance()
+
+loco$importance(
+	ci_method = "lei",
+	alternative = "two.sided",
+	p_adjust = "bonferroni"
+)
 ```
 
-This is **not** exactly what the authors propose, because `$score()` calculates the aggregation function (`median`) for each resampling iteration first, and takes the difference afterwards, i.e.
+The `ci_method = "lei"` method works on observation-wise loss differences internally, using the median as the default point estimate and the Wilcoxon signed-rank test for confidence intervals and p-values.
+
+### Configurable parameters
+
+All components proposed by Lei et al. are the defaults but can be customized:
+
+- `test`: `"wilcoxon"` (default), `"t"`, `"fisher"`, or `"binomial"` (sign test)
+- `aggregator`: defaults to `stats::median`, can be changed (e.g. `mean`)
+- `p_adjust`: p-value correction for multiple comparisons, accepts any method from `stats::p.adjust.methods` (e.g. `"bonferroni"`, `"holm"`, `"BH"`, `"none"`). Default is `"none"`. When `"bonferroni"`, confidence intervals are also adjusted (alpha/k). For other methods like `"holm"` or `"BH"`, only p-values are adjusted because these sequential/adaptive procedures do not yield a clean per-comparison alpha for CI construction.
+
+```{r loco-lei-ttest}
+loco$importance(
+	ci_method = "lei",
+	test = "t",
+	aggregator = mean,
+	alternative = "two.sided",
+	p_adjust = "holm"
+)
+```
+
+### Why `ci_method = "lei"` and not just MAE + median?
+
+One subtlety is that the standard `$importance()` pipeline (with `ci_method = "none"` or `ci_method = "raw"`) computes the aggregation function per resampling iteration first, then takes the difference:
 
 $$
-\theta_j = \mathrm{med}\left(|Y - \hat{f}_{n_1}^{-j}(X)|\right) - \mathrm{med}\left(|Y - \hat{f}_{n_1}(X)| \big| D_1
-\right)
+\mathrm{med}\left(|Y - \hat{f}^{-j}(X)|\right) - \mathrm{med}\left(|Y - \hat{f}(X)|\right)
 $$
 
-In the default case where the arithemtic mean is used, it does not matter whether we calculate the difference of the means or the mean of the differences, but using the median it does.
+This is *not* what the paper proposes. Lei et al. take the difference first, then aggregate:
 
-We can, however, reconstruct it by using the observation-wise losses (in this case, the absolute error):
+$$
+\mathrm{med}\left(|Y - \hat{f}^{-j}(X)| - |Y - \hat{f}(X)|\right)
+$$
 
-```{r loco-obsloss}
-loco_obsloss = loco$obs_loss()
-head(loco_obsloss)
-```
-
-`obs_importance` here refers to the difference `loss_post - loss_baseline`, so
-
-- $\texttt{loss_baseline} = |Y - \hat{f}_{n_1}(X)|$
-- $\texttt{loss_post} = |Y - \hat{f}_{n_1}^{-j}(X)|$
-- $\texttt{obs_importance} = \texttt{loss_post} - \texttt{loss_baseline}$
-
-Which means by taking the median for each feature $j$ within each resampling iteration, we can construct $\theta_j(D_1)$ as proposed, for each set $D_k$ where $k$ is the resampling iteration:
-
-```{r loco-thetas}
-loco_thetas = loco_obsloss[, list(theta = median(obs_importance)), by = c("feature")]
-loco_thetas
-```
-
-The authors then propose to construct distribution-free confidence intervals, e.g. using a sign- or Wilcoxon test
-We can for example use `wilcoxon.test()` to compute confidence intervals around the estimated pseudo-median:
-
-```{r loco-wilcox-ci}
-loco_wilcox_ci = loco_obsloss[,
-	{
-		tt <- wilcox.test(
-			obs_importance,
-			conf.int = TRUE,
-			conf.level = 0.95
-		)
-		.(
-			statistic = tt$statistic,
-			estimate = tt$estimate, # the pseudomedian importance
-			p.value = tt$p.value,
-			conf_lower = tt$conf.int[1],
-			conf_upper = tt$conf.int[2]
-		)
-	},
-	by = feature
-]
-
-loco_wilcox_ci
-```
+For the arithmetic mean these are equivalent, but for the median they are not.
+The `ci_method = "lei"` implementation handles this correctly by operating on observation-wise loss differences directly.
