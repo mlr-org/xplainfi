@@ -221,7 +221,8 @@ cfi = CFI$new(
 	learner = learner,
 	resampling = resampling,
 	measure = measure,
-	sampler = knockoff_gaussian
+	sampler = knockoff_gaussian,
+	n_repeats = 1 # generate 1 knockoff matrix, like cpi()
 )
 
 cfi$compute()
@@ -366,7 +367,7 @@ Note that multiplcity adjustment is in the general case limited to p-values, and
 ## Distribution-free inference for LOCO (Lei et al., 2018)
 
 [Lei et al. (2018)](https://doi.org/10.1080/01621459.2017.1307116) proposed distribution-free inference for LOCO importance based on observation-wise loss differences.
-The key idea is to test whether the excess test error from removing feature $j$ is significantly greater than zero:
+The idea is to test whether the excess test error from removing feature $j$ is significantly greater than zero:
 
 $$
 \theta_j = \mathrm{med}\left(
@@ -378,28 +379,29 @@ The paper proposes:
 
 - **L1 (absolute) loss** as the measure
 - **Median** as the aggregation function
-- A **test set** where each observation appears at most once (e.g., holdout or cross-validation)
+- A **test set** with unique new observations (e.g., holdout set or cross-validation)
 - A **Wilcoxon signed-rank test** (or sign test) for inference
 - **Bonferroni correction** for multiple comparisons
 
 This is available in `xplainfi` via `ci_method = "lei"`:
 
 ```{r loco-lei}
+# mae has L1 loss on observation-level, the "mean" aggregation is ignored here
 measure_mae = msr("regr.mae")
 
 loco = LOCO$new(
-	task = task,
-	learner = learner,
+	task = sim_dgp_correlated(n = 2000, r = 0.7),
+	learner = lrn("regr.ranger", num.trees = 500),
 	resampling = rsmp("holdout"),
 	measure = measure_mae
 )
 
 loco$compute()
-
 loco$importance(
 	ci_method = "lei",
 	alternative = "two.sided",
-	p_adjust = "bonferroni"
+	p_adjust = "bonferroni",
+	aggregator = median # default spelled out explicitly
 )
 ```
 
@@ -423,6 +425,7 @@ loco$importance(
 )
 ```
 
+<!-- 
 ### Why `ci_method = "lei"` and not just MAE + median?
 
 One subtlety is that the standard `$importance()` pipeline (with `ci_method = "none"` or `ci_method = "raw"`) computes the aggregation function per resampling iteration first, then takes the difference:
@@ -438,4 +441,5 @@ $$
 $$
 
 For the arithmetic mean these are equivalent, but for the median they are not.
-The `ci_method = "lei"` implementation handles this correctly by operating on observation-wise loss differences directly.
+The `ci_method = "lei"` implementation handles this correctly by operating on observation-wise loss differences directly. 
+-->
