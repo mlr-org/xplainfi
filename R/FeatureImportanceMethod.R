@@ -232,6 +232,15 @@ FeatureImportanceMethod = R6Class(
 				return(invisible(NULL))
 			}
 
+			# Catch unknown arguments that were not consumed by subclass methods
+			if (...length() > 0) {
+				dots = list(...)
+				cli::cli_abort(c(
+					"Unknown argument{?s}: {.arg {names(dots)}}.",
+					i = "These arguments are not used by {.fun $importance} with {.code ci_method = \"{ci_method}\"}."
+				))
+			}
+
 			# Validate ci_method
 			if (length(ci_method) > 1) {
 				ci_method = ci_method[1]

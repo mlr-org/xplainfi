@@ -386,6 +386,24 @@ test_that("invalid p_adjust value is rejected", {
 	)
 })
 
+test_that("unknown arguments to $importance() are rejected", {
+	task = sim_dgp_independent(n = 100)
+
+	pfi = PFI$new(
+		task = task,
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("subsampling", repeats = 5),
+		n_repeats = 2
+	)
+	pfi$compute()
+
+	expect_error(
+		pfi$importance(ci_method = "raw", tset = "t"),
+		regexp = "Unknown argument"
+	)
+})
+
 test_that("default alternative is 'greater' (one-sided)", {
 	task = sim_dgp_independent(n = 100)
 
