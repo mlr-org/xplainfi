@@ -117,10 +117,13 @@ This implements distribution-free inference based on Lei et al. (2018),
 testing observation-wise loss differences using the Wilcoxon signed-rank test by default.
 
 Lei et al. (2018) proposed this method specifically for LOCO with L1 (absolute) loss,
-median aggregation, and a test set where each observation appears at most once (e.g.,
-holdout or cross-validation). While the aggregation function, statistical test, and
-resampling strategy are parameterizable, deviating from these defaults may invalidate
-the theoretical guarantees of distribution-free inference.
+median aggregation, and a single train/test split (holdout). The inference is
+conditional on the training data, requiring i.i.d. test observations from a single
+split. While the aggregation function, statistical test, and resampling strategy are
+parameterizable, deviating from these defaults may invalidate the theoretical guarantees.
+
+For a comprehensive overview of inference methods, see
+\code{vignette("inference", package = "xplainfi")}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{WVIM$importance(
   relation = NULL,

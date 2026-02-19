@@ -218,7 +218,7 @@ test_that("CFI with CPI variance method using KnockoffGaussianSampler", {
 	task = sim_dgp_correlated(n = 500, r = 0.7)
 	learner = lrn("regr.ranger", num.trees = 100)
 	measure = msr("regr.mse")
-	resampling = rsmp("cv", folds = 5)
+	resampling = rsmp("holdout")
 
 	gaussian_sampler = KnockoffGaussianSampler$new(task)
 	cfi = CFI$new(
@@ -273,7 +273,7 @@ test_that("CFI with CPI and p_adjust = 'BH' adjusts p-values", {
 	task = sim_dgp_correlated(n = 200, r = 0.7)
 	learner = lrn("regr.rpart")
 	measure = msr("regr.mse")
-	resampling = rsmp("cv", folds = 5)
+	resampling = rsmp("holdout")
 
 	gaussian_sampler = KnockoffGaussianSampler$new(task)
 	cfi = CFI$new(
@@ -306,7 +306,7 @@ test_that("CPI with non-t test reports se = NA", {
 	task = sim_dgp_correlated(n = 200, r = 0.7)
 	learner = lrn("regr.rpart")
 	measure = msr("regr.mse")
-	resampling = rsmp("cv", folds = 5)
+	resampling = rsmp("holdout")
 
 	gaussian_sampler = KnockoffGaussianSampler$new(task)
 	cfi = CFI$new(
@@ -347,15 +347,15 @@ test_that("CFI with CPI warning on problematic resampling", {
 	)
 	cfi$compute()
 
-	# Should warn about duplicated observations
+	# Should warn about non-holdout resampling
 	expect_warning(
 		cpi_result <- cfi$importance(ci_method = "cpi"),
-		regexp = "multiple test sets"
+		regexp = "single train/test split"
 	)
 
 	expect_importance_dt(cpi_result, features = cfi$features)
 
-	# With proper CV, should be silent
+	# CV also warns (overlapping training data)
 	cfi_cv = CFI$new(
 		task = task,
 		learner = learner,
@@ -365,5 +365,20 @@ test_that("CFI with CPI warning on problematic resampling", {
 		n_repeats = 1L
 	)
 	cfi_cv$compute()
-	expect_silent(cfi_cv$importance(ci_method = "cpi"))
+	expect_warning(
+		cfi_cv$importance(ci_method = "cpi"),
+		regexp = "single train/test split"
+	)
+
+	# With holdout (single split), should be silent
+	cfi_holdout = CFI$new(
+		task = task,
+		learner = learner,
+		measure = measure,
+		resampling = rsmp("holdout"),
+		sampler = gaussian_sampler,
+		n_repeats = 1L
+	)
+	cfi_holdout$compute()
+	expect_silent(cfi_holdout$importance(ci_method = "cpi"))
 })
