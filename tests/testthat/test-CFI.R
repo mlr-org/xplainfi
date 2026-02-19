@@ -350,7 +350,7 @@ test_that("CFI with CPI warning on problematic resampling", {
 	# Should warn about non-holdout resampling
 	expect_warning(
 		cpi_result <- cfi$importance(ci_method = "cpi"),
-		regexp = "single train/test split"
+		regexp = "single test set"
 	)
 
 	expect_importance_dt(cpi_result, features = cfi$features)
@@ -367,7 +367,7 @@ test_that("CFI with CPI warning on problematic resampling", {
 	cfi_cv$compute()
 	expect_warning(
 		cfi_cv$importance(ci_method = "cpi"),
-		regexp = "single train/test split"
+		regexp = "single test set"
 	)
 
 	# With holdout (single split), should be silent

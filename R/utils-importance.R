@@ -36,6 +36,26 @@ adjust_pvalues = function(dt, p_adjust) {
 	dt
 }
 
+#' Warn if resampling has more than one iteration
+#'
+#' Observation-wise inference methods (e.g. CPI) were validated with a single
+#' train/test split. Multiple iterations introduce overlapping training data
+#' (CV) or non-i.i.d. test observations (bootstrap/subsampling).
+#'
+#' @param resampling mlr3 Resampling object
+#' @noRd
+check_single_resampling_iter = function(resampling) {
+	if (resampling$iters > 1) {
+		cli::cli_warn(c(
+			"Observation-wise inference was validated with a single test set.",
+			"!" = "Current resampling has {.val {resampling$iters}} iterations.",
+			"i" = "With cross-validation, models are fit on overlapping training data, which may affect coverage.",
+			"i" = "With bootstrap or subsampling, test observations are not i.i.d.",
+			"i" = "See {.code vignette(\"inference\", package = \"xplainfi\")} for details."
+		))
+	}
+}
+
 #' Warn if any test observation appears in more than one resampling test set
 #'
 #' Lei et al. inference assumes unique test observations.
@@ -46,8 +66,8 @@ adjust_pvalues = function(dt, p_adjust) {
 #' @param obs_loss_data data.table with columns row_ids, iter_rsmp
 #' @noRd
 check_unique_test_obs = function(obs_loss_data) {
-	N <- NULL
-	obs_per_rsmp = unique(obs_loss_data[, .(row_ids, iter_rsmp)])
+	N <- row_ids <- iter_rsmp <- NULL
+	obs_per_rsmp = unique(obs_loss_data[, list(row_ids, iter_rsmp)])
 	dupes = obs_per_rsmp[, .N, by = "row_ids"][N > 1]
 
 	if (nrow(dupes) >= 1) {
@@ -386,16 +406,7 @@ importance_cpi = function(
 
 	alternative = match.arg(alternative)
 
-	# CPI inference is only guaranteed valid with a single test set
-	if (method_obj$resampling$iters > 1) {
-		cli::cli_warn(c(
-			"CPI inference was validated with a single train/test split.",
-			"!" = "Current resampling has {.val {method_obj$resampling$iters}} iterations.",
-			"i" = "With cross-validation, models are fit on overlapping training data, which may affect coverage.",
-			"i" = "With bootstrap or subsampling, test observations may also not be i.i.d.",
-			"i" = "See {.code vignette(\"inference\", package = \"xplainfi\")} for details."
-		))
-	}
+	check_single_resampling_iter(method_obj$resampling)
 
 	# CPI requires observation-wise losses
 	if (is.null(method_obj$obs_loss())) {
