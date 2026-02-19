@@ -74,6 +74,7 @@ assemble_rr = function(
 	task,
 	learner,
 	resampling,
+	# Models are needed in any case and so are task backends I think
 	store_models = TRUE,
 	store_backends = TRUE
 ) {
@@ -85,12 +86,16 @@ assemble_rr = function(
 
 		# Clone learner: as_resample_result() clones internally but resets the model
 		# on the object it receives, which would wipe the user's original via R6 reference
-		mlr3::as_resample_result(
-			x = list(list(test = pred)),
+		# mlr3:::as_resample_result.list
+		rdata <- mlr3::as_result_data(
 			task = task,
 			learners = list(learner$clone()),
-			resampling = resampling
+			resampling = resampling,
+			iterations = seq_len(resampling$iters),
+			store_backends = store_backends,
+			predictions = list(list(test = pred))
 		)
+		mlr3::ResampleResult$new(rdata)
 	} else {
 		if (xplain_opt("debug")) {
 			cli::cli_alert_info("Using {.fun resample}")
@@ -99,7 +104,7 @@ assemble_rr = function(
 			task,
 			learner,
 			resampling,
-			store_models = store_models,
+			store_models = TRUE,
 			store_backends = store_backends
 		)
 	}
