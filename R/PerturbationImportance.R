@@ -149,12 +149,12 @@ PerturbationImportance = R6Class(
 	),
 
 	private = list(
-		.compute_baseline = function(store_models = TRUE, store_backends = TRUE) {
+		.compute_baseline = function(store_backends = TRUE) {
 			self$resample_result = assemble_rr(
 				task = self$task,
 				learner = self$learner,
 				resampling = self$resampling,
-				store_models = store_models,
+				store_models = TRUE,
 				store_backends = store_backends
 			)
 			# Prepare baseline scores
