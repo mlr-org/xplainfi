@@ -38,7 +38,7 @@ adjust_pvalues = function(dt, p_adjust) {
 
 #' Warn if any test observation appears in more than one resampling test set
 #'
-#' Both CPI and Lei et al. inference assume unique test observations.
+#' Lei et al. inference assumes unique test observations.
 #' The iter_repeat dimension (refit/sampling repeats) is averaged over and
 #' irrelevant here — what matters is whether a row_id appears in multiple
 #' resampling iterations (iter_rsmp), e.g. with subsampling.
@@ -386,6 +386,17 @@ importance_cpi = function(
 
 	alternative = match.arg(alternative)
 
+	# CPI inference is only guaranteed valid with a single test set
+	if (method_obj$resampling$iters > 1) {
+		cli::cli_warn(c(
+			"CPI inference was validated with a single train/test split.",
+			"!" = "Current resampling has {.val {method_obj$resampling$iters}} iterations.",
+			"i" = "With cross-validation, models are fit on overlapping training data, which may affect coverage.",
+			"i" = "With bootstrap or subsampling, test observations may also not be i.i.d.",
+			"i" = "See {.code vignette(\"inference\", package = \"xplainfi\")} for details."
+		))
+	}
+
 	# CPI requires observation-wise losses
 	if (is.null(method_obj$obs_loss())) {
 		cli::cli_abort(c(
@@ -401,7 +412,6 @@ importance_cpi = function(
 	}
 	# Get observation-wise importances (already computed as differences)
 	obs_loss_data = method_obj$obs_loss(relation = "difference")
-	check_unique_test_obs(obs_loss_data)
 	# Aggregate over n_repeats to get one value per observation per feature
 	obs_loss_agg = obs_loss_data[,
 		list(obs_importance = mean(obs_importance)),
@@ -420,7 +430,8 @@ importance_cpi = function(
 #' Lei et al. (2018) proposed this method specifically for LOCO with:
 #' - L1 (absolute) loss as the measure
 #' - Median as the aggregation function
-#' - A test set where each observation appears at most once (e.g., holdout or CV)
+#' - A single train/test split (holdout), since inference is conditional on
+#'   the training data and requires i.i.d. test observations from that split
 #'
 #' While the implementation generalizes these choices (allowing other measures,
 #' aggregators, and resampling strategies), deviating from the original proposal

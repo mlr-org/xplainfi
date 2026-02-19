@@ -5,7 +5,7 @@ vignette: >
   %\VignetteIndexEntry{Inference for Feature Importance}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -29,7 +29,12 @@ library(data.table)
 library(ggplot2)
 ```
 
-There are multiple (work in progress) inference methods available with the underlying implementation, but the API around them is still being worked out.
+There are multiple inference methods available for different importance methods and estimation targets.
+The approaches fall into two broad categories:
+
+1. **Resampling-based variability**: When importance is estimated via resampling (e.g., subsampling), we obtain multiple importance estimates across iterations. We can summarize this variability descriptively (empirical quantiles), or use parametric methods, either naive (raw CIs) or corrected for the dependence structure of resampling (Nadeau & Bengio).
+
+2. **Observation-wise inference on test data**: When a dedicated test set with i.i.d. observations is available (e.g., holdout), we can use observation-wise loss differences for formal statistical inference. This is the basis for CPI/cARFi (conditional importance) and the Lei et al. method (LOCO inference).
 
 ## Setup
 
@@ -37,7 +42,7 @@ We use a simple linear DGP for demonstration purposes where
 
 - $X_1$ and $X_2$ are strongly correlated (r = 0.7)
 - $X_1$ and $X_3$ have an effect on Y
-- $X_2$ and $X_4$ don't have an effect 
+- $X_2$ and $X_4$ don't have an effect
 
 ```{r setup-data}
 task = sim_dgp_correlated(n = 2000, r = 0.7)
@@ -53,19 +58,19 @@ DiagrammeR::grViz(
     rankdir=LR;
     graph [ranksep=1.5];
     node [shape=circle, style=filled, fontsize=14, width=1.2];
-    
+
     X1 [fillcolor='lightcoral', label='X₁\n(β=2.0)'];
     X2 [fillcolor='pink', label='X₂\n(β=0)'];
     X3 [fillcolor='lightblue', label='X₃\n(β=1.0)'];
     X4 [fillcolor='lightgray', label='X₄\n(β=0)'];
     Y [fillcolor='greenyellow', label='Y', width=1.5];
-    
+
     X1 -> X2 [color=red, style=bold, dir=both, label='r = 0.7'];
     X1 -> Y [label='2.0'];
     X2 -> Y [style=dashed, color=gray, label='0'];
     X3 -> Y [label='1.0'];
     X4 -> Y [style=dashed, color=gray];
-    
+
     {rank=source; X1; X3; X4}
     {rank=same; X2}
     {rank=sink; Y}
@@ -73,11 +78,10 @@ DiagrammeR::grViz(
 )
 ```
 
-## Corrected t-test (Nadeau & Bengio)
+## Resampling-based variability
 
-When we calculate PFI using an appropriate resampling, such as subsampling with 15 repeats, we can use the approach recommended by Molnar et al. (2023) based on the proposed correction by Nadeau & Bengio (2003).
-
-By default, any importance measures' `$importance()` method will not output any variances or confidence intervals, it will merely compute averages over resampling iterations and repeats within resamplings (`iter_repeat` here).
+When we compute feature importance with resampling — for example, subsampling with multiple repeats — each resampling iteration yields a separate importance estimate.
+By default, `$importance()` simply averages these estimates without reporting any measure of variability:
 
 ```{r pfi-importance}
 pfi = PFI$new(
@@ -92,7 +96,24 @@ pfi$compute()
 pfi$importance()
 ```
 
-If we want **unadjusted** confidence intervals based on a t-distribution, we can ask for them, but note these are too narrow / optimistic and hence invalid for inference:
+There are several ways to quantify the variability of these estimates, ranging from purely descriptive to parametric inference.
+
+### Empirical quantiles
+
+The simplest approach is to look at the empirical distribution of importance scores across resampling iterations.
+This is not a formal inference method — it merely describes the observed variability without any distributional assumptions.
+
+The `"quantile"` method returns only confidence bounds (`conf_lower`, `conf_upper`) without `se`, `statistic`, or `p.value`, since empirical quantiles are not a statistical test. The `conf_*` naming is kept for consistency with other methods to ease visualization.
+
+```{r pfi-ci-quantile}
+pfi_ci_quantile = pfi$importance(ci_method = "quantile", alternative = "two.sided")
+pfi_ci_quantile
+```
+
+### Raw confidence intervals
+
+A natural next step is to assume the importance scores are approximately normally distributed across resampling iterations and compute t-based confidence intervals.
+However, these **unadjusted** confidence intervals are too narrow and hence **invalid for inference**: the resampling iterations share overlapping training sets, violating the independence assumption underlying the t-distribution.
 
 ```{r pfi-ci-raw}
 pfi_ci_raw = pfi$importance(ci_method = "raw", alternative = "two.sided")
@@ -103,25 +124,21 @@ The parametric CI methods (`"raw"` and `"nadeau_bengio"`) return `se`, `statisti
 The `alternative` parameter controls whether a one-sided test (`"greater"`, the default, testing H0: importance <= 0) or two-sided test (`"two.sided"`) is performed.
 Here we use `alternative = "two.sided"` for visualization purposes so that `conf_upper` is finite.
 
-Analogously we can retrieve the **Nadeau & Bengio**-adjusted standard errors and derived confidence intervals which were demonstrated to have better (but still imperfect) coverage:
+### Corrected t-test (Nadeau & Bengio)
+
+To account for the dependence between resampling iterations, we can use the correction proposed by [Nadeau & Bengio (2003)](https://doi.org/10.1023/A:1024068626366) and recommended by [Molnar et al. (2023)](https://doi.org/10.1007/s10618-023-00925-z).
+This inflates the variance estimate to account for the overlap between training sets, yielding wider (and more honest) confidence intervals:
 
 ```{r pfi-ci-nadeau-bengio}
 pfi_ci_corrected = pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided")
 pfi_ci_corrected
 ```
 
-## Empirical quantiles
+The Nadeau-Bengio correction provides better (but still imperfect) coverage compared to the raw approach.
 
-Both `"raw"` and `"nadeau_bengio"` methods assume normally distributed importance scores and use parametric confidence intervals based on the t-distribution. As an alternative, we can use empirical quantiles to construct confidence-like intervals without parametric assumptions.
+### Comparison
 
-The `"quantile"` method returns only confidence bounds (`conf_lower`, `conf_upper`) without `se`, `statistic`, or `p.value`, as empirical quantiles are not statistical tests and even `conf_*` implies a mild misnomer, but the variable name is just kept for consistency with other methods to ease visualization.
-
-```{r pfi-ci-quantile}
-pfi_ci_quantile = pfi$importance(ci_method = "quantile", alternative = "two.sided")
-pfi_ci_quantile
-```
-
-To highlight the differences between parametric and empirical approaches, we visualize all methods:
+To highlight the differences between all three approaches, we visualize them side by side:
 
 ```{r pfi-ci-comparison}
 #| fig.alt: "Point-and-whisker plot with features on y-axis and importance on x-axis. Three colored points for raw, nadeau_bengio, and quantile CI methods, each showing point estimates with horizontal error bars."
@@ -153,21 +170,28 @@ ggplot(pfi_cis, aes(y = feature, color = type)) +
 
 The results highlight just how optimistic the unadjusted, raw confidence intervals are.
 
-## Multiplicity correction
+### Multiplicity correction
 
-When testing many features simultaneously, p-values should be adjusted to control the overall error rate. The `p_adjust` parameter accepts any method from `stats::p.adjust.methods` and defaults to `"none"` (no adjustment).
+When testing many features simultaneously, p-values should be adjusted to control the overall error rate.
+There are two main frameworks for multiplicity correction:
+
+- **Family-wise error rate (FWER)**: The probability of making *at least one* false rejection among all tests. FWER control is the more conservative approach and is appropriate when any single false positive would be costly. Methods include Bonferroni ($\alpha / k$) and Holm (a step-down variant that is uniformly more powerful than Bonferroni while still controlling FWER).
+
+- **False discovery rate (FDR)**: The expected *proportion* of false rejections among all rejected hypotheses. FDR control is less conservative and better suited for exploratory analyses where some false positives are tolerable. The most common method is Benjamini-Hochberg (BH).
+
+The `p_adjust` parameter accepts any method from `stats::p.adjust.methods` and defaults to `"none"` (no adjustment).
 
 ```{r p-adjust-pfi}
 pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided", p_adjust = "none")
 ```
 
-With Bonferroni correction, both p-values and confidence intervals are adjusted. The confidence intervals use an adjusted significance level of $\alpha / k$ where $k$ is the number of features, ensuring family-wise error rate control:
+With Bonferroni correction (FWER control), both p-values and confidence intervals are adjusted. The confidence intervals use an adjusted significance level of $\alpha / k$ where $k$ is the number of features:
 
 ```{r p-adjust-bonferroni}
 pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided", p_adjust = "bonferroni")
 ```
 
-For other adjustment methods such as Holm or Benjamini-Hochberg, only p-values are adjusted. These sequential or adaptive procedures do not yield a clean per-comparison $\alpha$ that could be used for CI construction, so confidence intervals remain at the nominal level:
+For sequential or adaptive procedures such as Holm (FWER) or Benjamini-Hochberg (FDR), only p-values are adjusted. These methods do not yield a clean per-comparison $\alpha$ that could be used for CI construction, so confidence intervals remain at the nominal level:
 
 ```{r p-adjust-bh}
 pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided", p_adjust = "BH")
@@ -176,13 +200,28 @@ pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided", p_adjust 
 This applies to all `ci_method`s that produce p-values (`"raw"`, `"nadeau_bengio"`, `"cpi"`, `"lei"`).
 
 
-## Conditional predictive impact (CPI)
+## Observation-wise inference on test data
 
-CPI (Conditional Predictive Impact) was introduced by Watson & Wright (2021) for statistical inference with conditional feature importance using knockoffs. Two main approaches are supported:
+The resampling-based approaches above quantify variability due to the choice of train/test split.
+A different approach uses **observation-wise loss differences** on a test set for formal statistical inference.
+
+The idea is straightforward: for each test observation, we compare the loss with and without a feature (either by perturbing the feature or by retraining the model without it).
+The resulting per-observation importance scores are i.i.d. under appropriate conditions, enabling standard statistical tests.
+
+Inference is guaranteed to be valid with a single train/test split (holdout), where test observations are truly i.i.d. and the model is fixed.
+Other resampling strategies may be used but come with caveats (see below).
+
+- **CPI / cARFi** for conditional feature importance (perturbation-based, model is fixed per resampling iteration)
+- **Lei et al.** for LOCO importance (retraining-based, model is refitted without each feature)
+
+
+### Conditional predictive impact (CPI)
+
+CPI (Conditional Predictive Impact) was introduced by [Watson & Wright (2021)](https://doi.org/10.1007/s10994-021-06030-6) for statistical inference with conditional feature importance using knockoffs. Two main approaches are supported:
 
 - **CPI with knockoffs**: The original method using model-X knockoffs for conditional sampling.
 - **cARFi** (Blesch et al., 2025): Uses Adversarial Random Forests for conditional sampling, which works without Gaussian assumptions and supports mixed data.
-CPI is also implemented by [the cpi package](https://bips-hb.github.io/cpi/articles/intro.html).
+CPI is originally implemented by [the cpi package](https://bips-hb.github.io/cpi/articles/intro.html).
 It works with `mlr3` and its output on our data looks like this:
 
 ```{r cpi-setup}
@@ -207,7 +246,7 @@ cpi_res[, method := "CPI"]
 cpi_res
 ```
 
-### CPI with knockoffs
+#### CPI with knockoffs
 
 Since `xplainfi` also includes knockoffs via the `KnockoffSampler` and the `KnockoffGaussianSampler`, the latter implementing the second order Gaussian knockoffs also used by default in `{cpi}`, we can recreate its results using `CFI` with the corresponding `sampler`.
 
@@ -260,7 +299,7 @@ rbindlist(list(cpi_res, cfi_cpi_res), fill = TRUE) |>
 
 A noteable caveat of the knockoff approach is that they are not readily available for mixed data (with categorical features).
 
-### cARFi: CPI with ARF
+#### cARFi: CPI with ARF
 
 An alternative is available using ARF as conditional sampler rather than knockoffs. This approach, called cARFi, was introduced by [Blesch et al. (2025)](https://doi.org/10.1609/aaai.v39i15.33712) and works without Gaussian assumptions:
 
@@ -315,7 +354,13 @@ rbindlist(list(cpi_res, cfi_cpi_res, cfi_arf_res), fill = TRUE) |>
 
 As expected, the ARF-based approach differs more from both knockoff-based approaches, but they are all roughly in agreement.
 
-### Statistical tests with CPI
+**Note on resampling strategy:** CPI inference was validated using holdout (a single train/test split), and inference is provably valid in this setting.
+With cross-validation, test observations are still i.i.d., but models are fit on overlapping training data — technically, this affects inference for the same reason the Nadeau & Bengio correction exists for resampling-based CIs.
+With bootstrap or subsampling, test observations may no longer be i.i.d. (due to repeated observations across test sets) *and* training sets overlap.
+In practice, Watson & Wright (2021) found that empirical results did not strongly depend on the choice of risk estimator, but **inference is only guaranteed to be valid with holdout**.
+Other resampling strategies should be employed with the understanding that coverage guarantees may not hold.
+
+#### Statistical tests with CPI
 
 CPI can also perform additional tests besides the default t-test, specifically the Wilcoxon-, Fisher-, or binomial test:
 
@@ -364,9 +409,11 @@ cfi_arf$importance(ci_method = "cpi", p_adjust = "BH")
 Note that multiplcity adjustment is in the general case limited to p-values, and only the general Bonferroni method is easily applicable to confidence intervals.
 
 
-## Distribution-free inference for LOCO (Lei et al., 2018)
+### Distribution-free inference for LOCO (Lei et al., 2018)
 
 [Lei et al. (2018)](https://doi.org/10.1080/01621459.2017.1307116) proposed distribution-free inference for LOCO importance based on observation-wise loss differences.
+Unlike CPI/cARFi, LOCO requires retraining the model without each feature.
+The inference is conditional on the training data $D_1$ from a single train/test split: the observation-wise loss differences on the test set are i.i.d. given $D_1$, enabling nonparametric tests.
 The idea is to test whether the excess test error from removing feature $j$ is significantly greater than zero:
 
 $$
@@ -379,7 +426,7 @@ The paper proposes:
 
 - **L1 (absolute) loss** as the measure
 - **Median** as the aggregation function
-- A **test set** with unique new observations (e.g., holdout set or cross-validation)
+- A **single train/test split** (holdout), since inference is conditional on the training data
 - A **Wilcoxon signed-rank test** (or sign test) for inference
 - **Bonferroni correction** for multiple comparisons
 
@@ -407,7 +454,7 @@ loco$importance(
 
 The `ci_method = "lei"` method works on observation-wise loss differences internally, using the median as the default point estimate and the Wilcoxon signed-rank test for confidence intervals and p-values.
 
-### Configurable parameters
+#### Configurable parameters
 
 All components proposed by Lei et al. are the defaults but can be customized:
 
@@ -425,7 +472,7 @@ loco$importance(
 )
 ```
 
-<!-- 
+<!--
 ### Why `ci_method = "lei"` and not just MAE + median?
 
 One subtlety is that the standard `$importance()` pipeline (with `ci_method = "none"` or `ci_method = "raw"`) computes the aggregation function per resampling iteration first, then takes the difference:
@@ -441,5 +488,5 @@ $$
 $$
 
 For the arithmetic mean these are equivalent, but for the median they are not.
-The `ci_method = "lei"` implementation handles this correctly by operating on observation-wise loss differences directly. 
+The `ci_method = "lei"` implementation handles this correctly by operating on observation-wise loss differences directly.
 -->

@@ -6,21 +6,6 @@
   - Requires the provided `Resampling` to be instantiated and consist of a single iteration, e.g. there must be only 1 test set.
   - Internally, a `ResampleResult` will be constructed from the given `learner`, `task`, and `resampling` arguments, which is then consistent with the previous default of performing `resample()` to get trained learners for each resampling iteration.
 
-## Minor user-facing changes
-
-- Bump the defaults for `n_repeats` in favor of stability
-  - For`PerturbationImportance` methods (`PFI`, `CFI`, `RFI`): `n_repeats` is now 30
-  - `LOCO` and `WVIM`: `n_repeats` is now 30 as well.
-  - Since the refitting methods will be more expensive than the perturbation-based methods, users will have to decrease this value if runtime becomes impractical, but now at least the package default is no longer `n_repeats = 1`, which is obviously too small.
-
-## Testing improvements
-
-- Replaced `ranger` with `rpart` in most tests where a flexible learner was unnecessary, reducing test runtime and removing conditional `skip_if_not_installed("ranger")` guards so these tests always run.
-- Added omnibus `expect_method_output()` expectation that validates all three main outputs (`$importance()`, `$scores()`, `$obs_loss()`) of a computed method.
-- Removed overly abstract test helper functions (`test_basic_workflow`, `test_with_resampling`, `test_custom_sampler`) and inlined their logic at call sites for better readability.
-- Use `ConditionalGaussianSampler` instead of `ConditionalARFSampler` in tests that don't specifically test ARF functionality.
-- Set explicit `n_repeats` values in all tests (1L for functional, 5L for plausibility).
-
 ## Inference
 
 - New `ci_method = "lei"` for WVIM/LOCO: distribution-free inference based on
@@ -46,6 +31,23 @@
   how p-values and confidence intervals are calculated for each method.
 - CFI documentation distinguishes between CPI (knockoff-based inference, Watson & Wright 2021)
   and cARFi (ARF-based inference, Blesch et al. 2025).
+
+
+## Minor user-facing changes
+
+- Bump the defaults for `n_repeats` in favor of stability
+  - For`PerturbationImportance` methods (`PFI`, `CFI`, `RFI`): `n_repeats` is now 30
+  - `LOCO` and `WVIM`: `n_repeats` is now 30 as well.
+  - Since the refitting methods will be more expensive than the perturbation-based methods, users will have to decrease this value if runtime becomes impractical, but now at least the package default is no longer `n_repeats = 1`, which is obviously too small.
+
+## Testing improvements
+
+- Replaced `ranger` with `rpart` in most tests where a flexible learner was unnecessary, reducing test runtime and removing conditional `skip_if_not_installed("ranger")` guards so these tests always run.
+- Added omnibus `expect_method_output()` expectation that validates all three main outputs (`$importance()`, `$scores()`, `$obs_loss()`) of a computed method.
+- Removed overly abstract test helper functions (`test_basic_workflow`, `test_with_resampling`, `test_custom_sampler`) and inlined their logic at call sites for better readability.
+- Use `ConditionalGaussianSampler` instead of `ConditionalARFSampler` in tests that don't specifically test ARF functionality.
+- Set explicit `n_repeats` values in all tests (1L for functional, 5L for plausibility).
+
 
 # xplainfi 1.0.0 - Initial CRAN release
 
