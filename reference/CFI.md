@@ -25,8 +25,13 @@ Two approaches for statistical inference are primarily supported via
   ([ConditionalARFSampler](https://mlr-org.github.io/xplainfi/reference/ConditionalARFSampler.md)),
   using the same CPI inference framework.
 
-Both require a decomposable measure (e.g., MSE) and holdout resampling
-so each observation appears at most once in the test set.
+Both require a decomposable measure (e.g., MSE) and out-of-sample
+evaluation. CPI inference is guaranteed to be valid with holdout (a
+single train/test split). With cross-validation, test observations are
+i.i.d. but models are fit on overlapping training data, which may affect
+inference coverage. With bootstrap or subsampling, both non-i.i.d. test
+observations and overlapping training data can be an issue. See
+`vignette("inference", package = "xplainfi")` for details.
 
 Available tests: `"t"` (t-test), `"wilcoxon"` (signed-rank), `"fisher"`
 (permutation), `"binomial"` (sign test). The Fisher test is recommended.
@@ -35,6 +40,9 @@ Method-agnostic inference methods (`"raw"`, `"nadeau_bengio"`,
 `"quantile"`) are also available; see
 [FeatureImportanceMethod](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
 for details.
+
+For a comprehensive overview of inference methods including usage
+examples, see `vignette("inference", package = "xplainfi")`.
 
 ## References
 

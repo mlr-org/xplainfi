@@ -101,9 +101,22 @@
 <span><span class="co">#&gt; Loading required package: mlr3</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
-<p>There are multiple (work in progress) inference methods available
-with the underlying implementation, but the API around them is still
-being worked out.</p>
+<p>There are multiple inference methods available for different
+importance methods and estimation targets. The approaches fall into two
+broad categories:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Resampling-based variability</strong>: When importance is
+estimated via resampling (e.g., subsampling), we obtain multiple
+importance estimates across iterations. We can summarize this
+variability descriptively (empirical quantiles), or use parametric
+methods, either naive (raw CIs) or corrected for the dependence
+structure of resampling (Nadeau &amp; Bengio).</p></li>
+<li><p><strong>Observation-wise inference on test data</strong>: When a
+dedicated test set with i.i.d. observations is available (e.g.,
+holdout), we can use observation-wise loss differences for formal
+statistical inference. This is the basis for CPI/cARFi (conditional
+importance) and the Lei et al. method (LOCO inference).</p></li>
+</ol>
 <div class="section level2">
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
@@ -123,22 +136,19 @@ being worked out.</p>
 <span><span class="va">measure</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <div class="grViz html-widget html-fill-item" id="htmlwidget-ac96cb3ee4656e2e9ec3" style="width:960px;height:384px;"></div>
-<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"diagram":"\n  digraph Correlated {\n    rankdir=LR;\n    graph [ranksep=1.5];\n    node [shape=circle, style=filled, fontsize=14, width=1.2];\n    \n    X1 [fillcolor=\"lightcoral\", label=\"X₁\n(β=2.0)\"];\n    X2 [fillcolor=\"pink\", label=\"X₂\n(β=0)\"];\n    X3 [fillcolor=\"lightblue\", label=\"X₃\n(β=1.0)\"];\n    X4 [fillcolor=\"lightgray\", label=\"X₄\n(β=0)\"];\n    Y [fillcolor=\"greenyellow\", label=\"Y\", width=1.5];\n    \n    X1 -> X2 [color=red, style=bold, dir=both, label=\"r = 0.7\"];\n    X1 -> Y [label=\"2.0\"];\n    X2 -> Y [style=dashed, color=gray, label=\"0\"];\n    X3 -> Y [label=\"1.0\"];\n    X4 -> Y [style=dashed, color=gray];\n    \n    {rank=source; X1; X3; X4}\n    {rank=same; X2}\n    {rank=sink; Y}\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p class="caption">
+<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"diagram":"\n  digraph Correlated {\n    rankdir=LR;\n    graph [ranksep=1.5];\n    node [shape=circle, style=filled, fontsize=14, width=1.2];\n\n    X1 [fillcolor=\"lightcoral\", label=\"X₁\n(β=2.0)\"];\n    X2 [fillcolor=\"pink\", label=\"X₂\n(β=0)\"];\n    X3 [fillcolor=\"lightblue\", label=\"X₃\n(β=1.0)\"];\n    X4 [fillcolor=\"lightgray\", label=\"X₄\n(β=0)\"];\n    Y [fillcolor=\"greenyellow\", label=\"Y\", width=1.5];\n\n    X1 -> X2 [color=red, style=bold, dir=both, label=\"r = 0.7\"];\n    X1 -> Y [label=\"2.0\"];\n    X2 -> Y [style=dashed, color=gray, label=\"0\"];\n    X3 -> Y [label=\"1.0\"];\n    X4 -> Y [style=dashed, color=gray];\n\n    {rank=source; X1; X3; X4}\n    {rank=same; X2}\n    {rank=sink; Y}\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p class="caption">
 DAG for correlated features DGP
 </p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="variance-correction">Variance-correction<a class="anchor" aria-label="anchor" href="#variance-correction"></a>
+<h2 id="resampling-based-variability">Resampling-based variability<a class="anchor" aria-label="anchor" href="#resampling-based-variability"></a>
 </h2>
-<p>When we calculate PFI using an appropriate resampling, such as
-subsampling with 15 repeats, we can use the approach recommended by
-Molnar et al. (2023) based on the proposed correction by Nadeau &amp;
-Bengio (2003).</p>
-<p>By default, any importance measures’ <code>$importance()</code>
-method will not output any variances or confidence intervals, it will
-merely compute averages over resampling iterations and repeats within
-resamplings (<code>iter_repeat</code> here).</p>
+<p>When we compute feature importance with resampling — for example,
+subsampling with multiple repeats — each resampling iteration yields a
+separate importance estimate. By default, <code>$importance()</code>
+simply averages these estimates without reporting any measure of
+variability:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfi</span> <span class="op">=</span> <span class="va"><a href="../reference/PFI.html">PFI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>    task <span class="op">=</span> <span class="va">task</span>,</span>
@@ -157,10 +167,43 @@ resamplings (<code>iter_repeat</code> here).</p>
 <span><span class="co">#&gt; 2:      x2  0.095842584</span></span>
 <span><span class="co">#&gt; 3:      x3  1.793989195</span></span>
 <span><span class="co">#&gt; 4:      x4 -0.000962437</span></span></code></pre></div>
-<p>If we want <strong>unadjusted</strong> confidence intervals based on
-a t-distribution, we can ask for them, but note these are too narrow /
-optimistic and hence invalid for inference:</p>
+<p>There are several ways to quantify the variability of these
+estimates, ranging from purely descriptive to parametric inference.</p>
+<div class="section level3">
+<h3 id="empirical-quantiles">Empirical quantiles<a class="anchor" aria-label="anchor" href="#empirical-quantiles"></a>
+</h3>
+<p>The simplest approach is to look at the empirical distribution of
+importance scores across resampling iterations. This is not a formal
+inference method — it merely describes the observed variability without
+any distributional assumptions.</p>
+<p>The <code>"quantile"</code> method returns only confidence bounds
+(<code>conf_lower</code>, <code>conf_upper</code>) without
+<code>se</code>, <code>statistic</code>, or <code>p.value</code>, since
+empirical quantiles are not a statistical test. The <code>conf_*</code>
+naming is kept for consistency with other methods to ease
+visualization.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pfi_ci_quantile</span> <span class="op">=</span> <span class="va">pfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"quantile"</span>, alternative <span class="op">=</span> <span class="st">"two.sided"</span><span class="op">)</span></span>
+<span><span class="va">pfi_ci_quantile</span></span>
+<span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
+<span><span class="co">#&gt;    feature   importance   conf_lower   conf_upper</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  6.476555494  6.108602488 6.8752121255</span></span>
+<span><span class="co">#&gt; 2:      x2  0.095842584  0.071144370 0.1213703258</span></span>
+<span><span class="co">#&gt; 3:      x3  1.793989195  1.736434146 1.8848348302</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.000962437 -0.003342628 0.0006686405</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="raw-confidence-intervals">Raw confidence intervals<a class="anchor" aria-label="anchor" href="#raw-confidence-intervals"></a>
+</h3>
+<p>A natural next step is to assume the importance scores are
+approximately normally distributed across resampling iterations and
+compute t-based confidence intervals. However, these
+<strong>unadjusted</strong> confidence intervals are too narrow and
+hence <strong>invalid for inference</strong>: the resampling iterations
+share overlapping training sets, violating the independence assumption
+underlying the t-distribution.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfi_ci_raw</span> <span class="op">=</span> <span class="va">pfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"raw"</span>, alternative <span class="op">=</span> <span class="st">"two.sided"</span><span class="op">)</span></span>
 <span><span class="va">pfi_ci_raw</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
@@ -185,11 +228,17 @@ testing H0: importance &lt;= 0) or two-sided test
 (<code>"two.sided"</code>) is performed. Here we use
 <code>alternative = "two.sided"</code> for visualization purposes so
 that <code>conf_upper</code> is finite.</p>
-<p>Analogously we can retrieve the <strong>Nadeau &amp;
-Bengio</strong>-adjusted standard errors and derived confidence
-intervals which were demonstrated to have better (but still imperfect)
-coverage:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+</div>
+<div class="section level3">
+<h3 id="corrected-t-test-nadeau-bengio">Corrected t-test (Nadeau &amp; Bengio)<a class="anchor" aria-label="anchor" href="#corrected-t-test-nadeau-bengio"></a>
+</h3>
+<p>To account for the dependence between resampling iterations, we can
+use the correction proposed by <a href="https://doi.org/10.1023/A:1024068626366" class="external-link">Nadeau &amp; Bengio
+(2003)</a> and recommended by <a href="https://doi.org/10.1007/s10618-023-00925-z" class="external-link">Molnar et
+al. (2023)</a>. This inflates the variance estimate to account for the
+overlap between training sets, yielding wider (and more honest)
+confidence intervals:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfi_ci_corrected</span> <span class="op">=</span> <span class="va">pfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"nadeau_bengio"</span>, alternative <span class="op">=</span> <span class="st">"two.sided"</span><span class="op">)</span></span>
 <span><span class="va">pfi_ci_corrected</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
@@ -205,32 +254,14 @@ coverage:</p>
 <span><span class="co">#&gt; 2: 0.1222114505</span></span>
 <span><span class="co">#&gt; 3: 1.8771518043</span></span>
 <span><span class="co">#&gt; 4: 0.0008200431</span></span></code></pre></div>
+<p>The Nadeau-Bengio correction provides better (but still imperfect)
+coverage compared to the raw approach.</p>
 </div>
-<div class="section level2">
-<h2 id="empirical-quantiles">Empirical quantiles<a class="anchor" aria-label="anchor" href="#empirical-quantiles"></a>
-</h2>
-<p>Both <code>"raw"</code> and <code>"nadeau_bengio"</code> methods
-assume normally distributed importance scores and use parametric
-confidence intervals based on the t-distribution. As an alternative, we
-can use empirical quantiles to construct confidence-like intervals
-without parametric assumptions.</p>
-<p>The <code>"quantile"</code> method returns only confidence bounds
-(<code>conf_lower</code>, <code>conf_upper</code>) without
-<code>se</code>, <code>statistic</code>, or <code>p.value</code>, as
-empirical quantiles and hypothesis testing require different
-methodologies.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pfi_ci_quantile</span> <span class="op">=</span> <span class="va">pfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"quantile"</span>, alternative <span class="op">=</span> <span class="st">"two.sided"</span><span class="op">)</span></span>
-<span><span class="va">pfi_ci_quantile</span></span>
-<span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature   importance   conf_lower   conf_upper</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  6.476555494  6.108602488 6.8752121255</span></span>
-<span><span class="co">#&gt; 2:      x2  0.095842584  0.071144370 0.1213703258</span></span>
-<span><span class="co">#&gt; 3:      x3  1.793989195  1.736434146 1.8848348302</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.000962437 -0.003342628 0.0006686405</span></span></code></pre></div>
-<p>To highlight the differences between parametric and empirical
-approaches, we visualize all methods:</p>
+<div class="section level3">
+<h3 id="comparison">Comparison<a class="anchor" aria-label="anchor" href="#comparison"></a>
+</h3>
+<p>To highlight the differences between all three approaches, we
+visualize them side by side:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfi_cis</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -260,12 +291,117 @@ approaches, we visualize all methods:</p>
 <p>The results highlight just how optimistic the unadjusted, raw
 confidence intervals are.</p>
 </div>
+<div class="section level3">
+<h3 id="multiplicity-correction">Multiplicity correction<a class="anchor" aria-label="anchor" href="#multiplicity-correction"></a>
+</h3>
+<p>When testing many features simultaneously, p-values should be
+adjusted to control the overall error rate. There are two main
+frameworks for multiplicity correction:</p>
+<ul>
+<li><p><strong>Family-wise error rate (FWER)</strong>: The probability
+of making <em>at least one</em> false rejection among all tests. FWER
+control is the more conservative approach and is appropriate when any
+single false positive would be costly. Methods include Bonferroni (<span class="math inline">\(\alpha / k\)</span>) and Holm (a step-down variant
+that is uniformly more powerful than Bonferroni while still controlling
+FWER).</p></li>
+<li><p><strong>False discovery rate (FDR)</strong>: The expected
+<em>proportion</em> of false rejections among all rejected hypotheses.
+FDR control is less conservative and better suited for exploratory
+analyses where some false positives are tolerable. The most common
+method is Benjamini-Hochberg (BH).</p></li>
+</ul>
+<p>The <code>p_adjust</code> parameter accepts any method from
+<code><a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">stats::p.adjust.methods</a></code> and defaults to <code>"none"</code>
+(no adjustment).</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"nadeau_bengio"</span>, alternative <span class="op">=</span> <span class="st">"two.sided"</span>, p_adjust <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
+<span><span class="co">#&gt;    feature   importance           se statistic      p.value   conf_lower</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;     &lt;num&gt;        &lt;num&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  6.476555494 0.2063236235 31.390276 2.231930e-14  6.034035333</span></span>
+<span><span class="co">#&gt; 2:      x2  0.095842584 0.0122944003  7.795629 1.848448e-06  0.069473718</span></span>
+<span><span class="co">#&gt; 3:      x3  1.793989195 0.0387743032 46.267477 1.027030e-16  1.710826586</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.000962437 0.0008310757 -1.158062 2.662136e-01 -0.002744917</span></span>
+<span><span class="co">#&gt;      conf_upper</span></span>
+<span><span class="co">#&gt;           &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 6.9190756552</span></span>
+<span><span class="co">#&gt; 2: 0.1222114505</span></span>
+<span><span class="co">#&gt; 3: 1.8771518043</span></span>
+<span><span class="co">#&gt; 4: 0.0008200431</span></span></code></pre></div>
+<p>With Bonferroni correction (FWER control), both p-values and
+confidence intervals are adjusted. The confidence intervals use an
+adjusted significance level of <span class="math inline">\(\alpha /
+k\)</span> where <span class="math inline">\(k\)</span> is the number of
+features:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"nadeau_bengio"</span>, alternative <span class="op">=</span> <span class="st">"two.sided"</span>, p_adjust <span class="op">=</span> <span class="st">"bonferroni"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
+<span><span class="co">#&gt;    feature   importance           se statistic      p.value   conf_lower</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;     &lt;num&gt;        &lt;num&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  6.476555494 0.2063236235 31.390276 8.927721e-14  5.885645869</span></span>
+<span><span class="co">#&gt; 2:      x2  0.095842584 0.0122944003  7.795629 7.393792e-06  0.060631495</span></span>
+<span><span class="co">#&gt; 3:      x3  1.793989195 0.0387743032 46.267477 4.108119e-16  1.682939822</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.000962437 0.0008310757 -1.158062 1.000000e+00 -0.003342633</span></span>
+<span><span class="co">#&gt;     conf_upper</span></span>
+<span><span class="co">#&gt;          &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 7.067465120</span></span>
+<span><span class="co">#&gt; 2: 0.131053673</span></span>
+<span><span class="co">#&gt; 3: 1.905038568</span></span>
+<span><span class="co">#&gt; 4: 0.001417759</span></span></code></pre></div>
+<p>For sequential or adaptive procedures such as Holm (FWER) or
+Benjamini-Hochberg (FDR), only p-values are adjusted. These methods do
+not yield a clean per-comparison <span class="math inline">\(\alpha\)</span> that could be used for CI
+construction, so confidence intervals remain at the nominal level:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"nadeau_bengio"</span>, alternative <span class="op">=</span> <span class="st">"two.sided"</span>, p_adjust <span class="op">=</span> <span class="st">"BH"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
+<span><span class="co">#&gt;    feature   importance           se statistic      p.value   conf_lower</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;     &lt;num&gt;        &lt;num&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  6.476555494 0.2063236235 31.390276 4.463861e-14  6.034035333</span></span>
+<span><span class="co">#&gt; 2:      x2  0.095842584 0.0122944003  7.795629 2.464597e-06  0.069473718</span></span>
+<span><span class="co">#&gt; 3:      x3  1.793989195 0.0387743032 46.267477 4.108119e-16  1.710826586</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.000962437 0.0008310757 -1.158062 2.662136e-01 -0.002744917</span></span>
+<span><span class="co">#&gt;      conf_upper</span></span>
+<span><span class="co">#&gt;           &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 6.9190756552</span></span>
+<span><span class="co">#&gt; 2: 0.1222114505</span></span>
+<span><span class="co">#&gt; 3: 1.8771518043</span></span>
+<span><span class="co">#&gt; 4: 0.0008200431</span></span></code></pre></div>
+<p>This applies to all <code>ci_method</code>s that produce p-values
+(<code>"raw"</code>, <code>"nadeau_bengio"</code>, <code>"cpi"</code>,
+<code>"lei"</code>).</p>
+</div>
+</div>
 <div class="section level2">
-<h2 id="conditional-predictive-impact-cpi">Conditional predictive impact (CPI)<a class="anchor" aria-label="anchor" href="#conditional-predictive-impact-cpi"></a>
+<h2 id="observation-wise-inference-on-test-data">Observation-wise inference on test data<a class="anchor" aria-label="anchor" href="#observation-wise-inference-on-test-data"></a>
 </h2>
-<p>CPI (Conditional Predictive Impact) was introduced by Watson &amp;
-Wright (2021) for statistical inference with conditional feature
-importance using knockoffs. Two main approaches are supported:</p>
+<p>The resampling-based approaches above quantify variability due to the
+choice of train/test split. A different approach uses
+<strong>observation-wise loss differences</strong> on a test set for
+formal statistical inference.</p>
+<p>The idea is straightforward: for each test observation, we compare
+the loss with and without a feature (either by perturbing the feature or
+by retraining the model without it). The resulting per-observation
+importance scores are i.i.d. under appropriate conditions, enabling
+standard statistical tests.</p>
+<p>Inference is guaranteed to be valid with a single train/test split
+(holdout), where test observations are truly i.i.d. and the model is
+fixed. Other resampling strategies may be used but come with caveats
+(see below).</p>
+<ul>
+<li>
+<strong>CPI / cARFi</strong> for conditional feature importance
+(perturbation-based, model is fixed per resampling iteration)</li>
+<li>
+<strong>Lei et al.</strong> for LOCO importance (retraining-based,
+model is refitted without each feature)</li>
+</ul>
+<div class="section level3">
+<h3 id="conditional-predictive-impact-cpi">Conditional predictive impact (CPI)<a class="anchor" aria-label="anchor" href="#conditional-predictive-impact-cpi"></a>
+</h3>
+<p>CPI (Conditional Predictive Impact) was introduced by <a href="https://doi.org/10.1007/s10994-021-06030-6" class="external-link">Watson &amp; Wright
+(2021)</a> for statistical inference with conditional feature importance
+using knockoffs. Two main approaches are supported:</p>
 <ul>
 <li>
 <strong>CPI with knockoffs</strong>: The original method using
@@ -273,16 +409,16 @@ model-X knockoffs for conditional sampling.</li>
 <li>
 <strong>cARFi</strong> (Blesch et al., 2025): Uses Adversarial
 Random Forests for conditional sampling, which works without Gaussian
-assumptions and supports mixed data. CPI is also implemented by <a href="https://bips-hb.github.io/cpi/articles/intro.html" class="external-link">the cpi
+assumptions and supports mixed data. CPI is originally implemented by <a href="https://bips-hb.github.io/cpi/articles/intro.html" class="external-link">the cpi
 package</a>. It works with <code>mlr3</code> and its output on our data
 looks like this:</li>
 </ul>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bips-hb/cpi" class="external-link">cpi</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">resampling</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">rsmp</a></span><span class="op">(</span><span class="st">"cv"</span>, folds <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="va">resampling</span><span class="op">$</span><span class="fu">instantiate</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cpi_res</span> <span class="op">=</span> <span class="fu"><a href="https://bips-hb.github.io/cpi/reference/cpi.html" class="external-link">cpi</a></span><span class="op">(</span></span>
 <span>    task <span class="op">=</span> <span class="va">task</span>,</span>
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
@@ -307,9 +443,9 @@ looks like this:</li>
 <span><span class="co">#&gt; 2:  1.896595e-01 -0.002576545    CPI</span></span>
 <span><span class="co">#&gt; 3: 1.768282e-171  1.754700388    CPI</span></span>
 <span><span class="co">#&gt; 4:  8.755837e-01 -0.002156198    CPI</span></span></code></pre></div>
-<div class="section level3">
-<h3 id="cpi-with-knockoffs">CPI with knockoffs<a class="anchor" aria-label="anchor" href="#cpi-with-knockoffs"></a>
-</h3>
+<div class="section level4">
+<h4 id="cpi-with-knockoffs">CPI with knockoffs<a class="anchor" aria-label="anchor" href="#cpi-with-knockoffs"></a>
+</h4>
 <p>Since <code>xplainfi</code> also includes knockoffs via the
 <code>KnockoffSampler</code> and the
 <code>KnockoffGaussianSampler</code>, the latter implementing the second
@@ -317,8 +453,8 @@ order Gaussian knockoffs also used by default in <a href="https://github.com/bip
 can recreate its results using <code>CFI</code> with the corresponding
 <code>sampler</code>.</p>
 <p><code>CFI</code> with a knockoff sampler supports CPI inference
-directly via <code>ci_method = "cpi"</code>:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+directly via <code>ci_method = "cpi"</code>.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">knockoff_gaussian</span> <span class="op">=</span> <span class="va"><a href="../reference/KnockoffGaussianSampler.html">KnockoffGaussianSampler</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">cfi</span> <span class="op">=</span> <span class="va"><a href="../reference/CFI.html">CFI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -326,18 +462,19 @@ directly via <code>ci_method = "cpi"</code>:</p>
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
-<span>    sampler <span class="op">=</span> <span class="va">knockoff_gaussian</span></span>
+<span>    sampler <span class="op">=</span> <span class="va">knockoff_gaussian</span>,</span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">1</span> <span class="co"># generate 1 knockoff matrix, like cpi()</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Requested `n_repeats = 30` permutations with <span style="color: #0000BB;">&lt;KnockoffGaussianSampler&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> A <span style="color: #0000BB;">&lt;KnockoffSampler&gt;</span> was constructed with <span style="color: #0000BB;">1</span> iterations</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Proceeding with `n_repeats = 1`</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Reconstruct <span style="color: #0000BB;">&lt;KnockoffGaussianSampler&gt;</span> with `iters &gt;= 30` or use</span></span>
-<span><span class="co">#&gt;   <span style="color: #0000BB;">&lt;ConditionalARFSampler&gt;</span> if repeated sampling is required.</span></span>
 <span></span>
 <span><span class="va">cfi</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># CPI uses observation-wise losses; default is one-sided test (alternative = "greater")</span></span>
 <span><span class="va">cfi_cpi_res</span> <span class="op">=</span> <span class="va">cfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"cpi"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: Observation-wise inference was validated with a single test set.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Current resampling has <span style="color: #0000BB;">5</span> iterations.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> With cross-validation, models are fit on overlapping training data, which may</span></span>
+<span><span class="co">#&gt;   affect coverage.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> With bootstrap or subsampling, test observations are not i.i.d.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `vignette("inference", package = "xplainfi")` for details.</span></span>
 <span><span class="va">cfi_cpi_res</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature   importance           se  statistic       p.value   conf_lower</span></span>
@@ -358,7 +495,7 @@ directly via <code>ci_method = "cpi"</code>:</p>
 <span><span class="va">cfi_cpi_res</span><span class="op">[</span>, <span class="va">method</span> <span class="op">:=</span> <span class="st">"CFI+Knockoffs"</span><span class="op">]</span></span></code></pre></div>
 <p>The results should be very similar to those computed by
 <code><a href="https://bips-hb.github.io/cpi/reference/cpi.html" class="external-link">cpi()</a></code>, so let’s compare them:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">cpi_res</span>, <span class="va">cfi_cpi_res</span><span class="op">)</span>, fill <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">feature</span>, x <span class="op">=</span> <span class="va">CPI</span>, color <span class="op">=</span> <span class="va">method</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>position <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -379,13 +516,13 @@ directly via <code>ci_method = "cpi"</code>:</p>
 <p>A noteable caveat of the knockoff approach is that they are not
 readily available for mixed data (with categorical features).</p>
 </div>
-<div class="section level3">
-<h3 id="carfi-cpi-with-arf">cARFi: CPI with ARF<a class="anchor" aria-label="anchor" href="#carfi-cpi-with-arf"></a>
-</h3>
+<div class="section level4">
+<h4 id="carfi-cpi-with-arf">cARFi: CPI with ARF<a class="anchor" aria-label="anchor" href="#carfi-cpi-with-arf"></a>
+</h4>
 <p>An alternative is available using ARF as conditional sampler rather
 than knockoffs. This approach, called cARFi, was introduced by <a href="https://doi.org/10.1609/aaai.v39i15.33712" class="external-link">Blesch et
 al. (2025)</a> and works without Gaussian assumptions:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">arf_sampler</span> <span class="op">=</span> <span class="va"><a href="../reference/ConditionalARFSampler.html">ConditionalARFSampler</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>    task <span class="op">=</span> <span class="va">task</span>,</span>
 <span>    finite_bounds <span class="op">=</span> <span class="st">"local"</span>,</span>
@@ -405,6 +542,12 @@ al. (2025)</a> and works without Gaussian assumptions:</p>
 <span></span>
 <span><span class="co"># CPI inference with ARF sampler (cARFi)</span></span>
 <span><span class="va">cfi_arf_res</span> <span class="op">=</span> <span class="va">cfi_arf</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"cpi"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: Observation-wise inference was validated with a single test set.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Current resampling has <span style="color: #0000BB;">5</span> iterations.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> With cross-validation, models are fit on overlapping training data, which may</span></span>
+<span><span class="co">#&gt;   affect coverage.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> With bootstrap or subsampling, test observations are not i.i.d.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `vignette("inference", package = "xplainfi")` for details.</span></span>
 <span><span class="va">cfi_arf_res</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature    importance           se statistic    p.value   conf_lower</span></span>
@@ -424,7 +567,7 @@ al. (2025)</a> and works without Gaussian assumptions:</p>
 <span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">cfi_arf_res</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"importance"</span>, <span class="st">"conf_lower"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CPI"</span>, <span class="st">"ci.lo"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">cfi_arf_res</span><span class="op">[</span>, <span class="va">method</span> <span class="op">:=</span> <span class="st">"CFI+ARF"</span><span class="op">]</span></span></code></pre></div>
 <p>We can now compare all three methods:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">cpi_res</span>, <span class="va">cfi_cpi_res</span>, <span class="va">cfi_arf_res</span><span class="op">)</span>, fill <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">feature</span>, x <span class="op">=</span> <span class="va">CPI</span>, color <span class="op">=</span> <span class="va">method</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>position <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -444,56 +587,69 @@ al. (2025)</a> and works without Gaussian assumptions:</p>
 <p><img src="inference_files/figure-html/cpi-cfi-arf-plot-1.png" class="r-plt" alt="Point-and-whisker plot with features on y-axis and CPI values on x-axis. Three colored points for CPI, CFI+Knockoffs, and CFI+ARF methods with horizontal error bars." width="768"></p>
 <p>As expected, the ARF-based approach differs more from both
 knockoff-based approaches, but they are all roughly in agreement.</p>
+<p><strong>Note on resampling strategy:</strong> CPI inference was
+validated using holdout (a single train/test split), and inference is
+provably valid in this setting. With cross-validation, test observations
+are still i.i.d., but models are fit on overlapping training data —
+technically, this affects inference for the same reason the Nadeau &amp;
+Bengio correction exists for resampling-based CIs. With bootstrap or
+subsampling, test observations may no longer be i.i.d. (due to repeated
+observations across test sets) <em>and</em> training sets overlap. In
+practice, Watson &amp; Wright (2021) found that empirical results did
+not strongly depend on the choice of risk estimator, but
+<strong>inference is only guaranteed to be valid with holdout</strong>.
+Other resampling strategies should be employed with the understanding
+that coverage guarantees may not hold.</p>
 </div>
-<div class="section level3">
-<h3 id="statistical-tests-with-cpi">Statistical tests with CPI<a class="anchor" aria-label="anchor" href="#statistical-tests-with-cpi"></a>
-</h3>
+<div class="section level4">
+<h4 id="statistical-tests-with-cpi">Statistical tests with CPI<a class="anchor" aria-label="anchor" href="#statistical-tests-with-cpi"></a>
+</h4>
 <p>CPI can also perform additional tests besides the default t-test,
 specifically the Wilcoxon-, Fisher-, or binomial test:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">cpi_res_wilcoxon</span> <span class="op">=</span> <span class="va">cfi_arf</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"cpi"</span>, test <span class="op">=</span> <span class="st">"wilcoxon"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: Observation-wise inference was validated with a single test set.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Current resampling has <span style="color: #0000BB;">5</span> iterations.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> With cross-validation, models are fit on overlapping training data, which may</span></span>
+<span><span class="co">#&gt;   affect coverage.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> With bootstrap or subsampling, test observations are not i.i.d.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `vignette("inference", package = "xplainfi")` for details.</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature    importance           se statistic      p.value    conf_lower</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt;        &lt;num&gt;     &lt;num&gt;        &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  3.9865071718 0.0715166883   2001000 0.000000e+00  3.2285614819</span></span>
-<span><span class="co">#&gt; 2:      x2  0.0053611218 0.0025570164   1194853 2.647776e-14  0.0031150313</span></span>
-<span><span class="co">#&gt; 3:      x3  1.7527732858 0.0325190020   2000886 0.000000e+00  1.4036366255</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.0009391978 0.0004918991   1031351 1.161633e-01 -0.0001004833</span></span>
-<span><span class="co">#&gt;    conf_upper</span></span>
-<span><span class="co">#&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:        Inf</span></span>
-<span><span class="co">#&gt; 2:        Inf</span></span>
-<span><span class="co">#&gt; 3:        Inf</span></span>
-<span><span class="co">#&gt; 4:        Inf</span></span>
+<span><span class="co">#&gt;    feature    importance    se statistic      p.value    conf_lower conf_upper</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt; &lt;num&gt;     &lt;num&gt;        &lt;num&gt;         &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  3.9865071718    NA   2001000 0.000000e+00  3.2285614819        Inf</span></span>
+<span><span class="co">#&gt; 2:      x2  0.0053611218    NA   1194853 2.647776e-14  0.0031150313        Inf</span></span>
+<span><span class="co">#&gt; 3:      x3  1.7527732858    NA   2000886 0.000000e+00  1.4036366255        Inf</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.0009391978    NA   1031351 1.161633e-01 -0.0001004833        Inf</span></span>
 <span><span class="co"># Fisher test with same default for B as in cpi()</span></span>
 <span><span class="op">(</span><span class="va">cpi_res_fisher</span> <span class="op">=</span> <span class="va">cfi_arf</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"cpi"</span>, test <span class="op">=</span> <span class="st">"fisher"</span>, B <span class="op">=</span> <span class="fl">1999</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: Observation-wise inference was validated with a single test set.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Current resampling has <span style="color: #0000BB;">5</span> iterations.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> With cross-validation, models are fit on overlapping training data, which may</span></span>
+<span><span class="co">#&gt;   affect coverage.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> With bootstrap or subsampling, test observations are not i.i.d.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `vignette("inference", package = "xplainfi")` for details.</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature    importance           se     statistic p.value   conf_lower</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt;        &lt;num&gt;         &lt;num&gt;   &lt;num&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  3.9865071718 0.0715166883  3.9865071718  0.0005  3.802012761</span></span>
-<span><span class="co">#&gt; 2:      x2  0.0053611218 0.0025570164  0.0053611218  0.0215  0.001095074</span></span>
-<span><span class="co">#&gt; 3:      x3  1.7527732858 0.0325190020  1.7527732858  0.0005  1.668688790</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.0009391978 0.0004918991 -0.0009391978  0.9670 -0.001773247</span></span>
-<span><span class="co">#&gt;    conf_upper</span></span>
-<span><span class="co">#&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:        Inf</span></span>
-<span><span class="co">#&gt; 2:        Inf</span></span>
-<span><span class="co">#&gt; 3:        Inf</span></span>
-<span><span class="co">#&gt; 4:        Inf</span></span>
+<span><span class="co">#&gt;    feature    importance    se     statistic p.value   conf_lower conf_upper</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt; &lt;num&gt;         &lt;num&gt;   &lt;num&gt;        &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  3.9865071718    NA  3.9865071718  0.0005  3.802012761        Inf</span></span>
+<span><span class="co">#&gt; 2:      x2  0.0053611218    NA  0.0053611218  0.0215  0.001095074        Inf</span></span>
+<span><span class="co">#&gt; 3:      x3  1.7527732858    NA  1.7527732858  0.0005  1.668688790        Inf</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.0009391978    NA -0.0009391978  0.9670 -0.001773247        Inf</span></span>
 <span><span class="op">(</span><span class="va">cpi_res_binom</span> <span class="op">=</span> <span class="va">cfi_arf</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"cpi"</span>, test <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: Observation-wise inference was validated with a single test set.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Current resampling has <span style="color: #0000BB;">5</span> iterations.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> With cross-validation, models are fit on overlapping training data, which may</span></span>
+<span><span class="co">#&gt;   affect coverage.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> With bootstrap or subsampling, test observations are not i.i.d.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `vignette("inference", package = "xplainfi")` for details.</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature    importance           se statistic      p.value conf_lower</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt;        &lt;num&gt;     &lt;num&gt;        &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  3.9865071718 0.0715166883      2000 0.000000e+00  0.9985033</span></span>
-<span><span class="co">#&gt; 2:      x2  0.0053611218 0.0025570164      1215 2.994368e-22  0.5891816</span></span>
-<span><span class="co">#&gt; 3:      x3  1.7527732858 0.0325190020      1995 0.000000e+00  0.9947507</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.0009391978 0.0004918991      1094 1.430053e-05  0.5283991</span></span>
-<span><span class="co">#&gt;    conf_upper</span></span>
-<span><span class="co">#&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:          1</span></span>
-<span><span class="co">#&gt; 2:          1</span></span>
-<span><span class="co">#&gt; 3:          1</span></span>
-<span><span class="co">#&gt; 4:          1</span></span>
+<span><span class="co">#&gt;    feature    importance    se statistic      p.value conf_lower conf_upper</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt; &lt;num&gt;     &lt;num&gt;        &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  3.9865071718    NA      2000 0.000000e+00  0.9985033          1</span></span>
+<span><span class="co">#&gt; 2:      x2  0.0053611218    NA      1215 2.994368e-22  0.5891816          1</span></span>
+<span><span class="co">#&gt; 3:      x3  1.7527732858    NA      1995 0.000000e+00  0.9947507          1</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.0009391978    NA      1094 1.430053e-05  0.5283991          1</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -518,126 +674,167 @@ specifically the Wilcoxon-, Fisher-, or binomial test:</p>
 <span>        color <span class="op">=</span> <span class="st">"Test"</span></span>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span></code></pre></div>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: Observation-wise inference was validated with a single test set.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Current resampling has <span style="color: #0000BB;">5</span> iterations.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> With cross-validation, models are fit on overlapping training data, which may</span></span>
+<span><span class="co">#&gt;   affect coverage.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> With bootstrap or subsampling, test observations are not i.i.d.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `vignette("inference", package = "xplainfi")` for details.</span></span></code></pre></div>
 <p><img src="inference_files/figure-html/cpi-tests-1.png" class="r-plt" alt="Point-and-whisker plot with features on y-axis and importance on x-axis. Four colored series for t, Wilcoxon, Fisher, and Binomial tests with horizontal error bars." width="768"></p>
 <p>The choice of test depends on distributional assumptions: the t-test
 assumes normality, while Fisher and Wilcoxon are non-parametric
 alternatives.</p>
+<p>Following Watson &amp; Wright (2021), we can additionaly apply
+Benjamini-Hochberg FDR control (<code>p_adjust = "BH"</code>), which is
+often desirable in exploratory settings where many features are tested
+simultaneously:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cfi_arf</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"cpi"</span>, p_adjust <span class="op">=</span> <span class="st">"BH"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: Observation-wise inference was validated with a single test set.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Current resampling has <span style="color: #0000BB;">5</span> iterations.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> With cross-validation, models are fit on overlapping training data, which may</span></span>
+<span><span class="co">#&gt;   affect coverage.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> With bootstrap or subsampling, test observations are not i.i.d.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `vignette("inference", package = "xplainfi")` for details.</span></span>
+<span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
+<span><span class="co">#&gt;    feature    importance           se statistic    p.value   conf_lower</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt;        &lt;num&gt;     &lt;num&gt;      &lt;num&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  3.9865071718 0.0715166883 55.742335 0.00000000  3.868818148</span></span>
+<span><span class="co">#&gt; 2:      x2  0.0053611218 0.0025570164  2.096632 0.02410105  0.001153254</span></span>
+<span><span class="co">#&gt; 3:      x3  1.7527732858 0.0325190020 53.899972 0.00000000  1.699259488</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.0009391978 0.0004918991 -1.909330 0.97181872 -0.001748675</span></span>
+<span><span class="co">#&gt;    conf_upper</span></span>
+<span><span class="co">#&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:        Inf</span></span>
+<span><span class="co">#&gt; 2:        Inf</span></span>
+<span><span class="co">#&gt; 3:        Inf</span></span>
+<span><span class="co">#&gt; 4:        Inf</span></span></code></pre></div>
+<p>Note that multiplcity adjustment is in the general case limited to
+p-values, and only the general Bonferroni method is easily applicable to
+confidence intervals.</p>
 </div>
 </div>
-<div class="section level2">
-<h2 id="custom-inference-with-loco">Custom inference with LOCO<a class="anchor" aria-label="anchor" href="#custom-inference-with-loco"></a>
-</h2>
+<div class="section level3">
+<h3 id="distribution-free-inference-for-loco-lei-et-al--2018">Distribution-free inference for LOCO (Lei et al., 2018)<a class="anchor" aria-label="anchor" href="#distribution-free-inference-for-loco-lei-et-al--2018"></a>
+</h3>
 <p><a href="https://doi.org/10.1080/01621459.2017.1307116" class="external-link">Lei et
-al. (2018)</a> proposed inference for LOCO using the median absolute
-differences of the baseline- and post-refit loss differences</p>
+al. (2018)</a> proposed distribution-free inference for LOCO importance
+based on observation-wise loss differences. Unlike CPI/cARFi, LOCO
+requires retraining the model without each feature. The inference is
+conditional on the training data <span class="math inline">\(D_1\)</span> from a single train/test split: the
+observation-wise loss differences on the test set are i.i.d. given <span class="math inline">\(D_1\)</span>, enabling nonparametric tests. The
+idea is to test whether the excess test error from removing feature
+<span class="math inline">\(j\)</span> is significantly greater than
+zero:</p>
 <p><span class="math display">\[
 \theta_j = \mathrm{med}\left(
     |Y - \hat{f}_{n_1}^{-j}(X)| - |Y - \hat{f}_{n_1}(X)| \big| D_1
 \right)
 \]</span></p>
-<p>If we apply <code>LOCO</code> as implemented in <code>xplainfi</code>
-using the median absolute error (MAE) as our measure including the
-median as the aggregation function, we unfortunately get something else,
-though:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">measure_mae</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mae"</span><span class="op">)</span></span>
-<span><span class="va">measure_mae</span><span class="op">$</span><span class="va">aggregator</span> <span class="op">=</span> <span class="va">median</span></span>
+<p>The paper proposes:</p>
+<ul>
+<li>
+<strong>L1 (absolute) loss</strong> as the measure</li>
+<li>
+<strong>Median</strong> as the aggregation function</li>
+<li>A <strong>single train/test split</strong> (holdout), since
+inference is conditional on the training data</li>
+<li>A <strong>Wilcoxon signed-rank test</strong> (or sign test) for
+inference</li>
+<li>
+<strong>Bonferroni correction</strong> for multiple comparisons</li>
+</ul>
+<p>This is available in <code>xplainfi</code> via
+<code>ci_method = "lei"</code>:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># mae has L1 loss on observation-level, the "mean" aggregation is ignored here</span></span>
+<span><span class="va">measure_mae</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mae"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">loco</span> <span class="op">=</span> <span class="va"><a href="../reference/LOCO.html">LOCO</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
-<span>    task <span class="op">=</span> <span class="va">task</span>,</span>
-<span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
+<span>    task <span class="op">=</span> <span class="fu"><a href="../reference/sim_dgp_scenarios.html">sim_dgp_correlated</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">2000</span>, r <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span>,</span>
+<span>    learner <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.ranger"</span>, num.trees <span class="op">=</span> <span class="fl">500</span><span class="op">)</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">rsmp</a></span><span class="op">(</span><span class="st">"holdout"</span><span class="op">)</span>,</span>
 <span>    measure <span class="op">=</span> <span class="va">measure_mae</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">loco</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">loco</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">loco</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span></span>
+<span>    ci_method <span class="op">=</span> <span class="st">"lei"</span>,</span>
+<span>    alternative <span class="op">=</span> <span class="st">"two.sided"</span>,</span>
+<span>    p_adjust <span class="op">=</span> <span class="st">"bonferroni"</span>,</span>
+<span>    aggregator <span class="op">=</span> <span class="va">median</span> <span class="co"># default spelled out explicitly</span></span>
+<span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature importance</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1 0.98413241</span></span>
-<span><span class="co">#&gt; 2:      x2 0.04153689</span></span>
-<span><span class="co">#&gt; 3:      x3 0.60559674</span></span>
-<span><span class="co">#&gt; 4:      x4 0.04711029</span></span></code></pre></div>
-<p>This is <strong>not</strong> exactly what the authors propose,
-because <code>$score()</code> calculates the aggregation function
-(<code>median</code>) for each resampling iteration first, and takes the
-difference afterwards, i.e.</p>
-<p><span class="math display">\[
-\theta_j = \mathrm{med}\left(|Y - \hat{f}_{n_1}^{-j}(X)|\right) -
-\mathrm{med}\left(|Y - \hat{f}_{n_1}(X)| \big| D_1
-\right)
-\]</span></p>
-<p>In the default case where the arithemtic mean is used, it does not
-matter whether we calculate the difference of the means or the mean of
-the differences, but using the median it does.</p>
-<p>We can, however, reconstruct it by using the observation-wise losses
-(in this case, the absolute error):</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">loco_obsloss</span> <span class="op">=</span> <span class="va">loco</span><span class="op">$</span><span class="fu">obs_loss</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">loco_obsloss</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    feature iter_rsmp iter_repeat row_ids loss_baseline loss_post obs_importance</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;     &lt;int&gt;       &lt;num&gt;   &lt;int&gt;         &lt;num&gt;     &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1         1           2       1    0.06837518 0.3866730     0.31829787</span></span>
-<span><span class="co">#&gt; 2:      x1         1           2       3    0.33656952 0.4282341     0.09166453</span></span>
-<span><span class="co">#&gt; 3:      x1         1           2      14    0.14554173 1.2629784     1.11743664</span></span>
-<span><span class="co">#&gt; 4:      x1         1           2      18    0.21779867 0.6605524     0.44275371</span></span>
-<span><span class="co">#&gt; 5:      x1         1           2      25    0.07254430 1.0481222     0.97557794</span></span>
-<span><span class="co">#&gt; 6:      x1         1           2      28    0.22369548 1.0455213     0.82182579</span></span></code></pre></div>
-<p><code>obs_importance</code> here refers to the difference
-<code>loss_post - loss_baseline</code>, so</p>
+<span><span class="co">#&gt;    feature importance    se statistic      p.value conf_lower conf_upper</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt; &lt;num&gt;     &lt;num&gt;        &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1 0.80833037    NA    216167 9.828138e-98 0.82052360 1.00057066</span></span>
+<span><span class="co">#&gt; 2:      x2 0.01819719    NA    135421 5.538819e-06 0.01210851 0.03837064</span></span>
+<span><span class="co">#&gt; 3:      x3 0.52495928    NA    211296 5.603680e-89 0.51589328 0.64318191</span></span>
+<span><span class="co">#&gt; 4:      x4 0.01989962    NA    146280 9.639960e-12 0.01774627 0.03932460</span></span></code></pre></div>
+<p>The <code>ci_method = "lei"</code> method works on observation-wise
+loss differences internally, using the median as the default point
+estimate and the Wilcoxon signed-rank test for confidence intervals and
+p-values.</p>
+<div class="section level4">
+<h4 id="configurable-parameters">Configurable parameters<a class="anchor" aria-label="anchor" href="#configurable-parameters"></a>
+</h4>
+<p>All components proposed by Lei et al. are the defaults but can be
+customized:</p>
 <ul>
-<li><span class="math inline">\(\texttt{loss_baseline} = |Y -
-\hat{f}_{n_1}(X)|\)</span></li>
-<li><span class="math inline">\(\texttt{loss_post} = |Y -
-\hat{f}_{n_1}^{-j}(X)|\)</span></li>
-<li><span class="math inline">\(\texttt{obs_importance} =
-\texttt{loss_post} - \texttt{loss_baseline}\)</span></li>
+<li>
+<code>test</code>: <code>"wilcoxon"</code> (default),
+<code>"t"</code>, <code>"fisher"</code>, or <code>"binomial"</code>
+(sign test)</li>
+<li>
+<code>aggregator</code>: defaults to <code><a href="https://rdrr.io/r/stats/median.html" class="external-link">stats::median</a></code>, can
+be changed (e.g. <code>mean</code>)</li>
+<li>
+<code>p_adjust</code>: p-value correction for multiple comparisons,
+accepts any method from <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">stats::p.adjust.methods</a></code>
+(e.g. <code>"bonferroni"</code>, <code>"holm"</code>, <code>"BH"</code>,
+<code>"none"</code>). Default is <code>"none"</code>. When
+<code>"bonferroni"</code>, confidence intervals are also adjusted
+(alpha/k). For other methods like <code>"holm"</code> or
+<code>"BH"</code>, only p-values are adjusted because these
+sequential/adaptive procedures do not yield a clean per-comparison alpha
+for CI construction.</li>
 </ul>
-<p>Which means by taking the median for each feature <span class="math inline">\(j\)</span> within each resampling iteration, we
-can construct <span class="math inline">\(\theta_j(D_1)\)</span> as
-proposed, for each set <span class="math inline">\(D_k\)</span> where
-<span class="math inline">\(k\)</span> is the resampling iteration:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">loco_thetas</span> <span class="op">=</span> <span class="va">loco_obsloss</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">obs_importance</span><span class="op">)</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"feature"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="va">loco_thetas</span></span>
-<span><span class="co">#&gt;    feature      theta</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1 0.79280654</span></span>
-<span><span class="co">#&gt; 2:      x2 0.01851736</span></span>
-<span><span class="co">#&gt; 3:      x3 0.52224336</span></span>
-<span><span class="co">#&gt; 4:      x4 0.02133066</span></span></code></pre></div>
-<p>The authors then propose to construct distribution-free confidence
-intervals, e.g. using a sign- or Wilcoxon test We can for example use
-<code>wilcoxon.test()</code> to compute confidence intervals around the
-estimated pseudo-median:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">loco_wilcox_ci</span> <span class="op">=</span> <span class="va">loco_obsloss</span><span class="op">[</span>,</span>
-<span>    <span class="op">{</span></span>
-<span>        <span class="va">tt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/wilcox.test.html" class="external-link">wilcox.test</a></span><span class="op">(</span></span>
-<span>            <span class="va">obs_importance</span>,</span>
-<span>            conf.int <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>            conf.level <span class="op">=</span> <span class="fl">0.95</span></span>
-<span>        <span class="op">)</span></span>
-<span>        <span class="fu">.</span><span class="op">(</span></span>
-<span>            statistic <span class="op">=</span> <span class="va">tt</span><span class="op">$</span><span class="va">statistic</span>,</span>
-<span>            estimate <span class="op">=</span> <span class="va">tt</span><span class="op">$</span><span class="va">estimate</span>, <span class="co"># the pseudomedian importance</span></span>
-<span>            p.value <span class="op">=</span> <span class="va">tt</span><span class="op">$</span><span class="va">p.value</span>,</span>
-<span>            conf_lower <span class="op">=</span> <span class="va">tt</span><span class="op">$</span><span class="va">conf.int</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
-<span>            conf_upper <span class="op">=</span> <span class="va">tt</span><span class="op">$</span><span class="va">conf.int</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span></span>
-<span>        <span class="op">)</span></span>
-<span>    <span class="op">}</span>,</span>
-<span>    by <span class="op">=</span> <span class="va">feature</span></span>
-<span><span class="op">]</span></span>
-<span></span>
-<span><span class="va">loco_wilcox_ci</span></span>
-<span><span class="co">#&gt;    feature statistic   estimate       p.value conf_lower conf_upper</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;     &lt;num&gt;      &lt;num&gt;         &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1 194641130 0.90926043  0.000000e+00 0.89581673 0.92270736</span></span>
-<span><span class="co">#&gt; 2:      x2 121302167 0.02405662 2.317954e-148 0.02219018 0.02590611</span></span>
-<span><span class="co">#&gt; 3:      x3 190309637 0.57687593  0.000000e+00 0.56827659 0.58544169</span></span>
-<span><span class="co">#&gt; 4:      x4 134365884 0.03178195  0.000000e+00 0.03022359 0.03337264</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">loco</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span></span>
+<span>    ci_method <span class="op">=</span> <span class="st">"lei"</span>,</span>
+<span>    test <span class="op">=</span> <span class="st">"t"</span>,</span>
+<span>    aggregator <span class="op">=</span> <span class="va">mean</span>,</span>
+<span>    alternative <span class="op">=</span> <span class="st">"two.sided"</span>,</span>
+<span>    p_adjust <span class="op">=</span> <span class="st">"holm"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
+<span><span class="co">#&gt;    feature importance          se statistic       p.value conf_lower conf_upper</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;       &lt;num&gt;     &lt;num&gt;         &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1 0.97220860 0.033777130 28.783043 2.152723e-118 0.90588611 1.03853109</span></span>
+<span><span class="co">#&gt; 2:      x2 0.04079587 0.007403802  5.510125  5.128595e-08 0.02625827 0.05533348</span></span>
+<span><span class="co">#&gt; 3:      x3 0.61203461 0.022878509 26.751508 3.754000e-107 0.56711192 0.65695730</span></span>
+<span><span class="co">#&gt; 4:      x4 0.04338934 0.005255062  8.256675  1.611160e-15 0.03307085 0.05370782</span></span></code></pre></div>
+<!--
+### Why `ci_method = "lei"` and not just MAE + median?
+
+One subtlety is that the standard `$importance()` pipeline (with `ci_method = "none"` or `ci_method = "raw"`) computes the aggregation function per resampling iteration first, then takes the difference:
+
+$$
+\mathrm{med}\left(|Y - \hat{f}^{-j}(X)|\right) - \mathrm{med}\left(|Y - \hat{f}(X)|\right)
+$$
+
+This is *not* what the paper proposes. Lei et al. take the difference first, then aggregate:
+
+$$
+\mathrm{med}\left(|Y - \hat{f}^{-j}(X)| - |Y - \hat{f}(X)|\right)
+$$
+
+For the arithmetic mean these are equivalent, but for the median they are not.
+The `ci_method = "lei"` implementation handles this correctly by operating on observation-wise loss differences directly.
+-->
+</div>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -4,6 +4,14 @@ Base class generalizing refit-based variable importance measures.
 Default corresponds to leaving out each feature `n_repeats` times, which
 corresponds to LOCO (Leave One Covariate Out).
 
+## References
+
+Lei J, G'Sell M, Rinaldo A, Tibshirani R, Wasserman L (2018).
+“Distribution-Free Predictive Inference for Regression.” *Journal of the
+American Statistical Association*, **113**(523), 1094–1111.
+[doi:10.1080/01621459.2017.1307116](https://doi.org/10.1080/01621459.2017.1307116)
+.
+
 ## Super class
 
 [`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
@@ -37,13 +45,14 @@ corresponds to LOCO (Leave One Covariate Out).
 
 - [`WVIM$new()`](#method-WVIM-new)
 
+- [`WVIM$importance()`](#method-WVIM-importance)
+
 - [`WVIM$compute()`](#method-WVIM-compute)
 
 - [`WVIM$clone()`](#method-WVIM-clone)
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$importance()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
 - [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
 - [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
 - [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
@@ -88,6 +97,113 @@ Creates a new instance of this
 
   (`integer(1)`: `30L`) Number of refit iterations per resampling
   iteration.
+
+------------------------------------------------------------------------
+
+### Method `importance()`
+
+Get aggregated importance scores. Extends the base `$importance()`
+method to support `ci_method = "lei"`.
+
+This implements distribution-free inference based on Lei et al. (2018),
+testing observation-wise loss differences using the Wilcoxon signed-rank
+test by default.
+
+Lei et al. (2018) proposed this method specifically for LOCO with L1
+(absolute) loss, median aggregation, and a single train/test split
+(holdout). The inference is conditional on the training data, requiring
+i.i.d. test observations from a single split. While the aggregation
+function, statistical test, and resampling strategy are parameterizable,
+deviating from these defaults may invalidate the theoretical guarantees.
+
+For a comprehensive overview of inference methods, see
+`vignette("inference", package = "xplainfi")`.
+
+#### Usage
+
+    WVIM$importance(
+      relation = NULL,
+      standardize = FALSE,
+      ci_method = c("none", "raw", "nadeau_bengio", "quantile", "lei"),
+      conf_level = 0.95,
+      alternative = c("greater", "two.sided"),
+      test = c("wilcoxon", "t", "fisher", "binomial"),
+      B = 1999,
+      aggregator = NULL,
+      p_adjust = "none",
+      ...
+    )
+
+#### Arguments
+
+- `relation`:
+
+  (`character(1)`) How to relate perturbed scores to originals
+  ("difference" or "ratio"). If `NULL`, uses stored parameter value.
+
+- `standardize`:
+
+  (`logical(1)`: `FALSE`) If `TRUE`, importances are standardized by the
+  highest score so all scores fall in `[-1, 1]`.
+
+- `ci_method`:
+
+  (`character(1)`: `"none"`) Variance estimation method. In addition to
+  base methods (`"none"`, `"raw"`, `"nadeau_bengio"`, `"quantile"`),
+  WVIM methods support `"lei"` for distribution-free inference (Lei et
+  al., 2018).
+
+- `conf_level`:
+
+  (`numeric(1)`: `0.95`) Confidence level to use for confidence interval
+  construction when `ci_method != "none"`.
+
+- `alternative`:
+
+  (`character(1)`: `"greater"`) Type of alternative hypothesis for
+  statistical tests. `"greater"` tests H0: importance \<= 0 vs H1:
+  importance \> 0 (one-sided). `"two.sided"` tests H0: importance = 0 vs
+  H1: importance != 0.
+
+- `test`:
+
+  (`character(1)`: `"wilcoxon"`) Test to use for Lei et al. inference.
+  One of `"wilcoxon"`, `"t"`, `"fisher"`, or `"binomial"`. Only used
+  when `ci_method = "lei"`.
+
+- `B`:
+
+  (`integer(1)`: `1999`) Number of replications for Fisher test. Only
+  used when `ci_method = "lei"` and `test = "fisher"`.
+
+- `aggregator`:
+
+  (`function`: [`stats::median`](https://rdrr.io/r/stats/median.html))
+  Aggregation function for computing the point estimate from
+  observation-wise importance values. Defaults to
+  [`stats::median`](https://rdrr.io/r/stats/median.html) as proposed by
+  Lei et al. (2018). Only used when `ci_method = "lei"`.
+
+- `p_adjust`:
+
+  (`character(1)`: `"none"`) Method for p-value adjustment for multiple
+  comparisons. Accepts any method supported by
+  [stats::p.adjust.methods](https://rdrr.io/r/stats/p.adjust.html), e.g.
+  `"holm"`, `"bonferroni"`, `"BH"`, `"none"`. When `"bonferroni"`,
+  confidence intervals are also adjusted (alpha/k). For other correction
+  methods (e.g. `"holm"`, `"BH"`), only p-values are adjusted;
+  confidence intervals remain at the nominal `conf_level` because these
+  sequential/adaptive procedures do not have a clean per-comparison
+  alpha for CI construction.
+
+- `...`:
+
+  Additional arguments passed to the base method.
+
+#### Returns
+
+([data.table](https://rdrr.io/pkg/data.table/man/data.table.html))
+Aggregated importance scores.
 
 ------------------------------------------------------------------------
 

@@ -77,12 +77,18 @@ the feature given the other features. Any <a href="ConditionalSampler.html">Cond
 designed for use with knockoff samplers (<a href="KnockoffGaussianSampler.html">KnockoffGaussianSampler</a>).</p></li>
 <li><p><strong>cARFi</strong> (Blesch et al., 2025): CFI with ARF-based conditional sampling
 (<a href="ConditionalARFSampler.html">ConditionalARFSampler</a>), using the same CPI inference framework.</p></li>
-</ul><p>Both require a decomposable measure (e.g., MSE) and holdout resampling
-so each observation appears at most once in the test set.</p>
+</ul><p>Both require a decomposable measure (e.g., MSE) and out-of-sample evaluation.
+CPI inference is guaranteed to be valid with holdout (a single train/test split).
+With cross-validation, test observations are i.i.d. but models are fit on
+overlapping training data, which may affect inference coverage. With bootstrap
+or subsampling, both non-i.i.d. test observations and overlapping training data
+can be an issue. See <code>vignette("inference", package = "xplainfi")</code> for details.</p>
 <p>Available tests: <code>"t"</code> (t-test), <code>"wilcoxon"</code> (signed-rank), <code>"fisher"</code> (permutation),
 <code>"binomial"</code> (sign test). The Fisher test is recommended.</p>
 <p>Method-agnostic inference methods (<code>"raw"</code>, <code>"nadeau_bengio"</code>, <code>"quantile"</code>) are also
 available; see <a href="FeatureImportanceMethod.html">FeatureImportanceMethod</a> for details.</p>
+<p>For a comprehensive overview of inference methods including usage examples,
+see <code>vignette("inference", package = "xplainfi")</code>.</p>
 </div>
 
     </div>

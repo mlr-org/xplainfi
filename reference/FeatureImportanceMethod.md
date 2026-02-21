@@ -162,6 +162,7 @@ or refits [LOCO](https://mlr-org.github.io/xplainfi/reference/LOCO.md)).
       ci_method = c("none", "raw", "nadeau_bengio", "quantile"),
       conf_level = 0.95,
       alternative = c("greater", "two.sided"),
+      p_adjust = "none",
       ...
     )
 
@@ -209,6 +210,19 @@ or refits [LOCO](https://mlr-org.github.io/xplainfi/reference/LOCO.md)).
   statistical tests. `"greater"` tests H0: importance \<= 0 vs H1:
   importance \> 0 (one-sided). `"two.sided"` tests H0: importance = 0 vs
   H1: importance != 0. Only used when `ci_method != "none"`.
+
+- `p_adjust`:
+
+  (`character(1)`: `"none"`) Method for p-value adjustment for multiple
+  comparisons. Accepts any method supported by
+  [stats::p.adjust.methods](https://rdrr.io/r/stats/p.adjust.html), e.g.
+  `"holm"`, `"bonferroni"`, `"BH"`, `"none"`. Applied to p-values from
+  `"raw"` and `"nadeau_bengio"` methods. When `"bonferroni"`, confidence
+  intervals are also adjusted (alpha/k). For other correction methods
+  (e.g. `"holm"`, `"BH"`), only p-values are adjusted; confidence
+  intervals remain at the nominal `conf_level` because these
+  sequential/adaptive procedures do not have a clean per-comparison
+  alpha for CI construction.
 
 - `...`:
 

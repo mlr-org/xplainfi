@@ -69,6 +69,15 @@
 </ul></li>
 </ul></div>
 <div class="section level3">
+<h3 id="inference-development-version">Inference<a class="anchor" aria-label="anchor" href="#inference-development-version"></a></h3>
+<ul><li>New <code>ci_method = "lei"</code> for WVIM/LOCO: distribution-free inference based on Lei et al. (2018), testing observation-wise loss differences. Defaults to Wilcoxon signed-rank test with median aggregation. Supports t-test, Fisher permutation, and binomial (sign) tests. Requires a decomposable measure.</li>
+<li>New <code>p_adjust</code> parameter in <code>$importance()</code> for multiplicity correction across all <code>ci_method</code>s that produce p-values (<code>"raw"</code>, <code>"nadeau_bengio"</code>, <code>"cpi"</code>, <code>"lei"</code>). Accepts any method from <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">stats::p.adjust.methods</a></code> (e.g. <code>"holm"</code>, <code>"bonferroni"</code>, <code>"BH"</code>). Default is <code>"none"</code>. When <code>"bonferroni"</code>, confidence intervals are also adjusted (alpha/k). For other methods, only p-values are adjusted because sequential/adaptive procedures lack a clean per-comparison alpha for CI construction.</li>
+<li>Parametric <code>ci_method</code>s (<code>"raw"</code>, <code>"nadeau_bengio"</code>) return <code>se</code>, <code>statistic</code>, <code>p.value</code>, <code>conf_lower</code>, and <code>conf_upper</code> columns. The <code>"quantile"</code> method returns only <code>conf_lower</code> and <code>conf_upper</code> (no <code>se</code>, <code>statistic</code>, or <code>p.value</code>).</li>
+<li>Parametric <code>ci_method</code>s support <code>alternative = "greater"</code> (one-sided, the default) or <code>alternative = "two.sided"</code> to test H0: importance &lt;= 0 vs H1: importance &gt; 0, or H0: importance = 0 vs H1: importance != 0, respectively. For <code>"quantile"</code>, <code>alternative</code> controls whether the confidence interval is one-sided (<code>"greater"</code>: finite lower bound, <code>conf_upper = Inf</code>) or two-sided (both bounds finite).</li>
+<li>Improved documentation for all CI methods in <code>FeatureImportanceMethod</code>, explaining how p-values and confidence intervals are calculated for each method.</li>
+<li>CFI documentation distinguishes between CPI (knockoff-based inference, Watson &amp; Wright 2021) and cARFi (ARF-based inference, Blesch et al. 2025).</li>
+</ul></div>
+<div class="section level3">
 <h3 id="minor-user-facing-changes-development-version">Minor user-facing changes<a class="anchor" aria-label="anchor" href="#minor-user-facing-changes-development-version"></a></h3>
 <ul><li>Bump the defaults for <code>n_repeats</code> in favor of stability
 <ul><li>For<code>PerturbationImportance</code> methods (<code>PFI</code>, <code>CFI</code>, <code>RFI</code>): <code>n_repeats</code> is now 30</li>
@@ -84,13 +93,6 @@
 <li>Removed overly abstract test helper functions (<code>test_basic_workflow</code>, <code>test_with_resampling</code>, <code>test_custom_sampler</code>) and inlined their logic at call sites for better readability.</li>
 <li>Use <code>ConditionalGaussianSampler</code> instead of <code>ConditionalARFSampler</code> in tests that don’t specifically test ARF functionality.</li>
 <li>Set explicit <code>n_repeats</code> values in all tests (1L for functional, 5L for plausibility).</li>
-</ul></div>
-<div class="section level3">
-<h3 id="inference-development-version">Inference<a class="anchor" aria-label="anchor" href="#inference-development-version"></a></h3>
-<ul><li>Parametric <code>ci_method</code>s (<code>"raw"</code>, <code>"nadeau_bengio"</code>) return <code>se</code>, <code>statistic</code>, <code>p.value</code>, <code>conf_lower</code>, and <code>conf_upper</code> columns. The <code>"quantile"</code> method returns only <code>conf_lower</code> and <code>conf_upper</code> (no <code>se</code>, <code>statistic</code>, or <code>p.value</code>).</li>
-<li>Parametric <code>ci_method</code>s support <code>alternative = "greater"</code> (one-sided, the default) or <code>alternative = "two.sided"</code> to test H0: importance &lt;= 0 vs H1: importance &gt; 0, or H0: importance = 0 vs H1: importance != 0, respectively. For <code>"quantile"</code>, <code>alternative</code> controls whether the confidence interval is one-sided (<code>"greater"</code>: finite lower bound, <code>conf_upper = Inf</code>) or two-sided (both bounds finite).</li>
-<li>Improved documentation for all CI methods in <code>FeatureImportanceMethod</code>, explaining how p-values and confidence intervals are calculated for each method.</li>
-<li>CFI documentation distinguishes between CPI (knockoff-based inference, Watson &amp; Wright 2021) and cARFi (ARF-based inference, Blesch et al. 2025).</li>
 </ul></div>
 </div>
     <div class="section level2">

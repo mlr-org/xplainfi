@@ -102,6 +102,7 @@ only sub-method for which it is known to be valid.
       alternative = c("greater", "two.sided"),
       test = c("t", "wilcoxon", "fisher", "binomial"),
       B = 1999,
+      p_adjust = "none",
       ...
     )
 
@@ -148,6 +149,18 @@ only sub-method for which it is known to be valid.
 
   (`integer(1)`: `1999`) Number of replications for Fisher test. Only
   used when `ci_method = "cpi"` and `test = "fisher"`.
+
+- `p_adjust`:
+
+  (`character(1)`: `"none"`) Method for p-value adjustment for multiple
+  comparisons. Accepts any method supported by
+  [stats::p.adjust.methods](https://rdrr.io/r/stats/p.adjust.html), e.g.
+  `"holm"`, `"bonferroni"`, `"BH"`, `"none"`. When `"bonferroni"`,
+  confidence intervals are also adjusted (alpha/k). For other correction
+  methods (e.g. `"holm"`, `"BH"`), only p-values are adjusted;
+  confidence intervals remain at the nominal `conf_level` because these
+  sequential/adaptive procedures do not have a clean per-comparison
+  alpha for CI construction.
 
 - `...`:
 

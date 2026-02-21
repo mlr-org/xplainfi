@@ -198,6 +198,7 @@ across resampling iterations and, depending on the method use, permutations (<a 
 <span>  ci_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"raw"</span>, <span class="st">"nadeau_bengio"</span>, <span class="st">"quantile"</span><span class="op">)</span>,</span>
 <span>  conf_level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  alternative <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"greater"</span>, <span class="st">"two.sided"</span><span class="op">)</span>,</span>
+<span>  p_adjust <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -234,6 +235,16 @@ See details.</p></dd>
 <code>"greater"</code> tests H0: importance &lt;= 0 vs H1: importance &gt; 0 (one-sided).
 <code>"two.sided"</code> tests H0: importance = 0 vs H1: importance != 0.
 Only used when <code>ci_method != "none"</code>.</p></dd>
+
+
+<dt><code>p_adjust</code></dt>
+<dd><p>(<code>character(1)</code>: <code>"none"</code>) Method for p-value adjustment for multiple comparisons.
+Accepts any method supported by <a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">stats::p.adjust.methods</a>, e.g. <code>"holm"</code>, <code>"bonferroni"</code>, <code>"BH"</code>, <code>"none"</code>.
+Applied to p-values from <code>"raw"</code> and <code>"nadeau_bengio"</code> methods.
+When <code>"bonferroni"</code>, confidence intervals are also adjusted (alpha/k).
+For other correction methods (e.g. <code>"holm"</code>, <code>"BH"</code>), only p-values are adjusted;
+confidence intervals remain at the nominal <code>conf_level</code> because these sequential/adaptive
+procedures do not have a clean per-comparison alpha for CI construction.</p></dd>
 
 
 <dt><code>...</code></dt>
