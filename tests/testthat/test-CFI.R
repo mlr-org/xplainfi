@@ -218,7 +218,7 @@ test_that("CFI with CPI variance method using KnockoffGaussianSampler", {
 	task = sim_dgp_correlated(n = 500, r = 0.7)
 	learner = lrn("regr.ranger", num.trees = 100)
 	measure = msr("regr.mse")
-	resampling = rsmp("cv", folds = 5)
+	resampling = rsmp("holdout")
 
 	gaussian_sampler = KnockoffGaussianSampler$new(task)
 	cfi = CFI$new(
@@ -267,6 +267,67 @@ test_that("CFI with CPI variance method using KnockoffGaussianSampler", {
 	expect_lt(mean(important_pvals), mean(unimportant_pvals))
 })
 
+test_that("CFI with CPI and p_adjust = 'BH' adjusts p-values", {
+	skip_if_not_installed("knockoff")
+
+	task = sim_dgp_correlated(n = 200, r = 0.7)
+	learner = lrn("regr.rpart")
+	measure = msr("regr.mse")
+	resampling = rsmp("holdout")
+
+	gaussian_sampler = KnockoffGaussianSampler$new(task)
+	cfi = CFI$new(
+		task = task,
+		learner = learner,
+		measure = measure,
+		resampling = resampling,
+		sampler = gaussian_sampler,
+		n_repeats = 1L
+	)
+	cfi$compute()
+
+	cpi_none = cfi$importance(ci_method = "cpi")
+	cpi_bh = cfi$importance(ci_method = "cpi", p_adjust = "BH")
+
+	# Point estimates should be identical
+	expect_equal(cpi_none$importance, cpi_bh$importance)
+
+	# BH-adjusted p-values should be >= unadjusted
+	expect_true(all(cpi_bh$p.value >= cpi_none$p.value - 1e-10))
+
+	# CIs should be unchanged (BH only adjusts p-values, not CIs)
+	expect_equal(cpi_none$conf_lower, cpi_bh$conf_lower)
+	expect_equal(cpi_none$conf_upper, cpi_bh$conf_upper)
+})
+
+test_that("CPI with non-t test reports se = NA", {
+	skip_if_not_installed("knockoff")
+
+	task = sim_dgp_correlated(n = 200, r = 0.7)
+	learner = lrn("regr.rpart")
+	measure = msr("regr.mse")
+	resampling = rsmp("holdout")
+
+	gaussian_sampler = KnockoffGaussianSampler$new(task)
+	cfi = CFI$new(
+		task = task,
+		learner = learner,
+		measure = measure,
+		resampling = resampling,
+		sampler = gaussian_sampler,
+		n_repeats = 1L
+	)
+	cfi$compute()
+
+	# Default test is t-test, se should be finite
+	cpi_t = cfi$importance(ci_method = "cpi", test = "t")
+	checkmate::expect_numeric(cpi_t$se, finite = TRUE, lower = 0)
+
+	# Wilcoxon test: se should be NA
+	cpi_wilcox = suppressWarnings(cfi$importance(ci_method = "cpi", test = "wilcoxon"))
+	expect_true(all(is.na(cpi_wilcox$se)))
+})
+
 test_that("CFI with CPI warning on problematic resampling", {
 	skip_if_not_installed("knockoff")
 
@@ -286,15 +347,15 @@ test_that("CFI with CPI warning on problematic resampling", {
 	)
 	cfi$compute()
 
-	# Should warn about duplicated observations
+	# Should warn about non-holdout resampling
 	expect_warning(
 		cpi_result <- cfi$importance(ci_method = "cpi"),
-		regexp = "duplicated observation"
+		regexp = "single test set"
 	)
 
 	expect_importance_dt(cpi_result, features = cfi$features)
 
-	# With proper CV, should be silent
+	# CV also warns (overlapping training data)
 	cfi_cv = CFI$new(
 		task = task,
 		learner = learner,
@@ -304,5 +365,20 @@ test_that("CFI with CPI warning on problematic resampling", {
 		n_repeats = 1L
 	)
 	cfi_cv$compute()
-	expect_silent(cfi_cv$importance(ci_method = "cpi"))
+	expect_warning(
+		cfi_cv$importance(ci_method = "cpi"),
+		regexp = "single test set"
+	)
+
+	# With holdout (single split), should be silent
+	cfi_holdout = CFI$new(
+		task = task,
+		learner = learner,
+		measure = measure,
+		resampling = rsmp("holdout"),
+		sampler = gaussian_sampler,
+		n_repeats = 1L
+	)
+	cfi_holdout$compute()
+	expect_silent(cfi_holdout$importance(ci_method = "cpi"))
 })

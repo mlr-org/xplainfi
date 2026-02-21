@@ -30,6 +30,12 @@ wvim$compute()
 wvim$importance()
 \dontshow{\}) # examplesIf}
 }
+\references{
+Lei J, G'Sell M, Rinaldo A, Tibshirani R, Wasserman L (2018).
+\dQuote{Distribution-Free Predictive Inference for Regression.}
+\emph{Journal of the American Statistical Association}, \bold{113}(523), 1094--1111.
+\doi{10.1080/01621459.2017.1307116}.
+}
 \keyword{internal}
 \section{Super class}{
 \code{\link[xplainfi:FeatureImportanceMethod]{xplainfi::FeatureImportanceMethod}} -> \code{WVIM}
@@ -52,6 +58,7 @@ also the archive of all evaluations, possible useful for future use. Only stored
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-WVIM-new}{\code{WVIM$new()}}
+\item \href{#method-WVIM-importance}{\code{WVIM$importance()}}
 \item \href{#method-WVIM-compute}{\code{WVIM$compute()}}
 \item \href{#method-WVIM-clone}{\code{WVIM$clone()}}
 }
@@ -59,7 +66,6 @@ also the archive of all evaluations, possible useful for future use. Only stored
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="importance"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-importance'><code>xplainfi::FeatureImportanceMethod$importance()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>xplainfi::FeatureImportanceMethod$obs_loss()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>xplainfi::FeatureImportanceMethod$print()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>xplainfi::FeatureImportanceMethod$reset()</code></a></span></li>
@@ -98,6 +104,78 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \item{\code{n_repeats}}{(\code{integer(1)}: \code{30L}) Number of refit iterations per resampling iteration.}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-WVIM-importance"></a>}}
+\if{latex}{\out{\hypertarget{method-WVIM-importance}{}}}
+\subsection{Method \code{importance()}}{
+Get aggregated importance scores.
+Extends the base \verb{$importance()} method to support \code{ci_method = "lei"}.
+
+This implements distribution-free inference based on Lei et al. (2018),
+testing observation-wise loss differences using the Wilcoxon signed-rank test by default.
+
+Lei et al. (2018) proposed this method specifically for LOCO with L1 (absolute) loss,
+median aggregation, and a single train/test split (holdout). The inference is
+conditional on the training data, requiring i.i.d. test observations from a single
+split. While the aggregation function, statistical test, and resampling strategy are
+parameterizable, deviating from these defaults may invalidate the theoretical guarantees.
+
+For a comprehensive overview of inference methods, see
+\code{vignette("inference", package = "xplainfi")}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{WVIM$importance(
+  relation = NULL,
+  standardize = FALSE,
+  ci_method = c("none", "raw", "nadeau_bengio", "quantile", "lei"),
+  conf_level = 0.95,
+  alternative = c("greater", "two.sided"),
+  test = c("wilcoxon", "t", "fisher", "binomial"),
+  B = 1999,
+  aggregator = NULL,
+  p_adjust = "none",
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{relation}}{(\code{character(1)}) How to relate perturbed scores to originals ("difference" or "ratio"). If \code{NULL}, uses stored parameter value.}
+
+\item{\code{standardize}}{(\code{logical(1)}: \code{FALSE}) If \code{TRUE}, importances are standardized by the highest score so all scores fall in \verb{[-1, 1]}.}
+
+\item{\code{ci_method}}{(\code{character(1)}: \code{"none"}) Variance estimation method. In addition to base methods (\code{"none"}, \code{"raw"}, \code{"nadeau_bengio"}, \code{"quantile"}),
+WVIM methods support \code{"lei"} for distribution-free inference (Lei et al., 2018).}
+
+\item{\code{conf_level}}{(\code{numeric(1)}: \code{0.95}) Confidence level to use for confidence interval construction when \code{ci_method != "none"}.}
+
+\item{\code{alternative}}{(\code{character(1)}: \code{"greater"}) Type of alternative hypothesis for statistical tests.
+\code{"greater"} tests H0: importance <= 0 vs H1: importance > 0 (one-sided).
+\code{"two.sided"} tests H0: importance = 0 vs H1: importance != 0.}
+
+\item{\code{test}}{(\code{character(1)}: \code{"wilcoxon"}) Test to use for Lei et al. inference. One of \code{"wilcoxon"}, \code{"t"}, \code{"fisher"}, or \code{"binomial"}.
+Only used when \code{ci_method = "lei"}.}
+
+\item{\code{B}}{(\code{integer(1)}: \code{1999}) Number of replications for Fisher test. Only used when \code{ci_method = "lei"} and \code{test = "fisher"}.}
+
+\item{\code{aggregator}}{(\code{function}: \code{stats::median}) Aggregation function for computing the point estimate from observation-wise
+importance values. Defaults to \code{stats::median} as proposed by Lei et al. (2018). Only used when \code{ci_method = "lei"}.}
+
+\item{\code{p_adjust}}{(\code{character(1)}: \code{"none"}) Method for p-value adjustment for multiple comparisons.
+Accepts any method supported by \link[stats:p.adjust]{stats::p.adjust.methods}, e.g. \code{"holm"}, \code{"bonferroni"}, \code{"BH"}, \code{"none"}.
+When \code{"bonferroni"}, confidence intervals are also adjusted (alpha/k).
+For other correction methods (e.g. \code{"holm"}, \code{"BH"}), only p-values are adjusted;
+confidence intervals remain at the nominal \code{conf_level} because these sequential/adaptive
+procedures do not have a clean per-comparison alpha for CI construction.}
+
+\item{\code{...}}{Additional arguments passed to the base method.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(\link[data.table:data.table]{data.table}) Aggregated importance scores.
 }
 }
 \if{html}{\out{<hr>}}

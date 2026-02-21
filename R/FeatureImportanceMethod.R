@@ -204,6 +204,14 @@ FeatureImportanceMethod = R6Class(
 		#' The `"nadeau_bengio"` correction was validated for PFI; its use with other methods
 		#' like LOCO or SAGE is experimental.
 		#'
+		#' @param p_adjust (`character(1)`: `"none"`) Method for p-value adjustment for multiple comparisons.
+		#'   Accepts any method supported by [stats::p.adjust.methods], e.g. `"holm"`, `"bonferroni"`, `"BH"`, `"none"`.
+		#'   Applied to p-values from `"raw"` and `"nadeau_bengio"` methods.
+		#'   When `"bonferroni"`, confidence intervals are also adjusted (alpha/k).
+		#'   For other correction methods (e.g. `"holm"`, `"BH"`), only p-values are adjusted;
+		#'   confidence intervals remain at the nominal `conf_level` because these sequential/adaptive
+		#'   procedures do not have a clean per-comparison alpha for CI construction.
+		#'
 		#' @references
 		#' `r print_bib("nadaeu_2003")`
 		#' `r print_bib("molnar_2023")`
@@ -214,6 +222,7 @@ FeatureImportanceMethod = R6Class(
 			ci_method = c("none", "raw", "nadeau_bengio", "quantile"),
 			conf_level = 0.95,
 			alternative = c("greater", "two.sided"),
+			p_adjust = "none",
 			...
 		) {
 			if (is.null(private$.scores)) {
@@ -223,12 +232,22 @@ FeatureImportanceMethod = R6Class(
 				return(invisible(NULL))
 			}
 
+			# Catch unknown arguments that were not consumed by subclass methods
+			if (...length() > 0) {
+				dots = list(...)
+				cli::cli_abort(c(
+					"Unknown argument{?s}: {.arg {names(dots)}}.",
+					i = "These arguments are not used by {.fun $importance} with {.code ci_method = \"{ci_method}\"}."
+				))
+			}
+
 			# Validate ci_method
 			if (length(ci_method) > 1) {
 				ci_method = ci_method[1]
 			}
 			checkmate::assert_choice(ci_method, choices = private$.ci_methods)
 			checkmate::assert_number(conf_level, lower = 0, upper = 1)
+			checkmate::assert_choice(p_adjust, choices = stats::p.adjust.methods)
 			alternative = match.arg(alternative)
 
 			# Get aggregator and scores
@@ -249,7 +268,8 @@ FeatureImportanceMethod = R6Class(
 					aggregator,
 					conf_level,
 					alternative,
-					self$resample_result$iters
+					self$resample_result$iters,
+					p_adjust = p_adjust
 				),
 				nadeau_bengio = importance_nadeau_bengio(
 					scores,
@@ -257,7 +277,8 @@ FeatureImportanceMethod = R6Class(
 					conf_level,
 					alternative,
 					self$resampling,
-					self$resample_result$iters
+					self$resample_result$iters,
+					p_adjust = p_adjust
 				),
 				quantile = importance_quantile(scores, aggregator, conf_level, alternative),
 				cli::cli_abort(c(

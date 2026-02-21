@@ -119,6 +119,7 @@ across resampling iterations and, depending on the method use, permutations (\li
   ci_method = c("none", "raw", "nadeau_bengio", "quantile"),
   conf_level = 0.95,
   alternative = c("greater", "two.sided"),
+  p_adjust = "none",
   ...
 )}\if{html}{\out{</div>}}
 }
@@ -147,6 +148,14 @@ See details.}
 \code{"greater"} tests H0: importance <= 0 vs H1: importance > 0 (one-sided).
 \code{"two.sided"} tests H0: importance = 0 vs H1: importance != 0.
 Only used when \code{ci_method != "none"}.}
+
+\item{\code{p_adjust}}{(\code{character(1)}: \code{"none"}) Method for p-value adjustment for multiple comparisons.
+Accepts any method supported by \link[stats:p.adjust]{stats::p.adjust.methods}, e.g. \code{"holm"}, \code{"bonferroni"}, \code{"BH"}, \code{"none"}.
+Applied to p-values from \code{"raw"} and \code{"nadeau_bengio"} methods.
+When \code{"bonferroni"}, confidence intervals are also adjusted (alpha/k).
+For other correction methods (e.g. \code{"holm"}, \code{"BH"}), only p-values are adjusted;
+confidence intervals remain at the nominal \code{conf_level} because these sequential/adaptive
+procedures do not have a clean per-comparison alpha for CI construction.}
 
 \item{\code{...}}{Additional arguments passed to specialized methods, if any.}
 }

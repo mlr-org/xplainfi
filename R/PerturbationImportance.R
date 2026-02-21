@@ -84,6 +84,12 @@ PerturbationImportance = R6Class(
 		#'   `"two.sided"` tests H0: importance = 0 vs H1: importance != 0.
 		#' @param test (`character(1)`: `"t"`) Test to use for CPI. One of `"t"`, `"wilcoxon"`, `"fisher"`, or `"binomial"`. Only used when `ci_method = "cpi"`.
 		#' @param B (`integer(1)`: `1999`) Number of replications for Fisher test. Only used when `ci_method = "cpi"` and `test = "fisher"`.
+		#' @param p_adjust (`character(1)`: `"none"`) Method for p-value adjustment for multiple comparisons.
+		#'   Accepts any method supported by [stats::p.adjust.methods], e.g. `"holm"`, `"bonferroni"`, `"BH"`, `"none"`.
+		#'   When `"bonferroni"`, confidence intervals are also adjusted (alpha/k).
+		#'   For other correction methods (e.g. `"holm"`, `"BH"`), only p-values are adjusted;
+		#'   confidence intervals remain at the nominal `conf_level` because these sequential/adaptive
+		#'   procedures do not have a clean per-comparison alpha for CI construction.
 		#' @param ... Additional arguments passed to the base method.
 		#' @return ([data.table][data.table::data.table]) Aggregated importance scores.
 		importance = function(
@@ -94,6 +100,7 @@ PerturbationImportance = R6Class(
 			alternative = c("greater", "two.sided"),
 			test = c("t", "wilcoxon", "fisher", "binomial"),
 			B = 1999,
+			p_adjust = "none",
 			...
 		) {
 			# Handle CPI separately, delegate rest to parent
@@ -128,6 +135,7 @@ PerturbationImportance = R6Class(
 					conf_level = conf_level,
 					alternative = alternative,
 					test = test,
+					p_adjust = p_adjust,
 					B = B,
 					method_obj = self
 				)
@@ -142,6 +150,7 @@ PerturbationImportance = R6Class(
 					ci_method = ci_method,
 					conf_level = conf_level,
 					alternative = alternative,
+					p_adjust = p_adjust,
 					...
 				)
 			}
@@ -149,12 +158,12 @@ PerturbationImportance = R6Class(
 	),
 
 	private = list(
-		.compute_baseline = function(store_models = TRUE, store_backends = TRUE) {
+		.compute_baseline = function(store_backends = TRUE) {
 			self$resample_result = assemble_rr(
 				task = self$task,
 				learner = self$learner,
 				resampling = self$resampling,
-				store_models = store_models,
+				store_models = TRUE,
 				store_backends = store_backends
 			)
 			# Prepare baseline scores
@@ -438,14 +447,21 @@ PFI = R6Class(
 #' - **cARFi** (Blesch et al., 2025): CFI with ARF-based conditional sampling
 #'   ([ConditionalARFSampler]), using the same CPI inference framework.
 #'
-#' Both require a decomposable measure (e.g., MSE) and holdout resampling
-#' so each observation appears at most once in the test set.
+#' Both require a decomposable measure (e.g., MSE) and out-of-sample evaluation.
+#' CPI inference is guaranteed to be valid with holdout (a single train/test split).
+#' With cross-validation, test observations are i.i.d. but models are fit on
+#' overlapping training data, which may affect inference coverage. With bootstrap
+#' or subsampling, both non-i.i.d. test observations and overlapping training data
+#' can be an issue. See `vignette("inference", package = "xplainfi")` for details.
 #'
 #' Available tests: `"t"` (t-test), `"wilcoxon"` (signed-rank), `"fisher"` (permutation),
 #' `"binomial"` (sign test). The Fisher test is recommended.
 #'
 #' Method-agnostic inference methods (`"raw"`, `"nadeau_bengio"`, `"quantile"`) are also
 #' available; see [FeatureImportanceMethod] for details.
+#'
+#' For a comprehensive overview of inference methods including usage examples,
+#' see `vignette("inference", package = "xplainfi")`.
 #'
 #' @references `r print_bib("watson_2021", "blesch_2025")`
 #'

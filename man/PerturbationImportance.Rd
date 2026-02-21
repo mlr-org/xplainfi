@@ -87,6 +87,7 @@ For details, see \link{CFI}, which is the only sub-method for which it is known 
   alternative = c("greater", "two.sided"),
   test = c("t", "wilcoxon", "fisher", "binomial"),
   B = 1999,
+  p_adjust = "none",
   ...
 )}\if{html}{\out{</div>}}
 }
@@ -111,6 +112,13 @@ CPI is specifically designed for \link{CFI} with knockoff samplers and uses one-
 \item{\code{test}}{(\code{character(1)}: \code{"t"}) Test to use for CPI. One of \code{"t"}, \code{"wilcoxon"}, \code{"fisher"}, or \code{"binomial"}. Only used when \code{ci_method = "cpi"}.}
 
 \item{\code{B}}{(\code{integer(1)}: \code{1999}) Number of replications for Fisher test. Only used when \code{ci_method = "cpi"} and \code{test = "fisher"}.}
+
+\item{\code{p_adjust}}{(\code{character(1)}: \code{"none"}) Method for p-value adjustment for multiple comparisons.
+Accepts any method supported by \link[stats:p.adjust]{stats::p.adjust.methods}, e.g. \code{"holm"}, \code{"bonferroni"}, \code{"BH"}, \code{"none"}.
+When \code{"bonferroni"}, confidence intervals are also adjusted (alpha/k).
+For other correction methods (e.g. \code{"holm"}, \code{"BH"}), only p-values are adjusted;
+confidence intervals remain at the nominal \code{conf_level} because these sequential/adaptive
+procedures do not have a clean per-comparison alpha for CI construction.}
 
 \item{\code{...}}{Additional arguments passed to the base method.}
 }

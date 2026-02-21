@@ -6,6 +6,33 @@
   - Requires the provided `Resampling` to be instantiated and consist of a single iteration, e.g. there must be only 1 test set.
   - Internally, a `ResampleResult` will be constructed from the given `learner`, `task`, and `resampling` arguments, which is then consistent with the previous default of performing `resample()` to get trained learners for each resampling iteration.
 
+## Inference
+
+- New `ci_method = "lei"` for WVIM/LOCO: distribution-free inference based on
+  Lei et al. (2018), testing observation-wise loss differences. Defaults to
+  Wilcoxon signed-rank test with median aggregation. Supports t-test, Fisher
+  permutation, and binomial (sign) tests. Requires a decomposable measure.
+- New `p_adjust` parameter in `$importance()` for multiplicity correction across
+  all `ci_method`s that produce p-values (`"raw"`, `"nadeau_bengio"`, `"cpi"`,
+  `"lei"`). Accepts any method from `stats::p.adjust.methods` (e.g. `"holm"`,
+  `"bonferroni"`, `"BH"`). Default is `"none"`. When `"bonferroni"`, confidence
+  intervals are also adjusted (alpha/k). For other methods, only p-values are
+  adjusted because sequential/adaptive procedures lack a clean per-comparison
+  alpha for CI construction.
+- Parametric `ci_method`s (`"raw"`, `"nadeau_bengio"`) return `se`, `statistic`, `p.value`,
+  `conf_lower`, and `conf_upper` columns. The `"quantile"` method returns only `conf_lower`
+  and `conf_upper` (no `se`, `statistic`, or `p.value`).
+- Parametric `ci_method`s support `alternative = "greater"` (one-sided, the default) or
+  `alternative = "two.sided"` to test H0: importance <= 0 vs H1: importance > 0, or
+  H0: importance = 0 vs H1: importance != 0, respectively.
+  For `"quantile"`, `alternative` controls whether the confidence interval is one-sided
+  (`"greater"`: finite lower bound, `conf_upper = Inf`) or two-sided (both bounds finite).
+- Improved documentation for all CI methods in `FeatureImportanceMethod`, explaining
+  how p-values and confidence intervals are calculated for each method.
+- CFI documentation distinguishes between CPI (knockoff-based inference, Watson & Wright 2021)
+  and cARFi (ARF-based inference, Blesch et al. 2025).
+
+
 ## Minor user-facing changes
 
 - Bump the defaults for `n_repeats` in favor of stability
@@ -21,20 +48,6 @@
 - Use `ConditionalGaussianSampler` instead of `ConditionalARFSampler` in tests that don't specifically test ARF functionality.
 - Set explicit `n_repeats` values in all tests (1L for functional, 5L for plausibility).
 
-## Inference
-
-- Parametric `ci_method`s (`"raw"`, `"nadeau_bengio"`) return `se`, `statistic`, `p.value`,
-  `conf_lower`, and `conf_upper` columns. The `"quantile"` method returns only `conf_lower`
-  and `conf_upper` (no `se`, `statistic`, or `p.value`).
-- Parametric `ci_method`s support `alternative = "greater"` (one-sided, the default) or
-  `alternative = "two.sided"` to test H0: importance <= 0 vs H1: importance > 0, or
-  H0: importance = 0 vs H1: importance != 0, respectively.
-  For `"quantile"`, `alternative` controls whether the confidence interval is one-sided
-  (`"greater"`: finite lower bound, `conf_upper = Inf`) or two-sided (both bounds finite).
-- Improved documentation for all CI methods in `FeatureImportanceMethod`, explaining
-  how p-values and confidence intervals are calculated for each method.
-- CFI documentation distinguishes between CPI (knockoff-based inference, Watson & Wright 2021)
-  and cARFi (ARF-based inference, Blesch et al. 2025).
 
 # xplainfi 1.0.0 - Initial CRAN release
 

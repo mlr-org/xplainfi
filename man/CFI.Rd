@@ -20,14 +20,21 @@ designed for use with knockoff samplers (\link{KnockoffGaussianSampler}).
 (\link{ConditionalARFSampler}), using the same CPI inference framework.
 }
 
-Both require a decomposable measure (e.g., MSE) and holdout resampling
-so each observation appears at most once in the test set.
+Both require a decomposable measure (e.g., MSE) and out-of-sample evaluation.
+CPI inference is guaranteed to be valid with holdout (a single train/test split).
+With cross-validation, test observations are i.i.d. but models are fit on
+overlapping training data, which may affect inference coverage. With bootstrap
+or subsampling, both non-i.i.d. test observations and overlapping training data
+can be an issue. See \code{vignette("inference", package = "xplainfi")} for details.
 
 Available tests: \code{"t"} (t-test), \code{"wilcoxon"} (signed-rank), \code{"fisher"} (permutation),
 \code{"binomial"} (sign test). The Fisher test is recommended.
 
 Method-agnostic inference methods (\code{"raw"}, \code{"nadeau_bengio"}, \code{"quantile"}) are also
 available; see \link{FeatureImportanceMethod} for details.
+
+For a comprehensive overview of inference methods including usage examples,
+see \code{vignette("inference", package = "xplainfi")}.
 }
 }
 \examples{

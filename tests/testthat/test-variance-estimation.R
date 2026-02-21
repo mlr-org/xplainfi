@@ -314,6 +314,96 @@ test_that("two-sided p-values are larger than one-sided for positive importance"
 	expect_equal(imp_greater$statistic, imp_twosided$statistic)
 })
 
+test_that("p_adjust = 'bonferroni' adjusts p-values and CIs for raw", {
+	task = sim_dgp_independent(n = 200)
+
+	pfi = PFI$new(
+		task = task,
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("subsampling", repeats = 11),
+		n_repeats = 3
+	)
+	pfi$compute()
+
+	imp_none = pfi$importance(ci_method = "raw", alternative = "two.sided")
+	imp_bonf = pfi$importance(ci_method = "raw", alternative = "two.sided", p_adjust = "bonferroni")
+
+	# p-values should be larger (or equal) after Bonferroni correction
+	# (filter out NAs from features with zero variance)
+	valid = is.finite(imp_none$p.value) & is.finite(imp_bonf$p.value)
+	expect_true(all(imp_bonf$p.value[valid] >= imp_none$p.value[valid] - 1e-10))
+
+	# CIs should be wider with Bonferroni correction
+	width_none = imp_none$conf_upper - imp_none$conf_lower
+	width_bonf = imp_bonf$conf_upper - imp_bonf$conf_lower
+	expect_true(all(width_bonf >= width_none - 1e-10))
+
+	# Point estimates and SEs should be unchanged
+	expect_equal(imp_none$importance, imp_bonf$importance)
+	expect_equal(imp_none$se, imp_bonf$se)
+})
+
+test_that("p_adjust = 'BH' adjusts only p-values for nadeau_bengio", {
+	task = sim_dgp_independent(n = 200)
+
+	pfi = PFI$new(
+		task = task,
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("subsampling", repeats = 11, ratio = 0.8),
+		n_repeats = 3
+	)
+	pfi$compute()
+
+	imp_none = pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided")
+	imp_bh = pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided", p_adjust = "BH")
+
+	# CIs should be identical (BH does not adjust CIs)
+	expect_equal(imp_none$conf_lower, imp_bh$conf_lower)
+	expect_equal(imp_none$conf_upper, imp_bh$conf_upper)
+
+	# Point estimates and SEs should be unchanged
+	expect_equal(imp_none$importance, imp_bh$importance)
+	expect_equal(imp_none$se, imp_bh$se)
+})
+
+test_that("invalid p_adjust value is rejected", {
+	task = sim_dgp_independent(n = 100)
+
+	pfi = PFI$new(
+		task = task,
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("subsampling", repeats = 5),
+		n_repeats = 2
+	)
+	pfi$compute()
+
+	expect_error(
+		pfi$importance(ci_method = "raw", p_adjust = "invalid_method"),
+		regexp = "p_adjust"
+	)
+})
+
+test_that("unknown arguments to $importance() are rejected", {
+	task = sim_dgp_independent(n = 100)
+
+	pfi = PFI$new(
+		task = task,
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mse"),
+		resampling = rsmp("subsampling", repeats = 5),
+		n_repeats = 2
+	)
+	pfi$compute()
+
+	expect_error(
+		pfi$importance(ci_method = "raw", tset = "t"),
+		regexp = "Unknown argument"
+	)
+})
+
 test_that("default alternative is 'greater' (one-sided)", {
 	task = sim_dgp_independent(n = 100)
 
