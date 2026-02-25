@@ -219,7 +219,7 @@ bibentries = c(
 		isbn = "978-3-031-44064-9"
 	),
 
-	nadaeu_2003 = bibentry(
+	nadeau_2003 = bibentry(
 		"article",
 		title = "Inference for the Generalization Error",
 		author = c(
@@ -311,18 +311,4 @@ bibentries = c(
 		doi = "10.1016/j.artint.2021.103502"
 	)
 
-	# phipson_2010 = bibentry(
-	# 	"article",
-	# 	title = "Permutation P-values Should Never Be Zero: Calculating Exact P-values When Permutations Are Randomly Drawn",
-	# 	author = c(
-	# 		person("Belinda", "Phipson"),
-	# 		person("Gordon K.", "Smyth")
-	# 	),
-	# 	year = "2010",
-	# 	journal = "Statistical Applications in Genetics and Molecular Biology",
-	# 	volume = "9",
-	# 	number = "1",
-	# 	pages = "Article 39",
-	# 	doi = "10.2202/1544-6115.1585"
-	# )
 )

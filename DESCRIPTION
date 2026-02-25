@@ -1,6 +1,6 @@
 Package: xplainfi
 Title: Feature Importance Methods for Global Explanations
-Version: 1.0.0.9000
+Version: 1.1.0
 Authors@R: 
     person("Lukas", "Burk", , "cran@lukasburk.de", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0001-7528-3795"))

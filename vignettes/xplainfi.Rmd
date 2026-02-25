@@ -42,7 +42,7 @@ Feature importance methods in `xplainfi` address different but related questions
 
 All methods share a common interface built on [mlr3](https://mlr3.mlr-org.com/), making them easy to use with any task, learner, measure, and resampling strategy. 
 
-The general pattern is to call `$compute()` to calculate importance (which _always re-computes_), then `$importance()` to retrieve the aggregated results, with intermediate results available in `$scores()` and, if the chosen measures supports it, `$obs_loss()`.
+The general pattern is to call `$compute()` to calculate importance (which _always re-computes_), then `$importance()` to retrieve the aggregated results, with intermediate results available in `$scores()` and, if the chosen measure supports it, `$obs_loss()`.
 
 ## Basic Example
 
@@ -126,7 +126,7 @@ However, it cannot distinguish between direct effects and indirect effects throu
 For advanced methods that account for feature dependencies, xplainfi provides different sampling strategies. 
 While PFI uses simple permutation (marginal sampling), conditional samplers can preserve feature relationships.
 
-Let's demonstrate conditional sampling using adversarial random rorests (ARF), which preserves relationships between features when sampling:
+Let's demonstrate conditional sampling using adversarial random forests (ARF), which preserves relationships between features when sampling:
 
 ```{r samplers-demo}
 arf_sampler <- ConditionalARFSampler$new(task)
@@ -172,7 +172,7 @@ pfi$scores()[, .(
 )]
 ```
 
-So `$importance()` always gives us the aggregated importances across multiple resampling- and permutation-/refitting iterations, whereas `$scores()` gives you the individual scores as calculated by the supplied `measures` and the corresponding importance calculated from the difference of these scores by default.
+So `$importance()` always gives us the aggregated importances across multiple resampling- and permutation-/refitting iterations, whereas `$scores()` gives you the individual scores as calculated by the supplied `measure` and the corresponding importance calculated from the difference of these scores by default.
 
 Analogously to `$importance()`, you can also use `relation = "ratio"` here:
 
@@ -184,8 +184,7 @@ pfi$scores(relation = "ratio") |>
 
 ## Observation-wise losses and importances
 
-For methods where importances are calculated based on observation-level comparisons and with decomposable measures, we can also retrieve observation-level information with `$obs_loss()`, which works analogously to `$scores()` and `$importances()` but even more detailed:
-
+For methods where importances are calculated based on observation-level comparisons and with decomposable measures, we can also retrieve observation-level information with `$obs_loss()`, which works analogously to `$scores()` and `$importance()` but at an even more detailed level:
 
 ```{r pfi-obs-scores}
 pfi$obs_loss()
@@ -196,11 +195,19 @@ In the resulting table we see
 
 - `loss_baseline`: The loss (squared error) for the baseline model before permutation
 - `loss_post`: The loss for this observation after permutation (or in the case of `LOCO`, after refit)
-- `obs_importance`: The difference (or ratio if `relation = "ratio"`) of the the two losses
+- `obs_importance`: The difference (or ratio if `relation = "ratio"`) of the two losses
 
 Note that not all measures have a `Measure$obs_loss()`:
 Some measures like `msr("classif.auc")` are not decomposable, so observation-wise loss values are not available.  
 In other cases, the corresponding `obs_loss()` is just not yet implemented in [`mlr3measures`](https://CRAN.R-project.org/package=mlr3measures), but will likely be in the future.
+
+## Statistical Inference
+
+All importance methods support confidence intervals and p-values via the `ci_method` argument in `$importance()`.
+Available approaches range from empirical quantiles and corrected t-tests (Nadeau & Bengio) for resampling-based variability, to observation-wise inference methods like CPI/cARFi (for `CFI`) and Lei et al. (2018) (for `LOCO`).
+Multiplicity correction via `p_adjust` is supported for all methods that produce p-values.
+
+For a comprehensive guide covering all inference methods, see the [Inference for Feature Importance](https://mlr-org.github.io/xplainfi/articles/inference.html) article.
 
 ## Using Pre-trained Learners
 
@@ -232,7 +239,7 @@ pfi_pretrained$importance()
 A common real-world scenario is that the learner was trained on some dataset and you want to explain the model on entirely new, unseen data.
 In that case, create a task from the new data (via `as_task_regr()` for example) and use `rsmp("custom")` to designate all rows as the test set.
 The resampling here is purely a technicality used for internal consistency, and the train set is irrelevant since the learner is already trained.
-A utility function `rsmp_all_test()` can be used as a shortcute do achieve the same goal.
+A utility function `rsmp_all_test()` can be used as a shortcut to achieve the same goal.
 
 ```{r pretrained-custom}
 # Simulate: learner was trained elsewhere, we have new data to use

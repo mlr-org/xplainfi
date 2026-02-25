@@ -297,7 +297,7 @@ rbindlist(list(cpi_res, cfi_cpi_res), fill = TRUE) |>
 
 ```
 
-A noteable caveat of the knockoff approach is that they are not readily available for mixed data (with categorical features).
+A notable caveat of the knockoff approach is that they are not readily available for mixed data (with categorical features).
 
 #### cARFi: CPI with ARF
 
@@ -399,7 +399,7 @@ rbindlist(
 
 The choice of test depends on distributional assumptions: the t-test assumes normality, while Fisher and Wilcoxon are non-parametric alternatives.
 
-Following Watson & Wright (2021), we can additionaly apply Benjamini-Hochberg FDR control (`p_adjust = "BH"`), which is often desirable in exploratory settings where many features are tested simultaneously:
+Following Watson & Wright (2021), we can additionally apply Benjamini-Hochberg FDR control (`p_adjust = "BH"`), which is often desirable in exploratory settings where many features are tested simultaneously:
 
 
 ```{r cpi-fdr-control}
