@@ -180,23 +180,26 @@ importance_nadeau_bengio = function(
 	# Validate resampling type
 	if (!(resampling$id %in% c("bootstrap", "subsampling")) | resampling$iters < 10) {
 		cli::cli_warn(c(
-			"Resampling is of type {.val {resampling$id}} with {.val {resampling$iters}} iterations.",
-			i = "The Nadeau & Bengio corrected t-test is recommended for resampling types {.val {c('bootstrap', 'subsampling')}} with >= 10 iterations"
+			"{.cls Resampling} is of type {.val {resampling$id}} with {.val {resampling$iters}} iterations.",
+			i = "The Nadeau & Bengio corrected t-test is recommended for resampling types {.val {c('bootstrap', 'subsampling')}} with >= 10 iterations for valid inference"
 		))
 	}
 
 	if (resampling$id == "bootstrap") {
 		test_train_ratio = 0.632
 	} else {
-		# Calculate test/train ratio for subsampling
-		ratio = resampling$param_set$values$ratio
-		n = resampling$task_nrow
-		n1 = round(ratio * n)
-		n2 = n - n1
-		test_train_ratio = n2 / n1
+		# Average test/train ration over iterations for simplicity as it works for any resampling strategy
+		test_train_ratios = vapply(
+			seq_len(resampling$iters),
+			\(idx) {
+				length(resampling$test_set(idx)) / length(resampling$train_set(idx))
+			},
+			FUN.VALUE = numeric(1)
+		)
+		test_train_ratio = mean(test_train_ratios)
 	}
 
-	# Nadeau & Bengio adjustment factor
+	# Nadeau & Bengio adjustment factor ((1 / m) + c in Molnar et al.)
 	adjustment_factor = 1 / n_iters + test_train_ratio
 
 	agg_importance = scores[,
