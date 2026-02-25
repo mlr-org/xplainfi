@@ -30,7 +30,7 @@ library(data.table)
 library(ggplot2)
 ```
 
-**xplainfi** provides feature importance methods for machine learning models. It implements several approaches for measuring how much each feature contributes to model performance, with a focus on model-agnostic methods that work with any learner.
+`xplainfi` provides feature importance methods for machine learning models. It implements several approaches for measuring how much each feature contributes to model performance, with a focus on model-agnostic methods that work with any learner.
 
 ## Core Concepts
 
@@ -46,7 +46,7 @@ The general pattern is to call `$compute()` to calculate importance (which _alwa
 
 ## Basic Example
 
-Let's use the Friedman1 task, which provides an ideal setup for demonstrating feature importance methods with known ground truth:
+Let's use the Friedman1 task to demonstrate feature importance methods with known ground truth:
 
 ```{r setup-problem}
 task <- tgen("friedman1")$generate(n = 300)
@@ -57,7 +57,7 @@ resampling <- rsmp("cv", folds = 3)
 
 The task has `r task$nrow` observations with `r length(task$feature_names)` features. Features `important1` through `important5` truly affect the target, while `unimportant1` through `unimportant5` are pure noise. We'll use a random forest learner with cross-validation for more stable estimates.
 
-The target function is: $y = 10 * \operatorname{sin}(\pi * x_1 * x_2) + 20 * (x_3 - 0.5)^2 + 10 * x_4 + 5 * x_5 + \epsilon$
+The target function is: $y = 10 \cdot \operatorname{sin}(\pi  x_1  x_2) + 20  (x_3 - 0.5)^2 + 10  x_4 + 5  x_5 + \epsilon$
 
 
 ## Permutation Feature Importance (PFI)
@@ -69,7 +69,8 @@ pfi <- PFI$new(
 	task = task,
 	learner = learner,
 	measure = measure,
-	resampling = resampling
+	resampling = resampling,
+	n_repeats = 10
 )
 
 pfi$compute()
@@ -78,7 +79,7 @@ pfi$importance()
 
 The `importance` column shows the performance difference when each feature is permuted. Higher values indicate more important features.
 
-For more stable estimates, we can use multiple permutation iterations per resampling fold with `n_repeats`.
+For more stable estimates, we can use multiple permutation iterations per resampling fold with `n_repeats`, which is set to `30` by default for all methods.
 Note that in this case "more is more", and while there is no clear "good enough" value, setting `n_repeats` to a small value like 1 will most definitely yield unreliable results.
 
 
@@ -95,7 +96,29 @@ pfi_stable$compute()
 pfi_stable$importance()
 ```
 
-We can also use ratio instead of difference for the importance calculation, meaning that an unimportant feature is now expected to get an importance score of 1 rather than 0:
+To illustrate why this is important, we can take a look at the variability of PFI scores for feature `important2` within each resampling iteration using individual importance scores via `$score()` (see below):
+
+```{r pif-nrepeats}
+pfi_stable$scores()[feature == "important2", ] |>
+	ggplot(aes(y = importance, x = factor(iter_rsmp))) +
+	geom_boxplot() +
+	labs(
+		title = "PFI variability within resampling iterations",
+		subtitle = "Setting n_repeats higher improves PFI estimates",
+		y = "PFI score (important2)",
+		x = "Resampling iteration (3-fold CV)"
+	) +
+	theme_minimal()
+```
+
+```{r pfi-scores-tmp, echo=FALSE}
+pfi_important2_range = round(range(pfi_stable$scores()[feature == "important2", importance]), 2)
+```
+
+The aggregated importance score for this feature is approximately `r round(pfi_stable$importance()[feature == "important2", importance], 1)`, but across all resamplings the estimated PFI scores range from `r pfi_important2_range[1]` to `r pfi_important2_range[2]`, and with insufficient resampling or low `n_repeats`, we might have over- or underestimated the features PFI by some margin.
+
+
+We can also use the ratio of performance scores instead of their difference for the importance calculation, meaning that an unimportant feature is now expected to get an importance score of 1 rather than 0:
 
 ```{r pfi-ratio}
 pfi_stable$importance(relation = "ratio")
@@ -111,7 +134,8 @@ loco <- LOCO$new(
 	task = task,
 	learner = learner,
 	measure = measure,
-	resampling = resampling
+	resampling = resampling,
+	n_repeats = 10
 )
 
 loco$compute()
@@ -123,7 +147,7 @@ However, it cannot distinguish between direct effects and indirect effects throu
 
 ## Feature Samplers
 
-For advanced methods that account for feature dependencies, xplainfi provides different sampling strategies. 
+For advanced methods that account for feature dependencies, `xplainfi` provides different sampling strategies. 
 While PFI uses simple permutation (marginal sampling), conditional samplers can preserve feature relationships.
 
 Let's demonstrate conditional sampling using adversarial random forests (ARF), which preserves relationships between features when sampling:
@@ -174,7 +198,7 @@ pfi$scores()[, .(
 
 So `$importance()` always gives us the aggregated importances across multiple resampling- and permutation-/refitting iterations, whereas `$scores()` gives you the individual scores as calculated by the supplied `measure` and the corresponding importance calculated from the difference of these scores by default.
 
-Analogously to `$importance()`, you can also use `relation = "ratio"` here:
+Analogous to `$importance()`, you can also use `relation = "ratio"` here:
 
 ```{r detailed-scores-ratio}
 pfi$scores(relation = "ratio") |>
