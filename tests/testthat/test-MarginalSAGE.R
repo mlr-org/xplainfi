@@ -7,13 +7,13 @@
 # -----------------------------------------------------------------------------
 
 test_that("MarginalSAGE default behavior with minimal parameters", {
-		# Use small params for test speed
+	# Use small params for test speed
 	test_default_behavior(MarginalSAGE, task_type = "regr", n_permutations = 2L, n_samples = 20L)
 })
 
 test_that("MarginalSAGE works with classification tasks", {
 	# Binary classification
-		task_binary = tgen("2dnormals")$generate(n = 100)
+	task_binary = tgen("2dnormals")$generate(n = 100)
 	sage_binary = MarginalSAGE$new(
 		task = task_binary,
 		learner = lrn("classif.rpart", predict_type = "prob"),
@@ -24,7 +24,7 @@ test_that("MarginalSAGE works with classification tasks", {
 	expect_importance_dt(sage_binary$importance(), features = sage_binary$features)
 
 	# Multiclass classification
-		task_multi = tgen("cassini")$generate(n = 100)
+	task_multi = tgen("cassini")$generate(n = 100)
 	sage_multi = MarginalSAGE$new(
 		task = task_multi,
 		learner = lrn("classif.rpart", predict_type = "prob"),
@@ -36,8 +36,13 @@ test_that("MarginalSAGE works with classification tasks", {
 })
 
 test_that("MarginalSAGE featureless learner produces zero importance", {
-		# Use small params for test speed
-	test_featureless_zero_importance(MarginalSAGE, task_type = "regr", n_permutations = 2L, n_samples = 20L)
+	# Use small params for test speed
+	test_featureless_zero_importance(
+		MarginalSAGE,
+		task_type = "regr",
+		n_permutations = 2L,
+		n_samples = 20L
+	)
 })
 
 # -----------------------------------------------------------------------------
@@ -45,7 +50,7 @@ test_that("MarginalSAGE featureless learner produces zero importance", {
 # -----------------------------------------------------------------------------
 
 test_that("MarginalSAGE friedman1 produces sensible ranking", {
-		# Use small params for test speed
+	# Use small params for test speed
 	test_friedman1_sensible_ranking(MarginalSAGE, n = 200L, n_permutations = 2L, n_samples = 20L)
 })
 
@@ -54,7 +59,7 @@ test_that("MarginalSAGE friedman1 produces sensible ranking", {
 # -----------------------------------------------------------------------------
 
 test_that("MarginalSAGE with cross-validation resampling", {
-		task = tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 200)
 
 	sage = MarginalSAGE$new(
 		task = task,
@@ -79,7 +84,7 @@ test_that("MarginalSAGE with cross-validation resampling", {
 # -----------------------------------------------------------------------------
 
 test_that("MarginalSAGE with single feature", {
-		task = tgen("friedman1")$generate(n = 100)
+	task = tgen("friedman1")$generate(n = 100)
 
 	sage = MarginalSAGE$new(
 		task = task,
@@ -98,7 +103,7 @@ test_that("MarginalSAGE with single feature", {
 # -----------------------------------------------------------------------------
 
 test_that("MarginalSAGE with custom n_samples", {
-		task = tgen("friedman1")$generate(n = 200)
+	task = tgen("friedman1")$generate(n = 200)
 
 	sage = MarginalSAGE$new(
 		task = task,
@@ -116,7 +121,7 @@ test_that("MarginalSAGE with custom n_samples", {
 # -----------------------------------------------------------------------------
 
 test_that("MarginalSAGE reproducibility with same seed", {
-		task = tgen("2dnormals")$generate(n = 100)
+	task = tgen("2dnormals")$generate(n = 100)
 	learner = lrn("classif.rpart", predict_type = "prob")
 	measure = msr("classif.ce")
 
@@ -149,7 +154,7 @@ test_that("MarginalSAGE reproducibility with same seed", {
 # -----------------------------------------------------------------------------
 
 test_that("MarginalSAGE parameter validation", {
-		task = tgen("friedman1")$generate(n = 50)
+	task = tgen("friedman1")$generate(n = 50)
 	learner = lrn("regr.rpart")
 
 	# n_permutations must be positive integer
@@ -158,7 +163,7 @@ test_that("MarginalSAGE parameter validation", {
 })
 
 test_that("MarginalSAGE requires predict_type='prob' for classification", {
-		task = tgen("2dnormals")$generate(n = 50)
+	task = tgen("2dnormals")$generate(n = 50)
 
 	# Should error for classification without predict_type = "prob"
 	expect_error(
@@ -175,7 +180,7 @@ test_that("MarginalSAGE requires predict_type='prob' for classification", {
 # -----------------------------------------------------------------------------
 
 test_that("MarginalSAGE SE tracking in convergence_history", {
-		task = tgen("friedman1")$generate(n = 30)
+	task = tgen("friedman1")$generate(n = 30)
 	learner = lrn("regr.rpart")
 	measure = msr("regr.mse")
 

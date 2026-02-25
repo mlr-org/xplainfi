@@ -421,8 +421,10 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "772.461KB",
+  "fileSize": "668.698KB",
   "releaseNotes": "https://github.com/mlr-org/xplainfi/blob/main/NEWS.md",
+  "readme": "https://github.com/mlr-org/xplainfi/blob/main/README.md",
   "contIntegration": ["https://github.com/mlr-org/xplainfi/actions/workflows/R-CMD-check.yaml", "https://app.codecov.io/gh/mlr-org/xplainfi"],
-  "developmentStatus": "https://www.repostatus.org/#active"
+  "developmentStatus": "https://www.repostatus.org/#active",
+  "keywords": ["feature-importance", "interpretable-machine-learning", "machine-learning", "mlr3", "statistical-inference", "variable-importance"]
 }

@@ -429,7 +429,7 @@ SAGE = R6Class(
 				# Update the count of completed permutations.
 				n_completed = n_completed + checkpoint_size
 
-					# Calculate the current average SAGE values and standard errors based on completed permutations.
+				# Calculate the current average SAGE values and standard errors based on completed permutations.
 				current_avg = sage_values / n_completed
 
 				# Calculate running variance and standard errors for each feature

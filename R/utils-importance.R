@@ -199,9 +199,6 @@ importance_nadeau_bengio = function(
 		test_train_ratio = mean(test_train_ratios)
 	}
 
-	# Nadeau & Bengio adjustment factor ((1 / m) + c in Molnar et al.)
-	adjustment_factor = 1 / n_iters + test_train_ratio
-
 	agg_importance = scores[,
 		list(importance = aggregator(importance)),
 		by = "feature"
@@ -209,9 +206,12 @@ importance_nadeau_bengio = function(
 
 	# Aggregate within resamplings first
 	means_rsmp = scores[,
-		list(importance = mean(importance)),
+		list(importance = aggregator(importance)),
 		by = c("iter_rsmp", "feature")
 	]
+
+	# Nadeau & Bengio adjustment factor ((1 / m) + c in Molnar et al.)
+	adjustment_factor = 1 / n_iters + test_train_ratio
 
 	sds = means_rsmp[,
 		list(se = sqrt(adjustment_factor * stats::var(importance))),
@@ -224,8 +224,8 @@ importance_nadeau_bengio = function(
 	df = n_iters - 1
 	agg_importance[, statistic := importance / se]
 
-	k = nrow(agg_importance)
-	ci_alpha = adjust_ci_alpha(1 - conf_level, p_adjust, k)
+	# Bonferroni uses alpha / k, k = n_iters
+	ci_alpha = adjust_ci_alpha(1 - conf_level, p_adjust, k = n_iters)
 
 	if (alternative == "greater") {
 		agg_importance[, p.value := stats::pt(statistic, df = df, lower.tail = FALSE)]

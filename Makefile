@@ -1,7 +1,7 @@
 PKGNAME = `sed -n "s/Package: *\([^ ]*\)/\1/p" DESCRIPTION`
 PKGVERS = `sed -n "s/Version: *\([^ ]*\)/\1/p" DESCRIPTION`
 
-all: format doc README.md install check
+all: format doc install check
 
 .PHONY: format
 format:
@@ -50,11 +50,15 @@ test-slow:
 test:
 	Rscript -e "devtools::test()"
 
-coverage:
+coverage.html:
 	Rscript -e "covr::report(covr::package_coverage(\".\"), file = \"coverage.html\")"
+
+.PHONY: coverage
+coverage: coverage.html
 
 .PHONY: site
 site:
+	Rscript -e "pkgdown::check_pkgdown()" 
 	Rscript -e "pkgdown::build_site()"
 
 README.md: README.Rmd
@@ -64,8 +68,17 @@ README.md: README.Rmd
 codemeta.json:
 	Rscript -e "codemetar::write_codemeta()"
 
+.PHONY: release
+release: 
+	@$(MAKE) clean 
+	@$(MAKE) doc
+	@$(MAKE) codemeta.json 
+	@$(MAKE) site 
+	@$(MAKE) install
+
 clean:
-	fd -HI ".*(_cache|_files|\.html)" vignettes -X rm -r
-	rm -r docs
-	rm -rf lib
-	rm coverage.html
+	@fd -HI ".*(_cache|_files|\.html)" vignettes -X rm -r
+	@rm -rf docs
+	@rm -rf lib
+	@rm -f coverage.html
+	@rm -f codemeta.json

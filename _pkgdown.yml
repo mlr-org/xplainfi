@@ -79,7 +79,6 @@ reference:
       in reference to these. Unlike other samplers, they do not allow sampling from new data with `$sample_newdata()`,
       as that would require re-creating a knockoff matrix on the fly.
     contents:
-      - KnockoffSampler
       - starts_with("Knockoff")
   - title: Utilities
   - contents:

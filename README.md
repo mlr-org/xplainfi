@@ -178,7 +178,7 @@ pfi = PFI$new(
     measure = msr("regr.rsq")
 )
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
-#> (test set size: 333)
+#>   (test set size: 333)
 
 pfi$compute()
 pfi$importance()

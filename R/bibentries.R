@@ -310,5 +310,4 @@ bibentries = c(
 		pages = "103502",
 		doi = "10.1016/j.artint.2021.103502"
 	)
-
 )
