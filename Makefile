@@ -61,6 +61,9 @@ README.md: README.Rmd
 	Rscript -e "rmarkdown::render('README.Rmd')"
 	rm README.html
 
+codemeta.json:
+	Rscript -e "codemetar::write_codemeta()"
+
 clean:
 	fd -HI ".*(_cache|_files|\.html)" vignettes -X rm -r
 	rm -r docs
