@@ -118,7 +118,7 @@ across resampling iterations and, depending on the method use, permutations (\li
   standardize = FALSE,
   ci_method = c("none", "raw", "nadeau_bengio", "quantile"),
   conf_level = 0.95,
-  alternative = c("greater", "two.sided"),
+  alternative = c("two.sided", "greater"),
   p_adjust = "none",
   ...
 )}\if{html}{\out{</div>}}
@@ -144,7 +144,7 @@ See details.}
 
 \item{\code{conf_level}}{(\code{numeric(1)}: \code{0.95}) Confidence level to use for confidence interval construction when \code{ci_method != "none"}.}
 
-\item{\code{alternative}}{(\code{character(1)}: \code{"greater"}) Type of alternative hypothesis for statistical tests.
+\item{\code{alternative}}{(\code{character(1)}: \code{"two.sided"}) Type of alternative hypothesis for statistical tests.
 \code{"greater"} tests H0: importance <= 0 vs H1: importance > 0 (one-sided).
 \code{"two.sided"} tests H0: importance = 0 vs H1: importance != 0.
 Only used when \code{ci_method != "none"}.}

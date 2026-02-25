@@ -84,7 +84,7 @@ For details, see \link{CFI}, which is the only sub-method for which it is known 
   standardize = FALSE,
   ci_method = c("none", "raw", "nadeau_bengio", "quantile", "cpi"),
   conf_level = 0.95,
-  alternative = c("greater", "two.sided"),
+  alternative = c("two.sided", "greater"),
   test = c("t", "wilcoxon", "fisher", "binomial"),
   B = 1999,
   p_adjust = "none",
@@ -105,7 +105,7 @@ CPI is specifically designed for \link{CFI} with knockoff samplers and uses one-
 
 \item{\code{conf_level}}{(\code{numeric(1)}: \code{0.95}) Confidence level for confidence intervals when \code{ci_method != "none"}.}
 
-\item{\code{alternative}}{(\code{character(1)}: \code{"greater"}) Type of alternative hypothesis for statistical tests.
+\item{\code{alternative}}{(\code{character(1)}: \code{"two.sided"}) Type of alternative hypothesis for statistical tests.
 \code{"greater"} tests H0: importance <= 0 vs H1: importance > 0 (one-sided).
 \code{"two.sided"} tests H0: importance = 0 vs H1: importance != 0.}
 

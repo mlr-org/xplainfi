@@ -79,7 +79,7 @@ PerturbationImportance = R6Class(
 		#'   perturbation methods support `"cpi"` (Conditional Predictive Impact).
 		#'   CPI is specifically designed for [CFI] with knockoff samplers and uses one-sided hypothesis tests.
 		#' @param conf_level (`numeric(1)`: `0.95`) Confidence level for confidence intervals when `ci_method != "none"`.
-		#' @param alternative (`character(1)`: `"greater"`) Type of alternative hypothesis for statistical tests.
+		#' @param alternative (`character(1)`: `"two.sided"`) Type of alternative hypothesis for statistical tests.
 		#'   `"greater"` tests H0: importance <= 0 vs H1: importance > 0 (one-sided).
 		#'   `"two.sided"` tests H0: importance = 0 vs H1: importance != 0.
 		#' @param test (`character(1)`: `"t"`) Test to use for CPI. One of `"t"`, `"wilcoxon"`, `"fisher"`, or `"binomial"`. Only used when `ci_method = "cpi"`.
@@ -97,7 +97,7 @@ PerturbationImportance = R6Class(
 			standardize = FALSE,
 			ci_method = c("none", "raw", "nadeau_bengio", "quantile", "cpi"),
 			conf_level = 0.95,
-			alternative = c("greater", "two.sided"),
+			alternative = c("two.sided", "greater"),
 			test = c("t", "wilcoxon", "fisher", "binomial"),
 			B = 1999,
 			p_adjust = "none",
@@ -469,7 +469,7 @@ PFI = R6Class(
 #' library(mlr3)
 #' library(mlr3learners)
 #'
-#' task <- sim_dgp_correlated(n = 500)
+#' task <- sim_dgp_correlated(n = 200)
 #'
 #' # Using default ConditionalARFSampler
 #' cfi <- CFI$new(

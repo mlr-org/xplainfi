@@ -119,7 +119,7 @@ WVIM = R6Class(
 		#' @param ci_method (`character(1)`: `"none"`) Variance estimation method. In addition to base methods (`"none"`, `"raw"`, `"nadeau_bengio"`, `"quantile"`),
 		#'   WVIM methods support `"lei"` for distribution-free inference (Lei et al., 2018).
 		#' @param conf_level (`numeric(1)`: `0.95`) Confidence level to use for confidence interval construction when `ci_method != "none"`.
-		#' @param alternative (`character(1)`: `"greater"`) Type of alternative hypothesis for statistical tests.
+		#' @param alternative (`character(1)`: `"two.sided"`) Type of alternative hypothesis for statistical tests.
 		#'   `"greater"` tests H0: importance <= 0 vs H1: importance > 0 (one-sided).
 		#'   `"two.sided"` tests H0: importance = 0 vs H1: importance != 0.
 		#' @param test (`character(1)`: `"wilcoxon"`) Test to use for Lei et al. inference. One of `"wilcoxon"`, `"t"`, `"fisher"`, or `"binomial"`.
@@ -141,7 +141,7 @@ WVIM = R6Class(
 			standardize = FALSE,
 			ci_method = c("none", "raw", "nadeau_bengio", "quantile", "lei"),
 			conf_level = 0.95,
-			alternative = c("greater", "two.sided"),
+			alternative = c("two.sided", "greater"),
 			test = c("wilcoxon", "t", "fisher", "binomial"),
 			B = 1999,
 			aggregator = NULL,

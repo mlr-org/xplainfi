@@ -42,7 +42,7 @@ see \code{vignette("inference", package = "xplainfi")}.
 library(mlr3)
 library(mlr3learners)
 
-task <- sim_dgp_correlated(n = 500)
+task <- sim_dgp_correlated(n = 200)
 
 # Using default ConditionalARFSampler
 cfi <- CFI$new(

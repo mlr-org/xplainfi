@@ -395,7 +395,7 @@ test_obs_importance = function(
 #' @noRd
 importance_cpi = function(
 	conf_level,
-	alternative = c("greater", "two.sided"),
+	alternative = c("two.sided", "greater"),
 	test = c("t", "wilcoxon", "fisher", "binomial"),
 	p_adjust = "none",
 	B = 1999,
@@ -458,7 +458,7 @@ importance_cpi = function(
 #' @noRd
 importance_loco = function(
 	conf_level,
-	alternative = c("greater", "two.sided"),
+	alternative = c("two.sided", "greater"),
 	test = c("wilcoxon", "t", "fisher", "binomial"),
 	aggregator = stats::median,
 	p_adjust = "none",
