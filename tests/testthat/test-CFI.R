@@ -257,9 +257,7 @@ test_that("CFI with CPI variance method using KnockoffGaussianSampler", {
 	checkmate::expect_numeric(cpi_result$statistic, finite = TRUE)
 	checkmate::expect_numeric(cpi_result$p.value, finite = TRUE, lower = 0, upper = 1)
 	checkmate::expect_numeric(cpi_result$conf_lower, finite = TRUE)
-
-	# conf_upper should be Inf for one-sided test
-	expect_true(all(is.infinite(cpi_result$conf_upper)))
+	checkmate::expect_numeric(cpi_result$conf_upper, finite = TRUE)
 
 	# For correlated DGP, important features should have smaller p-values
 	important_pvals = cpi_result[feature %in% c("x1", "x3")]$p.value

@@ -404,7 +404,7 @@ test_that("unknown arguments to $importance() are rejected", {
 	)
 })
 
-test_that("default alternative is 'greater' (one-sided)", {
+test_that("default alternative is 'two.sided'", {
 	task = sim_dgp_independent(n = 100)
 
 	pfi = PFI$new(
@@ -419,8 +419,9 @@ test_that("default alternative is 'greater' (one-sided)", {
 
 	# Default should be one-sided
 	imp_default = pfi$importance(ci_method = "raw")
-	imp_greater = pfi$importance(ci_method = "raw", alternative = "greater")
+	imp_greater = pfi$importance(ci_method = "raw", alternative = "two.sided")
 
+	expect_equal(imp_default$conf_lower, imp_greater$conf_lower)
 	expect_equal(imp_default$conf_upper, imp_greater$conf_upper)
 	expect_equal(imp_default$p.value, imp_greater$p.value)
 })
