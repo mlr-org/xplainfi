@@ -34,14 +34,14 @@ deps:
 check:
 	Rscript -e "devtools::check()"
 
-.PHONY: check-remote
-check-remote:
-	Rscript -e "devtools::check(remote = TRUE)"
-
-# Full CRAN pre-submission check: remote incoming checks + no-suggests check
+# CRAN pre-submission check with remote incoming checks
 .PHONY: check-cran
 check-cran:
 	Rscript -e "devtools::check(remote = TRUE)"
+
+# Check without Suggests installed (catches misplaced Suggests/Imports)
+.PHONY: check-nosuggests
+check-nosuggests:
 	Rscript -e "devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = 'true'))"
 
 .PHONY: test-summary
