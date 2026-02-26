@@ -5,11 +5,13 @@
 
 <!-- badges: start -->
 
+[![Project Status: Active – The project has reached a stable, usable
+state and is being actively
+developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/xplainfi)](https://CRAN.R-project.org/package=xplainfi)
 [![R-CMD-check](https://github.com/mlr-org/xplainfi/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mlr-org/xplainfi/actions/workflows/R-CMD-check.yaml)
 [![codecov](https://codecov.io/gh/mlr-org/xplainfi/graph/badge.svg?token=QIQDMP3AM7)](https://app.codecov.io/gh/mlr-org/xplainfi)
-
 <!-- badges: end -->
 
 The goal of `xplainfi` is to collect common feature importance methods
@@ -27,7 +29,7 @@ Install `xplainfi` from CRAN:
 install.packages("xplainfi")
 ```
 
-Or install `xplainfi` from [R-universe](https://mlr-org.r-universe.dev):
+Or install from [R-universe](https://mlr-org.r-universe.dev):
 
 ``` r
 install.packages("xplainfi", repos = c("https://mlr-org.r-universe.dev", "https://cloud.r-project.org"))
@@ -78,7 +80,6 @@ Compute and print PFI scores:
 
 ``` r
 pfi$compute()
-#> ℹ Using `resample()`
 pfi$importance()
 #> Key: <feature>
 #>          feature   importance
@@ -177,10 +178,9 @@ pfi = PFI$new(
     measure = msr("regr.rsq")
 )
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
-#> (test set size: 333)
+#>   (test set size: 333)
 
 pfi$compute()
-#> ℹ Using `resample()`
 pfi$importance()
 #> Key: <feature>
 #>          feature   importance

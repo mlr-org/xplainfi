@@ -13,7 +13,6 @@ the performance difference (reduced_model_loss - full_model_loss) indicates the
 feature's importance. Higher values indicate more important features.
 }
 \examples{
-\dontshow{if (requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 library(mlr3)
 library(mlr3learners)
 
@@ -21,12 +20,12 @@ task <- sim_dgp_correlated(n = 500)
 
 loco <- LOCO$new(
   task = task,
-  learner = lrn("regr.ranger", num.trees = 10),
-  measure = msr("regr.mse")
+  learner = lrn("regr.rpart"),
+  measure = msr("regr.mse"),
+  n_repeats = 5
 )
 loco$compute()
 loco$importance()
-\dontshow{\}) # examplesIf}
 }
 \references{
 Lei J, G'Sell M, Rinaldo A, Tibshirani R, Wasserman L (2018).

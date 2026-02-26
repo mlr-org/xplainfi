@@ -1,6 +1,7 @@
 # Tests for ConditionalCtreeSampler
 
 test_that("ConditionalCtreeSampler initialization works", {
+	skip_if_not_installed("partykit")
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalCtreeSampler$new(task)
 
@@ -20,6 +21,7 @@ test_that("ConditionalCtreeSampler initialization works", {
 })
 
 test_that("ConditionalCtreeSampler works with custom parameters", {
+	skip_if_not_installed("partykit")
 	task = tgen("friedman1")$generate(n = 100)
 
 	sampler = ConditionalCtreeSampler$new(
@@ -37,6 +39,7 @@ test_that("ConditionalCtreeSampler works with custom parameters", {
 })
 
 test_that("ConditionalCtreeSampler sampling works", {
+	skip_if_not_installed("partykit")
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalCtreeSampler$new(task)
 	data = task$data()
@@ -70,6 +73,7 @@ test_that("ConditionalCtreeSampler sampling works", {
 })
 
 test_that("ConditionalCtreeSampler sample_newdata works", {
+	skip_if_not_installed("partykit")
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalCtreeSampler$new(task)
 	test_data = task$data(rows = 1:10)
@@ -86,6 +90,7 @@ test_that("ConditionalCtreeSampler sample_newdata works", {
 })
 
 test_that("ConditionalCtreeSampler caching works", {
+	skip_if_not_installed("partykit")
 	task = tgen("friedman1")$generate(n = 100)
 	test_data = task$data(rows = 1:10)
 
@@ -120,6 +125,7 @@ test_that("ConditionalCtreeSampler caching works", {
 })
 
 test_that("ConditionalCtreeSampler handles single observation", {
+	skip_if_not_installed("partykit")
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalCtreeSampler$new(task)
 	test_data = task$data(rows = 1)
@@ -135,6 +141,7 @@ test_that("ConditionalCtreeSampler handles single observation", {
 })
 
 test_that("ConditionalCtreeSampler is reproducible with seed", {
+	skip_if_not_installed("partykit")
 	task = tgen("friedman1")$generate(n = 100)
 	sampler = ConditionalCtreeSampler$new(task)
 	test_data = task$data(rows = 1:10)
@@ -159,10 +166,12 @@ test_that("ConditionalCtreeSampler is reproducible with seed", {
 })
 
 test_that("ConditionalCtreeSampler conditioning_set parameter behavior", {
+	skip_if_not_installed("partykit")
 	task = tgen("friedman1")$generate(n = 100)
 	test_conditioning_set_behavior(ConditionalCtreeSampler, task)
 })
 
 test_that("ConditionalCtreeSampler preserves feature types", {
+	skip_if_not_installed("partykit")
 	test_sampler_feature_types(ConditionalCtreeSampler)
 })

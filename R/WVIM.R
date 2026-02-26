@@ -20,11 +20,13 @@
 #' wvim <- WVIM$new(
 #'   task = task,
 #'   learner = lrn("regr.ranger", num.trees = 10),
-#'   groups = groups
+#'   groups = groups,
+#'   n_repeats = 1
 #' )
 #' wvim$compute()
 #' wvim$importance()
 #' @export
+#' @importFrom mlr3fselect fselect fs
 #' @keywords internal
 WVIM = R6Class(
 	"WVIM",
@@ -56,8 +58,6 @@ WVIM = R6Class(
 			label = "Williamson's Variable Importance Measure (WVIM)",
 			n_repeats = 30L
 		) {
-			require_package("mlr3fselect")
-
 			# Should this go in the param_set?
 			direction = match.arg(direction)
 			self$direction = direction
@@ -119,7 +119,7 @@ WVIM = R6Class(
 		#' @param ci_method (`character(1)`: `"none"`) Variance estimation method. In addition to base methods (`"none"`, `"raw"`, `"nadeau_bengio"`, `"quantile"`),
 		#'   WVIM methods support `"lei"` for distribution-free inference (Lei et al., 2018).
 		#' @param conf_level (`numeric(1)`: `0.95`) Confidence level to use for confidence interval construction when `ci_method != "none"`.
-		#' @param alternative (`character(1)`: `"greater"`) Type of alternative hypothesis for statistical tests.
+		#' @param alternative (`character(1)`: `"two.sided"`) Type of alternative hypothesis for statistical tests.
 		#'   `"greater"` tests H0: importance <= 0 vs H1: importance > 0 (one-sided).
 		#'   `"two.sided"` tests H0: importance = 0 vs H1: importance != 0.
 		#' @param test (`character(1)`: `"wilcoxon"`) Test to use for Lei et al. inference. One of `"wilcoxon"`, `"t"`, `"fisher"`, or `"binomial"`.
@@ -141,7 +141,7 @@ WVIM = R6Class(
 			standardize = FALSE,
 			ci_method = c("none", "raw", "nadeau_bengio", "quantile", "lei"),
 			conf_level = 0.95,
-			alternative = c("greater", "two.sided"),
+			alternative = c("two.sided", "greater"),
 			test = c("wilcoxon", "t", "fisher", "binomial"),
 			B = 1999,
 			aggregator = NULL,
@@ -382,7 +382,7 @@ WVIM = R6Class(
 #' the performance difference (reduced_model_loss - full_model_loss) indicates the
 #' feature's importance. Higher values indicate more important features.
 #'
-#' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)
+#' @examples
 #' library(mlr3)
 #' library(mlr3learners)
 #'
@@ -390,8 +390,9 @@ WVIM = R6Class(
 #'
 #' loco <- LOCO$new(
 #'   task = task,
-#'   learner = lrn("regr.ranger", num.trees = 10),
-#'   measure = msr("regr.mse")
+#'   learner = lrn("regr.rpart"),
+#'   measure = msr("regr.mse"),
+#'   n_repeats = 5
 #' )
 #' loco$compute()
 #' loco$importance()

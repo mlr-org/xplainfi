@@ -20,20 +20,18 @@ the Random Forest algorithm. The method works by:
 }
 }
 \examples{
-\dontshow{if (requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 library(mlr3)
-library(mlr3learners)
 
 task <- sim_dgp_correlated(n = 500)
 
 pfi <- PFI$new(
   task = task,
-  learner = lrn("regr.ranger", num.trees = 10),
-  measure = msr("regr.mse")
+  learner = lrn("regr.rpart"),
+  measure = msr("regr.mse"),
+n_repeats = 5
 )
 pfi$compute()
 pfi$importance()
-\dontshow{\}) # examplesIf}
 }
 \references{
 Breiman L (2001).

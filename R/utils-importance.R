@@ -180,24 +180,24 @@ importance_nadeau_bengio = function(
 	# Validate resampling type
 	if (!(resampling$id %in% c("bootstrap", "subsampling")) | resampling$iters < 10) {
 		cli::cli_warn(c(
-			"Resampling is of type {.val {resampling$id}} with {.val {resampling$iters}} iterations.",
-			i = "The Nadeau & Bengio corrected t-test is recommended for resampling types {.val {c('bootstrap', 'subsampling')}} with >= 10 iterations"
+			"{.cls Resampling} is of type {.val {resampling$id}} with {.val {resampling$iters}} iterations.",
+			i = "The Nadeau & Bengio corrected t-test is recommended for resampling types {.val {c('bootstrap', 'subsampling')}} with >= 10 iterations for valid inference"
 		))
 	}
 
 	if (resampling$id == "bootstrap") {
 		test_train_ratio = 0.632
 	} else {
-		# Calculate test/train ratio for subsampling
-		ratio = resampling$param_set$values$ratio
-		n = resampling$task_nrow
-		n1 = round(ratio * n)
-		n2 = n - n1
-		test_train_ratio = n2 / n1
+		# Average test/train ration over iterations for simplicity as it works for any resampling strategy
+		test_train_ratios = vapply(
+			seq_len(resampling$iters),
+			\(idx) {
+				length(resampling$test_set(idx)) / length(resampling$train_set(idx))
+			},
+			FUN.VALUE = numeric(1)
+		)
+		test_train_ratio = mean(test_train_ratios)
 	}
-
-	# Nadeau & Bengio adjustment factor
-	adjustment_factor = 1 / n_iters + test_train_ratio
 
 	agg_importance = scores[,
 		list(importance = aggregator(importance)),
@@ -206,9 +206,12 @@ importance_nadeau_bengio = function(
 
 	# Aggregate within resamplings first
 	means_rsmp = scores[,
-		list(importance = mean(importance)),
+		list(importance = aggregator(importance)),
 		by = c("iter_rsmp", "feature")
 	]
+
+	# Nadeau & Bengio adjustment factor ((1 / m) + c in Molnar et al.)
+	adjustment_factor = 1 / n_iters + test_train_ratio
 
 	sds = means_rsmp[,
 		list(se = sqrt(adjustment_factor * stats::var(importance))),
@@ -221,8 +224,8 @@ importance_nadeau_bengio = function(
 	df = n_iters - 1
 	agg_importance[, statistic := importance / se]
 
-	k = nrow(agg_importance)
-	ci_alpha = adjust_ci_alpha(1 - conf_level, p_adjust, k)
+	# Bonferroni uses alpha / k, k = n_iters
+	ci_alpha = adjust_ci_alpha(1 - conf_level, p_adjust, k = n_iters)
 
 	if (alternative == "greater") {
 		agg_importance[, p.value := stats::pt(statistic, df = df, lower.tail = FALSE)]
@@ -395,7 +398,7 @@ test_obs_importance = function(
 #' @noRd
 importance_cpi = function(
 	conf_level,
-	alternative = c("greater", "two.sided"),
+	alternative = c("two.sided", "greater"),
 	test = c("t", "wilcoxon", "fisher", "binomial"),
 	p_adjust = "none",
 	B = 1999,
@@ -458,7 +461,7 @@ importance_cpi = function(
 #' @noRd
 importance_loco = function(
 	conf_level,
-	alternative = c("greater", "two.sided"),
+	alternative = c("two.sided", "greater"),
 	test = c("wilcoxon", "t", "fisher", "binomial"),
 	aggregator = stats::median,
 	p_adjust = "none",

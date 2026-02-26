@@ -13,7 +13,7 @@
 # -----------------------------------------------------------------------------
 
 test_that("ConditionalSAGE basic workflow with Gaussian sampler", {
-		# Use small task (4 features) and fast Gaussian sampler
+	# Use small task (4 features) and fast Gaussian sampler
 	task = sim_dgp_correlated(n = 100)
 	sampler = ConditionalGaussianSampler$new(task)
 
@@ -31,7 +31,7 @@ test_that("ConditionalSAGE basic workflow with Gaussian sampler", {
 })
 
 test_that("ConditionalSAGE works with classification tasks", {
-		# Binary classification - 2dnormals has 2 features
+	# Binary classification - 2dnormals has 2 features
 	task_binary = tgen("2dnormals")$generate(n = 50)
 	sampler = ConditionalGaussianSampler$new(task_binary)
 
@@ -49,7 +49,7 @@ test_that("ConditionalSAGE works with classification tasks", {
 
 test_that("ConditionalSAGE multiclass classification", {
 	skip_on_cran() # multiclass with 3 features is slower
-		task_multi = tgen("cassini")$generate(n = 50)
+	task_multi = tgen("cassini")$generate(n = 50)
 	sampler = ConditionalGaussianSampler$new(task_multi)
 
 	sage_multi = ConditionalSAGE$new(
@@ -65,7 +65,7 @@ test_that("ConditionalSAGE multiclass classification", {
 })
 
 test_that("ConditionalSAGE featureless learner produces zero importance", {
-		# Use small task (4 features) and fast Gaussian sampler
+	# Use small task (4 features) and fast Gaussian sampler
 	task = sim_dgp_correlated(n = 100)
 	sampler = ConditionalGaussianSampler$new(task)
 
@@ -91,7 +91,7 @@ test_that("ConditionalSAGE featureless learner produces zero importance", {
 # -----------------------------------------------------------------------------
 
 test_that("ConditionalSAGE produces sensible ranking", {
-		# Use sim_dgp_independent (5 features) with Gaussian sampler
+	# Use sim_dgp_independent (5 features) with Gaussian sampler
 	task = sim_dgp_independent(n = 200)
 	sampler = ConditionalGaussianSampler$new(task)
 
@@ -121,7 +121,7 @@ test_that("ConditionalSAGE produces sensible ranking", {
 test_that("ConditionalSAGE uses ConditionalARFSampler by default", {
 	skip_if_not_installed("arf")
 
-		# Just check default sampler class - no compute needed
+	# Just check default sampler class - no compute needed
 	task = sim_dgp_correlated(n = 50)
 
 	sage = ConditionalSAGE$new(
@@ -139,7 +139,7 @@ test_that("ConditionalSAGE with ARF sampler computes correctly", {
 	skip_on_cran() # ARF sampling is slow
 	skip_if_not_installed("arf")
 
-		# Use small task for ARF test
+	# Use small task for ARF test
 	task = sim_dgp_correlated(n = 50)
 
 	sage = ConditionalSAGE$new(
@@ -157,7 +157,7 @@ test_that("ConditionalSAGE with custom ARF sampler settings", {
 	skip_on_cran() # ARF sampling is slow
 	skip_if_not_installed("arf")
 
-		task = sim_dgp_correlated(n = 50)
+	task = sim_dgp_correlated(n = 50)
 	custom_sampler = ConditionalARFSampler$new(task, finite_bounds = "local")
 
 	sage = ConditionalSAGE$new(
@@ -179,12 +179,13 @@ test_that("ConditionalSAGE with custom ARF sampler settings", {
 # -----------------------------------------------------------------------------
 
 test_that("ConditionalSAGE requires predict_type='prob' for classification", {
-		task = tgen("2dnormals")$generate(n = 50)
+	task = tgen("2dnormals")$generate(n = 50)
 
 	expect_error(
 		ConditionalSAGE$new(
 			task = task,
-			learner = lrn("classif.rpart", predict_type = "response")
+			learner = lrn("classif.rpart", predict_type = "response"),
+			sampler = ConditionalGaussianSampler$new(task)
 		),
 		"Classification learners require probability predictions for SAGE."
 	)
@@ -198,7 +199,7 @@ test_that("ConditionalSAGE batching produces consistent results", {
 	skip_on_cran() # tests implementation detail, not core functionality
 	skip_if_not_installed("withr")
 
-		# Use small task with Gaussian sampler for faster batching test
+	# Use small task with Gaussian sampler for faster batching test
 	task = sim_dgp_correlated(n = 50)
 	sampler = ConditionalGaussianSampler$new(task)
 
@@ -235,7 +236,7 @@ test_that("ConditionalSAGE batching produces consistent results", {
 # -----------------------------------------------------------------------------
 
 test_that("ConditionalSAGE with custom n_samples", {
-		# Use small task with Gaussian sampler
+	# Use small task with Gaussian sampler
 	task = sim_dgp_correlated(n = 50)
 	sampler = ConditionalGaussianSampler$new(task)
 
@@ -259,7 +260,7 @@ test_that("ConditionalSAGE with custom n_samples", {
 test_that("ConditionalSAGE SE tracking in convergence_history", {
 	skip_on_cran() # tests convergence tracking feature, not core SAGE
 
-		# Use small task with Gaussian sampler
+	# Use small task with Gaussian sampler
 	task = sim_dgp_correlated(n = 50)
 	sampler = ConditionalGaussianSampler$new(task)
 

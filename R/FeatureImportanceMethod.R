@@ -130,7 +130,7 @@ FeatureImportanceMethod = R6Class(
 		#'   These methods are model-agnostic and rely on suitable `resampling`s, e.g. subsampling with 15 repeats for `"nadeau_bengio"`.
 		#'   See details.
 		#' @param conf_level (`numeric(1)`: `0.95`) Confidence level to use for confidence interval construction when `ci_method != "none"`.
-		#' @param alternative (`character(1)`: `"greater"`) Type of alternative hypothesis for statistical tests.
+		#' @param alternative (`character(1)`: `"two.sided"`) Type of alternative hypothesis for statistical tests.
 		#'   `"greater"` tests H0: importance <= 0 vs H1: importance > 0 (one-sided).
 		#'   `"two.sided"` tests H0: importance = 0 vs H1: importance != 0.
 		#'   Only used when `ci_method != "none"`.
@@ -146,7 +146,7 @@ FeatureImportanceMethod = R6Class(
 		#' test statistic (`statistic`), p-value (`p.value`), and confidence bounds
 		#' (`conf_lower`, `conf_upper`). The `"quantile"` method returns only lower and upper bounds.
 		#'
-		#' ### `"raw"`: Uncorrected (!) t-test
+		#' **`"raw"`: Uncorrected (!) t-test**
 		#' Uses a standard t-test assuming independence of resampling iterations.
 		#' - SE = sd(resampling scores) / sqrt(n_iters)
 		#' - Test statistic: t = importance / SE with df = n_iters - 1
@@ -157,7 +157,7 @@ FeatureImportanceMethod = R6Class(
 		#' training data and are not independent.
 		#' This method is included only for demonstration purposes.
 		#'
-		#' ### `"nadeau_bengio"`: Corrected t-test
+		#' **`"nadeau_bengio"`: Corrected t-test**
 		#' Applies the Nadeau & Bengio (2003) correction to account for correlation between
 		#' resampling iterations due to overlapping training sets.
 		#' - Correction factor: (1/n_iters + n_test/n_train)
@@ -167,7 +167,7 @@ FeatureImportanceMethod = R6Class(
 		#' Recommended with bootstrap or subsampling (>= 10 iterations).
 		#'
 
-		#' ### `"quantile"`: Non-parametric empirical method
+		#' **`"quantile"`: Non-parametric empirical method**
 		#' Uses the resampling distribution directly without parametric assumptions.
 		#' - CIs: Empirical quantiles of the resampling distribution
 		#'
@@ -213,7 +213,7 @@ FeatureImportanceMethod = R6Class(
 		#'   procedures do not have a clean per-comparison alpha for CI construction.
 		#'
 		#' @references
-		#' `r print_bib("nadaeu_2003")`
+		#' `r print_bib("nadeau_2003")`
 		#' `r print_bib("molnar_2023")`
 		#'
 		importance = function(
@@ -221,7 +221,7 @@ FeatureImportanceMethod = R6Class(
 			standardize = FALSE,
 			ci_method = c("none", "raw", "nadeau_bengio", "quantile"),
 			conf_level = 0.95,
-			alternative = c("greater", "two.sided"),
+			alternative = c("two.sided", "greater"),
 			p_adjust = "none",
 			...
 		) {

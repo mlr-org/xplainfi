@@ -118,7 +118,7 @@ across resampling iterations and, depending on the method use, permutations (\li
   standardize = FALSE,
   ci_method = c("none", "raw", "nadeau_bengio", "quantile"),
   conf_level = 0.95,
-  alternative = c("greater", "two.sided"),
+  alternative = c("two.sided", "greater"),
   p_adjust = "none",
   ...
 )}\if{html}{\out{</div>}}
@@ -144,7 +144,7 @@ See details.}
 
 \item{\code{conf_level}}{(\code{numeric(1)}: \code{0.95}) Confidence level to use for confidence interval construction when \code{ci_method != "none"}.}
 
-\item{\code{alternative}}{(\code{character(1)}: \code{"greater"}) Type of alternative hypothesis for statistical tests.
+\item{\code{alternative}}{(\code{character(1)}: \code{"two.sided"}) Type of alternative hypothesis for statistical tests.
 \code{"greater"} tests H0: importance <= 0 vs H1: importance > 0 (one-sided).
 \code{"two.sided"} tests H0: importance = 0 vs H1: importance != 0.
 Only used when \code{ci_method != "none"}.}
@@ -167,8 +167,8 @@ procedures do not have a clean per-comparison alpha for CI construction.}
 The parametric methods (\code{"raw"}, \code{"nadeau_bengio"}) return standard error (\code{se}),
 test statistic (\code{statistic}), p-value (\code{p.value}), and confidence bounds
 (\code{conf_lower}, \code{conf_upper}). The \code{"quantile"} method returns only lower and upper bounds.
-\subsection{\code{"raw"}: Uncorrected (!) t-test}{
 
+\strong{\code{"raw"}: Uncorrected (!) t-test}
 Uses a standard t-test assuming independence of resampling iterations.
 \itemize{
 \item SE = sd(resampling scores) / sqrt(n_iters)
@@ -180,10 +180,8 @@ Uses a standard t-test assuming independence of resampling iterations.
 \strong{Warning}: These CIs are too narrow because resampling iterations share
 training data and are not independent.
 This method is included only for demonstration purposes.
-}
 
-\subsection{\code{"nadeau_bengio"}: Corrected t-test}{
-
+\strong{\code{"nadeau_bengio"}: Corrected t-test}
 Applies the Nadeau & Bengio (2003) correction to account for correlation between
 resampling iterations due to overlapping training sets.
 \itemize{
@@ -193,18 +191,14 @@ resampling iterations due to overlapping training sets.
 }
 
 Recommended with bootstrap or subsampling (>= 10 iterations).
-}
 
-\subsection{\code{"quantile"}: Non-parametric empirical method}{
-
+\strong{\code{"quantile"}: Non-parametric empirical method}
 Uses the resampling distribution directly without parametric assumptions.
 \itemize{
 \item CIs: Empirical quantiles of the resampling distribution
 }
 
 This method does not provide \code{se}, \code{statistic}, or \code{p.value}.
-}
-
 }
 
 \subsection{Method-Specific CI Methods}{

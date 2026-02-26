@@ -79,7 +79,7 @@ PerturbationImportance = R6Class(
 		#'   perturbation methods support `"cpi"` (Conditional Predictive Impact).
 		#'   CPI is specifically designed for [CFI] with knockoff samplers and uses one-sided hypothesis tests.
 		#' @param conf_level (`numeric(1)`: `0.95`) Confidence level for confidence intervals when `ci_method != "none"`.
-		#' @param alternative (`character(1)`: `"greater"`) Type of alternative hypothesis for statistical tests.
+		#' @param alternative (`character(1)`: `"two.sided"`) Type of alternative hypothesis for statistical tests.
 		#'   `"greater"` tests H0: importance <= 0 vs H1: importance > 0 (one-sided).
 		#'   `"two.sided"` tests H0: importance = 0 vs H1: importance != 0.
 		#' @param test (`character(1)`: `"t"`) Test to use for CPI. One of `"t"`, `"wilcoxon"`, `"fisher"`, or `"binomial"`. Only used when `ci_method = "cpi"`.
@@ -97,7 +97,7 @@ PerturbationImportance = R6Class(
 			standardize = FALSE,
 			ci_method = c("none", "raw", "nadeau_bengio", "quantile", "cpi"),
 			conf_level = 0.95,
-			alternative = c("greater", "two.sided"),
+			alternative = c("two.sided", "greater"),
 			test = c("t", "wilcoxon", "fisher", "binomial"),
 			B = 1999,
 			p_adjust = "none",
@@ -354,16 +354,16 @@ PerturbationImportance = R6Class(
 #' `r print_bib("fisher_2019")`
 #' `r print_bib("strobl_2008")`
 #'
-#' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)
+#' @examples
 #' library(mlr3)
-#' library(mlr3learners)
 #'
 #' task <- sim_dgp_correlated(n = 500)
 #'
 #' pfi <- PFI$new(
 #'   task = task,
-#'   learner = lrn("regr.ranger", num.trees = 10),
-#'   measure = msr("regr.mse")
+#'   learner = lrn("regr.rpart"),
+#'   measure = msr("regr.mse"),
+#' n_repeats = 5
 #' )
 #' pfi$compute()
 #' pfi$importance()
@@ -465,17 +465,18 @@ PFI = R6Class(
 #'
 #' @references `r print_bib("watson_2021", "blesch_2025")`
 #'
-#' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE) && requireNamespace("arf", quietly = TRUE)
+#' @examples
 #' library(mlr3)
-#' library(mlr3learners)
 #'
-#' task <- sim_dgp_correlated(n = 500)
+#' task <- sim_dgp_correlated(n = 200)
 #'
 #' # Using default ConditionalARFSampler
 #' cfi <- CFI$new(
 #'   task = task,
-#'   learner = lrn("regr.ranger", num.trees = 10),
-#'   measure = msr("regr.mse")
+#'   learner = lrn("regr.rpart"),
+#'   measure = msr("regr.mse"),
+#'   sampler = ConditionalGaussianSampler$new(task),
+#'   n_repeats = 5
 #' )
 #' cfi$compute()
 #' cfi$importance()
@@ -576,14 +577,16 @@ CFI = R6Class(
 #'
 #' @references `r print_bib("konig_2021")`
 #'
-#' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE) && requireNamespace("arf", quietly = TRUE)
+#' @examples
 #' library(mlr3)
 #' task = tgen("friedman1")$generate(n = 200)
 #' rfi = RFI$new(
 #'   task = task,
-#'   learner = lrn("regr.ranger", num.trees = 50),
+#'   learner = lrn("regr.rpart"),
 #'   measure = msr("regr.mse"),
-#'   conditioning_set = c("important1")
+#'   conditioning_set = c("important1"),
+#'   sampler = ConditionalGaussianSampler$new(task),
+#'   n_repeats = 5
 #' )
 #' rfi$compute()
 #' rfi$importance()

@@ -9,7 +9,7 @@
 fisher_test = function(
 	x,
 	B = 1999,
-	alternative = c("greater", "two.sided"),
+	alternative = c("two.sided", "greater"),
 	conf.level = 0.95,
 	...
 ) {
@@ -39,14 +39,14 @@ fisher_test = function(
 	)
 }
 
-#' Binomial test wrapper
+#' Binomial sign-test wrapper
 #' Based on cpi pkg, extended to support two-sided tests
 #' @param x numeric vector of observations
 #' @param alternative "greater" or "two.sided"
 #' @param conf.level confidence level
 #' @param ... ignored
 #' @noRd
-binom_test = function(x, alternative = c("greater", "two.sided"), conf.level = 0.95, ...) {
+binom_test = function(x, alternative = c("two.sided", "greater"), conf.level = 0.95, ...) {
 	alternative = match.arg(alternative)
 	stats::binom.test(sum(x > 0), length(x), alternative = alternative, conf.level = conf.level)
 }
