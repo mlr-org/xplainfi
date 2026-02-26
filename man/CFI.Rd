@@ -39,7 +39,6 @@ see \code{vignette("inference", package = "xplainfi")}.
 }
 \examples{
 library(mlr3)
-library(mlr3learners)
 
 task <- sim_dgp_correlated(n = 200)
 
