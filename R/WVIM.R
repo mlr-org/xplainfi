@@ -26,6 +26,7 @@
 #' wvim$compute()
 #' wvim$importance()
 #' @export
+#' @importFrom mlr3fselect fselect fs
 #' @keywords internal
 WVIM = R6Class(
 	"WVIM",
