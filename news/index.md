@@ -2,6 +2,8 @@
 
 ## xplainfi 1.1.0
 
+CRAN release: 2026-02-26
+
 ### New features
 
 - Use of a pre-trained `mlr3` learner is now supported in

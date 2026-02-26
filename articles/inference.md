@@ -410,7 +410,8 @@ cfi_cpi_res[, method := "CFI+Knockoffs"]
 ```
 
 The results should be very similar to those computed by
-[`cpi()`](https://rdrr.io/pkg/cpi/man/cpi.html), so let’s compare them:
+[`cpi()`](https://bips-hb.github.io/cpi/reference/cpi.html), so let’s
+compare them:
 
 ``` r
 rbindlist(list(cpi_res, cfi_cpi_res), fill = TRUE) |>

@@ -89,7 +89,7 @@
       <h1>Inference for Feature Importance</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/mlr-org/xplainfi/blob/main/vignettes/articles/inference.Rmd" class="external-link"><code>vignettes/articles/inference.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/mlr-org/xplainfi/blob/v1.1.0/vignettes/articles/inference.Rmd" class="external-link"><code>vignettes/articles/inference.Rmd</code></a></small>
       <div class="d-none name"><code>inference.Rmd</code></div>
     </div>
 
@@ -419,7 +419,7 @@ looks like this:</li>
 <span><span class="va">resampling</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">rsmp</a></span><span class="op">(</span><span class="st">"cv"</span>, folds <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="va">resampling</span><span class="op">$</span><span class="fu">instantiate</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cpi_res</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/cpi/man/cpi.html" class="external-link">cpi</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">cpi_res</span> <span class="op">=</span> <span class="fu"><a href="https://bips-hb.github.io/cpi/reference/cpi.html" class="external-link">cpi</a></span><span class="op">(</span></span>
 <span>    task <span class="op">=</span> <span class="va">task</span>,</span>
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
@@ -494,7 +494,7 @@ directly via <code>ci_method = "cpi"</code>.</p>
 <span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">cfi_cpi_res</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"importance"</span>, <span class="st">"conf_lower"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CPI"</span>, <span class="st">"ci.lo"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">cfi_cpi_res</span><span class="op">[</span>, <span class="va">method</span> <span class="op">:=</span> <span class="st">"CFI+Knockoffs"</span><span class="op">]</span></span></code></pre></div>
 <p>The results should be very similar to those computed by
-<code><a href="https://rdrr.io/pkg/cpi/man/cpi.html" class="external-link">cpi()</a></code>, so let’s compare them:</p>
+<code><a href="https://bips-hb.github.io/cpi/reference/cpi.html" class="external-link">cpi()</a></code>, so let’s compare them:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">cpi_res</span>, <span class="va">cfi_cpi_res</span><span class="op">)</span>, fill <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">feature</span>, x <span class="op">=</span> <span class="va">CPI</span>, color <span class="op">=</span> <span class="va">method</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
