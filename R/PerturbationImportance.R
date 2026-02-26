@@ -465,7 +465,7 @@ PFI = R6Class(
 #'
 #' @references `r print_bib("watson_2021", "blesch_2025")`
 #'
-#' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE) && requireNamespace("arf", quietly = TRUE)
+#' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)
 #' library(mlr3)
 #' library(mlr3learners)
 #'
@@ -475,7 +475,9 @@ PFI = R6Class(
 #' cfi <- CFI$new(
 #'   task = task,
 #'   learner = lrn("regr.ranger", num.trees = 10),
-#'   measure = msr("regr.mse")
+#'   measure = msr("regr.mse"),
+#'   sampler = ConditionalGaussianSampler$new(task),
+#'   n_repeats = 5
 #' )
 #' cfi$compute()
 #' cfi$importance()
@@ -576,14 +578,16 @@ CFI = R6Class(
 #'
 #' @references `r print_bib("konig_2021")`
 #'
-#' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE) && requireNamespace("arf", quietly = TRUE)
+#' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)
 #' library(mlr3)
 #' task = tgen("friedman1")$generate(n = 200)
 #' rfi = RFI$new(
 #'   task = task,
 #'   learner = lrn("regr.ranger", num.trees = 50),
 #'   measure = msr("regr.mse"),
-#'   conditioning_set = c("important1")
+#'   conditioning_set = c("important1"),
+#'   sampler = ConditionalGaussianSampler$new(task)
+#'   n_repeats = 5
 #' )
 #' rfi$compute()
 #' rfi$importance()

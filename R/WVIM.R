@@ -20,7 +20,8 @@
 #' wvim <- WVIM$new(
 #'   task = task,
 #'   learner = lrn("regr.ranger", num.trees = 10),
-#'   groups = groups
+#'   groups = groups,
+#'   n_repeats = 1
 #' )
 #' wvim$compute()
 #' wvim$importance()
@@ -382,7 +383,7 @@ WVIM = R6Class(
 #' the performance difference (reduced_model_loss - full_model_loss) indicates the
 #' feature's importance. Higher values indicate more important features.
 #'
-#' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)
+#' @examples
 #' library(mlr3)
 #' library(mlr3learners)
 #'
@@ -390,8 +391,9 @@ WVIM = R6Class(
 #'
 #' loco <- LOCO$new(
 #'   task = task,
-#'   learner = lrn("regr.ranger", num.trees = 10),
-#'   measure = msr("regr.mse")
+#'   learner = lrn("regr.rpart"),
+#'   measure = msr("regr.mse"),
+#'   n_repeats = 5
 #' )
 #' loco$compute()
 #' loco$importance()

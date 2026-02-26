@@ -24,7 +24,8 @@ groups <- list(
 wvim <- WVIM$new(
   task = task,
   learner = lrn("regr.ranger", num.trees = 10),
-  groups = groups
+  groups = groups,
+  n_repeats = 1
 )
 wvim$compute()
 wvim$importance()

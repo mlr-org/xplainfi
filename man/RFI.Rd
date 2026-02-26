@@ -7,14 +7,16 @@
 RFI generalizes CFI and PFI with arbitrary conditioning sets and samplers.
 }
 \examples{
-\dontshow{if (requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE) && requireNamespace("arf", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+\dontshow{if (requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 library(mlr3)
 task = tgen("friedman1")$generate(n = 200)
 rfi = RFI$new(
   task = task,
   learner = lrn("regr.ranger", num.trees = 50),
   measure = msr("regr.mse"),
-  conditioning_set = c("important1")
+  conditioning_set = c("important1"),
+  sampler = ConditionalGaussianSampler$new(task)
+  n_repeats = 5
 )
 rfi$compute()
 rfi$importance()
