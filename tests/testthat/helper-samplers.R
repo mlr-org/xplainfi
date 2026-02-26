@@ -293,10 +293,13 @@ test_sampler_feature_types = function(sampler_class, ...) {
 	is_conditional = inherits(sampler, "ConditionalSampler")
 
 	# Test sampling each feature
+	# Use enough rows to make false positives from identical sampling negligible,
+	# especially for low-cardinality features like ordered factors
+	test_row_ids = 1:50
 
 	for (feat in task$feature_names) {
-		sampled = sampler$sample(feat, row_ids = 1:10)
-		expect_sampler_output_structure(sampled, task, nrows = 10)
+		sampled = sampler$sample(feat, row_ids = test_row_ids)
+		expect_sampler_output_structure(sampled, task, nrows = length(test_row_ids))
 		expect_feature_type_consistency(sampled, task)
 
 		# For conditional samplers, also test with explicit conditioning set
@@ -307,11 +310,11 @@ test_sampler_feature_types = function(sampler_class, ...) {
 					sampler,
 					feature = feat,
 					conditioning_set = other_feats[1],
-					row_ids = 1:10
+					row_ids = test_row_ids
 				)
 			}
 			# Also test marginal case
-			expect_marginal_sampling(sampler, feature = feat, row_ids = 1:10)
+			expect_marginal_sampling(sampler, feature = feat, row_ids = test_row_ids)
 		}
 	}
 
