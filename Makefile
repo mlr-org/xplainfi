@@ -38,6 +38,12 @@ check:
 check-remote:
 	Rscript -e "devtools::check(remote = TRUE)"
 
+# Full CRAN pre-submission check: remote incoming checks + no-suggests check
+.PHONY: check-cran
+check-cran:
+	Rscript -e "devtools::check(remote = TRUE)"
+	Rscript -e "devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = 'true'))"
+
 .PHONY: test-summary
 test-summary:
 	Rscript -e "devtools::test(reporter = 'summary')"
