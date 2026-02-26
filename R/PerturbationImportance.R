@@ -467,7 +467,6 @@ PFI = R6Class(
 #'
 #' @examples
 #' library(mlr3)
-#' library(mlr3learners)
 #'
 #' task <- sim_dgp_correlated(n = 200)
 #'
