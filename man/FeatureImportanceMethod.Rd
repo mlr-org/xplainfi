@@ -167,8 +167,8 @@ procedures do not have a clean per-comparison alpha for CI construction.}
 The parametric methods (\code{"raw"}, \code{"nadeau_bengio"}) return standard error (\code{se}),
 test statistic (\code{statistic}), p-value (\code{p.value}), and confidence bounds
 (\code{conf_lower}, \code{conf_upper}). The \code{"quantile"} method returns only lower and upper bounds.
-\subsection{\code{"raw"}: Uncorrected (!) t-test}{
 
+\strong{\code{"raw"}: Uncorrected (!) t-test}
 Uses a standard t-test assuming independence of resampling iterations.
 \itemize{
 \item SE = sd(resampling scores) / sqrt(n_iters)
@@ -180,10 +180,8 @@ Uses a standard t-test assuming independence of resampling iterations.
 \strong{Warning}: These CIs are too narrow because resampling iterations share
 training data and are not independent.
 This method is included only for demonstration purposes.
-}
 
-\subsection{\code{"nadeau_bengio"}: Corrected t-test}{
-
+\strong{\code{"nadeau_bengio"}: Corrected t-test}
 Applies the Nadeau & Bengio (2003) correction to account for correlation between
 resampling iterations due to overlapping training sets.
 \itemize{
@@ -193,18 +191,14 @@ resampling iterations due to overlapping training sets.
 }
 
 Recommended with bootstrap or subsampling (>= 10 iterations).
-}
 
-\subsection{\code{"quantile"}: Non-parametric empirical method}{
-
+\strong{\code{"quantile"}: Non-parametric empirical method}
 Uses the resampling distribution directly without parametric assumptions.
 \itemize{
 \item CIs: Empirical quantiles of the resampling distribution
 }
 
 This method does not provide \code{se}, \code{statistic}, or \code{p.value}.
-}
-
 }
 
 \subsection{Method-Specific CI Methods}{

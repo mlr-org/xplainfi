@@ -146,7 +146,7 @@ FeatureImportanceMethod = R6Class(
 		#' test statistic (`statistic`), p-value (`p.value`), and confidence bounds
 		#' (`conf_lower`, `conf_upper`). The `"quantile"` method returns only lower and upper bounds.
 		#'
-		#' ### `"raw"`: Uncorrected (!) t-test
+		#' **`"raw"`: Uncorrected (!) t-test**
 		#' Uses a standard t-test assuming independence of resampling iterations.
 		#' - SE = sd(resampling scores) / sqrt(n_iters)
 		#' - Test statistic: t = importance / SE with df = n_iters - 1
@@ -157,7 +157,7 @@ FeatureImportanceMethod = R6Class(
 		#' training data and are not independent.
 		#' This method is included only for demonstration purposes.
 		#'
-		#' ### `"nadeau_bengio"`: Corrected t-test
+		#' **`"nadeau_bengio"`: Corrected t-test**
 		#' Applies the Nadeau & Bengio (2003) correction to account for correlation between
 		#' resampling iterations due to overlapping training sets.
 		#' - Correction factor: (1/n_iters + n_test/n_train)
@@ -167,7 +167,7 @@ FeatureImportanceMethod = R6Class(
 		#' Recommended with bootstrap or subsampling (>= 10 iterations).
 		#'
 
-		#' ### `"quantile"`: Non-parametric empirical method
+		#' **`"quantile"`: Non-parametric empirical method**
 		#' Uses the resampling distribution directly without parametric assumptions.
 		#' - CIs: Empirical quantiles of the resampling distribution
 		#'
