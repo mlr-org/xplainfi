@@ -139,8 +139,9 @@ task <- sim_dgp_correlated(n = 500)
 
 loco <- LOCO$new(
   task = task,
-  learner = lrn("regr.ranger", num.trees = 10),
-  measure = msr("regr.mse")
+  learner = lrn("regr.rpart"),
+  measure = msr("regr.mse"),
+  n_repeats = 5
 )
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
 #>   (test set size: 167)
@@ -149,8 +150,8 @@ loco$importance()
 #> Key: <feature>
 #>    feature importance
 #>     <char>      <num>
-#> 1:      x1  0.9657516
-#> 2:      x2  0.2995086
-#> 3:      x3  1.4123144
-#> 4:      x4  0.0883162
+#> 1:      x1  0.7297937
+#> 2:      x2  0.0000000
+#> 3:      x3  0.6154164
+#> 4:      x4  0.0000000
 ```

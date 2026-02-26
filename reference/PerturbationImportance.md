@@ -99,7 +99,7 @@ only sub-method for which it is known to be valid.
       standardize = FALSE,
       ci_method = c("none", "raw", "nadeau_bengio", "quantile", "cpi"),
       conf_level = 0.95,
-      alternative = c("greater", "two.sided"),
+      alternative = c("two.sided", "greater"),
       test = c("t", "wilcoxon", "fisher", "binomial"),
       B = 1999,
       p_adjust = "none",
@@ -134,7 +134,7 @@ only sub-method for which it is known to be valid.
 
 - `alternative`:
 
-  (`character(1)`: `"greater"`) Type of alternative hypothesis for
+  (`character(1)`: `"two.sided"`) Type of alternative hypothesis for
   statistical tests. `"greater"` tests H0: importance \<= 0 vs H1:
   importance \> 0 (one-sided). `"two.sided"` tests H0: importance = 0 vs
   H1: importance != 0.

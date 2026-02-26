@@ -10,7 +10,7 @@ library(DiagrammeR)
 ```
 
 This vignette demonstrates the three perturbation-based feature
-importance methods implemented in xplainfi:
+importance methods implemented in `xplainfi`:
 
 - **PFI (Permutation Feature Importance)**: Uses marginal sampling
   (simple permutation)

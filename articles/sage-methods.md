@@ -20,7 +20,7 @@ A key property of SAGE is that it provides a complete decomposition: the
 sum of all SAGE values equals the difference between the model’s
 performance and the performance when all features are marginalized.
 
-**xplainfi** provides two implementations:
+`xplainfi` provides two implementations:
 
 - **MarginalSAGE**: Marginalizes features independently (standard SAGE
   implementation)

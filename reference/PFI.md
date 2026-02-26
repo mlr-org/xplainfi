@@ -143,14 +143,14 @@ The objects of this class are cloneable with this method.
 
 ``` r
 library(mlr3)
-library(mlr3learners)
 
 task <- sim_dgp_correlated(n = 500)
 
 pfi <- PFI$new(
   task = task,
-  learner = lrn("regr.ranger", num.trees = 10),
-  measure = msr("regr.mse")
+  learner = lrn("regr.rpart"),
+  measure = msr("regr.mse"),
+n_repeats = 5
 )
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
 #>   (test set size: 167)
@@ -159,8 +159,8 @@ pfi$importance()
 #> Key: <feature>
 #>    feature importance
 #>     <char>      <num>
-#> 1:      x1 4.65742717
-#> 2:      x2 0.28491793
-#> 3:      x3 1.44533438
-#> 4:      x4 0.01224582
+#> 1:      x1   7.429244
+#> 2:      x2   0.000000
+#> 3:      x3   1.380869
+#> 4:      x4   0.000000
 ```

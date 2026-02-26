@@ -126,7 +126,7 @@ For a comprehensive overview of inference methods, see
       standardize = FALSE,
       ci_method = c("none", "raw", "nadeau_bengio", "quantile", "lei"),
       conf_level = 0.95,
-      alternative = c("greater", "two.sided"),
+      alternative = c("two.sided", "greater"),
       test = c("wilcoxon", "t", "fisher", "binomial"),
       B = 1999,
       aggregator = NULL,
@@ -160,7 +160,7 @@ For a comprehensive overview of inference methods, see
 
 - `alternative`:
 
-  (`character(1)`: `"greater"`) Type of alternative hypothesis for
+  (`character(1)`: `"two.sided"`) Type of alternative hypothesis for
   statistical tests. `"greater"` tests H0: importance \<= 0 vs H1:
   importance \> 0 (one-sided). `"two.sided"` tests H0: importance = 0 vs
   H1: importance != 0.
@@ -270,7 +270,8 @@ groups <- list(
 wvim <- WVIM$new(
   task = task,
   learner = lrn("regr.ranger", num.trees = 10),
-  groups = groups
+  groups = groups,
+  n_repeats = 1
 )
 #> ℹ No <Measure> provided, using `measure = msr("regr.mse")`
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
@@ -280,6 +281,6 @@ wvim$importance()
 #> Key: <feature>
 #>        feature importance
 #>         <char>      <num>
-#> 1:  correlated   4.722423
-#> 2: independent   1.206976
+#> 1:  correlated  4.1381889
+#> 2: independent  0.8908186
 ```

@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,9 +100,9 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3learners.mlr-org.com" class="external-link">mlr3learners</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
-<p><strong>xplainfi</strong> provides feature importance methods for
-machine learning models. It implements several approaches for measuring
-how much each feature contributes to model performance, with a focus on
+<p><code>xplainfi</code> provides feature importance methods for machine
+learning models. It implements several approaches for measuring how much
+each feature contributes to model performance, with a focus on
 model-agnostic methods that work with any learner.</p>
 <div class="section level2">
 <h2 id="core-concepts">Core Concepts<a class="anchor" aria-label="anchor" href="#core-concepts"></a>
@@ -127,13 +127,13 @@ any task, learner, measure, and resampling strategy.</p>
 importance (which <em>always re-computes</em>), then
 <code>$importance()</code> to retrieve the aggregated results, with
 intermediate results available in <code>$scores()</code> and, if the
-chosen measures supports it, <code>$obs_loss()</code>.</p>
+chosen measure supports it, <code>$obs_loss()</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="basic-example">Basic Example<a class="anchor" aria-label="anchor" href="#basic-example"></a>
 </h2>
-<p>Let’s use the Friedman1 task, which provides an ideal setup for
-demonstrating feature importance methods with known ground truth:</p>
+<p>Let’s use the Friedman1 task to demonstrate feature importance
+methods with known ground truth:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">task</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tgen</a></span><span class="op">(</span><span class="st">"friedman1"</span><span class="op">)</span><span class="op">$</span><span class="fu">generate</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">300</span><span class="op">)</span></span>
 <span><span class="va">learner</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.ranger"</span>, num.trees <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
@@ -144,9 +144,9 @@ demonstrating feature importance methods with known ground truth:</p>
 target, while <code>unimportant1</code> through
 <code>unimportant5</code> are pure noise. We’ll use a random forest
 learner with cross-validation for more stable estimates.</p>
-<p>The target function is: <span class="math inline">\(y = 10 *
-\operatorname{sin}(\pi * x_1 * x_2) + 20 * (x_3 - 0.5)^2 + 10 * x_4 + 5
-* x_5 + \epsilon\)</span></p>
+<p>The target function is: <span class="math inline">\(y = 10 \cdot
+\operatorname{sin}(\pi  x_1  x_2) + 20  (x_3 - 0.5)^2 + 10  x_4 + 5  x_5
++ \epsilon\)</span></p>
 </div>
 <div class="section level2">
 <h2 id="permutation-feature-importance-pfi">Permutation Feature Importance (PFI)<a class="anchor" aria-label="anchor" href="#permutation-feature-importance-pfi"></a>
@@ -160,30 +160,32 @@ when shuffled.</p>
 <span>    task <span class="op">=</span> <span class="va">task</span>,</span>
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
-<span>    resampling <span class="op">=</span> <span class="va">resampling</span></span>
+<span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">10</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pfi</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">pfi</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;          feature  importance</span></span>
-<span><span class="co">#&gt;           &lt;char&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  5.65832510</span></span>
-<span><span class="co">#&gt;  2:   important2  9.27071901</span></span>
-<span><span class="co">#&gt;  3:   important3  1.23080752</span></span>
-<span><span class="co">#&gt;  4:   important4 12.58085212</span></span>
-<span><span class="co">#&gt;  5:   important5  2.10532639</span></span>
-<span><span class="co">#&gt;  6: unimportant1 -0.01161106</span></span>
-<span><span class="co">#&gt;  7: unimportant2  0.11012382</span></span>
-<span><span class="co">#&gt;  8: unimportant3  0.07585563</span></span>
-<span><span class="co">#&gt;  9: unimportant4 -0.04562983</span></span>
-<span><span class="co">#&gt; 10: unimportant5 -0.08762484</span></span></code></pre></div>
+<span><span class="co">#&gt;          feature   importance</span></span>
+<span><span class="co">#&gt;           &lt;char&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:   important1  5.545674370</span></span>
+<span><span class="co">#&gt;  2:   important2  8.968101641</span></span>
+<span><span class="co">#&gt;  3:   important3  1.261353831</span></span>
+<span><span class="co">#&gt;  4:   important4 12.673269112</span></span>
+<span><span class="co">#&gt;  5:   important5  2.005969867</span></span>
+<span><span class="co">#&gt;  6: unimportant1  0.004208592</span></span>
+<span><span class="co">#&gt;  7: unimportant2  0.093948304</span></span>
+<span><span class="co">#&gt;  8: unimportant3  0.080041842</span></span>
+<span><span class="co">#&gt;  9: unimportant4 -0.029783843</span></span>
+<span><span class="co">#&gt; 10: unimportant5 -0.088944796</span></span></code></pre></div>
 <p>The <code>importance</code> column shows the performance difference
 when each feature is permuted. Higher values indicate more important
 features.</p>
 <p>For more stable estimates, we can use multiple permutation iterations
-per resampling fold with <code>n_repeats</code>. Note that in this case
-“more is more”, and while there is no clear “good enough” value, setting
+per resampling fold with <code>n_repeats</code>, which is set to
+<code>30</code> by default for all methods. Note that in this case “more
+is more”, and while there is no clear “good enough” value, setting
 <code>n_repeats</code> to a small value like 1 will most definitely
 yield unreliable results.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -200,34 +202,56 @@ yield unreliable results.</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;          feature  importance</span></span>
 <span><span class="co">#&gt;           &lt;char&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  5.69009142</span></span>
-<span><span class="co">#&gt;  2:   important2  8.51851192</span></span>
-<span><span class="co">#&gt;  3:   important3  1.35925926</span></span>
-<span><span class="co">#&gt;  4:   important4 11.99230271</span></span>
-<span><span class="co">#&gt;  5:   important5  1.81738150</span></span>
-<span><span class="co">#&gt;  6: unimportant1 -0.04982420</span></span>
-<span><span class="co">#&gt;  7: unimportant2  0.05955861</span></span>
-<span><span class="co">#&gt;  8: unimportant3 -0.06882424</span></span>
-<span><span class="co">#&gt;  9: unimportant4 -0.02720205</span></span>
-<span><span class="co">#&gt; 10: unimportant5 -0.00145781</span></span></code></pre></div>
-<p>We can also use ratio instead of difference for the importance
-calculation, meaning that an unimportant feature is now expected to get
-an importance score of 1 rather than 0:</p>
+<span><span class="co">#&gt;  1:   important1  5.47062536</span></span>
+<span><span class="co">#&gt;  2:   important2  8.31221894</span></span>
+<span><span class="co">#&gt;  3:   important3  1.19280876</span></span>
+<span><span class="co">#&gt;  4:   important4 12.24462886</span></span>
+<span><span class="co">#&gt;  5:   important5  2.01412225</span></span>
+<span><span class="co">#&gt;  6: unimportant1 -0.02250072</span></span>
+<span><span class="co">#&gt;  7: unimportant2  0.12486533</span></span>
+<span><span class="co">#&gt;  8: unimportant3  0.04175966</span></span>
+<span><span class="co">#&gt;  9: unimportant4  0.05038402</span></span>
+<span><span class="co">#&gt; 10: unimportant5 -0.09342671</span></span></code></pre></div>
+<p>To illustrate why this is important, we can take a look at the
+variability of PFI scores for feature <code>important2</code> within
+each resampling iteration using individual importance scores via
+<code>$score()</code> (see below):</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pfi_stable</span><span class="op">$</span><span class="fu">scores</span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="va">feature</span> <span class="op">==</span> <span class="st">"important2"</span>, <span class="op">]</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">importance</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">iter_rsmp</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>        title <span class="op">=</span> <span class="st">"PFI variability within resampling iterations"</span>,</span>
+<span>        subtitle <span class="op">=</span> <span class="st">"Setting n_repeats higher improves PFI estimates"</span>,</span>
+<span>        y <span class="op">=</span> <span class="st">"PFI score (important2)"</span>,</span>
+<span>        x <span class="op">=</span> <span class="st">"Resampling iteration (3-fold CV)"</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="xplainfi_files/figure-html/pif-nrepeats-1.png" class="r-plt" alt="" width="768"></p>
+<p>The aggregated importance score for this feature is approximately
+8.3, but across all resamplings the estimated PFI scores range from 4.51
+to 12.67, and with insufficient resampling or low
+<code>n_repeats</code>, we might have over- or underestimated the
+features PFI by some margin.</p>
+<p>We can also use the ratio of performance scores instead of their
+difference for the importance calculation, meaning that an unimportant
+feature is now expected to get an importance score of 1 rather than
+0:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfi_stable</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>relation <span class="op">=</span> <span class="st">"ratio"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;          feature importance</span></span>
 <span><span class="co">#&gt;           &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  1.8066687</span></span>
-<span><span class="co">#&gt;  2:   important2  2.2139272</span></span>
-<span><span class="co">#&gt;  3:   important3  1.1928610</span></span>
-<span><span class="co">#&gt;  4:   important4  2.6727517</span></span>
-<span><span class="co">#&gt;  5:   important5  1.2618911</span></span>
-<span><span class="co">#&gt;  6: unimportant1  0.9915111</span></span>
-<span><span class="co">#&gt;  7: unimportant2  1.0086204</span></span>
-<span><span class="co">#&gt;  8: unimportant3  0.9893331</span></span>
-<span><span class="co">#&gt;  9: unimportant4  0.9972700</span></span>
-<span><span class="co">#&gt; 10: unimportant5  0.9998240</span></span></code></pre></div>
+<span><span class="co">#&gt;  1:   important1  1.8678890</span></span>
+<span><span class="co">#&gt;  2:   important2  2.3092581</span></span>
+<span><span class="co">#&gt;  3:   important3  1.1900256</span></span>
+<span><span class="co">#&gt;  4:   important4  2.9573191</span></span>
+<span><span class="co">#&gt;  5:   important5  1.3219625</span></span>
+<span><span class="co">#&gt;  6: unimportant1  0.9969603</span></span>
+<span><span class="co">#&gt;  7: unimportant2  1.0166104</span></span>
+<span><span class="co">#&gt;  8: unimportant3  1.0070529</span></span>
+<span><span class="co">#&gt;  9: unimportant4  1.0074279</span></span>
+<span><span class="co">#&gt; 10: unimportant5  0.9873048</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="leave-one-covariate-out-loco">Leave-One-Covariate-Out (LOCO)<a class="anchor" aria-label="anchor" href="#leave-one-covariate-out-loco"></a>
@@ -235,29 +259,30 @@ an importance score of 1 rather than 0:</p>
 <p>LOCO measures importance by retraining the model without each feature
 and comparing performance to the full model. This shows the contribution
 of each feature when all other features are present.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">loco</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/LOCO.html">LOCO</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>    task <span class="op">=</span> <span class="va">task</span>,</span>
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
 <span>    measure <span class="op">=</span> <span class="va">measure</span>,</span>
-<span>    resampling <span class="op">=</span> <span class="va">resampling</span></span>
+<span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
+<span>    n_repeats <span class="op">=</span> <span class="fl">10</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">loco</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">loco</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;          feature importance</span></span>
-<span><span class="co">#&gt;           &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  3.5085806</span></span>
-<span><span class="co">#&gt;  2:   important2  5.3550364</span></span>
-<span><span class="co">#&gt;  3:   important3  0.8200906</span></span>
-<span><span class="co">#&gt;  4:   important4  7.5367223</span></span>
-<span><span class="co">#&gt;  5:   important5  0.5861361</span></span>
-<span><span class="co">#&gt;  6: unimportant1 -0.2583327</span></span>
-<span><span class="co">#&gt;  7: unimportant2 -0.1602426</span></span>
-<span><span class="co">#&gt;  8: unimportant3 -0.2885216</span></span>
-<span><span class="co">#&gt;  9: unimportant4 -0.3449341</span></span>
-<span><span class="co">#&gt; 10: unimportant5 -0.3606014</span></span></code></pre></div>
+<span><span class="co">#&gt;          feature  importance</span></span>
+<span><span class="co">#&gt;           &lt;char&gt;       &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:   important1  3.62257756</span></span>
+<span><span class="co">#&gt;  2:   important2  5.60038686</span></span>
+<span><span class="co">#&gt;  3:   important3  0.96616913</span></span>
+<span><span class="co">#&gt;  4:   important4  7.77084397</span></span>
+<span><span class="co">#&gt;  5:   important5  0.91573094</span></span>
+<span><span class="co">#&gt;  6: unimportant1 -0.21657782</span></span>
+<span><span class="co">#&gt;  7: unimportant2 -0.10069618</span></span>
+<span><span class="co">#&gt;  8: unimportant3 -0.07475981</span></span>
+<span><span class="co">#&gt;  9: unimportant4 -0.13525518</span></span>
+<span><span class="co">#&gt; 10: unimportant5 -0.23400214</span></span></code></pre></div>
 <p>LOCO is computationally expensive as it requires retraining for each
 feature, but provides clear interpretation: higher values mean larger
 performance drop when the feature is removed. However, it cannot
@@ -267,14 +292,14 @@ correlated features.</p>
 <div class="section level2">
 <h2 id="feature-samplers">Feature Samplers<a class="anchor" aria-label="anchor" href="#feature-samplers"></a>
 </h2>
-<p>For advanced methods that account for feature dependencies, xplainfi
-provides different sampling strategies. While PFI uses simple
-permutation (marginal sampling), conditional samplers can preserve
-feature relationships.</p>
+<p>For advanced methods that account for feature dependencies,
+<code>xplainfi</code> provides different sampling strategies. While PFI
+uses simple permutation (marginal sampling), conditional samplers can
+preserve feature relationships.</p>
 <p>Let’s demonstrate conditional sampling using adversarial random
-rorests (ARF), which preserves relationships between features when
+forests (ARF), which preserves relationships between features when
 sampling:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">arf_sampler</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/ConditionalARFSampler.html">ConditionalARFSampler</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">sample_data</span> <span class="op">&lt;-</span> <span class="va">task</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span>rows <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span></span>
@@ -289,7 +314,7 @@ sampling:</p>
 <p>Now we’ll conditionally sample the <code>important1</code> feature
 given the values of <code>important2</code> and
 <code>important3</code>:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sampled_conditional</span> <span class="op">&lt;-</span> <span class="va">arf_sampler</span><span class="op">$</span><span class="fu">sample_newdata</span><span class="op">(</span></span>
 <span>    feature <span class="op">=</span> <span class="st">"important1"</span>,</span>
 <span>    newdata <span class="op">=</span> <span class="va">sample_data</span>,</span>
@@ -307,11 +332,11 @@ given the values of <code>important2</code> and
 <span><span class="va">sampled_conditional</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">important1</span>, <span class="va">important2</span>, <span class="va">important3</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;    important1  important2 important3</span></span>
 <span><span class="co">#&gt;         &lt;num&gt;       &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  0.4239519 0.784575267  0.2372297</span></span>
-<span><span class="co">#&gt; 2:  0.1837310 0.009429905  0.6864904</span></span>
-<span><span class="co">#&gt; 3:  0.5781874 0.779065883  0.2258184</span></span>
-<span><span class="co">#&gt; 4:  0.3806457 0.729390652  0.3184946</span></span>
-<span><span class="co">#&gt; 5:  0.4622495 0.630131853  0.1739838</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:  0.7928991 0.784575267  0.2372297</span></span>
+<span><span class="co">#&gt; 2:  0.6233185 0.009429905  0.6864904</span></span>
+<span><span class="co">#&gt; 3:  0.1203356 0.779065883  0.2258184</span></span>
+<span><span class="co">#&gt; 4:  0.8458796 0.729390652  0.3184946</span></span>
+<span><span class="co">#&gt; 5:  0.8990316 0.630131853  0.1739838</span></span></code></pre></div>
 <p>This conditional sampling is essential for methods like CFI and RFI
 that need to preserve feature dependencies. See the <a href="https://mlr-org.github.io/xplainfi/articles/perturbation-importance.html">perturbation-importance
 article</a> for detailed comparisons and
@@ -324,7 +349,7 @@ implemented samplers.</p>
 <p>All methods store detailed scoring information from each resampling
 iteration for further analysis. Let’s examine the structure of PFI’s
 detailed scores:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfi</span><span class="op">$</span><span class="fu">scores</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">4</span>, caption <span class="op">=</span> <span class="st">"Detailed PFI scores (first 10 rows)"</span><span class="op">)</span></span></code></pre></div>
@@ -352,85 +377,85 @@ detailed scores:</p>
 <td align="right">1</td>
 <td align="right">1</td>
 <td align="right">4.3358</td>
-<td align="right">9.5208</td>
-<td align="right">5.1850</td>
+<td align="right">10.6616</td>
+<td align="right">6.3258</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">2</td>
 <td align="right">4.3358</td>
-<td align="right">10.6373</td>
-<td align="right">6.3015</td>
+<td align="right">9.4661</td>
+<td align="right">5.1303</td>
 </tr>
 <tr class="odd">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">3</td>
 <td align="right">4.3358</td>
-<td align="right">9.2000</td>
-<td align="right">4.8643</td>
+<td align="right">7.7194</td>
+<td align="right">3.3837</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">4</td>
 <td align="right">4.3358</td>
-<td align="right">10.5931</td>
-<td align="right">6.2573</td>
+<td align="right">8.9057</td>
+<td align="right">4.5699</td>
 </tr>
 <tr class="odd">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">5</td>
 <td align="right">4.3358</td>
-<td align="right">9.7336</td>
-<td align="right">5.3979</td>
+<td align="right">9.4691</td>
+<td align="right">5.1333</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">6</td>
 <td align="right">4.3358</td>
-<td align="right">9.6753</td>
-<td align="right">5.3396</td>
+<td align="right">9.0111</td>
+<td align="right">4.6753</td>
 </tr>
 <tr class="odd">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">7</td>
 <td align="right">4.3358</td>
-<td align="right">8.4808</td>
-<td align="right">4.1451</td>
+<td align="right">9.3553</td>
+<td align="right">5.0195</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">8</td>
 <td align="right">4.3358</td>
-<td align="right">8.1783</td>
-<td align="right">3.8425</td>
+<td align="right">10.0281</td>
+<td align="right">5.6923</td>
 </tr>
 <tr class="odd">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">9</td>
 <td align="right">4.3358</td>
-<td align="right">9.4762</td>
-<td align="right">5.1404</td>
+<td align="right">9.7933</td>
+<td align="right">5.4575</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">10</td>
 <td align="right">4.3358</td>
-<td align="right">9.9178</td>
-<td align="right">5.5820</td>
+<td align="right">9.1412</td>
+<td align="right">4.8055</td>
 </tr>
 </tbody>
 </table>
 <p>We can also summarize the scoring structure:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfi</span><span class="op">$</span><span class="fu">scores</span><span class="op">(</span><span class="op">)</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span></span>
 <span>    features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/duplicated.html" class="external-link">uniqueN</a></span><span class="op">(</span><span class="va">feature</span><span class="op">)</span>,</span>
 <span>    resampling_folds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/duplicated.html" class="external-link">uniqueN</a></span><span class="op">(</span><span class="va">iter_rsmp</span><span class="op">)</span>,</span>
@@ -439,16 +464,16 @@ detailed scores:</p>
 <span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;    features resampling_folds permutation_iters total_scores</span></span>
 <span><span class="co">#&gt;       &lt;int&gt;            &lt;int&gt;             &lt;int&gt;        &lt;int&gt;</span></span>
-<span><span class="co">#&gt; 1:       10                3                30          900</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:       10                3                10          300</span></span></code></pre></div>
 <p>So <code>$importance()</code> always gives us the aggregated
 importances across multiple resampling- and permutation-/refitting
 iterations, whereas <code>$scores()</code> gives you the individual
-scores as calculated by the supplied <code>measures</code> and the
+scores as calculated by the supplied <code>measure</code> and the
 corresponding importance calculated from the difference of these scores
 by default.</p>
-<p>Analogously to <code>$importance()</code>, you can also use
+<p>Analogous to <code>$importance()</code>, you can also use
 <code>relation = "ratio"</code> here:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfi</span><span class="op">$</span><span class="fu">scores</span><span class="op">(</span>relation <span class="op">=</span> <span class="st">"ratio"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">4</span>, caption <span class="op">=</span> <span class="st">"PFI scores using the ratio (first 10 rows)"</span><span class="op">)</span></span></code></pre></div>
@@ -476,80 +501,80 @@ by default.</p>
 <td align="right">1</td>
 <td align="right">1</td>
 <td align="right">4.3358</td>
-<td align="right">9.5208</td>
-<td align="right">2.1959</td>
+<td align="right">10.6616</td>
+<td align="right">2.4590</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">2</td>
 <td align="right">4.3358</td>
-<td align="right">10.6373</td>
-<td align="right">2.4534</td>
+<td align="right">9.4661</td>
+<td align="right">2.1833</td>
 </tr>
 <tr class="odd">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">3</td>
 <td align="right">4.3358</td>
-<td align="right">9.2000</td>
-<td align="right">2.1219</td>
+<td align="right">7.7194</td>
+<td align="right">1.7804</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">4</td>
 <td align="right">4.3358</td>
-<td align="right">10.5931</td>
-<td align="right">2.4432</td>
+<td align="right">8.9057</td>
+<td align="right">2.0540</td>
 </tr>
 <tr class="odd">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">5</td>
 <td align="right">4.3358</td>
-<td align="right">9.7336</td>
-<td align="right">2.2450</td>
+<td align="right">9.4691</td>
+<td align="right">2.1840</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">6</td>
 <td align="right">4.3358</td>
-<td align="right">9.6753</td>
-<td align="right">2.2315</td>
+<td align="right">9.0111</td>
+<td align="right">2.0783</td>
 </tr>
 <tr class="odd">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">7</td>
 <td align="right">4.3358</td>
-<td align="right">8.4808</td>
-<td align="right">1.9560</td>
+<td align="right">9.3553</td>
+<td align="right">2.1577</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">8</td>
 <td align="right">4.3358</td>
-<td align="right">8.1783</td>
-<td align="right">1.8862</td>
+<td align="right">10.0281</td>
+<td align="right">2.3129</td>
 </tr>
 <tr class="odd">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">9</td>
 <td align="right">4.3358</td>
-<td align="right">9.4762</td>
-<td align="right">2.1856</td>
+<td align="right">9.7933</td>
+<td align="right">2.2587</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">10</td>
 <td align="right">4.3358</td>
-<td align="right">9.9178</td>
-<td align="right">2.2874</td>
+<td align="right">9.1412</td>
+<td align="right">2.1083</td>
 </tr>
 </tbody>
 </table>
@@ -561,36 +586,36 @@ by default.</p>
 observation-level comparisons and with decomposable measures, we can
 also retrieve observation-level information with
 <code>$obs_loss()</code>, which works analogously to
-<code>$scores()</code> and <code>$importances()</code> but even more
-detailed:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code>$scores()</code> and <code>$importance()</code> but at an even
+more detailed level:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfi</span><span class="op">$</span><span class="fu">obs_loss</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;             feature iter_rsmp iter_repeat row_ids loss_baseline  loss_post</span></span>
 <span><span class="co">#&gt;              &lt;char&gt;     &lt;int&gt;       &lt;int&gt;   &lt;int&gt;         &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;     1:   important1         1           1       1     3.3403244  0.4756261</span></span>
-<span><span class="co">#&gt;     2:   important1         1           1       9     0.4640003 13.8393080</span></span>
-<span><span class="co">#&gt;     3:   important1         1           1      11     1.0938319  9.5233606</span></span>
-<span><span class="co">#&gt;     4:   important1         1           1      12     2.0091331  1.2088093</span></span>
-<span><span class="co">#&gt;     5:   important1         1           1      15    11.4484770 20.9659162</span></span>
+<span><span class="co">#&gt;     1:   important1         1           1       1     3.3403244  2.5440536</span></span>
+<span><span class="co">#&gt;     2:   important1         1           1       9     0.4640003  5.2814472</span></span>
+<span><span class="co">#&gt;     3:   important1         1           1      11     1.0938319  0.4286004</span></span>
+<span><span class="co">#&gt;     4:   important1         1           1      12     2.0091331  2.3334294</span></span>
+<span><span class="co">#&gt;     5:   important1         1           1      15    11.4484770 41.8831124</span></span>
 <span><span class="co">#&gt;    ---                                                                    </span></span>
-<span><span class="co">#&gt; 89996: unimportant5         3          30     290    16.8041217 16.8041217</span></span>
-<span><span class="co">#&gt; 89997: unimportant5         3          30     294     0.4212832  0.4715050</span></span>
-<span><span class="co">#&gt; 89998: unimportant5         3          30     295     8.0016602  8.9656018</span></span>
-<span><span class="co">#&gt; 89999: unimportant5         3          30     296     0.2308082  0.1863293</span></span>
-<span><span class="co">#&gt; 90000: unimportant5         3          30     298    18.8129904 18.7329169</span></span>
+<span><span class="co">#&gt; 29996: unimportant5         3          10     290    16.8041217 15.2572740</span></span>
+<span><span class="co">#&gt; 29997: unimportant5         3          10     294     0.4212832  0.5242628</span></span>
+<span><span class="co">#&gt; 29998: unimportant5         3          10     295     8.0016602  9.3209027</span></span>
+<span><span class="co">#&gt; 29999: unimportant5         3          10     296     0.2308082  0.1680013</span></span>
+<span><span class="co">#&gt; 30000: unimportant5         3          10     298    18.8129904 19.7120160</span></span>
 <span><span class="co">#&gt;        obs_importance</span></span>
 <span><span class="co">#&gt;                 &lt;num&gt;</span></span>
-<span><span class="co">#&gt;     1:    -2.86469831</span></span>
-<span><span class="co">#&gt;     2:    13.37530770</span></span>
-<span><span class="co">#&gt;     3:     8.42952866</span></span>
-<span><span class="co">#&gt;     4:    -0.80032386</span></span>
-<span><span class="co">#&gt;     5:     9.51743920</span></span>
+<span><span class="co">#&gt;     1:    -0.79627076</span></span>
+<span><span class="co">#&gt;     2:     4.81744691</span></span>
+<span><span class="co">#&gt;     3:    -0.66523150</span></span>
+<span><span class="co">#&gt;     4:     0.32429633</span></span>
+<span><span class="co">#&gt;     5:    30.43463535</span></span>
 <span><span class="co">#&gt;    ---               </span></span>
-<span><span class="co">#&gt; 89996:     0.00000000</span></span>
-<span><span class="co">#&gt; 89997:     0.05022177</span></span>
-<span><span class="co">#&gt; 89998:     0.96394160</span></span>
-<span><span class="co">#&gt; 89999:    -0.04447890</span></span>
-<span><span class="co">#&gt; 90000:    -0.08007353</span></span></code></pre></div>
+<span><span class="co">#&gt; 29996:    -1.54684765</span></span>
+<span><span class="co">#&gt; 29997:     0.10297959</span></span>
+<span><span class="co">#&gt; 29998:     1.31924248</span></span>
+<span><span class="co">#&gt; 29999:    -0.06280688</span></span>
+<span><span class="co">#&gt; 30000:     0.89902555</span></span></code></pre></div>
 <p>Since we computed PFI using the mean squared error
 (<code>msr("regr.mse")</code>), we can use the associated
 <code>Measure$obs_loss()</code>, the squared error.<br>
@@ -604,7 +629,7 @@ baseline model before permutation</li>
 permutation (or in the case of <code>LOCO</code>, after refit)</li>
 <li>
 <code>obs_importance</code>: The difference (or ratio if
-<code>relation = "ratio"</code>) of the the two losses</li>
+<code>relation = "ratio"</code>) of the two losses</li>
 </ul>
 <p>Note that not all measures have a <code>Measure$obs_loss()</code>:
 Some measures like <code>msr("classif.auc")</code> are not decomposable,
@@ -612,6 +637,20 @@ so observation-wise loss values are not available.<br>
 In other cases, the corresponding <code>obs_loss()</code> is just not
 yet implemented in <a href="https://CRAN.R-project.org/package=mlr3measures" class="external-link"><code>mlr3measures</code></a>,
 but will likely be in the future.</p>
+</div>
+<div class="section level2">
+<h2 id="statistical-inference">Statistical Inference<a class="anchor" aria-label="anchor" href="#statistical-inference"></a>
+</h2>
+<p>All importance methods support confidence intervals and p-values via
+the <code>ci_method</code> argument in <code>$importance()</code>.
+Available approaches range from empirical quantiles and corrected
+t-tests (Nadeau &amp; Bengio) for resampling-based variability, to
+observation-wise inference methods like CPI/cARFi (for <code>CFI</code>)
+and Lei et al. (2018) (for <code>LOCO</code>). Multiplicity correction
+via <code>p_adjust</code> is supported for all methods that produce
+p-values.</p>
+<p>For a comprehensive guide covering all inference methods, see the <a href="https://mlr-org.github.io/xplainfi/articles/inference.html">Inference
+for Feature Importance</a> article.</p>
 </div>
 <div class="section level2">
 <h2 id="using-pre-trained-learners">Using Pre-trained Learners<a class="anchor" aria-label="anchor" href="#using-pre-trained-learners"></a>
@@ -632,7 +671,7 @@ no meaningful way to associate it with multiple resampling folds.</p>
 learner on the train set and <code>PFI</code> will calculate importance
 using the trained learner and the corresponding test set defined by the
 <code>resampling</code>:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">resampling_holdout</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">rsmp</a></span><span class="op">(</span><span class="st">"holdout"</span><span class="op">)</span><span class="op">$</span><span class="fu">instantiate</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span>
 <span><span class="va">learner_trained</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.ranger"</span>, num.trees <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="va">learner_trained</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span>, row_ids <span class="op">=</span> <span class="va">resampling_holdout</span><span class="op">$</span><span class="fu">train_set</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
@@ -650,16 +689,16 @@ using the trained learner and the corresponding test set defined by the
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;          feature  importance</span></span>
 <span><span class="co">#&gt;           &lt;char&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  5.40113138</span></span>
-<span><span class="co">#&gt;  2:   important2  7.41302690</span></span>
-<span><span class="co">#&gt;  3:   important3  1.53601205</span></span>
-<span><span class="co">#&gt;  4:   important4 14.36245887</span></span>
-<span><span class="co">#&gt;  5:   important5  2.07014998</span></span>
-<span><span class="co">#&gt;  6: unimportant1 -0.01573699</span></span>
-<span><span class="co">#&gt;  7: unimportant2  0.07325885</span></span>
-<span><span class="co">#&gt;  8: unimportant3  0.16189938</span></span>
-<span><span class="co">#&gt;  9: unimportant4  0.01378138</span></span>
-<span><span class="co">#&gt; 10: unimportant5  0.01746879</span></span></code></pre></div>
+<span><span class="co">#&gt;  1:   important1  4.90596578</span></span>
+<span><span class="co">#&gt;  2:   important2  9.70222982</span></span>
+<span><span class="co">#&gt;  3:   important3  1.27523296</span></span>
+<span><span class="co">#&gt;  4:   important4 13.27365797</span></span>
+<span><span class="co">#&gt;  5:   important5  2.09879343</span></span>
+<span><span class="co">#&gt;  6: unimportant1 -0.03733685</span></span>
+<span><span class="co">#&gt;  7: unimportant2  0.14397918</span></span>
+<span><span class="co">#&gt;  8: unimportant3  0.02300583</span></span>
+<span><span class="co">#&gt;  9: unimportant4  0.05327077</span></span>
+<span><span class="co">#&gt; 10: unimportant5 -0.01233854</span></span></code></pre></div>
 <p>A common real-world scenario is that the learner was trained on some
 dataset and you want to explain the model on entirely new, unseen data.
 In that case, create a task from the new data (via
@@ -667,9 +706,9 @@ In that case, create a task from the new data (via
 <code>rsmp("custom")</code> to designate all rows as the test set. The
 resampling here is purely a technicality used for internal consistency,
 and the train set is irrelevant since the learner is already trained. A
-utility function <code><a href="../reference/rsmp_all_test.html">rsmp_all_test()</a></code> can be used as a shortcute
-do achieve the same goal.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+utility function <code><a href="../reference/rsmp_all_test.html">rsmp_all_test()</a></code> can be used as a shortcut
+to achieve the same goal.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Simulate: learner was trained elsewhere, we have new data to use</span></span>
 <span><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tgen</a></span><span class="op">(</span><span class="st">"friedman1"</span><span class="op">)</span><span class="op">$</span><span class="fu">generate</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span></span>
@@ -691,21 +730,21 @@ do achieve the same goal.</p>
 <span><span class="va">pfi_newdata</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">pfi_newdata</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;          feature  importance</span></span>
-<span><span class="co">#&gt;           &lt;char&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  4.34309511</span></span>
-<span><span class="co">#&gt;  2:   important2  9.49786181</span></span>
-<span><span class="co">#&gt;  3:   important3  1.03711078</span></span>
-<span><span class="co">#&gt;  4:   important4 13.13643335</span></span>
-<span><span class="co">#&gt;  5:   important5  2.25419544</span></span>
-<span><span class="co">#&gt;  6: unimportant1  0.12679511</span></span>
-<span><span class="co">#&gt;  7: unimportant2 -0.16363612</span></span>
-<span><span class="co">#&gt;  8: unimportant3 -0.22700424</span></span>
-<span><span class="co">#&gt;  9: unimportant4 -0.12026119</span></span>
-<span><span class="co">#&gt; 10: unimportant5  0.09306718</span></span></code></pre></div>
+<span><span class="co">#&gt;          feature   importance</span></span>
+<span><span class="co">#&gt;           &lt;char&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:   important1  7.367319221</span></span>
+<span><span class="co">#&gt;  2:   important2  6.605859756</span></span>
+<span><span class="co">#&gt;  3:   important3  0.588785391</span></span>
+<span><span class="co">#&gt;  4:   important4 15.696286629</span></span>
+<span><span class="co">#&gt;  5:   important5  2.805833984</span></span>
+<span><span class="co">#&gt;  6: unimportant1 -0.145515481</span></span>
+<span><span class="co">#&gt;  7: unimportant2 -0.011919069</span></span>
+<span><span class="co">#&gt;  8: unimportant3 -0.002688459</span></span>
+<span><span class="co">#&gt;  9: unimportant4  0.166218449</span></span>
+<span><span class="co">#&gt; 10: unimportant5  0.014330499</span></span></code></pre></div>
 <p>If you pass a trained learner with a multi-fold or non-instantiated
 resampling, you will get an informative error at construction time:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va"><a href="../reference/PFI.html">PFI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>    task <span class="op">=</span> <span class="va">task</span>,</span>
 <span>    learner <span class="op">=</span> <span class="va">learner_trained</span>,</span>
@@ -729,7 +768,7 @@ between <code>mirai</code> and <code>future</code> backends.</p>
 </h3>
 <p>The <code>future</code> package provides a simple interface for
 parallel and distributed computing:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="st">"multisession"</span>, workers <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span></span>
@@ -757,7 +796,7 @@ parallel and distributed computing:</p>
 </h3>
 <p>The <code>mirai</code> package offers a modern alternative for
 parallel computing:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mirai.r-lib.org" class="external-link">mirai</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://mirai.r-lib.org/reference/daemons.html" class="external-link">daemons</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span></span>

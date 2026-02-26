@@ -15,7 +15,7 @@ Install `xplainfi` from CRAN:
 install.packages("xplainfi")
 ```
 
-Or install `xplainfi` from [R-universe](https://mlr-org.r-universe.dev):
+Or install from [R-universe](https://mlr-org.r-universe.dev):
 
 ``` r
 install.packages("xplainfi", repos = c("https://mlr-org.r-universe.dev", "https://cloud.r-project.org"))
@@ -67,7 +67,6 @@ Compute and print PFI scores:
 
 ``` r
 pfi$compute()
-#> ℹ Using `resample()`
 pfi$importance()
 #> Key: <feature>
 #>          feature   importance
@@ -166,10 +165,9 @@ pfi = PFI$new(
     measure = msr("regr.rsq")
 )
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
-#> (test set size: 333)
+#>   (test set size: 333)
 
 pfi$compute()
-#> ℹ Using `resample()`
 pfi$importance()
 #> Key: <feature>
 #>          feature   importance
@@ -287,10 +285,10 @@ Unlike other samplers, they do not allow sampling from new data with
 `$sample_newdata()`, as that would require re-creating a knockoff matrix
 on the fly.
 
-- [`KnockoffSampler`](https://mlr-org.github.io/xplainfi/reference/KnockoffSampler.md)
-  : Knockoff Sampler
 - [`KnockoffGaussianSampler`](https://mlr-org.github.io/xplainfi/reference/KnockoffGaussianSampler.md)
   : Gaussian Knockoff Conditional Sampler
+- [`KnockoffSampler`](https://mlr-org.github.io/xplainfi/reference/KnockoffSampler.md)
+  : Knockoff Sampler
 
 ## Utilities
 

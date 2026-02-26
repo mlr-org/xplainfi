@@ -15,7 +15,7 @@ Feature Importance Method Class"><script defer src="https://umami.jemu.name/scri
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -197,7 +197,7 @@ across resampling iterations and, depending on the method use, permutations (<a 
 <span>  standardize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  ci_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"raw"</span>, <span class="st">"nadeau_bengio"</span>, <span class="st">"quantile"</span><span class="op">)</span>,</span>
 <span>  conf_level <span class="op">=</span> <span class="fl">0.95</span>,</span>
-<span>  alternative <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"greater"</span>, <span class="st">"two.sided"</span><span class="op">)</span>,</span>
+<span>  alternative <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"two.sided"</span>, <span class="st">"greater"</span><span class="op">)</span>,</span>
 <span>  p_adjust <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
@@ -231,7 +231,7 @@ See details.</p></dd>
 
 
 <dt><code>alternative</code></dt>
-<dd><p>(<code>character(1)</code>: <code>"greater"</code>) Type of alternative hypothesis for statistical tests.
+<dd><p>(<code>character(1)</code>: <code>"two.sided"</code>) Type of alternative hypothesis for statistical tests.
 <code>"greater"</code> tests H0: importance &lt;= 0 vs H1: importance &gt; 0 (one-sided).
 <code>"two.sided"</code> tests H0: importance = 0 vs H1: importance != 0.
 Only used when <code>ci_method != "none"</code>.</p></dd>
@@ -262,39 +262,24 @@ procedures do not have a clean per-comparison alpha for CI construction.</p></dd
 
 <p>The parametric methods (<code>"raw"</code>, <code>"nadeau_bengio"</code>) return standard error (<code>se</code>),
 test statistic (<code>statistic</code>), p-value (<code>p.value</code>), and confidence bounds
-(<code>conf_lower</code>, <code>conf_upper</code>). The <code>"quantile"</code> method returns only lower and upper bounds.</p><div class="section">
-<h6 id="-raw-uncorrected-t-test"><code>"raw"</code>: Uncorrected (!) t-test<a class="anchor" aria-label="anchor" href="#-raw-uncorrected-t-test"></a></h6>
-
-
-<p>Uses a standard t-test assuming independence of resampling iterations.</p><ul><li><p>SE = sd(resampling scores) / sqrt(n_iters)</p></li>
+(<code>conf_lower</code>, <code>conf_upper</code>). The <code>"quantile"</code> method returns only lower and upper bounds.</p>
+<p><strong><code>"raw"</code>: Uncorrected (!) t-test</strong>
+Uses a standard t-test assuming independence of resampling iterations.</p><ul><li><p>SE = sd(resampling scores) / sqrt(n_iters)</p></li>
 <li><p>Test statistic: t = importance / SE with df = n_iters - 1</p></li>
 <li><p>P-value: From t-distribution (one-sided or two-sided depending on <code>alternative</code>)</p></li>
 <li><p>CIs: importance +/- qt(1 - alpha, df) * SE</p></li>
 </ul><p><strong>Warning</strong>: These CIs are too narrow because resampling iterations share
 training data and are not independent.
 This method is included only for demonstration purposes.</p>
-</div>
-
-<div class="section">
-<h6 id="-nadeau-bengio-corrected-t-test"><code>"nadeau_bengio"</code>: Corrected t-test<a class="anchor" aria-label="anchor" href="#-nadeau-bengio-corrected-t-test"></a></h6>
-
-
-<p>Applies the Nadeau &amp; Bengio (2003) correction to account for correlation between
+<p><strong><code>"nadeau_bengio"</code>: Corrected t-test</strong>
+Applies the Nadeau &amp; Bengio (2003) correction to account for correlation between
 resampling iterations due to overlapping training sets.</p><ul><li><p>Correction factor: (1/n_iters + n_test/n_train)</p></li>
 <li><p>SE = sqrt(correction_factor * var(resampling scores))</p></li>
 <li><p>Test statistic and p-value: As in <code>"raw"</code>, but with corrected SE</p></li>
 </ul><p>Recommended with bootstrap or subsampling (&gt;= 10 iterations).</p>
-</div>
-
-<div class="section">
-<h6 id="-quantile-non-parametric-empirical-method"><code>"quantile"</code>: Non-parametric empirical method<a class="anchor" aria-label="anchor" href="#-quantile-non-parametric-empirical-method"></a></h6>
-
-
-<p>Uses the resampling distribution directly without parametric assumptions.</p><ul><li><p>CIs: Empirical quantiles of the resampling distribution</p></li>
+<p><strong><code>"quantile"</code>: Non-parametric empirical method</strong>
+Uses the resampling distribution directly without parametric assumptions.</p><ul><li><p>CIs: Empirical quantiles of the resampling distribution</p></li>
 </ul><p>This method does not provide <code>se</code>, <code>statistic</code>, or <code>p.value</code>.</p>
-</div>
-
-
 </div>
 
 <div class="section">

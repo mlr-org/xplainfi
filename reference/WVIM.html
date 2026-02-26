@@ -17,7 +17,7 @@ corresponds to LOCO (Leave One Covariate Out)."><script defer src="https://umami
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -173,7 +173,7 @@ parameterizable, deviating from these defaults may invalidate the theoretical gu
 <span>  standardize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  ci_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"raw"</span>, <span class="st">"nadeau_bengio"</span>, <span class="st">"quantile"</span>, <span class="st">"lei"</span><span class="op">)</span>,</span>
 <span>  conf_level <span class="op">=</span> <span class="fl">0.95</span>,</span>
-<span>  alternative <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"greater"</span>, <span class="st">"two.sided"</span><span class="op">)</span>,</span>
+<span>  alternative <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"two.sided"</span>, <span class="st">"greater"</span><span class="op">)</span>,</span>
 <span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wilcoxon"</span>, <span class="st">"t"</span>, <span class="st">"fisher"</span>, <span class="st">"binomial"</span><span class="op">)</span>,</span>
 <span>  B <span class="op">=</span> <span class="fl">1999</span>,</span>
 <span>  aggregator <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -202,7 +202,7 @@ WVIM methods support <code>"lei"</code> for distribution-free inference (Lei et 
 
 
 <dt><code>alternative</code></dt>
-<dd><p>(<code>character(1)</code>: <code>"greater"</code>) Type of alternative hypothesis for statistical tests.
+<dd><p>(<code>character(1)</code>: <code>"two.sided"</code>) Type of alternative hypothesis for statistical tests.
 <code>"greater"</code> tests H0: importance &lt;= 0 vs H1: importance &gt; 0 (one-sided).
 <code>"two.sided"</code> tests H0: importance = 0 vs H1: importance != 0.</p></dd>
 
@@ -304,7 +304,8 @@ Required for some measures, but may increase memory footprint.</p></dd>
 <span class="r-in"><span><span class="va">wvim</span> <span class="op">&lt;-</span> <span class="va">WVIM</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  task <span class="op">=</span> <span class="va">task</span>,</span></span>
 <span class="r-in"><span>  learner <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.ranger"</span>, num.trees <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  groups <span class="op">=</span> <span class="va">groups</span></span></span>
+<span class="r-in"><span>  groups <span class="op">=</span> <span class="va">groups</span>,</span></span>
+<span class="r-in"><span>  n_repeats <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> No <span style="color: #0000BB;">&lt;Measure&gt;</span> provided, using `measure = msr("regr.mse")`</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> No <span style="color: #0000BB;">&lt;Resampling&gt;</span> provided, using `resampling = rsmp("holdout", ratio = 2/3)`</span>
@@ -314,8 +315,8 @@ Required for some measures, but may increase memory footprint.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;feature&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        feature importance</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         &lt;char&gt;      &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:  correlated   4.722423</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2: independent   1.206976</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:  correlated  4.1381889</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2: independent  0.8908186</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

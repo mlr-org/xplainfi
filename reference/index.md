@@ -95,10 +95,10 @@ Unlike other samplers, they do not allow sampling from new data with
 `$sample_newdata()`, as that would require re-creating a knockoff matrix
 on the fly.
 
-- [`KnockoffSampler`](https://mlr-org.github.io/xplainfi/reference/KnockoffSampler.md)
-  : Knockoff Sampler
 - [`KnockoffGaussianSampler`](https://mlr-org.github.io/xplainfi/reference/KnockoffGaussianSampler.md)
   : Gaussian Knockoff Conditional Sampler
+- [`KnockoffSampler`](https://mlr-org.github.io/xplainfi/reference/KnockoffSampler.md)
+  : Knockoff Sampler
 
 ## Utilities
 

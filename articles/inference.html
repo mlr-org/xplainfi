@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -338,16 +338,16 @@ features:</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature   importance           se statistic      p.value   conf_lower</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;     &lt;num&gt;        &lt;num&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  6.476555494 0.2063236235 31.390276 8.927721e-14  5.885645869</span></span>
-<span><span class="co">#&gt; 2:      x2  0.095842584 0.0122944003  7.795629 7.393792e-06  0.060631495</span></span>
-<span><span class="co">#&gt; 3:      x3  1.793989195 0.0387743032 46.267477 4.108119e-16  1.682939822</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.000962437 0.0008310757 -1.158062 1.000000e+00 -0.003342633</span></span>
+<span><span class="co">#&gt; 1:      x1  6.476555494 0.2063236235 31.390276 8.927721e-14  5.748317045</span></span>
+<span><span class="co">#&gt; 2:      x2  0.095842584 0.0122944003  7.795629 7.393792e-06  0.052448353</span></span>
+<span><span class="co">#&gt; 3:      x3  1.793989195 0.0387743032 46.267477 4.108119e-16  1.657131680</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.000962437 0.0008310757 -1.158062 1.000000e+00 -0.003895796</span></span>
 <span><span class="co">#&gt;     conf_upper</span></span>
 <span><span class="co">#&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: 7.067465120</span></span>
-<span><span class="co">#&gt; 2: 0.131053673</span></span>
-<span><span class="co">#&gt; 3: 1.905038568</span></span>
-<span><span class="co">#&gt; 4: 0.001417759</span></span></code></pre></div>
+<span><span class="co">#&gt; 1: 7.204793944</span></span>
+<span><span class="co">#&gt; 2: 0.139236816</span></span>
+<span><span class="co">#&gt; 3: 1.930846710</span></span>
+<span><span class="co">#&gt; 4: 0.001970922</span></span></code></pre></div>
 <p>For sequential or adaptive procedures such as Holm (FWER) or
 Benjamini-Hochberg (FDR), only p-values are adjusted. These methods do
 not yield a clean per-comparison <span class="math inline">\(\alpha\)</span> that could be used for CI
@@ -419,7 +419,7 @@ looks like this:</li>
 <span><span class="va">resampling</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">rsmp</a></span><span class="op">(</span><span class="st">"cv"</span>, folds <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="va">resampling</span><span class="op">$</span><span class="fu">instantiate</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cpi_res</span> <span class="op">=</span> <span class="fu"><a href="https://bips-hb.github.io/cpi/reference/cpi.html" class="external-link">cpi</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">cpi_res</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/cpi/man/cpi.html" class="external-link">cpi</a></span><span class="op">(</span></span>
 <span>    task <span class="op">=</span> <span class="va">task</span>,</span>
 <span>    learner <span class="op">=</span> <span class="va">learner</span>,</span>
 <span>    resampling <span class="op">=</span> <span class="va">resampling</span>,</span>
@@ -479,22 +479,22 @@ directly via <code>ci_method = "cpi"</code>.</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature   importance           se  statistic       p.value   conf_lower</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;      &lt;num&gt;         &lt;num&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  4.362355571 0.1355320358 32.1868962 8.486605e-184  4.139321851</span></span>
-<span><span class="co">#&gt; 2:      x2  0.001742650 0.0029223989  0.5963079  2.755185e-01 -0.003066498</span></span>
-<span><span class="co">#&gt; 3:      x3  1.769344462 0.0548657780 32.2485988 2.290447e-184  1.679056446</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.000470146 0.0009370589 -0.5017251  6.920419e-01 -0.002012185</span></span>
-<span><span class="co">#&gt;    conf_upper</span></span>
-<span><span class="co">#&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:        Inf</span></span>
-<span><span class="co">#&gt; 2:        Inf</span></span>
-<span><span class="co">#&gt; 3:        Inf</span></span>
-<span><span class="co">#&gt; 4:        Inf</span></span>
+<span><span class="co">#&gt; 1:      x1  4.362355571 0.1355320358 32.1868962 1.697321e-183  4.096556727</span></span>
+<span><span class="co">#&gt; 2:      x2  0.001742650 0.0029223989  0.5963079  5.510371e-01 -0.003988617</span></span>
+<span><span class="co">#&gt; 3:      x3  1.769344462 0.0548657780 32.2485988 4.580895e-184  1.661744364</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.000470146 0.0009370589 -0.5017251  6.159162e-01 -0.002307860</span></span>
+<span><span class="co">#&gt;     conf_upper</span></span>
+<span><span class="co">#&gt;          &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 4.628154415</span></span>
+<span><span class="co">#&gt; 2: 0.007473916</span></span>
+<span><span class="co">#&gt; 3: 1.876944560</span></span>
+<span><span class="co">#&gt; 4: 0.001367568</span></span>
 <span></span>
 <span><span class="co"># Rename columns to match cpi package output for comparison</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">cfi_cpi_res</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"importance"</span>, <span class="st">"conf_lower"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CPI"</span>, <span class="st">"ci.lo"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">cfi_cpi_res</span><span class="op">[</span>, <span class="va">method</span> <span class="op">:=</span> <span class="st">"CFI+Knockoffs"</span><span class="op">]</span></span></code></pre></div>
 <p>The results should be very similar to those computed by
-<code><a href="https://bips-hb.github.io/cpi/reference/cpi.html" class="external-link">cpi()</a></code>, so let’s compare them:</p>
+<code><a href="https://rdrr.io/pkg/cpi/man/cpi.html" class="external-link">cpi()</a></code>, so let’s compare them:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">cpi_res</span>, <span class="va">cfi_cpi_res</span><span class="op">)</span>, fill <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">feature</span>, x <span class="op">=</span> <span class="va">CPI</span>, color <span class="op">=</span> <span class="va">method</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -513,7 +513,7 @@ directly via <code>ci_method = "cpi"</code>.</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">14</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="inference_files/figure-html/cpi-cfi-plot-1.png" class="r-plt" alt="Point-and-whisker plot with features on y-axis and CPI values on x-axis. Two colored points for CPI and CFI+Knockoffs methods with horizontal error bars." width="768"></p>
-<p>A noteable caveat of the knockoff approach is that they are not
+<p>A notable caveat of the knockoff approach is that they are not
 readily available for mixed data (with categorical features).</p>
 </div>
 <div class="section level4">
@@ -550,18 +550,18 @@ al. (2025)</a> and works without Gaussian assumptions:</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `vignette("inference", package = "xplainfi")` for details.</span></span>
 <span><span class="va">cfi_arf_res</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature    importance           se statistic    p.value   conf_lower</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt;        &lt;num&gt;     &lt;num&gt;      &lt;num&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  3.9865071718 0.0715166883 55.742335 0.00000000  3.868818148</span></span>
-<span><span class="co">#&gt; 2:      x2  0.0053611218 0.0025570164  2.096632 0.01807579  0.001153254</span></span>
-<span><span class="co">#&gt; 3:      x3  1.7527732858 0.0325190020 53.899972 0.00000000  1.699259488</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.0009391978 0.0004918991 -1.909330 0.97181872 -0.001748675</span></span>
-<span><span class="co">#&gt;    conf_upper</span></span>
-<span><span class="co">#&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:        Inf</span></span>
-<span><span class="co">#&gt; 2:        Inf</span></span>
-<span><span class="co">#&gt; 3:        Inf</span></span>
-<span><span class="co">#&gt; 4:        Inf</span></span>
+<span><span class="co">#&gt;    feature    importance           se statistic    p.value    conf_lower</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt;        &lt;num&gt;     &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  3.9865071718 0.0715166883 55.742335 0.00000000  3.8462521170</span></span>
+<span><span class="co">#&gt; 2:      x2  0.0053611218 0.0025570164  2.096632 0.03615158  0.0003464254</span></span>
+<span><span class="co">#&gt; 3:      x3  1.7527732858 0.0325190020 53.899972 0.00000000  1.6889985989</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.0009391978 0.0004918991 -1.909330 0.05636256 -0.0019038865</span></span>
+<span><span class="co">#&gt;      conf_upper</span></span>
+<span><span class="co">#&gt;           &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 4.126762e+00</span></span>
+<span><span class="co">#&gt; 2: 1.037582e-02</span></span>
+<span><span class="co">#&gt; 3: 1.816548e+00</span></span>
+<span><span class="co">#&gt; 4: 2.549088e-05</span></span>
 <span></span>
 <span><span class="co"># Rename columns to match cpi package output for comparison</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">cfi_arf_res</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"importance"</span>, <span class="st">"conf_lower"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CPI"</span>, <span class="st">"ci.lo"</span><span class="op">)</span><span class="op">)</span></span>
@@ -615,12 +615,18 @@ specifically the Wilcoxon-, Fisher-, or binomial test:</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> With bootstrap or subsampling, test observations are not i.i.d.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `vignette("inference", package = "xplainfi")` for details.</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature    importance    se statistic      p.value    conf_lower conf_upper</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt; &lt;num&gt;     &lt;num&gt;        &lt;num&gt;         &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  3.9865071718    NA   2001000 0.000000e+00  3.2285614819        Inf</span></span>
-<span><span class="co">#&gt; 2:      x2  0.0053611218    NA   1194853 2.647776e-14  0.0031150313        Inf</span></span>
-<span><span class="co">#&gt; 3:      x3  1.7527732858    NA   2000886 0.000000e+00  1.4036366255        Inf</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.0009391978    NA   1031351 1.161633e-01 -0.0001004833        Inf</span></span>
+<span><span class="co">#&gt;    feature    importance    se statistic      p.value    conf_lower</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt; &lt;num&gt;     &lt;num&gt;        &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  3.9865071718    NA   2001000 0.000000e+00  3.2122074217</span></span>
+<span><span class="co">#&gt; 2:      x2  0.0053611218    NA   1194853 5.295553e-14  0.0029276504</span></span>
+<span><span class="co">#&gt; 3:      x3  1.7527732858    NA   2000886 0.000000e+00  1.3958358130</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.0009391978    NA   1031351 2.323267e-01 -0.0001657344</span></span>
+<span><span class="co">#&gt;      conf_upper</span></span>
+<span><span class="co">#&gt;           &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 3.4270970290</span></span>
+<span><span class="co">#&gt; 2: 0.0049551400</span></span>
+<span><span class="co">#&gt; 3: 1.4966237507</span></span>
+<span><span class="co">#&gt; 4: 0.0006339549</span></span>
 <span><span class="co"># Fisher test with same default for B as in cpi()</span></span>
 <span><span class="op">(</span><span class="va">cpi_res_fisher</span> <span class="op">=</span> <span class="va">cfi_arf</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"cpi"</span>, test <span class="op">=</span> <span class="st">"fisher"</span>, B <span class="op">=</span> <span class="fl">1999</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: Observation-wise inference was validated with a single test set.</span></span>
@@ -630,12 +636,12 @@ specifically the Wilcoxon-, Fisher-, or binomial test:</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> With bootstrap or subsampling, test observations are not i.i.d.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `vignette("inference", package = "xplainfi")` for details.</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature    importance    se     statistic p.value   conf_lower conf_upper</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt; &lt;num&gt;         &lt;num&gt;   &lt;num&gt;        &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  3.9865071718    NA  3.9865071718  0.0005  3.802012761        Inf</span></span>
-<span><span class="co">#&gt; 2:      x2  0.0053611218    NA  0.0053611218  0.0215  0.001095074        Inf</span></span>
-<span><span class="co">#&gt; 3:      x3  1.7527732858    NA  1.7527732858  0.0005  1.668688790        Inf</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.0009391978    NA -0.0009391978  0.9670 -0.001773247        Inf</span></span>
+<span><span class="co">#&gt;    feature    importance    se     statistic p.value    conf_lower   conf_upper</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt; &lt;num&gt;         &lt;num&gt;   &lt;num&gt;         &lt;num&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  3.9865071718    NA  3.9865071718  0.0005  3.7697941737 4.203211e+00</span></span>
+<span><span class="co">#&gt; 2:      x2  0.0053611218    NA  0.0053611218  0.0365  0.0001883662 1.032052e-02</span></span>
+<span><span class="co">#&gt; 3:      x3  1.7527732858    NA  1.7527732858  0.0005  1.6527820910 1.848633e+00</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.0009391978    NA -0.0009391978  0.0650 -0.0019275157 7.687918e-05</span></span>
 <span><span class="op">(</span><span class="va">cpi_res_binom</span> <span class="op">=</span> <span class="va">cfi_arf</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span>ci_method <span class="op">=</span> <span class="st">"cpi"</span>, test <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: Observation-wise inference was validated with a single test set.</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Current resampling has <span style="color: #0000BB;">5</span> iterations.</span></span>
@@ -646,10 +652,10 @@ specifically the Wilcoxon-, Fisher-, or binomial test:</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature    importance    se statistic      p.value conf_lower conf_upper</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt; &lt;num&gt;     &lt;num&gt;        &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  3.9865071718    NA      2000 0.000000e+00  0.9985033          1</span></span>
-<span><span class="co">#&gt; 2:      x2  0.0053611218    NA      1215 2.994368e-22  0.5891816          1</span></span>
-<span><span class="co">#&gt; 3:      x3  1.7527732858    NA      1995 0.000000e+00  0.9947507          1</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.0009391978    NA      1094 1.430053e-05  0.5283991          1</span></span>
+<span><span class="co">#&gt; 1:      x1  3.9865071718    NA      2000 0.000000e+00  0.9981573  1.0000000</span></span>
+<span><span class="co">#&gt; 2:      x2  0.0053611218    NA      1215 5.988736e-22  0.5857045  0.6289798</span></span>
+<span><span class="co">#&gt; 3:      x3  1.7527732858    NA      1995 0.000000e+00  0.9941756  0.9991878</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.0009391978    NA      1094 2.860106e-05  0.5248785  0.5689835</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -685,7 +691,7 @@ specifically the Wilcoxon-, Fisher-, or binomial test:</p>
 <p>The choice of test depends on distributional assumptions: the t-test
 assumes normality, while Fisher and Wilcoxon are non-parametric
 alternatives.</p>
-<p>Following Watson &amp; Wright (2021), we can additionaly apply
+<p>Following Watson &amp; Wright (2021), we can additionally apply
 Benjamini-Hochberg FDR control (<code>p_adjust = "BH"</code>), which is
 often desirable in exploratory settings where many features are tested
 simultaneously:</p>
@@ -698,18 +704,18 @@ simultaneously:</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> With bootstrap or subsampling, test observations are not i.i.d.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `vignette("inference", package = "xplainfi")` for details.</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature    importance           se statistic    p.value   conf_lower</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt;        &lt;num&gt;     &lt;num&gt;      &lt;num&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1  3.9865071718 0.0715166883 55.742335 0.00000000  3.868818148</span></span>
-<span><span class="co">#&gt; 2:      x2  0.0053611218 0.0025570164  2.096632 0.02410105  0.001153254</span></span>
-<span><span class="co">#&gt; 3:      x3  1.7527732858 0.0325190020 53.899972 0.00000000  1.699259488</span></span>
-<span><span class="co">#&gt; 4:      x4 -0.0009391978 0.0004918991 -1.909330 0.97181872 -0.001748675</span></span>
-<span><span class="co">#&gt;    conf_upper</span></span>
-<span><span class="co">#&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:        Inf</span></span>
-<span><span class="co">#&gt; 2:        Inf</span></span>
-<span><span class="co">#&gt; 3:        Inf</span></span>
-<span><span class="co">#&gt; 4:        Inf</span></span></code></pre></div>
+<span><span class="co">#&gt;    feature    importance           se statistic    p.value    conf_lower</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;         &lt;num&gt;        &lt;num&gt;     &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  3.9865071718 0.0715166883 55.742335 0.00000000  3.8462521170</span></span>
+<span><span class="co">#&gt; 2:      x2  0.0053611218 0.0025570164  2.096632 0.04820210  0.0003464254</span></span>
+<span><span class="co">#&gt; 3:      x3  1.7527732858 0.0325190020 53.899972 0.00000000  1.6889985989</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.0009391978 0.0004918991 -1.909330 0.05636256 -0.0019038865</span></span>
+<span><span class="co">#&gt;      conf_upper</span></span>
+<span><span class="co">#&gt;           &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 4.126762e+00</span></span>
+<span><span class="co">#&gt; 2: 1.037582e-02</span></span>
+<span><span class="co">#&gt; 3: 1.816548e+00</span></span>
+<span><span class="co">#&gt; 4: 2.549088e-05</span></span></code></pre></div>
 <p>Note that multiplcity adjustment is in the general case limited to
 p-values, and only the general Bonferroni method is easily applicable to
 confidence intervals.</p>

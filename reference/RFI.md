@@ -142,26 +142,27 @@ library(mlr3)
 task = tgen("friedman1")$generate(n = 200)
 rfi = RFI$new(
   task = task,
-  learner = lrn("regr.ranger", num.trees = 50),
+  learner = lrn("regr.rpart"),
   measure = msr("regr.mse"),
-  conditioning_set = c("important1")
+  conditioning_set = c("important1"),
+  sampler = ConditionalGaussianSampler$new(task),
+  n_repeats = 5
 )
-#> ℹ No <ConditionalSampler> provided, using <ConditionalARFSampler> with default settings.
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
 #>   (test set size: 67)
 rfi$compute()
 rfi$importance()
 #> Key: <feature>
-#>          feature  importance
-#>           <char>       <num>
-#>  1:   important1  0.00000000
-#>  2:   important2  3.98572044
-#>  3:   important3  0.70127228
-#>  4:   important4  8.68608941
-#>  5:   important5  1.66898162
-#>  6: unimportant1  0.07271123
-#>  7: unimportant2 -0.13309431
-#>  8: unimportant3  0.04559203
-#>  9: unimportant4  0.18750985
-#> 10: unimportant5 -0.07063373
+#>          feature importance
+#>           <char>      <num>
+#>  1:   important1  0.0000000
+#>  2:   important2 14.8407870
+#>  3:   important3  0.0000000
+#>  4:   important4 15.4262312
+#>  5:   important5  2.7794557
+#>  6: unimportant1  0.0000000
+#>  7: unimportant2  0.1232188
+#>  8: unimportant3  0.0000000
+#>  9: unimportant4  0.0000000
+#> 10: unimportant5  0.0000000
 ```

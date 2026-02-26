@@ -174,26 +174,26 @@ The objects of this class are cloneable with this method.
 
 ``` r
 library(mlr3)
-library(mlr3learners)
 
-task <- sim_dgp_correlated(n = 500)
+task <- sim_dgp_correlated(n = 200)
 
 # Using default ConditionalARFSampler
 cfi <- CFI$new(
   task = task,
-  learner = lrn("regr.ranger", num.trees = 10),
-  measure = msr("regr.mse")
+  learner = lrn("regr.rpart"),
+  measure = msr("regr.mse"),
+  sampler = ConditionalGaussianSampler$new(task),
+  n_repeats = 5
 )
-#> ℹ No `sampler` provided, using <ConditionalARFSampler> with default settings.
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
-#>   (test set size: 167)
+#>   (test set size: 67)
 cfi$compute()
 cfi$importance()
 #> Key: <feature>
-#>    feature  importance
-#>     <char>       <num>
-#> 1:      x1  2.30619753
-#> 2:      x2  0.13534473
-#> 3:      x3  1.55134940
-#> 4:      x4 -0.01195141
+#>    feature importance
+#>     <char>      <num>
+#> 1:      x1   1.042835
+#> 2:      x2   0.000000
+#> 3:      x3   1.553294
+#> 4:      x4   0.000000
 ```

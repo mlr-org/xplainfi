@@ -161,7 +161,7 @@ or refits [LOCO](https://mlr-org.github.io/xplainfi/reference/LOCO.md)).
       standardize = FALSE,
       ci_method = c("none", "raw", "nadeau_bengio", "quantile"),
       conf_level = 0.95,
-      alternative = c("greater", "two.sided"),
+      alternative = c("two.sided", "greater"),
       p_adjust = "none",
       ...
     )
@@ -206,7 +206,7 @@ or refits [LOCO](https://mlr-org.github.io/xplainfi/reference/LOCO.md)).
 
 - `alternative`:
 
-  (`character(1)`: `"greater"`) Type of alternative hypothesis for
+  (`character(1)`: `"two.sided"`) Type of alternative hypothesis for
   statistical tests. `"greater"` tests H0: importance \<= 0 vs H1:
   importance \> 0 (one-sided). `"two.sided"` tests H0: importance = 0 vs
   H1: importance != 0. Only used when `ci_method != "none"`.
@@ -237,9 +237,8 @@ error (`se`), test statistic (`statistic`), p-value (`p.value`), and
 confidence bounds (`conf_lower`, `conf_upper`). The `"quantile"` method
 returns only lower and upper bounds.
 
-###### `"raw"`: Uncorrected (!) t-test
-
-Uses a standard t-test assuming independence of resampling iterations.
+**`"raw"`: Uncorrected (!) t-test** Uses a standard t-test assuming
+independence of resampling iterations.
 
 - SE = sd(resampling scores) / sqrt(n_iters)
 
@@ -254,10 +253,9 @@ Uses a standard t-test assuming independence of resampling iterations.
 share training data and are not independent. This method is included
 only for demonstration purposes.
 
-###### `"nadeau_bengio"`: Corrected t-test
-
-Applies the Nadeau & Bengio (2003) correction to account for correlation
-between resampling iterations due to overlapping training sets.
+**`"nadeau_bengio"`: Corrected t-test** Applies the Nadeau & Bengio
+(2003) correction to account for correlation between resampling
+iterations due to overlapping training sets.
 
 - Correction factor: (1/n_iters + n_test/n_train)
 
@@ -267,10 +265,8 @@ between resampling iterations due to overlapping training sets.
 
 Recommended with bootstrap or subsampling (\>= 10 iterations).
 
-###### `"quantile"`: Non-parametric empirical method
-
-Uses the resampling distribution directly without parametric
-assumptions.
+**`"quantile"`: Non-parametric empirical method** Uses the resampling
+distribution directly without parametric assumptions.
 
 - CIs: Empirical quantiles of the resampling distribution
 
