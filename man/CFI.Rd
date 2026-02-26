@@ -38,7 +38,6 @@ see \code{vignette("inference", package = "xplainfi")}.
 }
 }
 \examples{
-\dontshow{if (requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 library(mlr3)
 library(mlr3learners)
 
@@ -47,14 +46,13 @@ task <- sim_dgp_correlated(n = 200)
 # Using default ConditionalARFSampler
 cfi <- CFI$new(
   task = task,
-  learner = lrn("regr.ranger", num.trees = 10),
+  learner = lrn("regr.rpart"),
   measure = msr("regr.mse"),
   sampler = ConditionalGaussianSampler$new(task),
   n_repeats = 5
 )
 cfi$compute()
 cfi$importance()
-\dontshow{\}) # examplesIf}
 }
 \references{
 Watson D, Wright M (2021).

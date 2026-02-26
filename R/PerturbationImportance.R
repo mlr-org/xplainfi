@@ -354,7 +354,7 @@ PerturbationImportance = R6Class(
 #' `r print_bib("fisher_2019")`
 #' `r print_bib("strobl_2008")`
 #'
-#' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)
+#' @examples
 #' library(mlr3)
 #' library(mlr3learners)
 #'
@@ -362,8 +362,9 @@ PerturbationImportance = R6Class(
 #'
 #' pfi <- PFI$new(
 #'   task = task,
-#'   learner = lrn("regr.ranger", num.trees = 10),
-#'   measure = msr("regr.mse")
+#'   learner = lrn("regr.rpart"),
+#'   measure = msr("regr.mse"),
+#' n_repeats = 5
 #' )
 #' pfi$compute()
 #' pfi$importance()
@@ -465,7 +466,7 @@ PFI = R6Class(
 #'
 #' @references `r print_bib("watson_2021", "blesch_2025")`
 #'
-#' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)
+#' @examples
 #' library(mlr3)
 #' library(mlr3learners)
 #'
@@ -474,7 +475,7 @@ PFI = R6Class(
 #' # Using default ConditionalARFSampler
 #' cfi <- CFI$new(
 #'   task = task,
-#'   learner = lrn("regr.ranger", num.trees = 10),
+#'   learner = lrn("regr.rpart"),
 #'   measure = msr("regr.mse"),
 #'   sampler = ConditionalGaussianSampler$new(task),
 #'   n_repeats = 5
@@ -578,15 +579,15 @@ CFI = R6Class(
 #'
 #' @references `r print_bib("konig_2021")`
 #'
-#' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)
+#' @examples
 #' library(mlr3)
 #' task = tgen("friedman1")$generate(n = 200)
 #' rfi = RFI$new(
 #'   task = task,
-#'   learner = lrn("regr.ranger", num.trees = 50),
+#'   learner = lrn("regr.rpart"),
 #'   measure = msr("regr.mse"),
 #'   conditioning_set = c("important1"),
-#'   sampler = ConditionalGaussianSampler$new(task)
+#'   sampler = ConditionalGaussianSampler$new(task),
 #'   n_repeats = 5
 #' )
 #' rfi$compute()
