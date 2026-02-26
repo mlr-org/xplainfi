@@ -57,8 +57,6 @@ WVIM = R6Class(
 			label = "Williamson's Variable Importance Measure (WVIM)",
 			n_repeats = 30L
 		) {
-			require_package("mlr3fselect")
-
 			# Should this go in the param_set?
 			direction = match.arg(direction)
 			self$direction = direction
