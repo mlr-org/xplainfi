@@ -133,6 +133,7 @@ test_that("ConditionalKNNSampler conditioning_set parameter behavior", {
 })
 
 test_that("ConditionalKNNSampler preserves feature types", {
+	skip_if_not_installed("gower")
 	test_sampler_feature_types(ConditionalKNNSampler, k = 5L)
 })
 

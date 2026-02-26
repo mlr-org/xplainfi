@@ -21,7 +21,6 @@ the Random Forest algorithm. The method works by:
 }
 \examples{
 library(mlr3)
-library(mlr3learners)
 
 task <- sim_dgp_correlated(n = 500)
 

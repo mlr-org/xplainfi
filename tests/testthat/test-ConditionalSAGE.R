@@ -184,7 +184,8 @@ test_that("ConditionalSAGE requires predict_type='prob' for classification", {
 	expect_error(
 		ConditionalSAGE$new(
 			task = task,
-			learner = lrn("classif.rpart", predict_type = "response")
+			learner = lrn("classif.rpart", predict_type = "response"),
+			sampler = ConditionalGaussianSampler$new(task)
 		),
 		"Classification learners require probability predictions for SAGE."
 	)
