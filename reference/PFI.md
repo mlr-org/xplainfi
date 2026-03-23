@@ -159,8 +159,8 @@ pfi$importance()
 #> Key: <feature>
 #>    feature importance
 #>     <char>      <num>
-#> 1:      x1   7.429244
+#> 1:      x1   6.678918
 #> 2:      x2   0.000000
-#> 3:      x3   1.380869
+#> 3:      x3   1.320443
 #> 4:      x4   0.000000
 ```

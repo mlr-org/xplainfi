@@ -281,6 +281,6 @@ wvim$importance()
 #> Key: <feature>
 #>        feature importance
 #>         <char>      <num>
-#> 1:  correlated  4.1381889
-#> 2: independent  0.8908186
+#> 1:  correlated   5.083871
+#> 2: independent   1.415867
 ```
