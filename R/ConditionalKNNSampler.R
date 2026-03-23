@@ -130,7 +130,7 @@ ConditionalKNNSampler = R6Class(
 			# Determine distance metric based on conditioning feature types
 			# Use Gower distance if any non-numeric features present, otherwise Euclidean
 			cond_types = self$task$feature_types[id %in% conditioning_set, type]
-			use_gower = any(!cond_types %in% c("numeric", "integer"))
+			use_gower = !all(cond_types %in% c("numeric", "integer"))
 
 			if (use_gower) {
 				require_package("gower")

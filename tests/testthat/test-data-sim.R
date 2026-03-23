@@ -229,7 +229,7 @@ test_that("simulation functions produce finite values", {
 		expect_true(all(is.finite(as.matrix(data))))
 
 		# Check for no missing values
-		expect_true(all(!is.na(as.matrix(data))))
+		expect_true(!any(is.na(as.matrix(data))))
 	}
 })
 
