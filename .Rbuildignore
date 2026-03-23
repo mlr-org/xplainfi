@@ -3,6 +3,7 @@
 ^\.claude$
 ^\.github$
 ^\.lintr$
+^jarl\.toml$
 ^\.Rproj\.user$
 ^\.vscode$
 ^air\.toml$
