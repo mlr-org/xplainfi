@@ -14,7 +14,7 @@ test_that("ConditionalCtreeSampler initialization works", {
 	expect_equal(sampler$param_set$values$mincriterion, 0.95)
 	expect_equal(sampler$param_set$values$minsplit, 20L)
 	expect_equal(sampler$param_set$values$minbucket, 7L)
-	expect_equal(sampler$param_set$values$use_cache, TRUE)
+	expect_true(sampler$param_set$values$use_cache)
 
 	# Check tree cache initialized
 	expect_type(sampler$tree_cache, "environment")
@@ -35,7 +35,7 @@ test_that("ConditionalCtreeSampler works with custom parameters", {
 	expect_equal(sampler$param_set$values$mincriterion, 0.90)
 	expect_equal(sampler$param_set$values$minsplit, 10L)
 	expect_equal(sampler$param_set$values$minbucket, 5L)
-	expect_equal(sampler$param_set$values$use_cache, FALSE)
+	expect_false(sampler$param_set$values$use_cache)
 })
 
 test_that("ConditionalCtreeSampler sampling works", {

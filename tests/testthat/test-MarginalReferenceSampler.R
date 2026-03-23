@@ -12,7 +12,7 @@ test_that("MarginalReferenceSampler initialization works", {
 	# Reference data should be stored
 	expect_true(data.table::is.data.table(sampler$reference_data))
 	expect_equal(nrow(sampler$reference_data), 100)
-	expect_equal(names(sampler$reference_data), task$feature_names)
+	expect_named(sampler$reference_data, task$feature_names)
 })
 
 test_that("MarginalReferenceSampler sampling works", {

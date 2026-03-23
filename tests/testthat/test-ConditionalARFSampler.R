@@ -106,10 +106,10 @@ test_that("ConditionalARFSampler param_set structure", {
 	# Check parameter types and defaults
 	expect_equal(sampler$param_set$params[id == "finite_bounds"]$cls, "ParamFct")
 	expect_equal(sampler$param_set$params[id == "finite_bounds"]$default[[1]], "no")
-	expect_equal(sampler$param_set$params[id == "round"]$default[[1]], TRUE)
+	expect_true(sampler$param_set$params[id == "round"]$default[[1]])
 	expect_equal(sampler$param_set$params[id == "stepsize"]$default[[1]], 0)
-	expect_equal(sampler$param_set$params[id == "verbose"]$default[[1]], FALSE)
-	expect_equal(sampler$param_set$params[id == "parallel"]$default[[1]], FALSE)
+	expect_false(sampler$param_set$params[id == "verbose"]$default[[1]])
+	expect_false(sampler$param_set$params[id == "parallel"]$default[[1]])
 })
 
 test_that("ConditionalARFSampler parameter priority and storage", {
@@ -132,8 +132,8 @@ test_that("ConditionalARFSampler parameter priority and storage", {
 	expect_sampler_output_structure(sampled2, task, nrows = 50)
 
 	# Stored parameters remain unchanged
-	expect_equal(sampler$param_set$values$verbose, FALSE)
-	expect_equal(sampler$param_set$values$parallel, FALSE)
+	expect_false(sampler$param_set$values$verbose)
+	expect_false(sampler$param_set$values$parallel)
 	expect_equal(sampler$param_set$values$conditioning_set, "x2")
 })
 

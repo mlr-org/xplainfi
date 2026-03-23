@@ -238,7 +238,7 @@ test_that("RFI with empty conditioning set (equivalent to PFI)", {
 		)
 	})
 
-	expect_equal(length(rfi$param_set$values$conditioning_set), 0)
+	expect_length(rfi$param_set$values$conditioning_set, 0)
 
 	rfi$compute()
 	expect_importance_dt(rfi$importance(), features = rfi$features)
@@ -256,7 +256,7 @@ test_that("RFI with single conditioning feature", {
 		n_repeats = 1L
 	)
 
-	expect_equal(length(rfi$param_set$values$conditioning_set), 1)
+	expect_length(rfi$param_set$values$conditioning_set, 1)
 	expect_equal(rfi$param_set$values$conditioning_set, "x1")
 
 	rfi$compute()

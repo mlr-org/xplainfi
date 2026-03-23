@@ -40,7 +40,7 @@ test_that("ci_method='none' produces no variance columns", {
 	imp_none = pfi$importance(ci_method = "none")
 
 	# Check that only feature and importance columns exist
-	expect_equal(names(imp_none), c("feature", "importance"))
+	expect_named(imp_none, c("feature", "importance"))
 })
 
 test_that("raw CIs are narrower than nadeau_bengio corrected CIs", {
@@ -169,7 +169,7 @@ test_that("quantile variance method works", {
 
 	# Quantile method only returns confidence bounds, not se/statistic/p.value
 	expected_cols = c("feature", "importance", "conf_lower", "conf_upper")
-	expect_equal(names(imp_quantile), expected_cols)
+	expect_named(imp_quantile, expected_cols)
 
 	# All CIs should be valid intervals (two-sided has finite bounds)
 	expect_true(all(imp_quantile$conf_lower <= imp_quantile$conf_upper))

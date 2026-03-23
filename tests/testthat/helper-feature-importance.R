@@ -377,7 +377,7 @@ test_grouped_importance = function(
 	result = method$importance()
 
 	# Should have one row per group
-	expect_equal(nrow(result), length(groups))
+	expect_length(groups, nrow(result))
 	expect_equal(result$feature, names(groups))
 	expect_importance_dt(result, features = names(groups))
 
