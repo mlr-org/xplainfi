@@ -48,34 +48,33 @@ Strobl C, Boulesteix A, Kneib T, Augustin T, Zeileis A (2008).
 \doi{10.1186/1471-2105-9-307}.
 }
 \section{Super classes}{
-\code{\link[xplainfi:FeatureImportanceMethod]{xplainfi::FeatureImportanceMethod}} -> \code{\link[xplainfi:PerturbationImportance]{xplainfi::PerturbationImportance}} -> \code{PFI}
+\code{\link[xplainfi:FeatureImportanceMethod]{FeatureImportanceMethod}} -> \code{\link[xplainfi:PerturbationImportance]{PerturbationImportance}} -> \code{PFI}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-PFI-new}{\code{PFI$new()}}
-\item \href{#method-PFI-compute}{\code{PFI$compute()}}
-\item \href{#method-PFI-clone}{\code{PFI$clone()}}
+  \itemize{
+    \item \href{#method-PFI-initialize}{\code{PFI$new()}}
+    \item \href{#method-PFI-compute}{\code{PFI$compute()}}
+    \item \href{#method-PFI-clone}{\code{PFI$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>xplainfi::FeatureImportanceMethod$obs_loss()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>xplainfi::FeatureImportanceMethod$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>xplainfi::FeatureImportanceMethod$reset()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>xplainfi::FeatureImportanceMethod$scores()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="PerturbationImportance" data-id="importance"><a href='../../xplainfi/html/PerturbationImportance.html#method-PerturbationImportance-importance'><code>xplainfi::PerturbationImportance$importance()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>FeatureImportanceMethod$obs_loss()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>FeatureImportanceMethod$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>FeatureImportanceMethod$reset()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>FeatureImportanceMethod$scores()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="PerturbationImportance" data-id="importance"><a href='../../xplainfi/html/PerturbationImportance.html#method-PerturbationImportance-importance'><code>PerturbationImportance$importance()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PFI-new"></a>}}
-\if{latex}{\out{\hypertarget{method-PFI-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of the PFI class
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PFI$new(
+\if{html}{\out{<a id="method-PFI-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-PFI-initialize}{}}}
+\subsection{\code{PFI$new()}}{
+  Creates a new instance of the PFI class
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PFI$new(
   task,
   learner,
   measure = NULL,
@@ -85,60 +84,63 @@ Creates a new instance of the PFI class
   relation = "difference",
   n_repeats = 30L,
   batch_size = NULL
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task, learner, measure, resampling, features, groups, relation, n_repeats, batch_size}}{Passed to \link{PerturbationImportance}}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task, learner, measure, resampling, features, groups, relation, n_repeats, batch_size}}{Passed to \link{PerturbationImportance}}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PFI-compute"></a>}}
 \if{latex}{\out{\hypertarget{method-PFI-compute}{}}}
-\subsection{Method \code{compute()}}{
-Compute PFI scores
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PFI$compute(
+\subsection{\code{PFI$compute()}}{
+  Compute PFI scores
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PFI$compute(
   n_repeats = NULL,
   batch_size = NULL,
   store_models = TRUE,
   store_backends = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{n_repeats}}{(\code{integer(1)}; \code{NULL}) Number of permutation iterations. If \code{NULL}, uses stored value.}
-
-\item{\code{batch_size}}{(\code{integer(1)} | \code{NULL}: \code{NULL}) Maximum number of rows to predict at once. If \code{NULL}, uses stored value.}
-
-\item{\code{store_models, store_backends}}{(\code{logical(1)}: \code{TRUE}) Whether to store fitted models / data backends, passed to \link[mlr3:resample]{mlr3::resample} internally
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{n_repeats}}{(\code{integer(1)}; \code{NULL}) Number of permutation iterations. If \code{NULL}, uses stored value.}
+      \item{\code{batch_size}}{(\code{integer(1)} | \code{NULL}: \code{NULL}) Maximum number of rows to predict at once. If \code{NULL}, uses stored value.}
+      \item{\code{store_models, store_backends}}{(\code{logical(1)}: \code{TRUE}) Whether to store fitted models / data backends, passed to \link[mlr3:resample]{mlr3::resample} internally
 for the initial fit of the learner.
 This may be required for certain measures and is recommended to leave enabled unless really necessary.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PFI-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-PFI-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PFI$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{PFI$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PFI$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

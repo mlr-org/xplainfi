@@ -32,48 +32,47 @@ In \emph{Advances in Neural Information Processing Systems}, volume 33, 17212--1
 \link{MarginalSAGE} \link{ConditionalSAGE}
 }
 \section{Super class}{
-\code{\link[xplainfi:FeatureImportanceMethod]{xplainfi::FeatureImportanceMethod}} -> \code{SAGE}
+\code{\link[xplainfi:FeatureImportanceMethod]{FeatureImportanceMethod}} -> \code{SAGE}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{n_permutations}}{(\code{integer(1)}) Number of permutations to sample.}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{n_permutations}}{(\code{integer(1)}) Number of permutations to sample.}
 
-\item{\code{convergence_history}}{(\code{\link[data.table:data.table]{data.table}}) History of SAGE values during computation.}
+    \item{\code{convergence_history}}{(\code{\link[data.table:data.table]{data.table}}) History of SAGE values during computation.}
 
-\item{\code{converged}}{(\code{logical(1)}) Whether convergence was detected.}
+    \item{\code{converged}}{(\code{logical(1)}) Whether convergence was detected.}
 
-\item{\code{n_permutations_used}}{(\code{integer(1)}) Actual number of permutations used.}
-}
-\if{html}{\out{</div>}}
+    \item{\code{n_permutations_used}}{(\code{integer(1)}) Actual number of permutations used.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-SAGE-new}{\code{SAGE$new()}}
-\item \href{#method-SAGE-compute}{\code{SAGE$compute()}}
-\item \href{#method-SAGE-plot_convergence}{\code{SAGE$plot_convergence()}}
-\item \href{#method-SAGE-clone}{\code{SAGE$clone()}}
+  \itemize{
+    \item \href{#method-SAGE-initialize}{\code{SAGE$new()}}
+    \item \href{#method-SAGE-compute}{\code{SAGE$compute()}}
+    \item \href{#method-SAGE-plot_convergence}{\code{SAGE$plot_convergence()}}
+    \item \href{#method-SAGE-clone}{\code{SAGE$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="importance"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-importance'><code>xplainfi::FeatureImportanceMethod$importance()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>xplainfi::FeatureImportanceMethod$obs_loss()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>xplainfi::FeatureImportanceMethod$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>xplainfi::FeatureImportanceMethod$reset()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>xplainfi::FeatureImportanceMethod$scores()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="importance"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-importance'><code>FeatureImportanceMethod$importance()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>FeatureImportanceMethod$obs_loss()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>FeatureImportanceMethod$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>FeatureImportanceMethod$reset()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>FeatureImportanceMethod$scores()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SAGE-new"></a>}}
-\if{latex}{\out{\hypertarget{method-SAGE-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of the SAGE class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SAGE$new(
+\if{html}{\out{<a id="method-SAGE-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-SAGE-initialize}{}}}
+\subsection{\code{SAGE$new()}}{
+  Creates a new instance of the SAGE class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{SAGE$new(
   task,
   learner,
   measure = NULL,
@@ -86,110 +85,105 @@ Creates a new instance of the SAGE class.
   se_threshold = 0.01,
   min_permutations = 10L,
   check_interval = 1L
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task, learner, measure, resampling, features}}{Passed to FeatureImportanceMethod.}
-
-\item{\code{n_permutations}}{(\code{integer(1)}: \code{10L}) Number of permutations to sample for SAGE value estimation.
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task, learner, measure, resampling, features}}{Passed to FeatureImportanceMethod.}
+      \item{\code{n_permutations}}{(\code{integer(1)}: \code{10L}) Number of permutations to sample for SAGE value estimation.
 The total number of evaluated coalitions is \code{1 (empty) + n_permutations * n_features}.}
-
-\item{\code{batch_size}}{(\code{integer(1)}: \code{5000L}) Maximum number of observations to process in a single prediction call.}
-
-\item{\code{n_samples}}{(\code{integer(1)}: \code{100L}) Number of samples to use for marginalizing out-of-coalition features.
+      \item{\code{batch_size}}{(\code{integer(1)}: \code{5000L}) Maximum number of observations to process in a single prediction call.}
+      \item{\code{n_samples}}{(\code{integer(1)}: \code{100L}) Number of samples to use for marginalizing out-of-coalition features.
 For \link{MarginalSAGE}, this is the number of marginal data samples ("background data" in other implementations).
 For \link{ConditionalSAGE}, this is the number of conditional samples per test instance retrieved from \code{sampler}.}
-
-\item{\code{early_stopping}}{(\code{logical(1)}: \code{TRUE}) Whether to enable early stopping based on convergence detection.}
-
-\item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.01}) Convergence threshold for relative standard error.
+      \item{\code{early_stopping}}{(\code{logical(1)}: \code{TRUE}) Whether to enable early stopping based on convergence detection.}
+      \item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.01}) Convergence threshold for relative standard error.
 Convergence is detected when the maximum relative SE across all features falls below this threshold.
 Relative SE is calculated as SE divided by the range of importance values (max - min),
 making it scale-invariant across different loss metrics.
 Default of \code{0.01} means convergence when relative SE is below 1\% of the importance range.}
-
-\item{\code{min_permutations}}{(\code{integer(1)}: \code{10L}) Minimum permutations before checking for convergence. Convergence is judged based on the standard errors of the estimated SAGE values,
+      \item{\code{min_permutations}}{(\code{integer(1)}: \code{10L}) Minimum permutations before checking for convergence. Convergence is judged based on the standard errors of the estimated SAGE values,
 which requires a sufficiently large number of samples (i.e., evaluated coalitions).}
+      \item{\code{check_interval}}{(\code{integer(1)}: \code{1L}) Check convergence every N permutations.}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
 
-\item{\code{check_interval}}{(\code{integer(1)}: \code{1L}) Check convergence every N permutations.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SAGE-compute"></a>}}
 \if{latex}{\out{\hypertarget{method-SAGE-compute}{}}}
-\subsection{Method \code{compute()}}{
-Compute SAGE values.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SAGE$compute(
+\subsection{\code{SAGE$compute()}}{
+  Compute SAGE values.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{SAGE$compute(
   store_backends = TRUE,
   batch_size = NULL,
   early_stopping = NULL,
   se_threshold = NULL,
   min_permutations = NULL,
   check_interval = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{store_backends}}{(\code{logical(1)}) Whether to store data backends.}
-
-\item{\code{batch_size}}{(\code{integer(1)}: \code{5000L}) Maximum number of observations to process in a single prediction call.}
-
-\item{\code{early_stopping}}{(\code{logical(1)}: \code{TRUE}) Whether to check for convergence and stop early.}
-
-\item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.01}) Convergence threshold for relative standard error.
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{store_backends}}{(\code{logical(1)}) Whether to store data backends.}
+      \item{\code{batch_size}}{(\code{integer(1)}: \code{5000L}) Maximum number of observations to process in a single prediction call.}
+      \item{\code{early_stopping}}{(\code{logical(1)}: \code{TRUE}) Whether to check for convergence and stop early.}
+      \item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.01}) Convergence threshold for relative standard error.
 SE is normalized by the range of importance values (max - min) to make convergence
 detection scale-invariant. Default \code{0.01} means convergence when relative SE < 1\%.}
+      \item{\code{min_permutations}}{(\code{integer(1)}: \code{10L}) Minimum permutations before checking convergence.}
+      \item{\code{check_interval}}{(\code{integer(1)}: \code{1L}) Check convergence every N permutations.}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
 
-\item{\code{min_permutations}}{(\code{integer(1)}: \code{10L}) Minimum permutations before checking convergence.}
-
-\item{\code{check_interval}}{(\code{integer(1)}: \code{1L}) Check convergence every N permutations.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SAGE-plot_convergence"></a>}}
 \if{latex}{\out{\hypertarget{method-SAGE-plot_convergence}{}}}
-\subsection{Method \code{plot_convergence()}}{
-Plot convergence history of SAGE values.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SAGE$plot_convergence(features = NULL)}\if{html}{\out{</div>}}
+\subsection{\code{SAGE$plot_convergence()}}{
+  Plot convergence history of SAGE values.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{SAGE$plot_convergence(features = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{features}}{(\code{character} | \code{NULL}) Features to plot. If NULL, plots all features.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A \link[ggplot2:ggplot]{ggplot2} object
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{features}}{(\code{character} | \code{NULL}) Features to plot. If NULL, plots all features.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A \link[ggplot2:ggplot]{ggplot2} object
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SAGE-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-SAGE-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SAGE$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{SAGE$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{SAGE$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

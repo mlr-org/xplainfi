@@ -85,84 +85,81 @@ Aas K, Jullum M, Løland A (2021).
 \doi{10.1016/j.artint.2021.103502}.
 }
 \section{Super classes}{
-\code{\link[xplainfi:FeatureSampler]{xplainfi::FeatureSampler}} -> \code{\link[xplainfi:ConditionalSampler]{xplainfi::ConditionalSampler}} -> \code{ConditionalCtreeSampler}
+\code{\link[xplainfi:FeatureSampler]{FeatureSampler}} -> \code{\link[xplainfi:ConditionalSampler]{ConditionalSampler}} -> \code{ConditionalCtreeSampler}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{feature_types}}{(\code{character()}) Feature types supported by the sampler.
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{feature_types}}{(\code{character()}) Feature types supported by the sampler.
 Will be checked against the provided \link[mlr3:Task]{mlr3::Task} to ensure compatibility.}
 
-\item{\code{tree_cache}}{(\code{environment}) Cache for fitted ctree models.}
-}
-\if{html}{\out{</div>}}
+    \item{\code{tree_cache}}{(\code{environment}) Cache for fitted ctree models.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-ConditionalCtreeSampler-new}{\code{ConditionalCtreeSampler$new()}}
-\item \href{#method-ConditionalCtreeSampler-clone}{\code{ConditionalCtreeSampler$clone()}}
+  \itemize{
+    \item \href{#method-ConditionalCtreeSampler-initialize}{\code{ConditionalCtreeSampler$new()}}
+    \item \href{#method-ConditionalCtreeSampler-clone}{\code{ConditionalCtreeSampler$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>xplainfi::FeatureSampler$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="ConditionalSampler" data-id="sample"><a href='../../xplainfi/html/ConditionalSampler.html#method-ConditionalSampler-sample'><code>xplainfi::ConditionalSampler$sample()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="ConditionalSampler" data-id="sample_newdata"><a href='../../xplainfi/html/ConditionalSampler.html#method-ConditionalSampler-sample_newdata'><code>xplainfi::ConditionalSampler$sample_newdata()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>FeatureSampler$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="ConditionalSampler" data-id="sample"><a href='../../xplainfi/html/ConditionalSampler.html#method-ConditionalSampler-sample'><code>ConditionalSampler$sample()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="ConditionalSampler" data-id="sample_newdata"><a href='../../xplainfi/html/ConditionalSampler.html#method-ConditionalSampler-sample_newdata'><code>ConditionalSampler$sample_newdata()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-ConditionalCtreeSampler-new"></a>}}
-\if{latex}{\out{\hypertarget{method-ConditionalCtreeSampler-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new ConditionalCtreeSampler.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConditionalCtreeSampler$new(
+\if{html}{\out{<a id="method-ConditionalCtreeSampler-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-ConditionalCtreeSampler-initialize}{}}}
+\subsection{\code{ConditionalCtreeSampler$new()}}{
+  Creates a new ConditionalCtreeSampler.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalCtreeSampler$new(
   task,
   conditioning_set = NULL,
   mincriterion = 0.95,
   minsplit = 20L,
   minbucket = 7L,
   use_cache = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from.}
-
-\item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Default conditioning set to use in \verb{$sample()}.}
-
-\item{\code{mincriterion}}{(\code{numeric(1)}: \code{0.95}) Significance level threshold for splitting (1 - p-value).
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from.}
+      \item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Default conditioning set to use in \verb{$sample()}.}
+      \item{\code{mincriterion}}{(\code{numeric(1)}: \code{0.95}) Significance level threshold for splitting (1 - p-value).
 Higher values result in fewer splits (simpler trees).}
-
-\item{\code{minsplit}}{(\code{integer(1)}: \code{20L}) Minimum number of observations required for a split.}
-
-\item{\code{minbucket}}{(\code{integer(1)}: \code{7L}) Minimum number of observations in terminal nodes.}
-
-\item{\code{use_cache}}{(\code{logical(1)}: \code{TRUE}) Whether to cache fitted trees.}
+      \item{\code{minsplit}}{(\code{integer(1)}: \code{20L}) Minimum number of observations required for a split.}
+      \item{\code{minbucket}}{(\code{integer(1)}: \code{7L}) Minimum number of observations in terminal nodes.}
+      \item{\code{use_cache}}{(\code{logical(1)}: \code{TRUE}) Whether to cache fitted trees.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ConditionalCtreeSampler-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-ConditionalCtreeSampler-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConditionalCtreeSampler$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{ConditionalCtreeSampler$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalCtreeSampler$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

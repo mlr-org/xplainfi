@@ -9,120 +9,119 @@ are sampled conditionally on other features. This is an abstract class
 that should be extended by concrete implementations.
 }
 \section{Super class}{
-\code{\link[xplainfi:FeatureSampler]{xplainfi::FeatureSampler}} -> \code{ConditionalSampler}
+\code{\link[xplainfi:FeatureSampler]{FeatureSampler}} -> \code{ConditionalSampler}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-ConditionalSampler-new}{\code{ConditionalSampler$new()}}
-\item \href{#method-ConditionalSampler-sample}{\code{ConditionalSampler$sample()}}
-\item \href{#method-ConditionalSampler-sample_newdata}{\code{ConditionalSampler$sample_newdata()}}
-\item \href{#method-ConditionalSampler-clone}{\code{ConditionalSampler$clone()}}
+  \itemize{
+    \item \href{#method-ConditionalSampler-initialize}{\code{ConditionalSampler$new()}}
+    \item \href{#method-ConditionalSampler-sample}{\code{ConditionalSampler$sample()}}
+    \item \href{#method-ConditionalSampler-sample_newdata}{\code{ConditionalSampler$sample_newdata()}}
+    \item \href{#method-ConditionalSampler-clone}{\code{ConditionalSampler$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>xplainfi::FeatureSampler$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>FeatureSampler$print()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-ConditionalSampler-new"></a>}}
-\if{latex}{\out{\hypertarget{method-ConditionalSampler-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of the ConditionalSampler class
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConditionalSampler$new(task, conditioning_set = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<a id="method-ConditionalSampler-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-ConditionalSampler-initialize}{}}}
+\subsection{\code{ConditionalSampler$new()}}{
+  Creates a new instance of the ConditionalSampler class
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalSampler$new(task, conditioning_set = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from}
+      \item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Default conditioning set to use in \verb{$sample()}.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from}
-
-\item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Default conditioning set to use in \verb{$sample()}.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ConditionalSampler-sample"></a>}}
 \if{latex}{\out{\hypertarget{method-ConditionalSampler-sample}{}}}
-\subsection{Method \code{sample()}}{
-Sample from stored task conditionally on other features.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConditionalSampler$sample(
+\subsection{\code{ConditionalSampler$sample()}}{
+  Sample from stored task conditionally on other features.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalSampler$sample(
   feature,
   row_ids = NULL,
   conditioning_set = NULL,
   ...
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{feature}}{(\code{character}) Feature(s) to sample.}
+      \item{\code{row_ids}}{(\code{integer()} | \code{NULL}) Row IDs to use. If \code{NULL}, uses all rows.}
+      \item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Features to condition on.}
+      \item{\code{...}}{Additional arguments passed to the sampler implementation.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Modified copy with sampled feature(s).
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{feature}}{(\code{character}) Feature(s) to sample.}
-
-\item{\code{row_ids}}{(\code{integer()} | \code{NULL}) Row IDs to use. If \code{NULL}, uses all rows.}
-
-\item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Features to condition on.}
-
-\item{\code{...}}{Additional arguments passed to the sampler implementation.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Modified copy with sampled feature(s).
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ConditionalSampler-sample_newdata"></a>}}
 \if{latex}{\out{\hypertarget{method-ConditionalSampler-sample_newdata}{}}}
-\subsection{Method \code{sample_newdata()}}{
-Sample from external data conditionally.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConditionalSampler$sample_newdata(
+\subsection{\code{ConditionalSampler$sample_newdata()}}{
+  Sample from external data conditionally.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalSampler$sample_newdata(
   feature,
   newdata,
   conditioning_set = NULL,
   ...
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{feature}}{(\code{character}) Feature(s) to sample.}
+      \item{\code{newdata}}{(\code{\link[data.table:data.table]{data.table}}) External data to use.}
+      \item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Features to condition on.}
+      \item{\code{...}}{Additional arguments passed to the sampler implementation.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Modified copy with sampled feature(s).
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{feature}}{(\code{character}) Feature(s) to sample.}
-
-\item{\code{newdata}}{(\code{\link[data.table:data.table]{data.table}}) External data to use.}
-
-\item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Features to condition on.}
-
-\item{\code{...}}{Additional arguments passed to the sampler implementation.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Modified copy with sampled feature(s).
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ConditionalSampler-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-ConditionalSampler-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConditionalSampler$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{ConditionalSampler$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalSampler$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

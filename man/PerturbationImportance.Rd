@@ -7,41 +7,40 @@
 Abstract base class for perturbation-based importance methods PFI, CFI, and RFI
 }
 \section{Super class}{
-\code{\link[xplainfi:FeatureImportanceMethod]{xplainfi::FeatureImportanceMethod}} -> \code{PerturbationImportance}
+\code{\link[xplainfi:FeatureImportanceMethod]{FeatureImportanceMethod}} -> \code{PerturbationImportance}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{sampler}}{(\link{FeatureSampler}) Sampler object for feature perturbation}
-}
-\if{html}{\out{</div>}}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{sampler}}{(\link{FeatureSampler}) Sampler object for feature perturbation}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-PerturbationImportance-new}{\code{PerturbationImportance$new()}}
-\item \href{#method-PerturbationImportance-importance}{\code{PerturbationImportance$importance()}}
-\item \href{#method-PerturbationImportance-clone}{\code{PerturbationImportance$clone()}}
+  \itemize{
+    \item \href{#method-PerturbationImportance-initialize}{\code{PerturbationImportance$new()}}
+    \item \href{#method-PerturbationImportance-importance}{\code{PerturbationImportance$importance()}}
+    \item \href{#method-PerturbationImportance-clone}{\code{PerturbationImportance$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="compute"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-compute'><code>xplainfi::FeatureImportanceMethod$compute()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>xplainfi::FeatureImportanceMethod$obs_loss()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>xplainfi::FeatureImportanceMethod$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>xplainfi::FeatureImportanceMethod$reset()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>xplainfi::FeatureImportanceMethod$scores()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="compute"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-compute'><code>FeatureImportanceMethod$compute()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>FeatureImportanceMethod$obs_loss()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>FeatureImportanceMethod$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>FeatureImportanceMethod$reset()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>FeatureImportanceMethod$scores()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PerturbationImportance-new"></a>}}
-\if{latex}{\out{\hypertarget{method-PerturbationImportance-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of the PerturbationImportance class
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PerturbationImportance$new(
+\if{html}{\out{<a id="method-PerturbationImportance-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-PerturbationImportance-initialize}{}}}
+\subsection{\code{PerturbationImportance$new()}}{
+  Creates a new instance of the PerturbationImportance class
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PerturbationImportance$new(
   task,
   learner,
   measure = NULL,
@@ -52,34 +51,32 @@ Creates a new instance of the PerturbationImportance class
   relation = "difference",
   n_repeats = 30L,
   batch_size = NULL
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task, learner, measure, resampling, features, groups}}{Passed to \link{FeatureImportanceMethod}.}
+      \item{\code{sampler}}{(\link{FeatureSampler}) Sampler to use for feature perturbation.}
+      \item{\code{relation}}{(\code{character(1)}: \code{"difference"}) How to relate perturbed and baseline scores. Can also be \code{"ratio"}.}
+      \item{\code{n_repeats}}{(\code{integer(1)}: \code{30L}) Number of permutation/conditional sampling iterations. Can also be overridden in \verb{$compute()}.}
+      \item{\code{batch_size}}{(\code{integer(1)} | \code{NULL}: \code{NULL}) Maximum number of rows to predict at once. When \code{NULL}, predicts all \code{test_size * n_repeats} rows in one call. Use smaller values to reduce memory usage at the cost of more prediction calls. Can be overridden in \verb{$compute()}.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task, learner, measure, resampling, features, groups}}{Passed to \link{FeatureImportanceMethod}.}
-
-\item{\code{sampler}}{(\link{FeatureSampler}) Sampler to use for feature perturbation.}
-
-\item{\code{relation}}{(\code{character(1)}: \code{"difference"}) How to relate perturbed and baseline scores. Can also be \code{"ratio"}.}
-
-\item{\code{n_repeats}}{(\code{integer(1)}: \code{30L}) Number of permutation/conditional sampling iterations. Can also be overridden in \verb{$compute()}.}
-
-\item{\code{batch_size}}{(\code{integer(1)} | \code{NULL}: \code{NULL}) Maximum number of rows to predict at once. When \code{NULL}, predicts all \code{test_size * n_repeats} rows in one call. Use smaller values to reduce memory usage at the cost of more prediction calls. Can be overridden in \verb{$compute()}.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PerturbationImportance-importance"></a>}}
 \if{latex}{\out{\hypertarget{method-PerturbationImportance-importance}{}}}
-\subsection{Method \code{importance()}}{
-Get aggregated importance scores.
+\subsection{\code{PerturbationImportance$importance()}}{
+  Get aggregated importance scores.
 Extends the base \verb{$importance()} method to support \code{ci_method = "cpi"}.
 For details, see \link{CFI}, which is the only sub-method for which it is known to be valid.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PerturbationImportance$importance(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PerturbationImportance$importance(
   relation = NULL,
   standardize = FALSE,
   ci_method = c("none", "raw", "nadeau_bengio", "quantile", "cpi"),
@@ -89,60 +86,55 @@ For details, see \link{CFI}, which is the only sub-method for which it is known 
   B = 1999,
   p_adjust = "none",
   ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{relation}}{(\code{character(1)}) How to relate perturbed scores to originals ("difference" or "ratio"). If \code{NULL}, uses stored parameter value.}
-
-\item{\code{standardize}}{(\code{logical(1)}: \code{FALSE}) If \code{TRUE}, importances are standardized by the highest score so all scores fall in \verb{[-1, 1]}.}
-
-\item{\code{ci_method}}{(\code{character(1)}: \code{"none"}) Variance estimation method. In addition to base methods (\code{"none"}, \code{"raw"}, \code{"nadeau_bengio"}, \code{"quantile"}),
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{relation}}{(\code{character(1)}) How to relate perturbed scores to originals ("difference" or "ratio"). If \code{NULL}, uses stored parameter value.}
+      \item{\code{standardize}}{(\code{logical(1)}: \code{FALSE}) If \code{TRUE}, importances are standardized by the highest score so all scores fall in \verb{[-1, 1]}.}
+      \item{\code{ci_method}}{(\code{character(1)}: \code{"none"}) Variance estimation method. In addition to base methods (\code{"none"}, \code{"raw"}, \code{"nadeau_bengio"}, \code{"quantile"}),
 perturbation methods support \code{"cpi"} (Conditional Predictive Impact).
 CPI is specifically designed for \link{CFI} with knockoff samplers and uses one-sided hypothesis tests.}
-
-\item{\code{conf_level}}{(\code{numeric(1)}: \code{0.95}) Confidence level for confidence intervals when \code{ci_method != "none"}.}
-
-\item{\code{alternative}}{(\code{character(1)}: \code{"two.sided"}) Type of alternative hypothesis for statistical tests.
+      \item{\code{conf_level}}{(\code{numeric(1)}: \code{0.95}) Confidence level for confidence intervals when \code{ci_method != "none"}.}
+      \item{\code{alternative}}{(\code{character(1)}: \code{"two.sided"}) Type of alternative hypothesis for statistical tests.
 \code{"greater"} tests H0: importance <= 0 vs H1: importance > 0 (one-sided).
 \code{"two.sided"} tests H0: importance = 0 vs H1: importance != 0.}
-
-\item{\code{test}}{(\code{character(1)}: \code{"t"}) Test to use for CPI. One of \code{"t"}, \code{"wilcoxon"}, \code{"fisher"}, or \code{"binomial"}. Only used when \code{ci_method = "cpi"}.}
-
-\item{\code{B}}{(\code{integer(1)}: \code{1999}) Number of replications for Fisher test. Only used when \code{ci_method = "cpi"} and \code{test = "fisher"}.}
-
-\item{\code{p_adjust}}{(\code{character(1)}: \code{"none"}) Method for p-value adjustment for multiple comparisons.
-Accepts any method supported by \link[stats:p.adjust]{stats::p.adjust.methods}, e.g. \code{"holm"}, \code{"bonferroni"}, \code{"BH"}, \code{"none"}.
+      \item{\code{test}}{(\code{character(1)}: \code{"t"}) Test to use for CPI. One of \code{"t"}, \code{"wilcoxon"}, \code{"fisher"}, or \code{"binomial"}. Only used when \code{ci_method = "cpi"}.}
+      \item{\code{B}}{(\code{integer(1)}: \code{1999}) Number of replications for Fisher test. Only used when \code{ci_method = "cpi"} and \code{test = "fisher"}.}
+      \item{\code{p_adjust}}{(\code{character(1)}: \code{"none"}) Method for p-value adjustment for multiple comparisons.
+Accepts any method supported by \link[stats:p.adjust.methods]{stats::p.adjust.methods}, e.g. \code{"holm"}, \code{"bonferroni"}, \code{"BH"}, \code{"none"}.
 When \code{"bonferroni"}, confidence intervals are also adjusted (alpha/k).
 For other correction methods (e.g. \code{"holm"}, \code{"BH"}), only p-values are adjusted;
 confidence intervals remain at the nominal \code{conf_level} because these sequential/adaptive
 procedures do not have a clean per-comparison alpha for CI construction.}
+      \item{\code{...}}{Additional arguments passed to the base method.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    (\link[data.table:data.table]{data.table}) Aggregated importance scores.
+  }
+}
 
-\item{\code{...}}{Additional arguments passed to the base method.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-(\link[data.table:data.table]{data.table}) Aggregated importance scores.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PerturbationImportance-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-PerturbationImportance-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PerturbationImportance$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{PerturbationImportance$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PerturbationImportance$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

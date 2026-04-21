@@ -192,19 +192,7 @@ In Longo L, Lapuschkin S, Seifert C (eds.), \emph{Explainable Artificial Intelli
 ISBN 978-3-031-63797-1, \doi{10.1007/978-3-031-63797-1_22}.
 }
 \seealso{
-Other simulation: 
-\code{\link{sim_dgp_ewald}()}
-
-Other simulation: 
-\code{\link{sim_dgp_ewald}()}
-
-Other simulation: 
-\code{\link{sim_dgp_ewald}()}
-
-Other simulation: 
-\code{\link{sim_dgp_ewald}()}
-
-Other simulation: 
-\code{\link{sim_dgp_ewald}()}
+Other simulation:
+\code{\link[=sim_dgp_ewald]{sim_dgp_ewald()}}
 }
 \concept{simulation}
