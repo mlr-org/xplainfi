@@ -32,83 +32,85 @@ This base class implements the public \verb{$sample()} and \verb{$sample_newdata
 delegating to private \code{.sample_marginal()} which subclasses must implement.
 }
 \section{Super class}{
-\code{\link[xplainfi:FeatureSampler]{xplainfi::FeatureSampler}} -> \code{MarginalSampler}
+\code{\link[xplainfi:FeatureSampler]{FeatureSampler}} -> \code{MarginalSampler}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-MarginalSampler-sample}{\code{MarginalSampler$sample()}}
-\item \href{#method-MarginalSampler-sample_newdata}{\code{MarginalSampler$sample_newdata()}}
-\item \href{#method-MarginalSampler-clone}{\code{MarginalSampler$clone()}}
+  \itemize{
+    \item \href{#method-MarginalSampler-sample}{\code{MarginalSampler$sample()}}
+    \item \href{#method-MarginalSampler-sample_newdata}{\code{MarginalSampler$sample_newdata()}}
+    \item \href{#method-MarginalSampler-clone}{\code{MarginalSampler$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="initialize"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-initialize'><code>xplainfi::FeatureSampler$initialize()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>xplainfi::FeatureSampler$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="initialize"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-initialize'><code>FeatureSampler$initialize()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>FeatureSampler$print()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-MarginalSampler-sample"></a>}}
 \if{latex}{\out{\hypertarget{method-MarginalSampler-sample}{}}}
-\subsection{Method \code{sample()}}{
-Sample features from their marginal distribution.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{MarginalSampler$sample(feature, row_ids = NULL)}\if{html}{\out{</div>}}
+\subsection{\code{MarginalSampler$sample()}}{
+  Sample features from their marginal distribution.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{MarginalSampler$sample(feature, row_ids = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{feature}}{(\code{character()}) Feature name(s) to sample.}
+      \item{\code{row_ids}}{(\code{integer()} | \code{NULL}) Row IDs from task to use.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Modified copy with sampled feature(s).
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{feature}}{(\code{character()}) Feature name(s) to sample.}
-
-\item{\code{row_ids}}{(\code{integer()} | \code{NULL}) Row IDs from task to use.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Modified copy with sampled feature(s).
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-MarginalSampler-sample_newdata"></a>}}
 \if{latex}{\out{\hypertarget{method-MarginalSampler-sample_newdata}{}}}
-\subsection{Method \code{sample_newdata()}}{
-Sample from external data.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{MarginalSampler$sample_newdata(feature, newdata)}\if{html}{\out{</div>}}
+\subsection{\code{MarginalSampler$sample_newdata()}}{
+  Sample from external data.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{MarginalSampler$sample_newdata(feature, newdata)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{feature}}{(\code{character()}) Feature(s) to sample.}
+      \item{\code{newdata}}{(\code{\link[data.table:data.table]{data.table}}) External data to use.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Modified copy with sampled feature(s).
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{feature}}{(\code{character()}) Feature(s) to sample.}
-
-\item{\code{newdata}}{(\code{\link[data.table:data.table]{data.table}}) External data to use.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Modified copy with sampled feature(s).
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-MarginalSampler-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-MarginalSampler-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{MarginalSampler$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{MarginalSampler$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{MarginalSampler$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

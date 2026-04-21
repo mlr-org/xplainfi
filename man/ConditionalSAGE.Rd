@@ -44,42 +44,41 @@ sage_custom$compute()
 \link{MarginalSAGE}
 }
 \section{Super classes}{
-\code{\link[xplainfi:FeatureImportanceMethod]{xplainfi::FeatureImportanceMethod}} -> \code{\link[xplainfi:SAGE]{xplainfi::SAGE}} -> \code{ConditionalSAGE}
+\code{\link[xplainfi:FeatureImportanceMethod]{FeatureImportanceMethod}} -> \code{\link[xplainfi:SAGE]{SAGE}} -> \code{ConditionalSAGE}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{sampler}}{(\link{ConditionalSampler}) Sampler for conditional marginalization.}
-}
-\if{html}{\out{</div>}}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{sampler}}{(\link{ConditionalSampler}) Sampler for conditional marginalization.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-ConditionalSAGE-new}{\code{ConditionalSAGE$new()}}
-\item \href{#method-ConditionalSAGE-clone}{\code{ConditionalSAGE$clone()}}
+  \itemize{
+    \item \href{#method-ConditionalSAGE-initialize}{\code{ConditionalSAGE$new()}}
+    \item \href{#method-ConditionalSAGE-clone}{\code{ConditionalSAGE$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details><summary>Inherited methods</summary>
+\if{html}{\out{<details><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="importance"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-importance'><code>xplainfi::FeatureImportanceMethod$importance()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>xplainfi::FeatureImportanceMethod$obs_loss()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>xplainfi::FeatureImportanceMethod$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>xplainfi::FeatureImportanceMethod$reset()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>xplainfi::FeatureImportanceMethod$scores()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="SAGE" data-id="compute"><a href='../../xplainfi/html/SAGE.html#method-SAGE-compute'><code>xplainfi::SAGE$compute()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="SAGE" data-id="plot_convergence"><a href='../../xplainfi/html/SAGE.html#method-SAGE-plot_convergence'><code>xplainfi::SAGE$plot_convergence()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="importance"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-importance'><code>FeatureImportanceMethod$importance()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>FeatureImportanceMethod$obs_loss()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>FeatureImportanceMethod$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>FeatureImportanceMethod$reset()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>FeatureImportanceMethod$scores()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="SAGE" data-id="compute"><a href='../../xplainfi/html/SAGE.html#method-SAGE-compute'><code>SAGE$compute()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="SAGE" data-id="plot_convergence"><a href='../../xplainfi/html/SAGE.html#method-SAGE-plot_convergence'><code>SAGE$plot_convergence()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-ConditionalSAGE-new"></a>}}
-\if{latex}{\out{\hypertarget{method-ConditionalSAGE-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of the ConditionalSAGE class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConditionalSAGE$new(
+\if{html}{\out{<a id="method-ConditionalSAGE-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-ConditionalSAGE-initialize}{}}}
+\subsection{\code{ConditionalSAGE$new()}}{
+  Creates a new instance of the ConditionalSAGE class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalSAGE$new(
   task,
   learner,
   measure = NULL,
@@ -93,34 +92,36 @@ Creates a new instance of the ConditionalSAGE class.
   se_threshold = 0.01,
   min_permutations = 10L,
   check_interval = 1L
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task, learner, measure, resampling, features, n_permutations, batch_size, n_samples, early_stopping, se_threshold, min_permutations, check_interval}}{Passed to \link{SAGE}.}
+      \item{\code{sampler}}{(\link{ConditionalSampler}) Optional custom sampler. Defaults to \link{ConditionalARFSampler}.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task, learner, measure, resampling, features, n_permutations, batch_size, n_samples, early_stopping, se_threshold, min_permutations, check_interval}}{Passed to \link{SAGE}.}
-
-\item{\code{sampler}}{(\link{ConditionalSampler}) Optional custom sampler. Defaults to \link{ConditionalARFSampler}.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ConditionalSAGE-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-ConditionalSAGE-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConditionalSAGE$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{ConditionalSAGE$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalSAGE$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

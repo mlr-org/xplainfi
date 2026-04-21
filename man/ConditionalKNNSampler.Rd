@@ -86,130 +86,128 @@ Troyanskaya O, Cantor M, Sherlock G, Brown P, Hastie T, Tibshirani R, Botstein D
 \doi{10.1093/bioinformatics/17.6.520}.
 }
 \section{Super classes}{
-\code{\link[xplainfi:FeatureSampler]{xplainfi::FeatureSampler}} -> \code{\link[xplainfi:ConditionalSampler]{xplainfi::ConditionalSampler}} -> \code{ConditionalKNNSampler}
+\code{\link[xplainfi:FeatureSampler]{FeatureSampler}} -> \code{\link[xplainfi:ConditionalSampler]{ConditionalSampler}} -> \code{ConditionalKNNSampler}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{feature_types}}{(\code{character()}) Feature types supported by the sampler.}
-}
-\if{html}{\out{</div>}}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{feature_types}}{(\code{character()}) Feature types supported by the sampler.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-ConditionalKNNSampler-new}{\code{ConditionalKNNSampler$new()}}
-\item \href{#method-ConditionalKNNSampler-sample}{\code{ConditionalKNNSampler$sample()}}
-\item \href{#method-ConditionalKNNSampler-sample_newdata}{\code{ConditionalKNNSampler$sample_newdata()}}
-\item \href{#method-ConditionalKNNSampler-clone}{\code{ConditionalKNNSampler$clone()}}
+  \itemize{
+    \item \href{#method-ConditionalKNNSampler-initialize}{\code{ConditionalKNNSampler$new()}}
+    \item \href{#method-ConditionalKNNSampler-sample}{\code{ConditionalKNNSampler$sample()}}
+    \item \href{#method-ConditionalKNNSampler-sample_newdata}{\code{ConditionalKNNSampler$sample_newdata()}}
+    \item \href{#method-ConditionalKNNSampler-clone}{\code{ConditionalKNNSampler$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>xplainfi::FeatureSampler$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>FeatureSampler$print()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-ConditionalKNNSampler-new"></a>}}
-\if{latex}{\out{\hypertarget{method-ConditionalKNNSampler-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new ConditionalKNNSampler.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConditionalKNNSampler$new(task, conditioning_set = NULL, k = 5L)}\if{html}{\out{</div>}}
+\if{html}{\out{<a id="method-ConditionalKNNSampler-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-ConditionalKNNSampler-initialize}{}}}
+\subsection{\code{ConditionalKNNSampler$new()}}{
+  Creates a new ConditionalKNNSampler.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalKNNSampler$new(task, conditioning_set = NULL, k = 5L)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from.}
+      \item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Default conditioning set to use in \verb{$sample()}.}
+      \item{\code{k}}{(\code{integer(1)}: \code{5L}) Number of nearest neighbors to sample from.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from.}
-
-\item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Default conditioning set to use in \verb{$sample()}.}
-
-\item{\code{k}}{(\code{integer(1)}: \code{5L}) Number of nearest neighbors to sample from.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ConditionalKNNSampler-sample"></a>}}
 \if{latex}{\out{\hypertarget{method-ConditionalKNNSampler-sample}{}}}
-\subsection{Method \code{sample()}}{
-Sample features from their kNN-based conditional distribution.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConditionalKNNSampler$sample(
+\subsection{\code{ConditionalKNNSampler$sample()}}{
+  Sample features from their kNN-based conditional distribution.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalKNNSampler$sample(
   feature,
   row_ids = NULL,
   conditioning_set = NULL,
   k = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{feature}}{(\code{character()}) Feature name(s) to sample.}
-
-\item{\code{row_ids}}{(\code{integer()} | \code{NULL}) Row IDs from task to use as conditioning values.}
-
-\item{\code{conditioning_set}}{(\code{character()} | \code{NULL}) Features to condition on.
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{feature}}{(\code{character()}) Feature name(s) to sample.}
+      \item{\code{row_ids}}{(\code{integer()} | \code{NULL}) Row IDs from task to use as conditioning values.}
+      \item{\code{conditioning_set}}{(\code{character()} | \code{NULL}) Features to condition on.
 If \code{NULL}, samples from marginal distribution (random sampling from training data).}
+      \item{\code{k}}{(\code{integer(1)} | \code{NULL}) Number of neighbors. If \code{NULL}, uses stored parameter.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Modified copy with sampled feature(s).
+  }
+}
 
-\item{\code{k}}{(\code{integer(1)} | \code{NULL}) Number of neighbors. If \code{NULL}, uses stored parameter.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Modified copy with sampled feature(s).
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ConditionalKNNSampler-sample_newdata"></a>}}
 \if{latex}{\out{\hypertarget{method-ConditionalKNNSampler-sample_newdata}{}}}
-\subsection{Method \code{sample_newdata()}}{
-Sample from external data conditionally.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConditionalKNNSampler$sample_newdata(
+\subsection{\code{ConditionalKNNSampler$sample_newdata()}}{
+  Sample from external data conditionally.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalKNNSampler$sample_newdata(
   feature,
   newdata,
   conditioning_set = NULL,
   k = NULL
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{feature}}{(\code{character()}) Feature(s) to sample.}
+      \item{\code{newdata}}{(\code{\link[data.table:data.table]{data.table}}) External data to use.}
+      \item{\code{conditioning_set}}{(\code{character()} | \code{NULL}) Features to condition on.}
+      \item{\code{k}}{(\code{integer(1)} | \code{NULL}) Number of neighbors. If \code{NULL}, uses stored parameter.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Modified copy with sampled feature(s).
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{feature}}{(\code{character()}) Feature(s) to sample.}
-
-\item{\code{newdata}}{(\code{\link[data.table:data.table]{data.table}}) External data to use.}
-
-\item{\code{conditioning_set}}{(\code{character()} | \code{NULL}) Features to condition on.}
-
-\item{\code{k}}{(\code{integer(1)} | \code{NULL}) Number of neighbors. If \code{NULL}, uses stored parameter.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Modified copy with sampled feature(s).
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ConditionalKNNSampler-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-ConditionalKNNSampler-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConditionalKNNSampler$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{ConditionalKNNSampler$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalKNNSampler$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

@@ -39,95 +39,96 @@ Blesch K, Watson D, Wright M (2023).
 \doi{10.1007/s10182-023-00477-9}.
 }
 \section{Super class}{
-\code{\link[xplainfi:FeatureSampler]{xplainfi::FeatureSampler}} -> \code{KnockoffSampler}
+\code{\link[xplainfi:FeatureSampler]{FeatureSampler}} -> \code{KnockoffSampler}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{x_tilde}}{Knockoff matrix with one (or \code{iters}) row(s) per original observation in \code{task}.}
-}
-\if{html}{\out{</div>}}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{x_tilde}}{Knockoff matrix with one (or \code{iters}) row(s) per original observation in \code{task}.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-KnockoffSampler-new}{\code{KnockoffSampler$new()}}
-\item \href{#method-KnockoffSampler-sample}{\code{KnockoffSampler$sample()}}
-\item \href{#method-KnockoffSampler-clone}{\code{KnockoffSampler$clone()}}
+  \itemize{
+    \item \href{#method-KnockoffSampler-initialize}{\code{KnockoffSampler$new()}}
+    \item \href{#method-KnockoffSampler-sample}{\code{KnockoffSampler$sample()}}
+    \item \href{#method-KnockoffSampler-clone}{\code{KnockoffSampler$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>xplainfi::FeatureSampler$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="sample_newdata"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-sample_newdata'><code>xplainfi::FeatureSampler$sample_newdata()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>FeatureSampler$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="sample_newdata"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-sample_newdata'><code>FeatureSampler$sample_newdata()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-KnockoffSampler-new"></a>}}
-\if{latex}{\out{\hypertarget{method-KnockoffSampler-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of the KnockoffSampler class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{KnockoffSampler$new(
+\if{html}{\out{<a id="method-KnockoffSampler-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-KnockoffSampler-initialize}{}}}
+\subsection{\code{KnockoffSampler$new()}}{
+  Creates a new instance of the KnockoffSampler class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{KnockoffSampler$new(
   task,
   knockoff_fun = function(x) knockoff::create.second_order(as.matrix(x)),
   iters = 1
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from}
-
-\item{\code{knockoff_fun}}{(\code{function}) Function used to create knockoff matrix. Default are second-order Gaussian knockoffs (\code{knockoff::create.second_order()})}
-
-\item{\code{iters}}{(\code{integer(1)}: \code{1}) Number of repetitions the \code{knockoff_fun} is applied to create multiple \code{x_tilde}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from}
+      \item{\code{knockoff_fun}}{(\code{function}) Function used to create knockoff matrix. Default are second-order Gaussian knockoffs (\code{knockoff::create.second_order()})}
+      \item{\code{iters}}{(\code{integer(1)}: \code{1}) Number of repetitions the \code{knockoff_fun} is applied to create multiple \code{x_tilde}
 instances per observation.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-KnockoffSampler-sample"></a>}}
 \if{latex}{\out{\hypertarget{method-KnockoffSampler-sample}{}}}
-\subsection{Method \code{sample()}}{
-Sample from stored task using knockoff values. Replaces specified feature(s) with
+\subsection{\code{KnockoffSampler$sample()}}{
+  Sample from stored task using knockoff values. Replaces specified feature(s) with
 their knockoff counterparts from the pre-generated knockoff matrix.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{KnockoffSampler$sample(feature, row_ids = NULL)}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{KnockoffSampler$sample(feature, row_ids = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{feature}}{(\code{character}) Feature(s) to sample.}
+      \item{\code{row_ids}}{(\code{integer()} | \code{NULL}) Row IDs to use. If \code{NULL}, uses all rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Modified copy with knockoff feature(s).
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{feature}}{(\code{character}) Feature(s) to sample.}
-
-\item{\code{row_ids}}{(\code{integer()} | \code{NULL}) Row IDs to use. If \code{NULL}, uses all rows.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Modified copy with knockoff feature(s).
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-KnockoffSampler-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-KnockoffSampler-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{KnockoffSampler$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{KnockoffSampler$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{KnockoffSampler$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

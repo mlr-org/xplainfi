@@ -40,56 +40,58 @@ data = task$data()
 sampler$sample_newdata("x1", newdata = data)
 }
 \section{Super classes}{
-\code{\link[xplainfi:FeatureSampler]{xplainfi::FeatureSampler}} -> \code{\link[xplainfi:MarginalSampler]{xplainfi::MarginalSampler}} -> \code{MarginalPermutationSampler}
+\code{\link[xplainfi:FeatureSampler]{FeatureSampler}} -> \code{\link[xplainfi:MarginalSampler]{MarginalSampler}} -> \code{MarginalPermutationSampler}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-MarginalPermutationSampler-new}{\code{MarginalPermutationSampler$new()}}
-\item \href{#method-MarginalPermutationSampler-clone}{\code{MarginalPermutationSampler$clone()}}
+  \itemize{
+    \item \href{#method-MarginalPermutationSampler-initialize}{\code{MarginalPermutationSampler$new()}}
+    \item \href{#method-MarginalPermutationSampler-clone}{\code{MarginalPermutationSampler$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>xplainfi::FeatureSampler$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="MarginalSampler" data-id="sample"><a href='../../xplainfi/html/MarginalSampler.html#method-MarginalSampler-sample'><code>xplainfi::MarginalSampler$sample()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="MarginalSampler" data-id="sample_newdata"><a href='../../xplainfi/html/MarginalSampler.html#method-MarginalSampler-sample_newdata'><code>xplainfi::MarginalSampler$sample_newdata()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>FeatureSampler$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="MarginalSampler" data-id="sample"><a href='../../xplainfi/html/MarginalSampler.html#method-MarginalSampler-sample'><code>MarginalSampler$sample()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="MarginalSampler" data-id="sample_newdata"><a href='../../xplainfi/html/MarginalSampler.html#method-MarginalSampler-sample_newdata'><code>MarginalSampler$sample_newdata()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-MarginalPermutationSampler-new"></a>}}
-\if{latex}{\out{\hypertarget{method-MarginalPermutationSampler-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of the MarginalPermutationSampler class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{MarginalPermutationSampler$new(task)}\if{html}{\out{</div>}}
+\if{html}{\out{<a id="method-MarginalPermutationSampler-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-MarginalPermutationSampler-initialize}{}}}
+\subsection{\code{MarginalPermutationSampler$new()}}{
+  Creates a new instance of the MarginalPermutationSampler class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{MarginalPermutationSampler$new(task)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-MarginalPermutationSampler-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-MarginalPermutationSampler-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{MarginalPermutationSampler$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{MarginalPermutationSampler$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{MarginalPermutationSampler$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }
