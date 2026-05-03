@@ -209,18 +209,6 @@ Intelligence*, 440–464. ISBN 978-3-031-63797-1,
 Other simulation:
 [`sim_dgp_ewald()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_ewald.md)
 
-Other simulation:
-[`sim_dgp_ewald()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_ewald.md)
-
-Other simulation:
-[`sim_dgp_ewald()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_ewald.md)
-
-Other simulation:
-[`sim_dgp_ewald()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_ewald.md)
-
-Other simulation:
-[`sim_dgp_ewald()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_ewald.md)
-
 ## Examples
 
 ``` r

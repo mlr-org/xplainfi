@@ -20,16 +20,15 @@ American Statistical Association*, **113**(523), 1094–1111.
 
 ## Super classes
 
-[`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
--\>
-[`xplainfi::WVIM`](https://mlr-org.github.io/xplainfi/reference/WVIM.md)
--\> `LOCO`
+[`FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+-\> [`WVIM`](https://mlr-org.github.io/xplainfi/reference/WVIM.md) -\>
+`LOCO`
 
 ## Methods
 
 ### Public methods
 
-- [`LOCO$new()`](#method-LOCO-new)
+- [`LOCO$new()`](#method-LOCO-initialize)
 
 - [`LOCO$compute()`](#method-LOCO-compute)
 
@@ -37,15 +36,15 @@ American Statistical Association*, **113**(523), 1094–1111.
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
-- [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
-- [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
-- [`xplainfi::FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
-- [`xplainfi::WVIM$importance()`](https://mlr-org.github.io/xplainfi/reference/WVIM.html#method-importance)
+- [`FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
+- [`FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
+- [`FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
+- [`FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`WVIM$importance()`](https://mlr-org.github.io/xplainfi/reference/WVIM.html#method-importance)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `LOCO$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -96,7 +95,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `compute()`
+### `LOCO$compute()`
 
 Compute LOCO importances.
 
@@ -115,7 +114,7 @@ Compute LOCO importances.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `LOCO$clone()`
 
 The objects of this class are cloneable with this method.
 

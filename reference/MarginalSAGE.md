@@ -10,32 +10,31 @@ standard SAGE implementation.
 
 ## Super classes
 
-[`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
--\>
-[`xplainfi::SAGE`](https://mlr-org.github.io/xplainfi/reference/SAGE.md)
--\> `MarginalSAGE`
+[`FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+-\> [`SAGE`](https://mlr-org.github.io/xplainfi/reference/SAGE.md) -\>
+`MarginalSAGE`
 
 ## Methods
 
 ### Public methods
 
-- [`MarginalSAGE$new()`](#method-MarginalSAGE-new)
+- [`MarginalSAGE$new()`](#method-MarginalSAGE-initialize)
 
 - [`MarginalSAGE$clone()`](#method-MarginalSAGE-clone)
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$importance()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
-- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
-- [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
-- [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
-- [`xplainfi::FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
-- [`xplainfi::SAGE$compute()`](https://mlr-org.github.io/xplainfi/reference/SAGE.html#method-compute)
-- [`xplainfi::SAGE$plot_convergence()`](https://mlr-org.github.io/xplainfi/reference/SAGE.html#method-plot_convergence)
+- [`FeatureImportanceMethod$importance()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
+- [`FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
+- [`FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
+- [`FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
+- [`FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`SAGE$compute()`](https://mlr-org.github.io/xplainfi/reference/SAGE.html#method-compute)
+- [`SAGE$plot_convergence()`](https://mlr-org.github.io/xplainfi/reference/SAGE.html#method-plot_convergence)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `MarginalSAGE$new()`
 
 Creates a new instance of the MarginalSAGE class.
 
@@ -65,7 +64,7 @@ Creates a new instance of the MarginalSAGE class.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `MarginalSAGE$clone()`
 
 The objects of this class are cloneable with this method.
 

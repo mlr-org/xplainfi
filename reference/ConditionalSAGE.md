@@ -12,10 +12,9 @@ as default
 
 ## Super classes
 
-[`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
--\>
-[`xplainfi::SAGE`](https://mlr-org.github.io/xplainfi/reference/SAGE.md)
--\> `ConditionalSAGE`
+[`FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+-\> [`SAGE`](https://mlr-org.github.io/xplainfi/reference/SAGE.md) -\>
+`ConditionalSAGE`
 
 ## Public fields
 
@@ -28,23 +27,23 @@ as default
 
 ### Public methods
 
-- [`ConditionalSAGE$new()`](#method-ConditionalSAGE-new)
+- [`ConditionalSAGE$new()`](#method-ConditionalSAGE-initialize)
 
 - [`ConditionalSAGE$clone()`](#method-ConditionalSAGE-clone)
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$importance()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
-- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
-- [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
-- [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
-- [`xplainfi::FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
-- [`xplainfi::SAGE$compute()`](https://mlr-org.github.io/xplainfi/reference/SAGE.html#method-compute)
-- [`xplainfi::SAGE$plot_convergence()`](https://mlr-org.github.io/xplainfi/reference/SAGE.html#method-plot_convergence)
+- [`FeatureImportanceMethod$importance()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
+- [`FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
+- [`FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
+- [`FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
+- [`FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`SAGE$compute()`](https://mlr-org.github.io/xplainfi/reference/SAGE.html#method-compute)
+- [`SAGE$plot_convergence()`](https://mlr-org.github.io/xplainfi/reference/SAGE.html#method-plot_convergence)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `ConditionalSAGE$new()`
 
 Creates a new instance of the ConditionalSAGE class.
 
@@ -81,7 +80,7 @@ Creates a new instance of the ConditionalSAGE class.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `ConditionalSAGE$clone()`
 
 The objects of this class are cloneable with this method.
 

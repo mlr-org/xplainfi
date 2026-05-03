@@ -1,10 +1,16 @@
 # LOCO and WVIM
 
 ``` r
+
 library(xplainfi)
 library(mlr3)
 library(mlr3learners)
 library(data.table)
+#> 
+#> Attaching package: 'data.table'
+#> The following object is masked from 'package:base':
+#> 
+#>     %notin%
 library(ggplot2)
 ```
 
@@ -43,6 +49,7 @@ Higher values indicate more important features (larger performance drop
 when removed).
 
 ``` r
+
 task <- sim_dgp_interactions(n = 2000)
 learner <- lrn("regr.nnet", trace = FALSE)
 measure <- msr("regr.mse")
@@ -89,6 +96,7 @@ The `$scores()` method provides detailed information for each feature,
 resampling iteration, and refit:
 
 ``` r
+
 loco$scores() |>
     knitr::kable(digits = 4, caption = "LOCO scores with baseline and post-refit score")
 ```
@@ -246,7 +254,7 @@ loco$scores() |>
 | x2      |         1 |          30 |            1.6412 |        4.5334 |     2.8922 |
 | x3      |         1 |          30 |            1.6412 |        3.3006 |     1.6594 |
 
-LOCO scores with baseline and post-refit score
+LOCO scores with baseline and post-refit score {.table}
 
 ## Multiple Refits
 
@@ -254,6 +262,7 @@ LOCO also supports `n_repeats` for multiple refits within each
 resampling iteration, which improves stability:
 
 ``` r
+
 loco_multi = LOCO$new(
     task = task,
     learner = learner,
@@ -292,7 +301,7 @@ loco_multi$scores() |>
 | x2      |         1 |           2 |            0.3493 |        4.0961 |     3.7467 |
 | x3      |         1 |           2 |            0.3493 |        1.3335 |     0.9842 |
 
-First 10 LOCO scores per refit and resampling fold
+First 10 LOCO scores per refit and resampling fold {.table}
 
 Since each refit requires to retrain the provided learner, this of
 course increases the computational load. Suitable values depend on the
@@ -306,6 +315,7 @@ LOCO also works with any mlr3 measure. Different measures can highlight
 different aspects of feature importance:
 
 ``` r
+
 # Use same resampling for fair comparison
 loco_mae <- LOCO$new(
     task = task,
@@ -324,6 +334,7 @@ LOCO differs from perturbation-based methods like PFI and CFI:
 - **PFI/CFI**: Perturb feature values using existing model (faster)
 
 ``` r
+
 # Compare LOCO with PFI using same resampling
 pfi <- PFI$new(task, learner, measure, resampling = resampling)
 pfi$compute()
@@ -371,6 +382,7 @@ Since `features` is specified rather than `groups`, each feature well be
 left out one at a time, resulting in the LOCO procedure.
 
 ``` r
+
 # Create WVIM instance (LOCO's parent class) using same resampling
 wvim_loco <- WVIM$new(
     task = task,
@@ -418,6 +430,7 @@ target and each feature separately. However, WVIM makes it trivial to
 compute if desired:
 
 ``` r
+
 # LOCI: train with only one feature at a time
 wvim_loci <- WVIM$new(
     task = task,
@@ -481,6 +494,7 @@ Feature groups are useful when:
 Let’s create groups from our interaction data:
 
 ``` r
+
 # Define feature groups
 groups <- list(
     interaction_pair = c("x1", "x2"), # Features that interact
@@ -510,6 +524,7 @@ f\_{-\text{group}}(X\_{-\text{group}}))) - \mathbb{E}(L(Y, f(X)))\\
 This compares the model without the group to the full model.
 
 ``` r
+
 wvim_groups_out <- WVIM$new(
     task = task,
     learner = learner,
@@ -549,6 +564,7 @@ This measures how much each group alone improves over having no
 features.
 
 ``` r
+
 wvim_groups_in <- WVIM$new(
     task = task,
     learner = learner,
@@ -581,6 +597,7 @@ for comparison:
   - Higher values → group alone provides better prediction than baseline
 
 ``` r
+
 comparison_directions <- merge(
     wvim_groups_out$importance()[, .(feature, leave_out = importance)],
     wvim_groups_in$importance()[, .(feature, leave_in = importance)],

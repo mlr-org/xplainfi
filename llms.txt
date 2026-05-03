@@ -12,12 +12,14 @@ implementation of importance measures.
 Install `xplainfi` from CRAN:
 
 ``` r
+
 install.packages("xplainfi")
 ```
 
 Or install from [R-universe](https://mlr-org.r-universe.dev):
 
 ``` r
+
 install.packages("xplainfi", repos = c("https://mlr-org.r-universe.dev", "https://cloud.r-project.org"))
 ```
 
@@ -25,6 +27,7 @@ The latest development version of `xplainfi` can be installed with
 `pak`:
 
 ``` r
+
 # install.packages(pak)
 pak::pak("mlr-org/xplainfi")
 ```
@@ -46,6 +49,7 @@ in the `Task`, with additional numbered `unimportant` features without
 effect on \\y\\.
 
 ``` r
+
 library(xplainfi)
 library(mlr3learners)
 #> Loading required package: mlr3
@@ -66,6 +70,7 @@ pfi = PFI$new(
 Compute and print PFI scores:
 
 ``` r
+
 pfi$compute()
 pfi$importance()
 #> Key: <feature>
@@ -88,6 +93,7 @@ If it aids interpretation, importances can also be calculated as the
 post-permutation losses:
 
 ``` r
+
 pfi$importance(relation = "ratio")
 #> Key: <feature>
 #>          feature importance
@@ -109,6 +115,7 @@ or multiple permutation iterations, the individual scores can be
 retrieved as a `data.table`:
 
 ``` r
+
 str(pfi$scores())
 #> Classes 'data.table' and 'data.frame':   900 obs. of  6 variables:
 #>  $ feature          : chr  "important1" "important1" "important1" "important1" ...
@@ -130,6 +137,7 @@ way you see fit.
 For example:
 
 ``` r
+
 library(ggplot2)
 
 ggplot(
@@ -159,6 +167,7 @@ importances such that the intuition “performance improvement” -\>
 “higher importance score” still holds:
 
 ``` r
+
 pfi = PFI$new(
     task = task,
     learner = learner,

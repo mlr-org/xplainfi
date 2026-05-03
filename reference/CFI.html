@@ -107,24 +107,23 @@ see <code>vignette("inference", package = "xplainfi")</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="super-classes">Super classes<a class="anchor" aria-label="anchor" href="#super-classes"></a></h2>
-    <p><code><a href="FeatureImportanceMethod.html">xplainfi::FeatureImportanceMethod</a></code> -&gt; <code><a href="PerturbationImportance.html">xplainfi::PerturbationImportance</a></code> -&gt; <code>CFI</code></p>
+    <p><code><a href="FeatureImportanceMethod.html">FeatureImportanceMethod</a></code> -&gt; <code><a href="PerturbationImportance.html">PerturbationImportance</a></code> -&gt; <code>CFI</code></p>
     </div>
     <div class="section level2">
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-CFI-new"><code>CFI$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-CFI-initialize"><code>CFI$new()</code></a></p></li>
 <li><p><a href="#method-CFI-compute"><code>CFI$compute()</code></a></p></li>
 <li><p><a href="#method-CFI-clone"><code>CFI$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href="FeatureImportanceMethod.html#method-obs_loss"><code>xplainfi::FeatureImportanceMethod$obs_loss()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href="FeatureImportanceMethod.html#method-print"><code>xplainfi::FeatureImportanceMethod$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href="FeatureImportanceMethod.html#method-reset"><code>xplainfi::FeatureImportanceMethod$reset()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href="FeatureImportanceMethod.html#method-scores"><code>xplainfi::FeatureImportanceMethod$scores()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="PerturbationImportance" data-id="importance"><a href="PerturbationImportance.html#method-importance"><code>xplainfi::PerturbationImportance$importance()</code></a></span></li>
-</ul></details></p><hr><a id="method-CFI-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href="FeatureImportanceMethod.html#method-obs_loss"><code>FeatureImportanceMethod$obs_loss()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href="FeatureImportanceMethod.html#method-print"><code>FeatureImportanceMethod$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href="FeatureImportanceMethod.html#method-reset"><code>FeatureImportanceMethod$reset()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href="FeatureImportanceMethod.html#method-scores"><code>FeatureImportanceMethod$scores()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="PerturbationImportance" data-id="importance"><a href="PerturbationImportance.html#method-importance"><code>PerturbationImportance$importance()</code></a></span></li>
+</ul></details></p><hr><a id="method-CFI-initialize"></a><div class="section">
+<h3 id="cfi-new-"><code>CFI$new()</code><a class="anchor" aria-label="anchor" href="#cfi-new-"></a></h3>
 <p>Creates a new instance of the CFI class</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/CFI.html">CFI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -139,23 +138,22 @@ see <code>vignette("inference", package = "xplainfi")</code>.</p>
 <span>  batch_size <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sampler <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>task, learner, measure, resampling, features, groups, relation, n_repeats, batch_size</code></dt>
 <dd><p>Passed to <a href="PerturbationImportance.html">PerturbationImportance</a>.</p></dd>
 
-
-<dt><code>sampler</code></dt>
+      <dt><code>sampler</code></dt>
 <dd><p>(<a href="ConditionalSampler.html">ConditionalSampler</a>) Optional custom sampler. Defaults to instantiating <code>ConditionalARFSampler</code> internally with default parameters.</p></dd>
 
 
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-CFI-compute"></a><div class="section">
-<h3 id="method-compute-">Method <code>compute()</code><a class="anchor" aria-label="anchor" href="#method-compute-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-CFI-compute"></a><div class="section">
+<h3 id="cfi-compute-"><code>CFI$compute()</code><a class="anchor" aria-label="anchor" href="#cfi-compute-"></a></h3>
 <p>Compute CFI scores</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CFI</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span></span>
@@ -164,19 +162,15 @@ see <code>vignette("inference", package = "xplainfi")</code>.</p>
 <span>  store_models <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  store_backends <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>n_repeats</code></dt>
 <dd><p>(<code>integer(1)</code>) Number of permutation iterations. If <code>NULL</code>, uses stored value.</p></dd>
 
-
-<dt><code>batch_size</code></dt>
+      <dt><code>batch_size</code></dt>
 <dd><p>(<code>integer(1)</code> | <code>NULL</code>: <code>NULL</code>) Maximum number of rows to predict at once. If <code>NULL</code>, uses stored value.</p></dd>
 
-
-<dt><code>store_models, store_backends</code></dt>
+      <dt><code>store_models, store_backends</code></dt>
 <dd><p>(<code>logical(1)</code>: <code>TRUE</code>) Whether to store fitted models / data backends, passed to <a href="https://mlr3.mlr-org.com/reference/resample.html" class="external-link">mlr3::resample</a> internally
 for the initial fit of the learner.
 This may be required for certain measures and is recommended to leave enabled unless really necessary.</p></dd>
@@ -185,14 +179,14 @@ This may be required for certain measures and is recommended to leave enabled un
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-CFI-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-CFI-clone"></a><div class="section">
+<h3 id="cfi-clone-"><code>CFI$clone()</code><a class="anchor" aria-label="anchor" href="#cfi-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CFI</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -202,6 +196,7 @@ This may be required for certain measures and is recommended to leave enabled un
 </div>
 
 </div>
+
 
     </div>
 

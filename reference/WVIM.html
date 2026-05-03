@@ -81,7 +81,7 @@ corresponds to LOCO (Leave One Covariate Out).</p>
     </div>
     <div class="section level2">
     <h2 id="super-class">Super class<a class="anchor" aria-label="anchor" href="#super-class"></a></h2>
-    <p><code><a href="FeatureImportanceMethod.html">xplainfi::FeatureImportanceMethod</a></code> -&gt; <code>WVIM</code></p>
+    <p><code><a href="FeatureImportanceMethod.html">FeatureImportanceMethod</a></code> -&gt; <code>WVIM</code></p>
     </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
@@ -89,13 +89,13 @@ corresponds to LOCO (Leave One Covariate Out).</p>
 <dd><p>(<code>character(1)</code>) Either "leave-out" or "leave-in".</p></dd>
 
 
-<dt><code>design</code></dt>
+    <dt><code>design</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical()</a></code>) Feature selection design matrix where <code>TRUE</code> equals "left in" and <code>FALSE</code> "left out".
 Columns correspond to <code>task$feature_names</code> and the number of rows corresponds to <code>length(features) * n_repeats</code>.
 The base matrix is created by <a href="wvim_design_matrix.html">wvim_design_matrix</a> and then replicated <code>n_repeats</code> times before.</p></dd>
 
 
-<dt><code>instance</code></dt>
+    <dt><code>instance</code></dt>
 <dd><p>(<code>FSelectInstanceBatchSingleCrit</code>) The <code>mlr3fselect</code> feature selection instance containing
 also the archive of all evaluations, possible useful for future use. Only stored if <code>store_instance</code> is <code>TRUE</code>.</p></dd>
 
@@ -107,17 +107,16 @@ also the archive of all evaluations, possible useful for future use. Only stored
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-WVIM-new"><code>WVIM$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-WVIM-initialize"><code>WVIM$new()</code></a></p></li>
 <li><p><a href="#method-WVIM-importance"><code>WVIM$importance()</code></a></p></li>
 <li><p><a href="#method-WVIM-compute"><code>WVIM$compute()</code></a></p></li>
 <li><p><a href="#method-WVIM-clone"><code>WVIM$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href="FeatureImportanceMethod.html#method-obs_loss"><code>xplainfi::FeatureImportanceMethod$obs_loss()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href="FeatureImportanceMethod.html#method-print"><code>xplainfi::FeatureImportanceMethod$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href="FeatureImportanceMethod.html#method-reset"><code>xplainfi::FeatureImportanceMethod$reset()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href="FeatureImportanceMethod.html#method-scores"><code>xplainfi::FeatureImportanceMethod$scores()</code></a></span></li>
-</ul></details></p><hr><a id="method-WVIM-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href="FeatureImportanceMethod.html#method-obs_loss"><code>FeatureImportanceMethod$obs_loss()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href="FeatureImportanceMethod.html#method-print"><code>FeatureImportanceMethod$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href="FeatureImportanceMethod.html#method-reset"><code>FeatureImportanceMethod$reset()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href="FeatureImportanceMethod.html#method-scores"><code>FeatureImportanceMethod$scores()</code></a></span></li>
+</ul></details></p><hr><a id="method-WVIM-initialize"></a><div class="section">
+<h3 id="wvim-new-"><code>WVIM$new()</code><a class="anchor" aria-label="anchor" href="#wvim-new-"></a></h3>
 <p>Creates a new instance of this <a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">R6</a> class.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/WVIM.html">WVIM</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -131,31 +130,28 @@ also the archive of all evaluations, possible useful for future use. Only stored
 <span>  label <span class="op">=</span> <span class="st">"Williamson's Variable Importance Measure (WVIM)"</span>,</span>
 <span>  n_repeats <span class="op">=</span> <span class="fl">30L</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>task, learner, measure, resampling, features, groups</code></dt>
 <dd><p>Passed to <code>FeatureImportanceMethod</code> for construction.</p></dd>
 
-
-<dt><code>direction</code></dt>
+      <dt><code>direction</code></dt>
 <dd><p>(<code>character(1)</code>) Either "leave-out" or "leave-in".</p></dd>
 
-
-<dt><code>label</code></dt>
+      <dt><code>label</code></dt>
 <dd><p>(<code>character(1)</code>) Method label.</p></dd>
 
-
-<dt><code>n_repeats</code></dt>
+      <dt><code>n_repeats</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>30L</code>) Number of refit iterations per resampling iteration.</p></dd>
 
 
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-WVIM-importance"></a><div class="section">
-<h3 id="method-importance-">Method <code>importance()</code><a class="anchor" aria-label="anchor" href="#method-importance-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-WVIM-importance"></a><div class="section">
+<h3 id="wvim-importance-"><code>WVIM$importance()</code><a class="anchor" aria-label="anchor" href="#wvim-importance-"></a></h3>
 <p>Get aggregated importance scores.
 Extends the base <code>$importance()</code> method to support <code>ci_method = "lei"</code>.</p>
 <p>This implements distribution-free inference based on Lei et al. (2018),
@@ -180,48 +176,38 @@ parameterizable, deviating from these defaults may invalidate the theoretical gu
 <span>  p_adjust <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>relation</code></dt>
 <dd><p>(<code>character(1)</code>) How to relate perturbed scores to originals ("difference" or "ratio"). If <code>NULL</code>, uses stored parameter value.</p></dd>
 
-
-<dt><code>standardize</code></dt>
+      <dt><code>standardize</code></dt>
 <dd><p>(<code>logical(1)</code>: <code>FALSE</code>) If <code>TRUE</code>, importances are standardized by the highest score so all scores fall in <code>[-1, 1]</code>.</p></dd>
 
-
-<dt><code>ci_method</code></dt>
+      <dt><code>ci_method</code></dt>
 <dd><p>(<code>character(1)</code>: <code>"none"</code>) Variance estimation method. In addition to base methods (<code>"none"</code>, <code>"raw"</code>, <code>"nadeau_bengio"</code>, <code>"quantile"</code>),
 WVIM methods support <code>"lei"</code> for distribution-free inference (Lei et al., 2018).</p></dd>
 
-
-<dt><code>conf_level</code></dt>
+      <dt><code>conf_level</code></dt>
 <dd><p>(<code>numeric(1)</code>: <code>0.95</code>) Confidence level to use for confidence interval construction when <code>ci_method != "none"</code>.</p></dd>
 
-
-<dt><code>alternative</code></dt>
+      <dt><code>alternative</code></dt>
 <dd><p>(<code>character(1)</code>: <code>"two.sided"</code>) Type of alternative hypothesis for statistical tests.
 <code>"greater"</code> tests H0: importance &lt;= 0 vs H1: importance &gt; 0 (one-sided).
 <code>"two.sided"</code> tests H0: importance = 0 vs H1: importance != 0.</p></dd>
 
-
-<dt><code>test</code></dt>
+      <dt><code>test</code></dt>
 <dd><p>(<code>character(1)</code>: <code>"wilcoxon"</code>) Test to use for Lei et al. inference. One of <code>"wilcoxon"</code>, <code>"t"</code>, <code>"fisher"</code>, or <code>"binomial"</code>.
 Only used when <code>ci_method = "lei"</code>.</p></dd>
 
-
-<dt><code>B</code></dt>
+      <dt><code>B</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>1999</code>) Number of replications for Fisher test. Only used when <code>ci_method = "lei"</code> and <code>test = "fisher"</code>.</p></dd>
 
-
-<dt><code>aggregator</code></dt>
+      <dt><code>aggregator</code></dt>
 <dd><p>(<code>function</code>: <code><a href="https://rdrr.io/r/stats/median.html" class="external-link">stats::median</a></code>) Aggregation function for computing the point estimate from observation-wise
 importance values. Defaults to <code><a href="https://rdrr.io/r/stats/median.html" class="external-link">stats::median</a></code> as proposed by Lei et al. (2018). Only used when <code>ci_method = "lei"</code>.</p></dd>
 
-
-<dt><code>p_adjust</code></dt>
+      <dt><code>p_adjust</code></dt>
 <dd><p>(<code>character(1)</code>: <code>"none"</code>) Method for p-value adjustment for multiple comparisons.
 Accepts any method supported by <a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">stats::p.adjust.methods</a>, e.g. <code>"holm"</code>, <code>"bonferroni"</code>, <code>"BH"</code>, <code>"none"</code>.
 When <code>"bonferroni"</code>, confidence intervals are also adjusted (alpha/k).
@@ -229,20 +215,20 @@ For other correction methods (e.g. <code>"holm"</code>, <code>"BH"</code>), only
 confidence intervals remain at the nominal <code>conf_level</code> because these sequential/adaptive
 procedures do not have a clean per-comparison alpha for CI construction.</p></dd>
 
-
-<dt><code>...</code></dt>
+      <dt><code>...</code></dt>
 <dd><p>Additional arguments passed to the base method.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>(<a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a>) Aggregated importance scores.</p>
 </div>
 
-</div><p></p><hr><a id="method-WVIM-compute"></a><div class="section">
-<h3 id="method-compute-">Method <code>compute()</code><a class="anchor" aria-label="anchor" href="#method-compute-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-WVIM-compute"></a><div class="section">
+<h3 id="wvim-compute-"><code>WVIM$compute()</code><a class="anchor" aria-label="anchor" href="#wvim-compute-"></a></h3>
 <p>Computes leave-out or leave-in feature importance.
 <code>wvim_design_matrix(task$feature_names, "leave-out")</code> corresponds to LOCO.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
@@ -251,31 +237,28 @@ procedures do not have a clean per-comparison alpha for CI construction.</p></dd
 <span>  store_backends <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  store_instance <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>store_models, store_backends</code></dt>
 <dd><p>(<code>logical(1)</code>: <code>TRUE</code>) Whether to store fitted models / data backends, passed to <a href="https://mlr3.mlr-org.com/reference/resample.html" class="external-link">mlr3::resample</a> internally
 backends in resample result.
 Required for some measures, but may increase memory footprint.</p></dd>
 
-
-<dt><code>store_instance</code></dt>
-<dd><p>(<code>logical(1)</code>: <code>FALSE</code>) Whether to store the <a href="https://mlr3fselect.mlr-org.com/reference/mlr3fselect-package.html" class="external-link">mlr3fselect::mlr3fselect</a> instance in <code>$instance</code>.</p></dd>
+      <dt><code>store_instance</code></dt>
+<dd><p>(<code>logical(1)</code>: <code>FALSE</code>) Whether to store the <a href="https://mlr3fselect.mlr-org.com/reference/mlr3fselect-package.html" class="external-link">mlr3fselect</a> instance in <code>$instance</code>.</p></dd>
 
 
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-WVIM-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-WVIM-clone"></a><div class="section">
+<h3 id="wvim-clone-"><code>WVIM$clone()</code><a class="anchor" aria-label="anchor" href="#wvim-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">WVIM</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -285,6 +268,7 @@ Required for some measures, but may increase memory footprint.</p></dd>
 </div>
 
 </div>
+
 
     </div>
 

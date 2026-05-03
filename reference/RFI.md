@@ -13,16 +13,16 @@ Recognition (ICPR)*, 9318–9325.
 
 ## Super classes
 
-[`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+[`FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
 -\>
-[`xplainfi::PerturbationImportance`](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.md)
+[`PerturbationImportance`](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.md)
 -\> `RFI`
 
 ## Methods
 
 ### Public methods
 
-- [`RFI$new()`](#method-RFI-new)
+- [`RFI$new()`](#method-RFI-initialize)
 
 - [`RFI$compute()`](#method-RFI-compute)
 
@@ -30,15 +30,15 @@ Recognition (ICPR)*, 9318–9325.
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
-- [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
-- [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
-- [`xplainfi::FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
-- [`xplainfi::PerturbationImportance$importance()`](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.html#method-importance)
+- [`FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
+- [`FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
+- [`FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
+- [`FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`PerturbationImportance$importance()`](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.html#method-importance)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `RFI$new()`
 
 Creates a new instance of the RFI class
 
@@ -79,7 +79,7 @@ Creates a new instance of the RFI class
 
 ------------------------------------------------------------------------
 
-### Method `compute()`
+### `RFI$compute()`
 
 Compute RFI scores
 
@@ -121,7 +121,7 @@ Compute RFI scores
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `RFI$clone()`
 
 The objects of this class are cloneable with this method.
 

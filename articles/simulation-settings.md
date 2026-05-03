@@ -1,6 +1,7 @@
 # Simulation Settings for Feature Importance Methods
 
 ``` r
+
 library(xplainfi)
 library(DiagrammeR)
 library(mlr3learners)
@@ -21,16 +22,16 @@ structures visualized as directed acyclic graphs (DAGs).
 
 ## Overview of Simulation Settings
 
-| DGP                  | Challenge                | PFI Behavior          | CFI Behavior                 |
-|:---------------------|:-------------------------|:----------------------|:-----------------------------|
-| sim_dgp_correlated   | Spurious correlation     | High for spurious x2  | Low for spurious x2          |
-| sim_dgp_mediated     | Mediation effects        | Shows total effects   | Shows direct effects         |
-| sim_dgp_confounded   | Confounding              | Biased upward         | Less biased                  |
-| sim_dgp_interactions | Interaction effects      | Low (no main effects) | High (captures interactions) |
-| sim_dgp_independent  | Baseline (no challenges) | Accurate              | Accurate                     |
-| sim_dgp_ewald        | Mixed effects            | Mixed                 | Mixed                        |
+| DGP | Challenge | PFI Behavior | CFI Behavior |
+|:---|:---|:---|:---|
+| sim_dgp_correlated | Spurious correlation | High for spurious x2 | Low for spurious x2 |
+| sim_dgp_mediated | Mediation effects | Shows total effects | Shows direct effects |
+| sim_dgp_confounded | Confounding | Biased upward | Less biased |
+| sim_dgp_interactions | Interaction effects | Low (no main effects) | High (captures interactions) |
+| sim_dgp_independent | Baseline (no challenges) | Accurate | Accurate |
+| sim_dgp_ewald | Mixed effects | Mixed | Mixed |
 
-Overview of simulation settings and expected method behavior
+Overview of simulation settings and expected method behavior {.table}
 
 ## 1. Correlated Features DGP
 
@@ -57,6 +58,7 @@ DAG for correlated features DGP
 ### Usage Example
 
 ``` r
+
 set.seed(123)
 task <- sim_dgp_correlated(n = 500)
 
@@ -92,6 +94,7 @@ DAG for mediated effects DGP
 ### Usage Example
 
 ``` r
+
 set.seed(123)
 task <- sim_dgp_mediated(n = 500)
 
@@ -120,6 +123,7 @@ DAG for confounding DGP
 ### Usage Example
 
 ``` r
+
 set.seed(123)
 # Hidden confounder scenario (default)
 task_hidden <- sim_dgp_confounded(n = 500, hidden = TRUE)
@@ -151,6 +155,7 @@ DAG for interaction effects DGP
 ### Usage Example
 
 ``` r
+
 set.seed(123)
 task <- sim_dgp_interactions(n = 500)
 
@@ -178,6 +183,7 @@ DAG for independent features DGP
 ### Usage Example
 
 ``` r
+
 set.seed(123)
 task <- sim_dgp_independent(n = 500)
 
@@ -212,6 +218,7 @@ DAG for Ewald et al. (2024) DGP
 ### Usage Example
 
 ``` r
+
 sim_dgp_ewald(n = 500)
 #> 
 #> ── <TaskRegr> (500x6) ──────────────────────────────────────────────────────────

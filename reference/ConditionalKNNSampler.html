@@ -113,7 +113,7 @@ ISBN 9780470526798.</p>
     </div>
     <div class="section level2">
     <h2 id="super-classes">Super classes<a class="anchor" aria-label="anchor" href="#super-classes"></a></h2>
-    <p><code><a href="FeatureSampler.html">xplainfi::FeatureSampler</a></code> -&gt; <code><a href="ConditionalSampler.html">xplainfi::ConditionalSampler</a></code> -&gt; <code>ConditionalKNNSampler</code></p>
+    <p><code><a href="FeatureSampler.html">FeatureSampler</a></code> -&gt; <code><a href="ConditionalSampler.html">ConditionalSampler</a></code> -&gt; <code>ConditionalKNNSampler</code></p>
     </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
@@ -128,38 +128,35 @@ ISBN 9780470526798.</p>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-ConditionalKNNSampler-new"><code>ConditionalKNNSampler$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-ConditionalKNNSampler-initialize"><code>ConditionalKNNSampler$new()</code></a></p></li>
 <li><p><a href="#method-ConditionalKNNSampler-sample"><code>ConditionalKNNSampler$sample()</code></a></p></li>
 <li><p><a href="#method-ConditionalKNNSampler-sample_newdata"><code>ConditionalKNNSampler$sample_newdata()</code></a></p></li>
 <li><p><a href="#method-ConditionalKNNSampler-clone"><code>ConditionalKNNSampler$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href="FeatureSampler.html#method-print"><code>xplainfi::FeatureSampler$print()</code></a></span></li>
-</ul></details></p><hr><a id="method-ConditionalKNNSampler-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href="FeatureSampler.html#method-print"><code>FeatureSampler$print()</code></a></span></li>
+</ul></details></p><hr><a id="method-ConditionalKNNSampler-initialize"></a><div class="section">
+<h3 id="conditionalknnsampler-new-"><code>ConditionalKNNSampler$new()</code><a class="anchor" aria-label="anchor" href="#conditionalknnsampler-new-"></a></h3>
 <p>Creates a new ConditionalKNNSampler.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/ConditionalKNNSampler.html">ConditionalKNNSampler</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">task</span>, conditioning_set <span class="op">=</span> <span class="cn">NULL</span>, k <span class="op">=</span> <span class="fl">5L</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>task</code></dt>
 <dd><p>(<a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">mlr3::Task</a>) Task to sample from.</p></dd>
 
-
-<dt><code>conditioning_set</code></dt>
+      <dt><code>conditioning_set</code></dt>
 <dd><p>(<code>character</code> | <code>NULL</code>) Default conditioning set to use in <code>$sample()</code>.</p></dd>
 
-
-<dt><code>k</code></dt>
+      <dt><code>k</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>5L</code>) Number of nearest neighbors to sample from.</p></dd>
 
 
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-ConditionalKNNSampler-sample"></a><div class="section">
-<h3 id="method-sample-">Method <code><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample()</a></code><a class="anchor" aria-label="anchor" href="#method-sample-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-ConditionalKNNSampler-sample"></a><div class="section">
+<h3 id="conditionalknnsampler-sample-"><code>ConditionalKNNSampler$sample()</code><a class="anchor" aria-label="anchor" href="#conditionalknnsampler-sample-"></a></h3>
 <p>Sample features from their kNN-based conditional distribution.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ConditionalKNNSampler</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span></span>
@@ -168,36 +165,32 @@ ISBN 9780470526798.</p>
 <span>  conditioning_set <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  k <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>feature</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>) Feature name(s) to sample.</p></dd>
 
-
-<dt><code>row_ids</code></dt>
+      <dt><code>row_ids</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> | <code>NULL</code>) Row IDs from task to use as conditioning values.</p></dd>
 
-
-<dt><code>conditioning_set</code></dt>
+      <dt><code>conditioning_set</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code> | <code>NULL</code>) Features to condition on.
 If <code>NULL</code>, samples from marginal distribution (random sampling from training data).</p></dd>
 
-
-<dt><code>k</code></dt>
+      <dt><code>k</code></dt>
 <dd><p>(<code>integer(1)</code> | <code>NULL</code>) Number of neighbors. If <code>NULL</code>, uses stored parameter.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>Modified copy with sampled feature(s).</p>
 </div>
 
-</div><p></p><hr><a id="method-ConditionalKNNSampler-sample_newdata"></a><div class="section">
-<h3 id="method-sample-newdata-">Method <code>sample_newdata()</code><a class="anchor" aria-label="anchor" href="#method-sample-newdata-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-ConditionalKNNSampler-sample_newdata"></a><div class="section">
+<h3 id="conditionalknnsampler-sample-newdata-"><code>ConditionalKNNSampler$sample_newdata()</code><a class="anchor" aria-label="anchor" href="#conditionalknnsampler-sample-newdata-"></a></h3>
 <p>Sample from external data conditionally.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ConditionalKNNSampler</span><span class="op">$</span><span class="fu">sample_newdata</span><span class="op">(</span></span>
@@ -206,41 +199,35 @@ If <code>NULL</code>, samples from marginal distribution (random sampling from t
 <span>  conditioning_set <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  k <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>feature</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>) Feature(s) to sample.</p></dd>
 
-
-<dt><code>newdata</code></dt>
+      <dt><code>newdata</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></code>) External data to use.</p></dd>
 
-
-<dt><code>conditioning_set</code></dt>
+      <dt><code>conditioning_set</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code> | <code>NULL</code>) Features to condition on.</p></dd>
 
-
-<dt><code>k</code></dt>
+      <dt><code>k</code></dt>
 <dd><p>(<code>integer(1)</code> | <code>NULL</code>) Number of neighbors. If <code>NULL</code>, uses stored parameter.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
 <p>Modified copy with sampled feature(s).</p>
 </div>
 
-</div><p></p><hr><a id="method-ConditionalKNNSampler-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-ConditionalKNNSampler-clone"></a><div class="section">
+<h3 id="conditionalknnsampler-clone-"><code>ConditionalKNNSampler$clone()</code><a class="anchor" aria-label="anchor" href="#conditionalknnsampler-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ConditionalKNNSampler</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -250,6 +237,7 @@ If <code>NULL</code>, samples from marginal distribution (random sampling from t
 </div>
 
 </div>
+
 
     </div>
 

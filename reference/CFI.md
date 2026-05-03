@@ -61,16 +61,16 @@ Artificial Intelligence*, **39**(15), 15596–15604.
 
 ## Super classes
 
-[`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+[`FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
 -\>
-[`xplainfi::PerturbationImportance`](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.md)
+[`PerturbationImportance`](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.md)
 -\> `CFI`
 
 ## Methods
 
 ### Public methods
 
-- [`CFI$new()`](#method-CFI-new)
+- [`CFI$new()`](#method-CFI-initialize)
 
 - [`CFI$compute()`](#method-CFI-compute)
 
@@ -78,15 +78,15 @@ Artificial Intelligence*, **39**(15), 15596–15604.
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
-- [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
-- [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
-- [`xplainfi::FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
-- [`xplainfi::PerturbationImportance$importance()`](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.html#method-importance)
+- [`FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
+- [`FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
+- [`FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
+- [`FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`PerturbationImportance$importance()`](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.html#method-importance)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `CFI$new()`
 
 Creates a new instance of the CFI class
 
@@ -120,7 +120,7 @@ Creates a new instance of the CFI class
 
 ------------------------------------------------------------------------
 
-### Method `compute()`
+### `CFI$compute()`
 
 Compute CFI scores
 
@@ -156,7 +156,7 @@ Compute CFI scores
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `CFI$clone()`
 
 The objects of this class are cloneable with this method.
 

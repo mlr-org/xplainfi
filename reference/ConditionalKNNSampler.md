@@ -86,9 +86,9 @@ Microarrays.” *Bioinformatics*, **17**(6), 520–525.
 
 ## Super classes
 
-[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
+[`FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\>
-[`xplainfi::ConditionalSampler`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.md)
+[`ConditionalSampler`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.md)
 -\> `ConditionalKNNSampler`
 
 ## Public fields
@@ -102,7 +102,7 @@ Microarrays.” *Bioinformatics*, **17**(6), 520–525.
 
 ### Public methods
 
-- [`ConditionalKNNSampler$new()`](#method-ConditionalKNNSampler-new)
+- [`ConditionalKNNSampler$new()`](#method-ConditionalKNNSampler-initialize)
 
 - [`ConditionalKNNSampler$sample()`](#method-ConditionalKNNSampler-sample)
 
@@ -112,11 +112,11 @@ Microarrays.” *Bioinformatics*, **17**(6), 520–525.
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `ConditionalKNNSampler$new()`
 
 Creates a new ConditionalKNNSampler.
 
@@ -142,7 +142,7 @@ Creates a new ConditionalKNNSampler.
 
 ------------------------------------------------------------------------
 
-### Method [`sample()`](https://rdrr.io/r/base/sample.html)
+### `ConditionalKNNSampler$sample()`
 
 Sample features from their kNN-based conditional distribution.
 
@@ -184,7 +184,7 @@ Modified copy with sampled feature(s).
 
 ------------------------------------------------------------------------
 
-### Method `sample_newdata()`
+### `ConditionalKNNSampler$sample_newdata()`
 
 Sample from external data conditionally.
 
@@ -225,7 +225,7 @@ Modified copy with sampled feature(s).
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `ConditionalKNNSampler$clone()`
 
 The objects of this class are cloneable with this method.
 

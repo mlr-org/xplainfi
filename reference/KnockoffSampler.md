@@ -32,7 +32,7 @@ Mixed Data.” *AStA Advances in Statistical Analysis*, **108**(2),
 
 ## Super class
 
-[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
+[`FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\> `KnockoffSampler`
 
 ## Public fields
@@ -46,7 +46,7 @@ Mixed Data.” *AStA Advances in Statistical Analysis*, **108**(2),
 
 ### Public methods
 
-- [`KnockoffSampler$new()`](#method-KnockoffSampler-new)
+- [`KnockoffSampler$new()`](#method-KnockoffSampler-initialize)
 
 - [`KnockoffSampler$sample()`](#method-KnockoffSampler-sample)
 
@@ -54,12 +54,12 @@ Mixed Data.” *AStA Advances in Statistical Analysis*, **108**(2),
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
-- [`xplainfi::FeatureSampler$sample_newdata()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-sample_newdata)
+- [`FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`FeatureSampler$sample_newdata()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-sample_newdata)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `KnockoffSampler$new()`
 
 Creates a new instance of the KnockoffSampler class.
 
@@ -91,7 +91,7 @@ Creates a new instance of the KnockoffSampler class.
 
 ------------------------------------------------------------------------
 
-### Method [`sample()`](https://rdrr.io/r/base/sample.html)
+### `KnockoffSampler$sample()`
 
 Sample from stored task using knockoff values. Replaces specified
 feature(s) with their knockoff counterparts from the pre-generated
@@ -118,7 +118,7 @@ Modified copy with knockoff feature(s).
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `KnockoffSampler$clone()`
 
 The objects of this class are cloneable with this method.
 

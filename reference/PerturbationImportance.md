@@ -5,7 +5,7 @@ and RFI
 
 ## Super class
 
-[`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+[`FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
 -\> `PerturbationImportance`
 
 ## Public fields
@@ -19,7 +19,7 @@ and RFI
 
 ### Public methods
 
-- [`PerturbationImportance$new()`](#method-PerturbationImportance-new)
+- [`PerturbationImportance$new()`](#method-PerturbationImportance-initialize)
 
 - [`PerturbationImportance$importance()`](#method-PerturbationImportance-importance)
 
@@ -27,15 +27,15 @@ and RFI
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$compute()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-compute)
-- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
-- [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
-- [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
-- [`xplainfi::FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`FeatureImportanceMethod$compute()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-compute)
+- [`FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
+- [`FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
+- [`FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
+- [`FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PerturbationImportance$new()`
 
 Creates a new instance of the PerturbationImportance class
 
@@ -85,7 +85,7 @@ Creates a new instance of the PerturbationImportance class
 
 ------------------------------------------------------------------------
 
-### Method `importance()`
+### `PerturbationImportance$importance()`
 
 Get aggregated importance scores. Extends the base `$importance()`
 method to support `ci_method = "cpi"`. For details, see
@@ -173,7 +173,7 @@ Aggregated importance scores.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PerturbationImportance$clone()`
 
 The objects of this class are cloneable with this method.
 

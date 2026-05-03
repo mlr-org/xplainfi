@@ -22,3 +22,8 @@ Useful links:
 
 **Maintainer**: Lukas Burk <cran@lukasburk.de>
 ([ORCID](https://orcid.org/0000-0001-7528-3795)) \[copyright holder\]
+
+Authors:
+
+- Lukas Burk <cran@lukasburk.de>
+  ([ORCID](https://orcid.org/0000-0001-7528-3795)) \[copyright holder\]

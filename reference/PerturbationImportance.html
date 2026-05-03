@@ -67,7 +67,7 @@
 
     <div class="section level2">
     <h2 id="super-class">Super class<a class="anchor" aria-label="anchor" href="#super-class"></a></h2>
-    <p><code><a href="FeatureImportanceMethod.html">xplainfi::FeatureImportanceMethod</a></code> -&gt; <code>PerturbationImportance</code></p>
+    <p><code><a href="FeatureImportanceMethod.html">FeatureImportanceMethod</a></code> -&gt; <code>PerturbationImportance</code></p>
     </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
@@ -82,17 +82,16 @@
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-PerturbationImportance-new"><code>PerturbationImportance$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-PerturbationImportance-initialize"><code>PerturbationImportance$new()</code></a></p></li>
 <li><p><a href="#method-PerturbationImportance-importance"><code>PerturbationImportance$importance()</code></a></p></li>
 <li><p><a href="#method-PerturbationImportance-clone"><code>PerturbationImportance$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="compute"><a href="FeatureImportanceMethod.html#method-compute"><code>xplainfi::FeatureImportanceMethod$compute()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href="FeatureImportanceMethod.html#method-obs_loss"><code>xplainfi::FeatureImportanceMethod$obs_loss()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href="FeatureImportanceMethod.html#method-print"><code>xplainfi::FeatureImportanceMethod$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href="FeatureImportanceMethod.html#method-reset"><code>xplainfi::FeatureImportanceMethod$reset()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href="FeatureImportanceMethod.html#method-scores"><code>xplainfi::FeatureImportanceMethod$scores()</code></a></span></li>
-</ul></details></p><hr><a id="method-PerturbationImportance-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="compute"><a href="FeatureImportanceMethod.html#method-compute"><code>FeatureImportanceMethod$compute()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href="FeatureImportanceMethod.html#method-obs_loss"><code>FeatureImportanceMethod$obs_loss()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href="FeatureImportanceMethod.html#method-print"><code>FeatureImportanceMethod$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href="FeatureImportanceMethod.html#method-reset"><code>FeatureImportanceMethod$reset()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href="FeatureImportanceMethod.html#method-scores"><code>FeatureImportanceMethod$scores()</code></a></span></li>
+</ul></details></p><hr><a id="method-PerturbationImportance-initialize"></a><div class="section">
+<h3 id="perturbationimportance-new-"><code>PerturbationImportance$new()</code><a class="anchor" aria-label="anchor" href="#perturbationimportance-new-"></a></h3>
 <p>Creates a new instance of the PerturbationImportance class</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/PerturbationImportance.html">PerturbationImportance</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -107,35 +106,31 @@
 <span>  n_repeats <span class="op">=</span> <span class="fl">30L</span>,</span>
 <span>  batch_size <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>task, learner, measure, resampling, features, groups</code></dt>
 <dd><p>Passed to <a href="FeatureImportanceMethod.html">FeatureImportanceMethod</a>.</p></dd>
 
-
-<dt><code>sampler</code></dt>
+      <dt><code>sampler</code></dt>
 <dd><p>(<a href="FeatureSampler.html">FeatureSampler</a>) Sampler to use for feature perturbation.</p></dd>
 
-
-<dt><code>relation</code></dt>
+      <dt><code>relation</code></dt>
 <dd><p>(<code>character(1)</code>: <code>"difference"</code>) How to relate perturbed and baseline scores. Can also be <code>"ratio"</code>.</p></dd>
 
-
-<dt><code>n_repeats</code></dt>
+      <dt><code>n_repeats</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>30L</code>) Number of permutation/conditional sampling iterations. Can also be overridden in <code>$compute()</code>.</p></dd>
 
-
-<dt><code>batch_size</code></dt>
+      <dt><code>batch_size</code></dt>
 <dd><p>(<code>integer(1)</code> | <code>NULL</code>: <code>NULL</code>) Maximum number of rows to predict at once. When <code>NULL</code>, predicts all <code>test_size * n_repeats</code> rows in one call. Use smaller values to reduce memory usage at the cost of more prediction calls. Can be overridden in <code>$compute()</code>.</p></dd>
 
 
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-PerturbationImportance-importance"></a><div class="section">
-<h3 id="method-importance-">Method <code>importance()</code><a class="anchor" aria-label="anchor" href="#method-importance-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-PerturbationImportance-importance"></a><div class="section">
+<h3 id="perturbationimportance-importance-"><code>PerturbationImportance$importance()</code><a class="anchor" aria-label="anchor" href="#perturbationimportance-importance-"></a></h3>
 <p>Get aggregated importance scores.
 Extends the base <code>$importance()</code> method to support <code>ci_method = "cpi"</code>.
 For details, see <a href="CFI.html">CFI</a>, which is the only sub-method for which it is known to be valid.</p><div class="section">
@@ -151,43 +146,34 @@ For details, see <a href="CFI.html">CFI</a>, which is the only sub-method for wh
 <span>  p_adjust <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>relation</code></dt>
 <dd><p>(<code>character(1)</code>) How to relate perturbed scores to originals ("difference" or "ratio"). If <code>NULL</code>, uses stored parameter value.</p></dd>
 
-
-<dt><code>standardize</code></dt>
+      <dt><code>standardize</code></dt>
 <dd><p>(<code>logical(1)</code>: <code>FALSE</code>) If <code>TRUE</code>, importances are standardized by the highest score so all scores fall in <code>[-1, 1]</code>.</p></dd>
 
-
-<dt><code>ci_method</code></dt>
+      <dt><code>ci_method</code></dt>
 <dd><p>(<code>character(1)</code>: <code>"none"</code>) Variance estimation method. In addition to base methods (<code>"none"</code>, <code>"raw"</code>, <code>"nadeau_bengio"</code>, <code>"quantile"</code>),
 perturbation methods support <code>"cpi"</code> (Conditional Predictive Impact).
 CPI is specifically designed for <a href="CFI.html">CFI</a> with knockoff samplers and uses one-sided hypothesis tests.</p></dd>
 
-
-<dt><code>conf_level</code></dt>
+      <dt><code>conf_level</code></dt>
 <dd><p>(<code>numeric(1)</code>: <code>0.95</code>) Confidence level for confidence intervals when <code>ci_method != "none"</code>.</p></dd>
 
-
-<dt><code>alternative</code></dt>
+      <dt><code>alternative</code></dt>
 <dd><p>(<code>character(1)</code>: <code>"two.sided"</code>) Type of alternative hypothesis for statistical tests.
 <code>"greater"</code> tests H0: importance &lt;= 0 vs H1: importance &gt; 0 (one-sided).
 <code>"two.sided"</code> tests H0: importance = 0 vs H1: importance != 0.</p></dd>
 
-
-<dt><code>test</code></dt>
+      <dt><code>test</code></dt>
 <dd><p>(<code>character(1)</code>: <code>"t"</code>) Test to use for CPI. One of <code>"t"</code>, <code>"wilcoxon"</code>, <code>"fisher"</code>, or <code>"binomial"</code>. Only used when <code>ci_method = "cpi"</code>.</p></dd>
 
-
-<dt><code>B</code></dt>
+      <dt><code>B</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>1999</code>) Number of replications for Fisher test. Only used when <code>ci_method = "cpi"</code> and <code>test = "fisher"</code>.</p></dd>
 
-
-<dt><code>p_adjust</code></dt>
+      <dt><code>p_adjust</code></dt>
 <dd><p>(<code>character(1)</code>: <code>"none"</code>) Method for p-value adjustment for multiple comparisons.
 Accepts any method supported by <a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">stats::p.adjust.methods</a>, e.g. <code>"holm"</code>, <code>"bonferroni"</code>, <code>"BH"</code>, <code>"none"</code>.
 When <code>"bonferroni"</code>, confidence intervals are also adjusted (alpha/k).
@@ -195,26 +181,24 @@ For other correction methods (e.g. <code>"holm"</code>, <code>"BH"</code>), only
 confidence intervals remain at the nominal <code>conf_level</code> because these sequential/adaptive
 procedures do not have a clean per-comparison alpha for CI construction.</p></dd>
 
-
-<dt><code>...</code></dt>
+      <dt><code>...</code></dt>
 <dd><p>Additional arguments passed to the base method.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>(<a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a>) Aggregated importance scores.</p>
 </div>
 
-</div><p></p><hr><a id="method-PerturbationImportance-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-PerturbationImportance-clone"></a><div class="section">
+<h3 id="perturbationimportance-clone-"><code>PerturbationImportance$clone()</code><a class="anchor" aria-label="anchor" href="#perturbationimportance-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PerturbationImportance</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -224,6 +208,7 @@ procedures do not have a clean per-comparison alpha for CI construction.</p></dd
 </div>
 
 </div>
+
 
     </div>
 

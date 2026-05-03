@@ -2,8 +2,6 @@
 
 Feature Importance Method Class
 
-Feature Importance Method Class
-
 ## References
 
 Nadeau C, Bengio Y (2003). “Inference for the Generalization Error.”
@@ -83,7 +81,7 @@ Intelligence*, 456–479. ISBN 978-3-031-44064-9,
 
 ### Public methods
 
-- [`FeatureImportanceMethod$new()`](#method-FeatureImportanceMethod-new)
+- [`FeatureImportanceMethod$new()`](#method-FeatureImportanceMethod-initialize)
 
 - [`FeatureImportanceMethod$compute()`](#method-FeatureImportanceMethod-compute)
 
@@ -101,7 +99,7 @@ Intelligence*, 456–479. ISBN 978-3-031-44064-9,
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `FeatureImportanceMethod$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class. This is
@@ -128,7 +126,7 @@ typically intended for use by derived classes.
 
 ------------------------------------------------------------------------
 
-### Method `compute()`
+### `FeatureImportanceMethod$compute()`
 
 Compute feature importance scores
 
@@ -144,7 +142,7 @@ Compute feature importance scores
 
 ------------------------------------------------------------------------
 
-### Method `importance()`
+### `FeatureImportanceMethod$importance()`
 
 Get aggregated importance scores. The stored
 [`measure`](https://mlr3.mlr-org.com/reference/Measure.html) object's
@@ -312,7 +310,7 @@ and depending on `ci_method` also `"se"`, `"statistic"`, `"p.value"`,
 
 ------------------------------------------------------------------------
 
-### Method `obs_loss()`
+### `FeatureImportanceMethod$obs_loss()`
 
 Calculate observation-wise importance scores.
 
@@ -350,7 +348,7 @@ Observation-wise losses and importance scores with columns `"feature"`,
 
 ------------------------------------------------------------------------
 
-### Method `reset()`
+### `FeatureImportanceMethod$reset()`
 
 Resets all stored fields populated by `$compute`: `$resample_result`,
 `$scores`, `$obs_losses`, and `$predictions`.
@@ -361,7 +359,7 @@ Resets all stored fields populated by `$compute`: `$resample_result`,
 
 ------------------------------------------------------------------------
 
-### Method [`print()`](https://rdrr.io/r/base/print.html)
+### `FeatureImportanceMethod$print()`
 
 Print importance scores
 
@@ -377,7 +375,7 @@ Print importance scores
 
 ------------------------------------------------------------------------
 
-### Method `scores()`
+### `FeatureImportanceMethod$scores()`
 
 Calculate importance scores for each resampling iteration and
 sub-iterations (`iter_rsmp` in
@@ -415,7 +413,7 @@ indices, baseline and post-modification scores, and `"importance"`.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `FeatureImportanceMethod$clone()`
 
 The objects of this class are cloneable with this method.
 

@@ -51,9 +51,9 @@ Information Processing Systems*, volume 33, 17212–17223.
 
 ## Super classes
 
-[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
+[`FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\>
-[`xplainfi::MarginalSampler`](https://mlr-org.github.io/xplainfi/reference/MarginalSampler.md)
+[`MarginalSampler`](https://mlr-org.github.io/xplainfi/reference/MarginalSampler.md)
 -\> `MarginalReferenceSampler`
 
 ## Public fields
@@ -67,19 +67,19 @@ Information Processing Systems*, volume 33, 17212–17223.
 
 ### Public methods
 
-- [`MarginalReferenceSampler$new()`](#method-MarginalReferenceSampler-new)
+- [`MarginalReferenceSampler$new()`](#method-MarginalReferenceSampler-initialize)
 
 - [`MarginalReferenceSampler$clone()`](#method-MarginalReferenceSampler-clone)
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
-- [`xplainfi::MarginalSampler$sample()`](https://mlr-org.github.io/xplainfi/reference/MarginalSampler.html#method-sample)
-- [`xplainfi::MarginalSampler$sample_newdata()`](https://mlr-org.github.io/xplainfi/reference/MarginalSampler.html#method-sample_newdata)
+- [`FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`MarginalSampler$sample()`](https://mlr-org.github.io/xplainfi/reference/MarginalSampler.html#method-sample)
+- [`MarginalSampler$sample_newdata()`](https://mlr-org.github.io/xplainfi/reference/MarginalSampler.html#method-sample_newdata)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `MarginalReferenceSampler$new()`
 
 Creates a new instance of the MarginalReferenceSampler class.
 
@@ -101,7 +101,7 @@ Creates a new instance of the MarginalReferenceSampler class.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `MarginalReferenceSampler$clone()`
 
 The objects of this class are cloneable with this method.
 

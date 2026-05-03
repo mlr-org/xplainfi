@@ -87,7 +87,7 @@ as created by <a href="https://rdrr.io/pkg/knockoff/man/create.second_order.html
     </div>
     <div class="section level2">
     <h2 id="super-classes">Super classes<a class="anchor" aria-label="anchor" href="#super-classes"></a></h2>
-    <p><code><a href="FeatureSampler.html">xplainfi::FeatureSampler</a></code> -&gt; <code><a href="KnockoffSampler.html">xplainfi::KnockoffSampler</a></code> -&gt; <code>KnockoffGaussianSampler</code></p>
+    <p><code><a href="FeatureSampler.html">FeatureSampler</a></code> -&gt; <code><a href="KnockoffSampler.html">KnockoffSampler</a></code> -&gt; <code>KnockoffGaussianSampler</code></p>
     </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
@@ -96,7 +96,7 @@ as created by <a href="https://rdrr.io/pkg/knockoff/man/create.second_order.html
 Will be checked against the provided <a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">mlr3::Task</a> to ensure compatibility.</p></dd>
 
 
-<dt><code>x_tilde</code></dt>
+    <dt><code>x_tilde</code></dt>
 <dd><p>Knockoff matrix</p></dd>
 
 
@@ -107,26 +107,22 @@ Will be checked against the provided <a href="https://mlr3.mlr-org.com/reference
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-KnockoffGaussianSampler-new"><code>KnockoffGaussianSampler$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-KnockoffGaussianSampler-initialize"><code>KnockoffGaussianSampler$new()</code></a></p></li>
 <li><p><a href="#method-KnockoffGaussianSampler-clone"><code>KnockoffGaussianSampler$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href="FeatureSampler.html#method-print"><code>xplainfi::FeatureSampler$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="sample_newdata"><a href="FeatureSampler.html#method-sample_newdata"><code>xplainfi::FeatureSampler$sample_newdata()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="KnockoffSampler" data-id="sample"><a href="KnockoffSampler.html#method-sample"><code>xplainfi::KnockoffSampler$sample()</code></a></span></li>
-</ul></details></p><hr><a id="method-KnockoffGaussianSampler-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href="FeatureSampler.html#method-print"><code>FeatureSampler$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="sample_newdata"><a href="FeatureSampler.html#method-sample_newdata"><code>FeatureSampler$sample_newdata()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="KnockoffSampler" data-id="sample"><a href="KnockoffSampler.html#method-sample"><code>KnockoffSampler$sample()</code></a></span></li>
+</ul></details></p><hr><a id="method-KnockoffGaussianSampler-initialize"></a><div class="section">
+<h3 id="knockoffgaussiansampler-new-"><code>KnockoffGaussianSampler$new()</code><a class="anchor" aria-label="anchor" href="#knockoffgaussiansampler-new-"></a></h3>
 <p>Creates a new instance using Gaussian knockoffs via <a href="https://rdrr.io/pkg/knockoff/man/create.second_order.html" class="external-link">knockoff::create.second_order</a>.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/KnockoffGaussianSampler.html">KnockoffGaussianSampler</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">task</span>, iters <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>task</code></dt>
 <dd><p>(<a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">mlr3::Task</a>) Task to sample from.</p></dd>
 
-
-<dt><code>iters</code></dt>
+      <dt><code>iters</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>1</code>) Number of repetitions the <code>knockoff_fun</code> is applied to create multiple <code>x_tilde</code>
 instances per observation.</p></dd>
 
@@ -134,14 +130,14 @@ instances per observation.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-KnockoffGaussianSampler-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-KnockoffGaussianSampler-clone"></a><div class="section">
+<h3 id="knockoffgaussiansampler-clone-"><code>KnockoffGaussianSampler$clone()</code><a class="anchor" aria-label="anchor" href="#knockoffgaussiansampler-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">KnockoffGaussianSampler</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -151,6 +147,7 @@ instances per observation.</p></dd>
 </div>
 
 </div>
+
 
     </div>
 

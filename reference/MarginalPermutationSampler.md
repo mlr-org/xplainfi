@@ -31,28 +31,28 @@ This is the classic approach used in Permutation Feature Importance
 
 ## Super classes
 
-[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
+[`FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\>
-[`xplainfi::MarginalSampler`](https://mlr-org.github.io/xplainfi/reference/MarginalSampler.md)
+[`MarginalSampler`](https://mlr-org.github.io/xplainfi/reference/MarginalSampler.md)
 -\> `MarginalPermutationSampler`
 
 ## Methods
 
 ### Public methods
 
-- [`MarginalPermutationSampler$new()`](#method-MarginalPermutationSampler-new)
+- [`MarginalPermutationSampler$new()`](#method-MarginalPermutationSampler-initialize)
 
 - [`MarginalPermutationSampler$clone()`](#method-MarginalPermutationSampler-clone)
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
-- [`xplainfi::MarginalSampler$sample()`](https://mlr-org.github.io/xplainfi/reference/MarginalSampler.html#method-sample)
-- [`xplainfi::MarginalSampler$sample_newdata()`](https://mlr-org.github.io/xplainfi/reference/MarginalSampler.html#method-sample_newdata)
+- [`FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`MarginalSampler$sample()`](https://mlr-org.github.io/xplainfi/reference/MarginalSampler.html#method-sample)
+- [`MarginalSampler$sample_newdata()`](https://mlr-org.github.io/xplainfi/reference/MarginalSampler.html#method-sample_newdata)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `MarginalPermutationSampler$new()`
 
 Creates a new instance of the MarginalPermutationSampler class.
 
@@ -69,7 +69,7 @@ Creates a new instance of the MarginalPermutationSampler class.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `MarginalPermutationSampler$clone()`
 
 The objects of this class are cloneable with this method.
 

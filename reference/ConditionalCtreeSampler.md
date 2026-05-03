@@ -83,9 +83,9 @@ Values.” *Artificial Intelligence*, **298**, 103502.
 
 ## Super classes
 
-[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
+[`FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\>
-[`xplainfi::ConditionalSampler`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.md)
+[`ConditionalSampler`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.md)
 -\> `ConditionalCtreeSampler`
 
 ## Public fields
@@ -105,19 +105,19 @@ Values.” *Artificial Intelligence*, **298**, 103502.
 
 ### Public methods
 
-- [`ConditionalCtreeSampler$new()`](#method-ConditionalCtreeSampler-new)
+- [`ConditionalCtreeSampler$new()`](#method-ConditionalCtreeSampler-initialize)
 
 - [`ConditionalCtreeSampler$clone()`](#method-ConditionalCtreeSampler-clone)
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
-- [`xplainfi::ConditionalSampler$sample()`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.html#method-sample)
-- [`xplainfi::ConditionalSampler$sample_newdata()`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.html#method-sample_newdata)
+- [`FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`ConditionalSampler$sample()`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.html#method-sample)
+- [`ConditionalSampler$sample_newdata()`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.html#method-sample_newdata)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `ConditionalCtreeSampler$new()`
 
 Creates a new ConditionalCtreeSampler.
 
@@ -164,7 +164,7 @@ Creates a new ConditionalCtreeSampler.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `ConditionalCtreeSampler$clone()`
 
 The objects of this class are cloneable with this method.
 

@@ -14,7 +14,7 @@ American Statistical Association*, **113**(523), 1094–1111.
 
 ## Super class
 
-[`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+[`FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
 -\> `WVIM`
 
 ## Public fields
@@ -43,7 +43,7 @@ American Statistical Association*, **113**(523), 1094–1111.
 
 ### Public methods
 
-- [`WVIM$new()`](#method-WVIM-new)
+- [`WVIM$new()`](#method-WVIM-initialize)
 
 - [`WVIM$importance()`](#method-WVIM-importance)
 
@@ -53,14 +53,14 @@ American Statistical Association*, **113**(523), 1094–1111.
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
-- [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
-- [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
-- [`xplainfi::FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
+- [`FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
+- [`FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
+- [`FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `WVIM$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -100,7 +100,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `importance()`
+### `WVIM$importance()`
 
 Get aggregated importance scores. Extends the base `$importance()`
 method to support `ci_method = "lei"`.
@@ -207,7 +207,7 @@ Aggregated importance scores.
 
 ------------------------------------------------------------------------
 
-### Method `compute()`
+### `WVIM$compute()`
 
 Computes leave-out or leave-in feature importance.
 `wvim_design_matrix(task$feature_names, "leave-out")` corresponds to
@@ -234,12 +234,12 @@ LOCO.
 - `store_instance`:
 
   (`logical(1)`: `FALSE`) Whether to store the
-  [mlr3fselect::mlr3fselect](https://mlr3fselect.mlr-org.com/reference/mlr3fselect-package.html)
+  [mlr3fselect](https://mlr3fselect.mlr-org.com/reference/mlr3fselect-package.html)
   instance in `$instance`.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `WVIM$clone()`
 
 The objects of this class are cloneable with this method.
 

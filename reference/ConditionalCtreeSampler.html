@@ -113,7 +113,7 @@ use case (we build trees on-demand rather than pre-computing all subsets).</p>
     </div>
     <div class="section level2">
     <h2 id="super-classes">Super classes<a class="anchor" aria-label="anchor" href="#super-classes"></a></h2>
-    <p><code><a href="FeatureSampler.html">xplainfi::FeatureSampler</a></code> -&gt; <code><a href="ConditionalSampler.html">xplainfi::ConditionalSampler</a></code> -&gt; <code>ConditionalCtreeSampler</code></p>
+    <p><code><a href="FeatureSampler.html">FeatureSampler</a></code> -&gt; <code><a href="ConditionalSampler.html">ConditionalSampler</a></code> -&gt; <code>ConditionalCtreeSampler</code></p>
     </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
@@ -122,7 +122,7 @@ use case (we build trees on-demand rather than pre-computing all subsets).</p>
 Will be checked against the provided <a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">mlr3::Task</a> to ensure compatibility.</p></dd>
 
 
-<dt><code>tree_cache</code></dt>
+    <dt><code>tree_cache</code></dt>
 <dd><p>(<code>environment</code>) Cache for fitted ctree models.</p></dd>
 
 
@@ -133,14 +133,13 @@ Will be checked against the provided <a href="https://mlr3.mlr-org.com/reference
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-ConditionalCtreeSampler-new"><code>ConditionalCtreeSampler$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-ConditionalCtreeSampler-initialize"><code>ConditionalCtreeSampler$new()</code></a></p></li>
 <li><p><a href="#method-ConditionalCtreeSampler-clone"><code>ConditionalCtreeSampler$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href="FeatureSampler.html#method-print"><code>xplainfi::FeatureSampler$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="ConditionalSampler" data-id="sample"><a href="ConditionalSampler.html#method-sample"><code>xplainfi::ConditionalSampler$sample()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="ConditionalSampler" data-id="sample_newdata"><a href="ConditionalSampler.html#method-sample_newdata"><code>xplainfi::ConditionalSampler$sample_newdata()</code></a></span></li>
-</ul></details></p><hr><a id="method-ConditionalCtreeSampler-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href="FeatureSampler.html#method-print"><code>FeatureSampler$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="ConditionalSampler" data-id="sample"><a href="ConditionalSampler.html#method-sample"><code>ConditionalSampler$sample()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="ConditionalSampler" data-id="sample_newdata"><a href="ConditionalSampler.html#method-sample_newdata"><code>ConditionalSampler$sample_newdata()</code></a></span></li>
+</ul></details></p><hr><a id="method-ConditionalCtreeSampler-initialize"></a><div class="section">
+<h3 id="conditionalctreesampler-new-"><code>ConditionalCtreeSampler$new()</code><a class="anchor" aria-label="anchor" href="#conditionalctreesampler-new-"></a></h3>
 <p>Creates a new ConditionalCtreeSampler.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/ConditionalCtreeSampler.html">ConditionalCtreeSampler</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -151,46 +150,39 @@ Will be checked against the provided <a href="https://mlr3.mlr-org.com/reference
 <span>  minbucket <span class="op">=</span> <span class="fl">7L</span>,</span>
 <span>  use_cache <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>task</code></dt>
 <dd><p>(<a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">mlr3::Task</a>) Task to sample from.</p></dd>
 
-
-<dt><code>conditioning_set</code></dt>
+      <dt><code>conditioning_set</code></dt>
 <dd><p>(<code>character</code> | <code>NULL</code>) Default conditioning set to use in <code>$sample()</code>.</p></dd>
 
-
-<dt><code>mincriterion</code></dt>
+      <dt><code>mincriterion</code></dt>
 <dd><p>(<code>numeric(1)</code>: <code>0.95</code>) Significance level threshold for splitting (1 - p-value).
 Higher values result in fewer splits (simpler trees).</p></dd>
 
-
-<dt><code>minsplit</code></dt>
+      <dt><code>minsplit</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>20L</code>) Minimum number of observations required for a split.</p></dd>
 
-
-<dt><code>minbucket</code></dt>
+      <dt><code>minbucket</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>7L</code>) Minimum number of observations in terminal nodes.</p></dd>
 
-
-<dt><code>use_cache</code></dt>
+      <dt><code>use_cache</code></dt>
 <dd><p>(<code>logical(1)</code>: <code>TRUE</code>) Whether to cache fitted trees.</p></dd>
 
 
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-ConditionalCtreeSampler-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-ConditionalCtreeSampler-clone"></a><div class="section">
+<h3 id="conditionalctreesampler-clone-"><code>ConditionalCtreeSampler$clone()</code><a class="anchor" aria-label="anchor" href="#conditionalctreesampler-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ConditionalCtreeSampler</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -200,6 +192,7 @@ Higher values result in fewer splits (simpler trees).</p></dd>
 </div>
 
 </div>
+
 
     </div>
 

@@ -1,10 +1,16 @@
 # Perturbation-based Feature Importance Methods
 
 ``` r
+
 library(xplainfi)
 library(mlr3)
 library(mlr3learners)
 library(data.table)
+#> 
+#> Attaching package: 'data.table'
+#> The following object is masked from 'package:base':
+#> 
+#>     %notin%
 library(ggplot2)
 library(DiagrammeR)
 ```
@@ -23,6 +29,7 @@ We’ll demonstrate these methods using three carefully designed scenarios
 that highlight their key differences.
 
 ``` r
+
 # Common setup for all scenarios
 learner <- lrn("regr.ranger", num.trees = 100)
 resampling <- rsmp("cv", folds = 3)
@@ -35,6 +42,7 @@ This scenario demonstrates how marginal methods (PFI) can miss important
 interaction effects that conditional methods (CFI) capture:
 
 ``` r
+
 # Generate interaction scenario
 task_int <- sim_dgp_interactions(n = 1000)
 data_int <- task_int$data()
@@ -55,6 +63,7 @@ x_2 + x_3 + \epsilon\\. Note that x1 and x2 have NO main effects.
 #### PFI on Interactions
 
 ``` r
+
 pfi_int <- PFI$new(
     task = task_int,
     learner = learner,
@@ -86,6 +95,7 @@ CFI preserves the joint distribution, which should better capture the
 interaction effect:
 
 ``` r
+
 # Create ARF sampler for the interaction task
 sampler_int = ConditionalARFSampler$new(task = task_int, finite_bounds = "local")
 
@@ -122,6 +132,7 @@ RFI’s unique strength is answering specific conditional questions. Let’s
 explore what happens when we condition on different features:
 
 ``` r
+
 # RFI conditioning on x2: "How important is x1 given we know x2?"
 rfi_int_x2 <- RFI$new(
     task = task_int,
@@ -174,6 +185,7 @@ x2.](perturbation-importance_files/figure-html/compare-interactions-2.png)
 ### Interaction Effects
 
 ``` r
+
 # Combine results and calculate ratios
 comp_int <- rbindlist(list(
     pfi_int$importance()[, .(feature, importance, method = "PFI")],
@@ -197,7 +209,7 @@ int_ratio |>
 | x1      |          2.072 |          2.236 |         0.927 |
 | x2      |          1.747 |          2.113 |         0.827 |
 
-CFI vs PFI for Interacting Features
+CFI vs PFI for Interacting Features {.table}
 
 While x1 and x2 have no main effects, PFI still correctly identifies
 them as important because permuting either feature destroys the
@@ -209,6 +221,7 @@ This scenario shows how hidden confounders affect importance estimates
 and how conditioning can help:
 
 ``` r
+
 # Generate confounding scenario
 task_conf <- sim_dgp_confounded(n = 1000)
 data_conf <- task_conf$data()
@@ -244,6 +257,7 @@ affects both features and the outcome.
 #### PFI on Confounded Data
 
 ``` r
+
 pfi_conf <- PFI$new(
     task = task_conf,
     learner = learner,
@@ -267,6 +281,7 @@ pfi_conf$importance()
 RFI can condition on the proxy to help isolate direct effects:
 
 ``` r
+
 # Create sampler for confounding task
 sampler_conf = ConditionalARFSampler$new(
     task = task_conf,
@@ -298,6 +313,7 @@ rfi_conf$importance()
 #### Also trying CFI for comparison
 
 ``` r
+
 cfi_conf <- CFI$new(
     task = task_conf,
     learner = learner,
@@ -327,6 +343,7 @@ In many real-world situations, confounders are actually observable
 performs when we can condition directly on the true confounder:
 
 ``` r
+
 # Generate scenario where confounder is observable
 task_conf_obs <- sim_dgp_confounded(n = 1000, hidden = FALSE)
 
@@ -399,6 +416,7 @@ observed.](perturbation-importance_files/figure-html/compare-confounding-2.png)
 ### Confounding Effects
 
 ``` r
+
 # Show how conditioning affects importance estimates
 conf_wide <- dcast(comp_conf_long, feature ~ method, value.var = "importance")
 conf_summary <- conf_wide[, .(
@@ -421,7 +439,7 @@ conf_summary |>
 | proxy       |          1.084 |          0.248 |                0.000 |        1.084 |
 | x1          |          3.844 |          1.698 |                1.715 |        2.129 |
 
-Effect of Conditioning on Proxy in Confounded Scenario
+Effect of Conditioning on Proxy in Confounded Scenario {.table}
 
 In the confounding scenario, we observed:
 
@@ -449,6 +467,7 @@ This scenario demonstrates the fundamental difference between marginal
 and conditional methods when features are highly correlated:
 
 ``` r
+
 # Generate correlated features scenario
 task_cor <- sim_dgp_correlated(n = 1000)
 data_cor <- task_cor$data()
@@ -467,6 +486,7 @@ Let’s analyze how different methods handle highly correlated features:
 #### PFI on Correlated Features
 
 ``` r
+
 pfi_cor <- PFI$new(
     task = task_cor,
     learner = learner,
@@ -494,6 +514,7 @@ about x1.
 #### CFI on Correlated Features
 
 ``` r
+
 # Create ARF sampler for correlated task
 sampler_cor = ConditionalARFSampler$new(task = task_cor, finite_bounds = "local")
 
@@ -525,6 +546,7 @@ structure and can distinguish between causal and spurious predictors.
 #### RFI to Answer Conditional Questions
 
 ``` r
+
 # RFI conditioning on x1: "How important is x2 given we know x1?"
 rfi_cor_x1 <- RFI$new(
     task = task_cor,
@@ -566,6 +588,7 @@ x4.](perturbation-importance_files/figure-html/compare-correlated-1.png)
 ### Correlated Features
 
 ``` r
+
 cor_ratio |>
     knitr::kable(
         digits = 3,
@@ -578,7 +601,7 @@ cor_ratio |>
 | x1      | 1.672 | 4.76 |         0.351 |
 | x2      | 0.052 | 0.50 |         0.103 |
 
-CFI vs PFI for Highly Correlated Features
+CFI vs PFI for Highly Correlated Features {.table}
 
 In the correlated features scenario:
 
@@ -606,6 +629,7 @@ To provide a baseline comparison, let’s examine a scenario where all
 feature importance methods should produce similar results:
 
 ``` r
+
 # Generate independent features scenario
 task_ind <- sim_dgp_independent(n = 1000)
 data_ind <- task_ind$data()
@@ -622,6 +646,7 @@ effect on y (or no effect in the case of noise).
 First PFI:
 
 ``` r
+
 # PFI
 pfi_ind <- PFI$new(
     task = task_ind,
@@ -636,6 +661,7 @@ pfi_ind$compute()
 Now CFI with the ARF sampler:
 
 ``` r
+
 sampler_ind = ConditionalARFSampler$new(task = task_ind, finite_bounds = "local")
 cfi_ind <- CFI$new(
     task = task_ind,
@@ -652,6 +678,7 @@ RFI with empty conditioning set, basically equivalent to PFI with a
 different sampler:
 
 ``` r
+
 rfi_ind <- RFI$new(
     task = task_ind,
     learner = learner,
@@ -673,6 +700,7 @@ features.](perturbation-importance_files/figure-html/combine-rf-plot-1.png)
 ### Agreement Between Methods
 
 ``` r
+
 # Calculate coefficient of variation for each feature across methods
 comp_ind_wide <- dcast(comp_ind_long, feature ~ method, value.var = "importance")
 comp_ind_wide[,
@@ -704,7 +732,7 @@ comp_ind_wide[, .(
 | unimportant1 |           0.003 |              2.376 | Low             |
 | unimportant2 |          -0.011 |             -1.012 | High            |
 
-Method Agreement on Independent Features
+Method Agreement on Independent Features {.table}
 
 With independent features and no complex relationships, all three
 methods (PFI, CFI, RFI) produce very similar importance estimates. This

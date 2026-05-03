@@ -30,9 +30,9 @@ Artificial Intelligence*, **39**(15), 15596–15604.
 
 ## Super classes
 
-[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
+[`FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\>
-[`xplainfi::ConditionalSampler`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.md)
+[`ConditionalSampler`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.md)
 -\> `ConditionalARFSampler`
 
 ## Public fields
@@ -58,7 +58,7 @@ Artificial Intelligence*, **39**(15), 15596–15604.
 
 ### Public methods
 
-- [`ConditionalARFSampler$new()`](#method-ConditionalARFSampler-new)
+- [`ConditionalARFSampler$new()`](#method-ConditionalARFSampler-initialize)
 
 - [`ConditionalARFSampler$sample()`](#method-ConditionalARFSampler-sample)
 
@@ -68,11 +68,11 @@ Artificial Intelligence*, **39**(15), 15596–15604.
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `ConditionalARFSampler$new()`
 
 Creates a new instance of the ConditionalARFSampler class. To fit the
 ARF in parallel, register a parallel backend first (see
@@ -166,7 +166,7 @@ and set `parallel = TRUE`.
 
 ------------------------------------------------------------------------
 
-### Method [`sample()`](https://rdrr.io/r/base/sample.html)
+### `ConditionalARFSampler$sample()`
 
 Sample from stored task. Parameters use hierarchical resolution:
 function argument \> stored `param_set` value \> hard-coded default.
@@ -220,7 +220,7 @@ Modified copy with sampled feature(s).
 
 ------------------------------------------------------------------------
 
-### Method `sample_newdata()`
+### `ConditionalARFSampler$sample_newdata()`
 
 Sample from external data. See `$sample()` for parameter details.
 
@@ -273,7 +273,7 @@ Modified copy with sampled feature(s).
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `ConditionalARFSampler$clone()`
 
 The objects of this class are cloneable with this method.
 

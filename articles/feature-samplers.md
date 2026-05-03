@@ -13,10 +13,16 @@ We create two tasks: one with mixed features (the penguins data), and
 one with all-numeric features.
 
 ``` r
+
 library(xplainfi)
 library(mlr3)
 library(mlr3learners)
 library(data.table)
+#> 
+#> Attaching package: 'data.table'
+#> The following object is masked from 'package:base':
+#> 
+#>     %notin%
 
 # Create a task for demonstration
 task_mixed = tsk("penguins")
@@ -34,6 +40,7 @@ provides a common interface for sampling features.
 supports:
 
 ``` r
+
 # Check supported feature types for different samplers
 task_mixed$feature_types
 #> Key: <id>
@@ -60,6 +67,7 @@ permutation$feature_types
 Let’s demonstrate both with the permutation sampler:
 
 ``` r
+
 # Sample from stored task (using row_ids)
 sampled_task = permutation$sample(
     feature = "bill_length",
@@ -113,6 +121,7 @@ Importance (PFI).
 - The marginal distribution of each feature is preserved
 
 ``` r
+
 # Create permutation sampler
 permutation = MarginalPermutationSampler$new(task_mixed)
 
@@ -174,6 +183,7 @@ sampling infrastructure independent.
 **How it works:**
 
 ``` r
+
 # Create marginal reference sampler with n_samples reference pool
 marginal_ref = MarginalReferenceSampler$new(task_mixed, n_samples = 30L)
 
@@ -210,6 +220,7 @@ them jointly, only `MarginalReferenceSampler` retains their original
 correlation (approximately).
 
 ``` r
+
 # Sample with MarginalPermutationSampler (breaks correlations)
 perm = MarginalPermutationSampler$new(task_numeric)
 sampled_perm = perm$sample(c("x1", "x2"), row_ids = 1:10)
@@ -268,6 +279,7 @@ Gaussian distribution and uses closed-form conditional distributions.
 - May produce out-of-range values
 
 ``` r
+
 # Create Gaussian conditional sampler
 gaussian = ConditionalGaussianSampler$new(task_numeric)
 
@@ -323,6 +335,7 @@ sampler.
 - Stochastic sampling
 
 ``` r
+
 # Create ARF sampler (works with full task including categorical features)
 arf = ConditionalARFSampler$new(task_mixed, num_trees = 20, verbose = FALSE)
 
@@ -376,6 +389,7 @@ partition the feature space and sample from local neighborhoods.
 - May produce duplicates if terminal nodes are small
 
 ``` r
+
 # Create ctree sampler
 ctree = ConditionalCtreeSampler$new(task_mixed)
 
@@ -440,6 +454,7 @@ on conditioning features:
 #### Example 1: All-numeric conditioning (Euclidean distance)
 
 ``` r
+
 # Create kNN sampler with k=5 neighbors
 knn_numeric = ConditionalKNNSampler$new(task_numeric, k = 5)
 
@@ -469,6 +484,7 @@ data.table(
 #### Example 2: Mixed-type conditioning (Gower distance)
 
 ``` r
+
 # Use task with categorical features
 knn_mixed = ConditionalKNNSampler$new(task_mixed, k = 5)
 
@@ -524,6 +540,7 @@ Knockoffs are a separate category because:
 For multivariate Gaussian data, we can construct exact knockoffs:
 
 ``` r
+
 # Create Gaussian knockoff sampler (using task_numeric from earlier)
 knockoff = KnockoffGaussianSampler$new(task_numeric)
 
@@ -564,6 +581,7 @@ package](https://cran.r-project.org/package=cpi). You can combine
 knockoff samplers with CFI and perform inference:
 
 ``` r
+
 # CFI with knockoff sampler for conditional independence testing
 cfi_knockoff = CFI$new(
     task = task_numeric,
@@ -591,14 +609,14 @@ with feature importance.
 
 ## Summary
 
-| Sampler                      | Feature Types | Assumptions                  | Speed     | Use Case                     |
-|------------------------------|---------------|------------------------------|-----------|------------------------------|
-| `MarginalPermutationSampler` | All           | None                         | Very fast | PFI, uncorrelated features   |
-| `KnockoffGaussianSampler`    | Continuous    | Multivariate normal          | Fast      | Model-X knockoffs            |
-| `ConditionalGaussianSampler` | Continuous    | Multivariate normal          | Very fast | CFI with continuous features |
-| `ConditionalARFSampler`      | All           | None                         | Moderate  | CFI, complex dependencies    |
-| `ConditionalCtreeSampler`    | All           | None                         | Moderate  | CFI, interpretable sampling  |
-| `ConditionalKNNSampler`      | All           | None (auto-selects distance) | Fast      | CFI, simple local structure  |
+| Sampler | Feature Types | Assumptions | Speed | Use Case |
+|----|----|----|----|----|
+| `MarginalPermutationSampler` | All | None | Very fast | PFI, uncorrelated features |
+| `KnockoffGaussianSampler` | Continuous | Multivariate normal | Fast | Model-X knockoffs |
+| `ConditionalGaussianSampler` | Continuous | Multivariate normal | Very fast | CFI with continuous features |
+| `ConditionalARFSampler` | All | None | Moderate | CFI, complex dependencies |
+| `ConditionalCtreeSampler` | All | None | Moderate | CFI, interpretable sampling |
+| `ConditionalKNNSampler` | All | None (auto-selects distance) | Fast | CFI, simple local structure |
 
 **General guidelines**:
 

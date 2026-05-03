@@ -38,7 +38,7 @@ which subclasses must implement.
 
 ## Super class
 
-[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
+[`FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\> `MarginalSampler`
 
 ## Methods
@@ -53,12 +53,12 @@ which subclasses must implement.
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$initialize()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-initialize)
-- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`FeatureSampler$initialize()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-initialize)
+- [`FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
 
 ------------------------------------------------------------------------
 
-### Method [`sample()`](https://rdrr.io/r/base/sample.html)
+### `MarginalSampler$sample()`
 
 Sample features from their marginal distribution.
 
@@ -84,7 +84,7 @@ Modified copy with sampled feature(s).
 
 ------------------------------------------------------------------------
 
-### Method `sample_newdata()`
+### `MarginalSampler$sample_newdata()`
 
 Sample from external data.
 
@@ -110,7 +110,7 @@ Modified copy with sampled feature(s).
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `MarginalSampler$clone()`
 
 The objects of this class are cloneable with this method.
 

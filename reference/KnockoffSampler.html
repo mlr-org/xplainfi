@@ -91,7 +91,7 @@ They do not allow specifying a <code>conditioning_set</code></p>
     </div>
     <div class="section level2">
     <h2 id="super-class">Super class<a class="anchor" aria-label="anchor" href="#super-class"></a></h2>
-    <p><code><a href="FeatureSampler.html">xplainfi::FeatureSampler</a></code> -&gt; <code>KnockoffSampler</code></p>
+    <p><code><a href="FeatureSampler.html">FeatureSampler</a></code> -&gt; <code>KnockoffSampler</code></p>
     </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
@@ -106,14 +106,13 @@ They do not allow specifying a <code>conditioning_set</code></p>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-KnockoffSampler-new"><code>KnockoffSampler$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-KnockoffSampler-initialize"><code>KnockoffSampler$new()</code></a></p></li>
 <li><p><a href="#method-KnockoffSampler-sample"><code>KnockoffSampler$sample()</code></a></p></li>
 <li><p><a href="#method-KnockoffSampler-clone"><code>KnockoffSampler$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href="FeatureSampler.html#method-print"><code>xplainfi::FeatureSampler$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="sample_newdata"><a href="FeatureSampler.html#method-sample_newdata"><code>xplainfi::FeatureSampler$sample_newdata()</code></a></span></li>
-</ul></details></p><hr><a id="method-KnockoffSampler-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href="FeatureSampler.html#method-print"><code>FeatureSampler$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="sample_newdata"><a href="FeatureSampler.html#method-sample_newdata"><code>FeatureSampler$sample_newdata()</code></a></span></li>
+</ul></details></p><hr><a id="method-KnockoffSampler-initialize"></a><div class="section">
+<h3 id="knockoffsampler-new-"><code>KnockoffSampler$new()</code><a class="anchor" aria-label="anchor" href="#knockoffsampler-new-"></a></h3>
 <p>Creates a new instance of the KnockoffSampler class.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/KnockoffSampler.html">KnockoffSampler</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -121,19 +120,15 @@ They do not allow specifying a <code>conditioning_set</code></p>
 <span>  knockoff_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu">knockoff</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knockoff/man/create.second_order.html" class="external-link">create.second_order</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  iters <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>task</code></dt>
 <dd><p>(<a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">mlr3::Task</a>) Task to sample from</p></dd>
 
-
-<dt><code>knockoff_fun</code></dt>
+      <dt><code>knockoff_fun</code></dt>
 <dd><p>(<code>function</code>) Function used to create knockoff matrix. Default are second-order Gaussian knockoffs (<code><a href="https://rdrr.io/pkg/knockoff/man/create.second_order.html" class="external-link">knockoff::create.second_order()</a></code>)</p></dd>
 
-
-<dt><code>iters</code></dt>
+      <dt><code>iters</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>1</code>) Number of repetitions the <code>knockoff_fun</code> is applied to create multiple <code>x_tilde</code>
 instances per observation.</p></dd>
 
@@ -141,39 +136,37 @@ instances per observation.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-KnockoffSampler-sample"></a><div class="section">
-<h3 id="method-sample-">Method <code><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample()</a></code><a class="anchor" aria-label="anchor" href="#method-sample-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-KnockoffSampler-sample"></a><div class="section">
+<h3 id="knockoffsampler-sample-"><code>KnockoffSampler$sample()</code><a class="anchor" aria-label="anchor" href="#knockoffsampler-sample-"></a></h3>
 <p>Sample from stored task using knockoff values. Replaces specified feature(s) with
 their knockoff counterparts from the pre-generated knockoff matrix.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">KnockoffSampler</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span><span class="va">feature</span>, row_ids <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>feature</code></dt>
 <dd><p>(<code>character</code>) Feature(s) to sample.</p></dd>
 
-
-<dt><code>row_ids</code></dt>
+      <dt><code>row_ids</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> | <code>NULL</code>) Row IDs to use. If <code>NULL</code>, uses all rows.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>Modified copy with knockoff feature(s).</p>
 </div>
 
-</div><p></p><hr><a id="method-KnockoffSampler-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-KnockoffSampler-clone"></a><div class="section">
+<h3 id="knockoffsampler-clone-"><code>KnockoffSampler$clone()</code><a class="anchor" aria-label="anchor" href="#knockoffsampler-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">KnockoffSampler</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -183,6 +176,7 @@ their knockoff counterparts from the pre-generated knockoff matrix.</p><div clas
 </div>
 
 </div>
+
 
     </div>
 

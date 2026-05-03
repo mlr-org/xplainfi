@@ -37,7 +37,7 @@ Information Processing Systems*, volume 33, 17212–17223.
 
 ## Super class
 
-[`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+[`FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
 -\> `SAGE`
 
 ## Public fields
@@ -63,7 +63,7 @@ Information Processing Systems*, volume 33, 17212–17223.
 
 ### Public methods
 
-- [`SAGE$new()`](#method-SAGE-new)
+- [`SAGE$new()`](#method-SAGE-initialize)
 
 - [`SAGE$compute()`](#method-SAGE-compute)
 
@@ -73,15 +73,15 @@ Information Processing Systems*, volume 33, 17212–17223.
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$importance()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
-- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
-- [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
-- [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
-- [`xplainfi::FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`FeatureImportanceMethod$importance()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-importance)
+- [`FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
+- [`FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
+- [`FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
+- [`FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `SAGE$new()`
 
 Creates a new instance of the SAGE class.
 
@@ -157,7 +157,7 @@ Creates a new instance of the SAGE class.
 
 ------------------------------------------------------------------------
 
-### Method `compute()`
+### `SAGE$compute()`
 
 Compute SAGE values.
 
@@ -206,7 +206,7 @@ Compute SAGE values.
 
 ------------------------------------------------------------------------
 
-### Method `plot_convergence()`
+### `SAGE$plot_convergence()`
 
 Plot convergence history of SAGE values.
 
@@ -226,7 +226,7 @@ A [ggplot2](https://ggplot2.tidyverse.org/reference/ggplot.html) object
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `SAGE$clone()`
 
 The objects of this class are cloneable with this method.
 

@@ -37,16 +37,16 @@ Variable Importance for Random Forests.” *BMC Bioinformatics*, **9**(1),
 
 ## Super classes
 
-[`xplainfi::FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
+[`FeatureImportanceMethod`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.md)
 -\>
-[`xplainfi::PerturbationImportance`](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.md)
+[`PerturbationImportance`](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.md)
 -\> `PFI`
 
 ## Methods
 
 ### Public methods
 
-- [`PFI$new()`](#method-PFI-new)
+- [`PFI$new()`](#method-PFI-initialize)
 
 - [`PFI$compute()`](#method-PFI-compute)
 
@@ -54,15 +54,15 @@ Variable Importance for Random Forests.” *BMC Bioinformatics*, **9**(1),
 
 Inherited methods
 
-- [`xplainfi::FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
-- [`xplainfi::FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
-- [`xplainfi::FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
-- [`xplainfi::FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
-- [`xplainfi::PerturbationImportance$importance()`](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.html#method-importance)
+- [`FeatureImportanceMethod$obs_loss()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-obs_loss)
+- [`FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
+- [`FeatureImportanceMethod$reset()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-reset)
+- [`FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
+- [`PerturbationImportance$importance()`](https://mlr-org.github.io/xplainfi/reference/PerturbationImportance.html#method-importance)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PFI$new()`
 
 Creates a new instance of the PFI class
 
@@ -89,7 +89,7 @@ Creates a new instance of the PFI class
 
 ------------------------------------------------------------------------
 
-### Method `compute()`
+### `PFI$compute()`
 
 Compute PFI scores
 
@@ -125,7 +125,7 @@ Compute PFI scores
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PFI$clone()`
 
 The objects of this class are cloneable with this method.
 

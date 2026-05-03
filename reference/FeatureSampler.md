@@ -30,7 +30,7 @@ importance methods like PFI and CFI
 
 ### Public methods
 
-- [`FeatureSampler$new()`](#method-FeatureSampler-new)
+- [`FeatureSampler$new()`](#method-FeatureSampler-initialize)
 
 - [`FeatureSampler$sample()`](#method-FeatureSampler-sample)
 
@@ -42,7 +42,7 @@ importance methods like PFI and CFI
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `FeatureSampler$new()`
 
 Creates a new instance of the FeatureSampler class
 
@@ -59,7 +59,7 @@ Creates a new instance of the FeatureSampler class
 
 ------------------------------------------------------------------------
 
-### Method [`sample()`](https://rdrr.io/r/base/sample.html)
+### `FeatureSampler$sample()`
 
 Sample values for feature(s) from stored task
 
@@ -89,7 +89,7 @@ same number of columns and one row matching the supplied `row_ids`
 
 ------------------------------------------------------------------------
 
-### Method `sample_newdata()`
+### `FeatureSampler$sample_newdata()`
 
 Sample values for feature(s) using external data
 
@@ -110,7 +110,7 @@ Sample values for feature(s) using external data
 
 ------------------------------------------------------------------------
 
-### Method [`print()`](https://rdrr.io/r/base/print.html)
+### `FeatureSampler$print()`
 
 Print sampler
 
@@ -126,7 +126,7 @@ Print sampler
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `FeatureSampler$clone()`
 
 The objects of this class are cloneable with this method.
 

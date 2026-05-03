@@ -103,7 +103,7 @@ ISBN 9780471360919.</p>
     </div>
     <div class="section level2">
     <h2 id="super-classes">Super classes<a class="anchor" aria-label="anchor" href="#super-classes"></a></h2>
-    <p><code><a href="FeatureSampler.html">xplainfi::FeatureSampler</a></code> -&gt; <code><a href="ConditionalSampler.html">xplainfi::ConditionalSampler</a></code> -&gt; <code>ConditionalGaussianSampler</code></p>
+    <p><code><a href="FeatureSampler.html">FeatureSampler</a></code> -&gt; <code><a href="ConditionalSampler.html">ConditionalSampler</a></code> -&gt; <code>ConditionalGaussianSampler</code></p>
     </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
@@ -111,11 +111,11 @@ ISBN 9780471360919.</p>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>) Feature types supported by the sampler.</p></dd>
 
 
-<dt><code>mu</code></dt>
+    <dt><code>mu</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric()</a></code>) Mean vector estimated from training data.</p></dd>
 
 
-<dt><code>sigma</code></dt>
+    <dt><code>sigma</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix()</a></code>) Covariance matrix estimated from training data.</p></dd>
 
 
@@ -126,40 +126,36 @@ ISBN 9780471360919.</p>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-ConditionalGaussianSampler-new"><code>ConditionalGaussianSampler$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-ConditionalGaussianSampler-initialize"><code>ConditionalGaussianSampler$new()</code></a></p></li>
 <li><p><a href="#method-ConditionalGaussianSampler-clone"><code>ConditionalGaussianSampler$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href="FeatureSampler.html#method-print"><code>xplainfi::FeatureSampler$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="ConditionalSampler" data-id="sample"><a href="ConditionalSampler.html#method-sample"><code>xplainfi::ConditionalSampler$sample()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="ConditionalSampler" data-id="sample_newdata"><a href="ConditionalSampler.html#method-sample_newdata"><code>xplainfi::ConditionalSampler$sample_newdata()</code></a></span></li>
-</ul></details></p><hr><a id="method-ConditionalGaussianSampler-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href="FeatureSampler.html#method-print"><code>FeatureSampler$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="ConditionalSampler" data-id="sample"><a href="ConditionalSampler.html#method-sample"><code>ConditionalSampler$sample()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="ConditionalSampler" data-id="sample_newdata"><a href="ConditionalSampler.html#method-sample_newdata"><code>ConditionalSampler$sample_newdata()</code></a></span></li>
+</ul></details></p><hr><a id="method-ConditionalGaussianSampler-initialize"></a><div class="section">
+<h3 id="conditionalgaussiansampler-new-"><code>ConditionalGaussianSampler$new()</code><a class="anchor" aria-label="anchor" href="#conditionalgaussiansampler-new-"></a></h3>
 <p>Creates a new ConditionalGaussianSampler.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/ConditionalGaussianSampler.html">ConditionalGaussianSampler</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">task</span>, conditioning_set <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>task</code></dt>
 <dd><p>(<a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">mlr3::Task</a>) Task to sample from. Must have only numeric/integer features.</p></dd>
 
-
-<dt><code>conditioning_set</code></dt>
+      <dt><code>conditioning_set</code></dt>
 <dd><p>(<code>character</code> | <code>NULL</code>) Default conditioning set to use in <code>$sample()</code>.</p></dd>
 
 
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-ConditionalGaussianSampler-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-ConditionalGaussianSampler-clone"></a><div class="section">
+<h3 id="conditionalgaussiansampler-clone-"><code>ConditionalGaussianSampler$clone()</code><a class="anchor" aria-label="anchor" href="#conditionalgaussiansampler-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ConditionalGaussianSampler</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -169,6 +165,7 @@ ISBN 9780471360919.</p>
 </div>
 
 </div>
+
 
     </div>
 

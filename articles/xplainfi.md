@@ -1,10 +1,16 @@
 # Getting Started with xplainfi
 
 ``` r
+
 library(xplainfi)
 library(mlr3)
 library(mlr3learners)
 library(data.table)
+#> 
+#> Attaching package: 'data.table'
+#> The following object is masked from 'package:base':
+#> 
+#>     %notin%
 library(ggplot2)
 ```
 
@@ -40,6 +46,7 @@ Let’s use the Friedman1 task to demonstrate feature importance methods
 with known ground truth:
 
 ``` r
+
 task <- tgen("friedman1")$generate(n = 300)
 learner <- lrn("regr.ranger", num.trees = 100)
 measure <- msr("regr.mse")
@@ -62,6 +69,7 @@ deteriorates. More important features cause larger performance drops
 when shuffled.
 
 ``` r
+
 pfi <- PFI$new(
     task = task,
     learner = learner,
@@ -97,6 +105,7 @@ is no clear “good enough” value, setting `n_repeats` to a small value
 like 1 will most definitely yield unreliable results.
 
 ``` r
+
 pfi_stable <- PFI$new(
     task = task,
     learner = learner,
@@ -128,6 +137,7 @@ resampling iteration using individual importance scores via `$score()`
 (see below):
 
 ``` r
+
 pfi_stable$scores()[feature == "important2", ] |>
     ggplot(aes(y = importance, x = factor(iter_rsmp))) +
     geom_boxplot() +
@@ -152,6 +162,7 @@ difference for the importance calculation, meaning that an unimportant
 feature is now expected to get an importance score of 1 rather than 0:
 
 ``` r
+
 pfi_stable$importance(relation = "ratio")
 #> Key: <feature>
 #>          feature importance
@@ -175,6 +186,7 @@ and comparing performance to the full model. This shows the contribution
 of each feature when all other features are present.
 
 ``` r
+
 loco <- LOCO$new(
     task = task,
     learner = learner,
@@ -217,6 +229,7 @@ Let’s demonstrate conditional sampling using adversarial random forests
 (ARF), which preserves relationships between features when sampling:
 
 ``` r
+
 arf_sampler <- ConditionalARFSampler$new(task)
 
 sample_data <- task$data(rows = 1:5)
@@ -234,6 +247,7 @@ Now we’ll conditionally sample the `important1` feature given the values
 of `important2` and `important3`:
 
 ``` r
+
 sampled_conditional <- arf_sampler$sample_newdata(
     feature = "important1",
     newdata = sample_data,
@@ -272,6 +286,7 @@ iteration for further analysis. Let’s examine the structure of PFI’s
 detailed scores:
 
 ``` r
+
 pfi$scores() |>
     head(10) |>
     knitr::kable(digits = 4, caption = "Detailed PFI scores (first 10 rows)")
@@ -290,11 +305,12 @@ pfi$scores() |>
 | important1 |         1 |           9 |            4.3358 |        9.7933 |     5.4575 |
 | important1 |         1 |          10 |            4.3358 |        9.1412 |     4.8055 |
 
-Detailed PFI scores (first 10 rows)
+Detailed PFI scores (first 10 rows) {.table}
 
 We can also summarize the scoring structure:
 
 ``` r
+
 pfi$scores()[, .(
     features = uniqueN(feature),
     resampling_folds = uniqueN(iter_rsmp),
@@ -316,6 +332,7 @@ Analogous to `$importance()`, you can also use `relation = "ratio"`
 here:
 
 ``` r
+
 pfi$scores(relation = "ratio") |>
     head(10) |>
     knitr::kable(digits = 4, caption = "PFI scores using the ratio (first 10 rows)")
@@ -334,7 +351,7 @@ pfi$scores(relation = "ratio") |>
 | important1 |         1 |           9 |            4.3358 |        9.7933 |     2.2587 |
 | important1 |         1 |          10 |            4.3358 |        9.1412 |     2.1083 |
 
-PFI scores using the ratio (first 10 rows)
+PFI scores using the ratio (first 10 rows) {.table}
 
 ## Observation-wise losses and importances
 
@@ -345,6 +362,7 @@ analogously to `$scores()` and `$importance()` but at an even more
 detailed level:
 
 ``` r
+
 pfi$obs_loss()
 #>             feature iter_rsmp iter_repeat row_ids loss_baseline  loss_post
 #>              <char>     <int>       <int>   <int>         <num>      <num>
@@ -429,6 +447,7 @@ trained learner and the corresponding test set defined by the
 `resampling`:
 
 ``` r
+
 resampling_holdout <- rsmp("holdout")$instantiate(task)
 learner_trained <- lrn("regr.ranger", num.trees = 100)
 learner_trained$train(task, row_ids = resampling_holdout$train_set(1))
@@ -470,6 +489,7 @@ already trained. A utility function
 can be used as a shortcut to achieve the same goal.
 
 ``` r
+
 # Simulate: learner was trained elsewhere, we have new data to use
 new_data <- tgen("friedman1")$generate(n = 100)
 
@@ -509,6 +529,7 @@ If you pass a trained learner with a multi-fold or non-instantiated
 resampling, you will get an informative error at construction time:
 
 ``` r
+
 PFI$new(
     task = task,
     learner = learner_trained,
@@ -534,6 +555,7 @@ The `future` package provides a simple interface for parallel and
 distributed computing:
 
 ``` r
+
 library(future)
 plan("multisession", workers = 2)
 
@@ -562,6 +584,7 @@ loco_parallel$importance()
 The `mirai` package offers a modern alternative for parallel computing:
 
 ``` r
+
 library(mirai)
 daemons(n = 2)
 

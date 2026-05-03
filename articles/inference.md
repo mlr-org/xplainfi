@@ -1,10 +1,16 @@
 # Inference for Feature Importance
 
 ``` r
+
 library(xplainfi)
 library(mlr3learners)
 #> Loading required package: mlr3
 library(data.table)
+#> 
+#> Attaching package: 'data.table'
+#> The following object is masked from 'package:base':
+#> 
+#>     %notin%
 library(ggplot2)
 ```
 
@@ -34,6 +40,7 @@ We use a simple linear DGP for demonstration purposes where
 - \\X_2\\ and \\X_4\\ don’t have an effect
 
 ``` r
+
 task = sim_dgp_correlated(n = 2000, r = 0.7)
 learner = lrn("regr.ranger", num.trees = 500)
 measure = msr("regr.mse")
@@ -49,6 +56,7 @@ separate importance estimate. By default, `$importance()` simply
 averages these estimates without reporting any measure of variability:
 
 ``` r
+
 pfi = PFI$new(
     task = task,
     learner = learner,
@@ -84,6 +92,7 @@ quantiles are not a statistical test. The `conf_*` naming is kept for
 consistency with other methods to ease visualization.
 
 ``` r
+
 pfi_ci_quantile = pfi$importance(ci_method = "quantile", alternative = "two.sided")
 pfi_ci_quantile
 #> Key: <feature>
@@ -105,6 +114,7 @@ iterations share overlapping training sets, violating the independence
 assumption underlying the t-distribution.
 
 ``` r
+
 pfi_ci_raw = pfi$importance(ci_method = "raw", alternative = "two.sided")
 pfi_ci_raw
 #> Key: <feature>
@@ -139,6 +149,7 @@ inflates the variance estimate to account for the overlap between
 training sets, yielding wider (and more honest) confidence intervals:
 
 ``` r
+
 pfi_ci_corrected = pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided")
 pfi_ci_corrected
 #> Key: <feature>
@@ -165,6 +176,7 @@ To highlight the differences between all three approaches, we visualize
 them side by side:
 
 ``` r
+
 pfi_cis = rbindlist(
     list(
         pfi_ci_raw[, type := "raw"],
@@ -223,6 +235,7 @@ The `p_adjust` parameter accepts any method from
 defaults to `"none"` (no adjustment).
 
 ``` r
+
 pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided", p_adjust = "none")
 #> Key: <feature>
 #>    feature   importance           se statistic      p.value   conf_lower
@@ -245,6 +258,7 @@ significance level of \\\alpha / k\\ where \\k\\ is the number of
 features:
 
 ``` r
+
 pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided", p_adjust = "bonferroni")
 #> Key: <feature>
 #>    feature   importance           se statistic      p.value   conf_lower
@@ -267,6 +281,7 @@ not yield a clean per-comparison \\\alpha\\ that could be used for CI
 construction, so confidence intervals remain at the nominal level:
 
 ``` r
+
 pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided", p_adjust = "BH")
 #> Key: <feature>
 #>    feature   importance           se statistic      p.value   conf_lower
@@ -324,6 +339,7 @@ approaches are supported:
   with `mlr3` and its output on our data looks like this:
 
 ``` r
+
 library(cpi)
 
 resampling = rsmp("cv", folds = 5)
@@ -331,6 +347,7 @@ resampling$instantiate(task)
 ```
 
 ``` r
+
 cpi_res = cpi(
     task = task,
     learner = learner,
@@ -369,6 +386,7 @@ Gaussian knockoffs also used by default in
 `ci_method = "cpi"`.
 
 ``` r
+
 knockoff_gaussian = KnockoffGaussianSampler$new(task)
 
 cfi = CFI$new(
@@ -414,6 +432,7 @@ The results should be very similar to those computed by
 compare them:
 
 ``` r
+
 rbindlist(list(cpi_res, cfi_cpi_res), fill = TRUE) |>
     ggplot(aes(y = feature, x = CPI, color = method)) +
     geom_point(position = position_dodge(width = 0.3)) +
@@ -447,6 +466,7 @@ al. (2025)](https://doi.org/10.1609/aaai.v39i15.33712) and works without
 Gaussian assumptions:
 
 ``` r
+
 arf_sampler = ConditionalARFSampler$new(
     task = task,
     finite_bounds = "local",
@@ -495,6 +515,7 @@ cfi_arf_res[, method := "CFI+ARF"]
 We can now compare all three methods:
 
 ``` r
+
 rbindlist(list(cpi_res, cfi_cpi_res, cfi_arf_res), fill = TRUE) |>
     ggplot(aes(y = feature, x = CPI, color = method)) +
     geom_point(position = position_dodge(width = 0.3)) +
@@ -540,6 +561,7 @@ CPI can also perform additional tests besides the default t-test,
 specifically the Wilcoxon-, Fisher-, or binomial test:
 
 ``` r
+
 (cpi_res_wilcoxon = cfi_arf$importance(ci_method = "cpi", test = "wilcoxon"))
 #> Warning: Observation-wise inference was validated with a single test set.
 #> ! Current resampling has 5 iterations.
@@ -551,7 +573,7 @@ specifically the Wilcoxon-, Fisher-, or binomial test:
 #>    feature    importance    se statistic      p.value    conf_lower
 #>     <char>         <num> <num>     <num>        <num>         <num>
 #> 1:      x1  3.9865071718    NA   2001000 0.000000e+00  3.2122074217
-#> 2:      x2  0.0053611218    NA   1194853 5.295553e-14  0.0029276504
+#> 2:      x2  0.0053611218    NA   1194853 5.284662e-14  0.0029276504
 #> 3:      x3  1.7527732858    NA   2000886 0.000000e+00  1.3958358130
 #> 4:      x4 -0.0009391978    NA   1031351 2.323267e-01 -0.0001657344
 #>      conf_upper
@@ -637,6 +659,7 @@ desirable in exploratory settings where many features are tested
 simultaneously:
 
 ``` r
+
 cfi_arf$importance(ci_method = "cpi", p_adjust = "BH")
 #> Warning: Observation-wise inference was validated with a single test set.
 #> ! Current resampling has 5 iterations.
@@ -690,6 +713,7 @@ The paper proposes:
 This is available in `xplainfi` via `ci_method = "lei"`:
 
 ``` r
+
 # mae has L1 loss on observation-level, the "mean" aggregation is ignored here
 measure_mae = msr("regr.mae")
 
@@ -710,10 +734,10 @@ loco$importance(
 #> Key: <feature>
 #>    feature importance    se statistic      p.value conf_lower conf_upper
 #>     <char>      <num> <num>     <num>        <num>      <num>      <num>
-#> 1:      x1 0.80833037    NA    216167 9.828138e-98 0.82052360 1.00057066
+#> 1:      x1 0.80833037    NA    216167 0.000000e+00 0.82052360 1.00057066
 #> 2:      x2 0.01819719    NA    135421 5.538819e-06 0.01210851 0.03837064
-#> 3:      x3 0.52495928    NA    211296 5.603680e-89 0.51589328 0.64318191
-#> 4:      x4 0.01989962    NA    146280 9.639960e-12 0.01774627 0.03932460
+#> 3:      x3 0.52495928    NA    211296 0.000000e+00 0.51589328 0.64318191
+#> 4:      x4 0.01989962    NA    146280 9.640289e-12 0.01774627 0.03932460
 ```
 
 The `ci_method = "lei"` method works on observation-wise loss
@@ -740,6 +764,7 @@ customized:
   a clean per-comparison alpha for CI construction.
 
 ``` r
+
 loco$importance(
     ci_method = "lei",
     test = "t",

@@ -43,13 +43,13 @@ Options can be set in three ways (in order of precedence):
 
 ### Available Options
 
-|              |         |                                                                              |
-|--------------|---------|------------------------------------------------------------------------------|
-| Option       | Default | Description                                                                  |
-| `verbose`    | `TRUE`  | Show informational messages (e.g., when using default measure or resampling) |
-| `progress`   | `FALSE` | Show progress bars during computation                                        |
-| `sequential` | `FALSE` | Force sequential execution (disable parallelization)                         |
-| `debug`      | `FALSE` | Enable debug output for development and troubleshooting                      |
+|  |  |  |
+|----|----|----|
+| Option | Default | Description |
+| `verbose` | `TRUE` | Show informational messages (e.g., when using default measure or resampling) |
+| `progress` | `FALSE` | Show progress bars during computation |
+| `sequential` | `FALSE` | Force sequential execution (disable parallelization) |
+| `debug` | `FALSE` | Enable debug output for development and troubleshooting |
 
 ## Examples
 

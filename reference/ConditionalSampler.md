@@ -6,14 +6,14 @@ be extended by concrete implementations.
 
 ## Super class
 
-[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
+[`FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\> `ConditionalSampler`
 
 ## Methods
 
 ### Public methods
 
-- [`ConditionalSampler$new()`](#method-ConditionalSampler-new)
+- [`ConditionalSampler$new()`](#method-ConditionalSampler-initialize)
 
 - [`ConditionalSampler$sample()`](#method-ConditionalSampler-sample)
 
@@ -23,11 +23,11 @@ be extended by concrete implementations.
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `ConditionalSampler$new()`
 
 Creates a new instance of the ConditionalSampler class
 
@@ -49,7 +49,7 @@ Creates a new instance of the ConditionalSampler class
 
 ------------------------------------------------------------------------
 
-### Method [`sample()`](https://rdrr.io/r/base/sample.html)
+### `ConditionalSampler$sample()`
 
 Sample from stored task conditionally on other features.
 
@@ -87,7 +87,7 @@ Modified copy with sampled feature(s).
 
 ------------------------------------------------------------------------
 
-### Method `sample_newdata()`
+### `ConditionalSampler$sample_newdata()`
 
 Sample from external data conditionally.
 
@@ -125,7 +125,7 @@ Modified copy with sampled feature(s).
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `ConditionalSampler$clone()`
 
 The objects of this class are cloneable with this method.
 

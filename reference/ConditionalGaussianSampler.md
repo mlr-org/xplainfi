@@ -55,9 +55,9 @@ Analysis*, 3rd edition. Wiley-Interscience, Hoboken, NJ. ISBN
 
 ## Super classes
 
-[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
+[`FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\>
-[`xplainfi::ConditionalSampler`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.md)
+[`ConditionalSampler`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.md)
 -\> `ConditionalGaussianSampler`
 
 ## Public fields
@@ -81,19 +81,19 @@ Analysis*, 3rd edition. Wiley-Interscience, Hoboken, NJ. ISBN
 
 ### Public methods
 
-- [`ConditionalGaussianSampler$new()`](#method-ConditionalGaussianSampler-new)
+- [`ConditionalGaussianSampler$new()`](#method-ConditionalGaussianSampler-initialize)
 
 - [`ConditionalGaussianSampler$clone()`](#method-ConditionalGaussianSampler-clone)
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
-- [`xplainfi::ConditionalSampler$sample()`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.html#method-sample)
-- [`xplainfi::ConditionalSampler$sample_newdata()`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.html#method-sample_newdata)
+- [`FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`ConditionalSampler$sample()`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.html#method-sample)
+- [`ConditionalSampler$sample_newdata()`](https://mlr-org.github.io/xplainfi/reference/ConditionalSampler.html#method-sample_newdata)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `ConditionalGaussianSampler$new()`
 
 Creates a new ConditionalGaussianSampler.
 
@@ -115,7 +115,7 @@ Creates a new ConditionalGaussianSampler.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `ConditionalGaussianSampler$clone()`
 
 The objects of this class are cloneable with this method.
 

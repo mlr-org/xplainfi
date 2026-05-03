@@ -27,9 +27,9 @@ Mixed Data.” *AStA Advances in Statistical Analysis*, **108**(2),
 
 ## Super classes
 
-[`xplainfi::FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
+[`FeatureSampler`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)
 -\>
-[`xplainfi::KnockoffSampler`](https://mlr-org.github.io/xplainfi/reference/KnockoffSampler.md)
+[`KnockoffSampler`](https://mlr-org.github.io/xplainfi/reference/KnockoffSampler.md)
 -\> `KnockoffGaussianSampler`
 
 ## Public fields
@@ -49,19 +49,19 @@ Mixed Data.” *AStA Advances in Statistical Analysis*, **108**(2),
 
 ### Public methods
 
-- [`KnockoffGaussianSampler$new()`](#method-KnockoffGaussianSampler-new)
+- [`KnockoffGaussianSampler$new()`](#method-KnockoffGaussianSampler-initialize)
 
 - [`KnockoffGaussianSampler$clone()`](#method-KnockoffGaussianSampler-clone)
 
 Inherited methods
 
-- [`xplainfi::FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
-- [`xplainfi::FeatureSampler$sample_newdata()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-sample_newdata)
-- [`xplainfi::KnockoffSampler$sample()`](https://mlr-org.github.io/xplainfi/reference/KnockoffSampler.html#method-sample)
+- [`FeatureSampler$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-print)
+- [`FeatureSampler$sample_newdata()`](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.html#method-sample_newdata)
+- [`KnockoffSampler$sample()`](https://mlr-org.github.io/xplainfi/reference/KnockoffSampler.html#method-sample)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `KnockoffGaussianSampler$new()`
 
 Creates a new instance using Gaussian knockoffs via
 [knockoff::create.second_order](https://rdrr.io/pkg/knockoff/man/create.second_order.html).
@@ -84,7 +84,7 @@ Creates a new instance using Gaussian knockoffs via
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `KnockoffGaussianSampler$clone()`
 
 The objects of this class are cloneable with this method.
 

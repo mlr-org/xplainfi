@@ -91,7 +91,7 @@ In <em>Proceedings of The 26th International Conference on Artificial Intelligen
     </div>
     <div class="section level2">
     <h2 id="super-classes">Super classes<a class="anchor" aria-label="anchor" href="#super-classes"></a></h2>
-    <p><code><a href="FeatureSampler.html">xplainfi::FeatureSampler</a></code> -&gt; <code><a href="ConditionalSampler.html">xplainfi::ConditionalSampler</a></code> -&gt; <code>ConditionalARFSampler</code></p>
+    <p><code><a href="FeatureSampler.html">FeatureSampler</a></code> -&gt; <code><a href="ConditionalSampler.html">ConditionalSampler</a></code> -&gt; <code>ConditionalARFSampler</code></p>
     </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
@@ -100,11 +100,11 @@ In <em>Proceedings of The 26th International Conference on Artificial Intelligen
 Will be checked against the provided <a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">mlr3::Task</a> to ensure compatibility.</p></dd>
 
 
-<dt><code>arf_model</code></dt>
+    <dt><code>arf_model</code></dt>
 <dd><p>Adversarial Random Forest model created by <a href="https://bips-hb.github.io/arf/reference/adversarial_rf.html" class="external-link">arf::adversarial_rf</a>.</p></dd>
 
 
-<dt><code>psi</code></dt>
+    <dt><code>psi</code></dt>
 <dd><p>Distribution parameters estimated from by <a href="https://bips-hb.github.io/arf/reference/forde.html" class="external-link">arf::forde</a>.</p></dd>
 
 
@@ -115,14 +115,13 @@ Will be checked against the provided <a href="https://mlr3.mlr-org.com/reference
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-ConditionalARFSampler-new"><code>ConditionalARFSampler$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-ConditionalARFSampler-initialize"><code>ConditionalARFSampler$new()</code></a></p></li>
 <li><p><a href="#method-ConditionalARFSampler-sample"><code>ConditionalARFSampler$sample()</code></a></p></li>
 <li><p><a href="#method-ConditionalARFSampler-sample_newdata"><code>ConditionalARFSampler$sample_newdata()</code></a></p></li>
 <li><p><a href="#method-ConditionalARFSampler-clone"><code>ConditionalARFSampler$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href="FeatureSampler.html#method-print"><code>xplainfi::FeatureSampler$print()</code></a></span></li>
-</ul></details></p><hr><a id="method-ConditionalARFSampler-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href="FeatureSampler.html#method-print"><code>FeatureSampler$print()</code></a></span></li>
+</ul></details></p><hr><a id="method-ConditionalARFSampler-initialize"></a><div class="section">
+<h3 id="conditionalarfsampler-new-"><code>ConditionalARFSampler$new()</code><a class="anchor" aria-label="anchor" href="#conditionalarfsampler-new-"></a></h3>
 <p>Creates a new instance of the ConditionalARFSampler class.
 To fit the ARF in parallel, register a parallel backend first (see <a href="https://bips-hb.github.io/arf/reference/arf-package.html" class="external-link">arf::arf</a>) and set <code>parallel = TRUE</code>.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
@@ -139,60 +138,50 @@ To fit the ARF in parallel, register a parallel backend first (see <a href="http
 <span>  parallel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>task</code></dt>
 <dd><p>(<a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">mlr3::Task</a>) Task to sample from.</p></dd>
 
-
-<dt><code>conditioning_set</code></dt>
+      <dt><code>conditioning_set</code></dt>
 <dd><p>(<code>character</code> | <code>NULL</code>) Default conditioning set to use in <code>$sample()</code>. This parameter only affects the sampling behavior, not the ARF model fitting.</p></dd>
 
-
-<dt><code>num_trees</code></dt>
+      <dt><code>num_trees</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>10L</code>) Number of trees for ARF. Passed to <a href="https://bips-hb.github.io/arf/reference/adversarial_rf.html" class="external-link">arf::adversarial_rf</a>.</p></dd>
 
-
-<dt><code>min_node_size</code></dt>
+      <dt><code>min_node_size</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>20L</code>) Minimum node size for ARF. Passed to <a href="https://bips-hb.github.io/arf/reference/adversarial_rf.html" class="external-link">arf::adversarial_rf</a> and in turn to <a href="http://imbs-hl.github.io/ranger/reference/ranger.html" class="external-link">ranger::ranger</a>.
 This is increased to 20 to mitigate overfitting.</p></dd>
 
-
-<dt><code>finite_bounds</code></dt>
+      <dt><code>finite_bounds</code></dt>
 <dd><p>(<code>character(1)</code>: <code>"no"</code>) How to handle variable bounds. Passed to <a href="https://bips-hb.github.io/arf/reference/forde.html" class="external-link">arf::forde</a>. Default is <code>"no"</code> for compatibility. <code>"local"</code> may improve extrapolation but can cause issues with some data.</p></dd>
 
-
-<dt><code>epsilon</code></dt>
+      <dt><code>epsilon</code></dt>
 <dd><p>(<code>numeric(1)</code>: <code>0</code>) Slack parameter for when <code>finite_bounds != "no"</code>. Passed to <a href="https://bips-hb.github.io/arf/reference/forde.html" class="external-link">arf::forde</a>.</p></dd>
 
-
-<dt><code>round</code></dt>
+      <dt><code>round</code></dt>
 <dd><p>(<code>logical(1)</code>: <code>TRUE</code>) Whether to round continuous variables back to their original precision in sampling. Can be overridden in <code>$sample()</code> calls.</p></dd>
 
-
-<dt><code>stepsize</code></dt>
+      <dt><code>stepsize</code></dt>
 <dd><p>(<code>numeric(1)</code>: <code>0</code>) Number of rows of evidence to process at a time when <code>parallel</code> is <code>TRUE</code>. Default (<code>0</code>) spreads evidence evenly over registered workers. Can be overridden in <code>$sample()</code> calls.</p></dd>
 
-
-<dt><code>verbose</code></dt>
+      <dt><code>verbose</code></dt>
 <dd><p>(<code>logical(1)</code>: <code>FALSE</code>) Whether to print progress messages. Default is <code>FALSE</code> (arf's default is <code>TRUE</code>). Can be overridden in <code>$sample()</code> calls.</p></dd>
 
-
-<dt><code>parallel</code></dt>
+      <dt><code>parallel</code></dt>
 <dd><p>(<code>logical(1)</code>: <code>FALSE</code>) Whether to use parallel processing via <code>foreach</code>. See examples in <code><a href="https://bips-hb.github.io/arf/reference/forge.html" class="external-link">arf::forge()</a></code>. Can be overridden in <code>$sample()</code> calls.</p></dd>
 
-
-<dt><code>...</code></dt>
+      <dt><code>...</code></dt>
 <dd><p>Additional arguments passed to <a href="https://bips-hb.github.io/arf/reference/adversarial_rf.html" class="external-link">arf::adversarial_rf</a>.</p></dd>
 
 
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-ConditionalARFSampler-sample"></a><div class="section">
-<h3 id="method-sample-">Method <code><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample()</a></code><a class="anchor" aria-label="anchor" href="#method-sample-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-ConditionalARFSampler-sample"></a><div class="section">
+<h3 id="conditionalarfsampler-sample-"><code>ConditionalARFSampler$sample()</code><a class="anchor" aria-label="anchor" href="#conditionalarfsampler-sample-"></a></h3>
 <p>Sample from stored task. Parameters use hierarchical resolution:
 function argument &gt; stored <code>param_set</code> value &gt; hard-coded default.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
@@ -205,47 +194,40 @@ function argument &gt; stored <code>param_set</code> value &gt; hard-coded defau
 <span>  verbose <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>feature</code></dt>
 <dd><p>(<code>character</code>) Feature(s) to sample.</p></dd>
 
-
-<dt><code>row_ids</code></dt>
+      <dt><code>row_ids</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> | <code>NULL</code>) Row IDs to use. If <code>NULL</code>, uses all rows.</p></dd>
 
-
-<dt><code>conditioning_set</code></dt>
+      <dt><code>conditioning_set</code></dt>
 <dd><p>(<code>character</code> | <code>NULL</code>) Features to condition on.</p></dd>
 
-
-<dt><code>round</code></dt>
+      <dt><code>round</code></dt>
 <dd><p>(<code>logical(1)</code> | <code>NULL</code>) Round continuous variables.</p></dd>
 
-
-<dt><code>stepsize</code></dt>
+      <dt><code>stepsize</code></dt>
 <dd><p>(<code>numeric(1)</code> | <code>NULL</code>) Batch size for parallel processing.</p></dd>
 
-
-<dt><code>verbose</code></dt>
+      <dt><code>verbose</code></dt>
 <dd><p>(<code>logical(1)</code> | <code>NULL</code>) Print progress messages.</p></dd>
 
-
-<dt><code>parallel</code></dt>
+      <dt><code>parallel</code></dt>
 <dd><p>(<code>logical(1)</code> | <code>NULL</code>) Use parallel processing.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>Modified copy with sampled feature(s).</p>
 </div>
 
-</div><p></p><hr><a id="method-ConditionalARFSampler-sample_newdata"></a><div class="section">
-<h3 id="method-sample-newdata-">Method <code>sample_newdata()</code><a class="anchor" aria-label="anchor" href="#method-sample-newdata-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-ConditionalARFSampler-sample_newdata"></a><div class="section">
+<h3 id="conditionalarfsampler-sample-newdata-"><code>ConditionalARFSampler$sample_newdata()</code><a class="anchor" aria-label="anchor" href="#conditionalarfsampler-sample-newdata-"></a></h3>
 <p>Sample from external data. See <code>$sample()</code> for parameter details.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ConditionalARFSampler</span><span class="op">$</span><span class="fu">sample_newdata</span><span class="op">(</span></span>
@@ -257,53 +239,44 @@ function argument &gt; stored <code>param_set</code> value &gt; hard-coded defau
 <span>  verbose <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>feature</code></dt>
 <dd><p>(<code>character</code>) Feature(s) to sample.</p></dd>
 
-
-<dt><code>newdata</code></dt>
+      <dt><code>newdata</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></code>) External data to use.</p></dd>
 
-
-<dt><code>conditioning_set</code></dt>
+      <dt><code>conditioning_set</code></dt>
 <dd><p>(<code>character</code> | <code>NULL</code>) Features to condition on.</p></dd>
 
-
-<dt><code>round</code></dt>
+      <dt><code>round</code></dt>
 <dd><p>(<code>logical(1)</code> | <code>NULL</code>) Round continuous variables.</p></dd>
 
-
-<dt><code>stepsize</code></dt>
+      <dt><code>stepsize</code></dt>
 <dd><p>(<code>numeric(1)</code> | <code>NULL</code>) Batch size for parallel processing.</p></dd>
 
-
-<dt><code>verbose</code></dt>
+      <dt><code>verbose</code></dt>
 <dd><p>(<code>logical(1)</code> | <code>NULL</code>) Print progress messages.</p></dd>
 
-
-<dt><code>parallel</code></dt>
+      <dt><code>parallel</code></dt>
 <dd><p>(<code>logical(1)</code> | <code>NULL</code>) Use parallel processing.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
 <p>Modified copy with sampled feature(s).</p>
 </div>
 
-</div><p></p><hr><a id="method-ConditionalARFSampler-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-ConditionalARFSampler-clone"></a><div class="section">
+<h3 id="conditionalarfsampler-clone-"><code>ConditionalARFSampler$clone()</code><a class="anchor" aria-label="anchor" href="#conditionalarfsampler-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ConditionalARFSampler</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -313,6 +286,7 @@ function argument &gt; stored <code>param_set</code> value &gt; hard-coded defau
 </div>
 
 </div>
+
 
     </div>
 

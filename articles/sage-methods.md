@@ -1,6 +1,7 @@
 # Shapley Additive Global Importance (SAGE)
 
 ``` r
+
 library(xplainfi)
 library(mlr3)
 library(mlr3learners)
@@ -70,6 +71,7 @@ where \\\varepsilon \sim N(0, 0.2^2)\\.
 - `x4` is independent noise (β=0)
 
 ``` r
+
 set.seed(123)
 task = sim_dgp_correlated(n = 1000, r = 0.5)
 
@@ -91,6 +93,7 @@ Let’s set up our learner and measure. We’ll use a random forest and
 instantiate a resampling to ensure both methods see the same data:
 
 ``` r
+
 learner = lrn("regr.ranger")
 measure = msr("regr.mse")
 resampling = rsmp("holdout")
@@ -105,6 +108,7 @@ test dataset. We use 15 permutations of the feature vector to build
 coalitions, resulting in 61 evaluated coalitions (`15 * 4 + 1`).
 
 ``` r
+
 # Create Marginal SAGE instance
 marginal_sage = MarginalSAGE$new(
     task = task,
@@ -129,6 +133,7 @@ We can also keep track of the SAGE value approximation across
 permutations:
 
 ``` r
+
 marginal_sage$plot_convergence()
 ```
 
@@ -159,6 +164,7 @@ implementation in the `fippy` package.
 You can customize convergence detection in `$compute()`:
 
 ``` r
+
 # More strict convergence (requires more permutations)
 sage$compute(early_stopping = TRUE, se_threshold = 0.005, min_permutations = 5L)
 
@@ -169,6 +175,7 @@ sage$compute(early_stopping = FALSE)
 After computation, you can check convergence status:
 
 ``` r
+
 marginal_sage$converged  # TRUE if converged early
 marginal_sage$n_permutations_used  # Actual permutations used
 ```
@@ -186,6 +193,7 @@ features. This can provide different insights, especially when features
 are correlated.
 
 ``` r
+
 # Create Conditional SAGE instance using a conditional sampler
 sampler_gaussian = ConditionalGaussianSampler$new(task)
 
@@ -210,6 +218,7 @@ colored by feature type (causal vs
 noise).](sage-methods_files/figure-html/conditional-sage-plot-1.png)
 
 ``` r
+
 conditional_sage$plot_convergence()
 ```
 
@@ -251,6 +260,7 @@ For reference, let’s compare SAGE methods with the analogous PFI and CFI
 methods on the same data:
 
 ``` r
+
 # Quick PFI and CFI comparison for context
 pfi = PFI$new(task, learner, measure)
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
