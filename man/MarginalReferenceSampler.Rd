@@ -56,67 +56,68 @@ In \emph{Advances in Neural Information Processing Systems}, volume 33, 17212--1
 \url{https://proceedings.neurips.cc/paper/2020/hash/c7bf0b7c1a86d5eb3be2c722cf2cf746-Abstract.html}.
 }
 \section{Super classes}{
-\code{\link[xplainfi:FeatureSampler]{xplainfi::FeatureSampler}} -> \code{\link[xplainfi:MarginalSampler]{xplainfi::MarginalSampler}} -> \code{MarginalReferenceSampler}
+\code{\link[xplainfi:FeatureSampler]{FeatureSampler}} -> \code{\link[xplainfi:MarginalSampler]{MarginalSampler}} -> \code{MarginalReferenceSampler}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{reference_data}}{(\code{\link[data.table:data.table]{data.table}})
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{reference_data}}{(\code{\link[data.table:data.table]{data.table}})
 Reference data to sample from for marginalization.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-MarginalReferenceSampler-new}{\code{MarginalReferenceSampler$new()}}
-\item \href{#method-MarginalReferenceSampler-clone}{\code{MarginalReferenceSampler$clone()}}
+  \itemize{
+    \item \href{#method-MarginalReferenceSampler-initialize}{\code{MarginalReferenceSampler$new()}}
+    \item \href{#method-MarginalReferenceSampler-clone}{\code{MarginalReferenceSampler$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>xplainfi::FeatureSampler$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="MarginalSampler" data-id="sample"><a href='../../xplainfi/html/MarginalSampler.html#method-MarginalSampler-sample'><code>xplainfi::MarginalSampler$sample()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="MarginalSampler" data-id="sample_newdata"><a href='../../xplainfi/html/MarginalSampler.html#method-MarginalSampler-sample_newdata'><code>xplainfi::MarginalSampler$sample_newdata()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>FeatureSampler$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="MarginalSampler" data-id="sample"><a href='../../xplainfi/html/MarginalSampler.html#method-MarginalSampler-sample'><code>MarginalSampler$sample()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="MarginalSampler" data-id="sample_newdata"><a href='../../xplainfi/html/MarginalSampler.html#method-MarginalSampler-sample_newdata'><code>MarginalSampler$sample_newdata()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-MarginalReferenceSampler-new"></a>}}
-\if{latex}{\out{\hypertarget{method-MarginalReferenceSampler-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of the MarginalReferenceSampler class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{MarginalReferenceSampler$new(task, n_samples = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from.}
-
-\item{\code{n_samples}}{(\code{integer(1)} | \code{NULL}) Number of reference samples to use.
+\if{html}{\out{<a id="method-MarginalReferenceSampler-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-MarginalReferenceSampler-initialize}{}}}
+\subsection{\code{MarginalReferenceSampler$new()}}{
+  Creates a new instance of the MarginalReferenceSampler class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{MarginalReferenceSampler$new(task, n_samples = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from.}
+      \item{\code{n_samples}}{(\code{integer(1)} | \code{NULL}) Number of reference samples to use.
 If \code{NULL}, uses all task data as reference.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-MarginalReferenceSampler-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-MarginalReferenceSampler-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{MarginalReferenceSampler$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{MarginalReferenceSampler$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{MarginalReferenceSampler$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

@@ -20,5 +20,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Lukas Burk \email{cran@lukasburk.de} (\href{https://orcid.org/0000-0001-7528-3795}{ORCID}) [copyright holder]
 
+Authors:
+\itemize{
+  \item Lukas Burk \email{cran@lukasburk.de} (\href{https://orcid.org/0000-0001-7528-3795}{ORCID}) [copyright holder]
+}
+
 }
 \keyword{internal}

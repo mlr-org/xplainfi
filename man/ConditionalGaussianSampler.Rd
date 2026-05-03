@@ -66,69 +66,70 @@ Wiley-Interscience, Hoboken, NJ.
 ISBN 9780471360919.
 }
 \section{Super classes}{
-\code{\link[xplainfi:FeatureSampler]{xplainfi::FeatureSampler}} -> \code{\link[xplainfi:ConditionalSampler]{xplainfi::ConditionalSampler}} -> \code{ConditionalGaussianSampler}
+\code{\link[xplainfi:FeatureSampler]{FeatureSampler}} -> \code{\link[xplainfi:ConditionalSampler]{ConditionalSampler}} -> \code{ConditionalGaussianSampler}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{feature_types}}{(\code{character()}) Feature types supported by the sampler.}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{feature_types}}{(\code{character()}) Feature types supported by the sampler.}
 
-\item{\code{mu}}{(\code{numeric()}) Mean vector estimated from training data.}
+    \item{\code{mu}}{(\code{numeric()}) Mean vector estimated from training data.}
 
-\item{\code{sigma}}{(\code{matrix()}) Covariance matrix estimated from training data.}
-}
-\if{html}{\out{</div>}}
+    \item{\code{sigma}}{(\code{matrix()}) Covariance matrix estimated from training data.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-ConditionalGaussianSampler-new}{\code{ConditionalGaussianSampler$new()}}
-\item \href{#method-ConditionalGaussianSampler-clone}{\code{ConditionalGaussianSampler$clone()}}
+  \itemize{
+    \item \href{#method-ConditionalGaussianSampler-initialize}{\code{ConditionalGaussianSampler$new()}}
+    \item \href{#method-ConditionalGaussianSampler-clone}{\code{ConditionalGaussianSampler$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>xplainfi::FeatureSampler$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="ConditionalSampler" data-id="sample"><a href='../../xplainfi/html/ConditionalSampler.html#method-ConditionalSampler-sample'><code>xplainfi::ConditionalSampler$sample()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="ConditionalSampler" data-id="sample_newdata"><a href='../../xplainfi/html/ConditionalSampler.html#method-ConditionalSampler-sample_newdata'><code>xplainfi::ConditionalSampler$sample_newdata()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>FeatureSampler$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="ConditionalSampler" data-id="sample"><a href='../../xplainfi/html/ConditionalSampler.html#method-ConditionalSampler-sample'><code>ConditionalSampler$sample()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="ConditionalSampler" data-id="sample_newdata"><a href='../../xplainfi/html/ConditionalSampler.html#method-ConditionalSampler-sample_newdata'><code>ConditionalSampler$sample_newdata()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-ConditionalGaussianSampler-new"></a>}}
-\if{latex}{\out{\hypertarget{method-ConditionalGaussianSampler-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new ConditionalGaussianSampler.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConditionalGaussianSampler$new(task, conditioning_set = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<a id="method-ConditionalGaussianSampler-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-ConditionalGaussianSampler-initialize}{}}}
+\subsection{\code{ConditionalGaussianSampler$new()}}{
+  Creates a new ConditionalGaussianSampler.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalGaussianSampler$new(task, conditioning_set = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from. Must have only numeric/integer features.}
+      \item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Default conditioning set to use in \verb{$sample()}.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from. Must have only numeric/integer features.}
-
-\item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Default conditioning set to use in \verb{$sample()}.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ConditionalGaussianSampler-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-ConditionalGaussianSampler-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConditionalGaussianSampler$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{ConditionalGaussianSampler$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalGaussianSampler$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

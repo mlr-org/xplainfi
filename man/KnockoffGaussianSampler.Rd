@@ -32,69 +32,70 @@ Blesch K, Watson D, Wright M (2023).
 \doi{10.1007/s10182-023-00477-9}.
 }
 \section{Super classes}{
-\code{\link[xplainfi:FeatureSampler]{xplainfi::FeatureSampler}} -> \code{\link[xplainfi:KnockoffSampler]{xplainfi::KnockoffSampler}} -> \code{KnockoffGaussianSampler}
+\code{\link[xplainfi:FeatureSampler]{FeatureSampler}} -> \code{\link[xplainfi:KnockoffSampler]{KnockoffSampler}} -> \code{KnockoffGaussianSampler}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{feature_types}}{(\code{character()}) Feature types supported by the sampler.
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{feature_types}}{(\code{character()}) Feature types supported by the sampler.
 Will be checked against the provided \link[mlr3:Task]{mlr3::Task} to ensure compatibility.}
 
-\item{\code{x_tilde}}{Knockoff matrix}
-}
-\if{html}{\out{</div>}}
+    \item{\code{x_tilde}}{Knockoff matrix}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-KnockoffGaussianSampler-new}{\code{KnockoffGaussianSampler$new()}}
-\item \href{#method-KnockoffGaussianSampler-clone}{\code{KnockoffGaussianSampler$clone()}}
+  \itemize{
+    \item \href{#method-KnockoffGaussianSampler-initialize}{\code{KnockoffGaussianSampler$new()}}
+    \item \href{#method-KnockoffGaussianSampler-clone}{\code{KnockoffGaussianSampler$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>xplainfi::FeatureSampler$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="sample_newdata"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-sample_newdata'><code>xplainfi::FeatureSampler$sample_newdata()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="KnockoffSampler" data-id="sample"><a href='../../xplainfi/html/KnockoffSampler.html#method-KnockoffSampler-sample'><code>xplainfi::KnockoffSampler$sample()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>FeatureSampler$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="sample_newdata"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-sample_newdata'><code>FeatureSampler$sample_newdata()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="KnockoffSampler" data-id="sample"><a href='../../xplainfi/html/KnockoffSampler.html#method-KnockoffSampler-sample'><code>KnockoffSampler$sample()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-KnockoffGaussianSampler-new"></a>}}
-\if{latex}{\out{\hypertarget{method-KnockoffGaussianSampler-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance using Gaussian knockoffs via \link[knockoff:create.second_order]{knockoff::create.second_order}.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{KnockoffGaussianSampler$new(task, iters = 1)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from.}
-
-\item{\code{iters}}{(\code{integer(1)}: \code{1}) Number of repetitions the \code{knockoff_fun} is applied to create multiple \code{x_tilde}
+\if{html}{\out{<a id="method-KnockoffGaussianSampler-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-KnockoffGaussianSampler-initialize}{}}}
+\subsection{\code{KnockoffGaussianSampler$new()}}{
+  Creates a new instance using Gaussian knockoffs via \link[knockoff:create.second_order]{knockoff::create.second_order}.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{KnockoffGaussianSampler$new(task, iters = 1)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from.}
+      \item{\code{iters}}{(\code{integer(1)}: \code{1}) Number of repetitions the \code{knockoff_fun} is applied to create multiple \code{x_tilde}
 instances per observation.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-KnockoffGaussianSampler-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-KnockoffGaussianSampler-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{KnockoffGaussianSampler$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{KnockoffGaussianSampler$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{KnockoffGaussianSampler$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

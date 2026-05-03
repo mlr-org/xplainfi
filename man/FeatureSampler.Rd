@@ -8,120 +8,128 @@ Base class for implementing different sampling strategies
 for feature importance methods like PFI and CFI
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Original task.}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Original task.}
 
-\item{\code{label}}{(\code{character(1)}) Name of the sampler.}
+    \item{\code{label}}{(\code{character(1)}) Name of the sampler.}
 
-\item{\code{feature_types}}{(\code{character()}) Feature types supported by the sampler.
+    \item{\code{feature_types}}{(\code{character()}) Feature types supported by the sampler.
 Will be checked against the provided \link[mlr3:Task]{mlr3::Task} to ensure compatibility.}
 
-\item{\code{param_set}}{(\link[paradox:ParamSet]{paradox::ParamSet}) Parameter set for the sampler.}
-}
-\if{html}{\out{</div>}}
+    \item{\code{param_set}}{(\link[paradox:ParamSet]{paradox::ParamSet}) Parameter set for the sampler.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-FeatureSampler-new}{\code{FeatureSampler$new()}}
-\item \href{#method-FeatureSampler-sample}{\code{FeatureSampler$sample()}}
-\item \href{#method-FeatureSampler-sample_newdata}{\code{FeatureSampler$sample_newdata()}}
-\item \href{#method-FeatureSampler-print}{\code{FeatureSampler$print()}}
-\item \href{#method-FeatureSampler-clone}{\code{FeatureSampler$clone()}}
-}
+  \itemize{
+    \item \href{#method-FeatureSampler-initialize}{\code{FeatureSampler$new()}}
+    \item \href{#method-FeatureSampler-sample}{\code{FeatureSampler$sample()}}
+    \item \href{#method-FeatureSampler-sample_newdata}{\code{FeatureSampler$sample_newdata()}}
+    \item \href{#method-FeatureSampler-print}{\code{FeatureSampler$print()}}
+    \item \href{#method-FeatureSampler-clone}{\code{FeatureSampler$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-FeatureSampler-new"></a>}}
-\if{latex}{\out{\hypertarget{method-FeatureSampler-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of the FeatureSampler class
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FeatureSampler$new(task)}\if{html}{\out{</div>}}
+\if{html}{\out{<a id="method-FeatureSampler-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-FeatureSampler-initialize}{}}}
+\subsection{\code{FeatureSampler$new()}}{
+  Creates a new instance of the FeatureSampler class
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FeatureSampler$new(task)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FeatureSampler-sample"></a>}}
 \if{latex}{\out{\hypertarget{method-FeatureSampler-sample}{}}}
-\subsection{Method \code{sample()}}{
-Sample values for feature(s) from stored task
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FeatureSampler$sample(feature, row_ids = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{feature}}{(\code{character}) Feature name(s) to sample (can be single or multiple). Must match those in the stored \link[mlr3:Task]{Task}.}
-
-\item{\code{row_ids}}{(\code{integer()}: \code{NULL}) Row IDs of the stored \link[mlr3:Task]{Task} to use as basis for sampling.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Modified copy of the input features with the feature(s) sampled:
+\subsection{\code{FeatureSampler$sample()}}{
+  Sample values for feature(s) from stored task
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FeatureSampler$sample(feature, row_ids = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{feature}}{(\code{character}) Feature name(s) to sample (can be single or multiple). Must match those in the stored \link[mlr3:Task]{Task}.}
+      \item{\code{row_ids}}{(\code{integer()}: \code{NULL}) Row IDs of the stored \link[mlr3:Task]{Task} to use as basis for sampling.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Modified copy of the input features with the feature(s) sampled:
 A \link[data.table:data.table]{data.table} with same number of columns and one row matching the supplied \code{row_ids}
+  }
 }
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FeatureSampler-sample_newdata"></a>}}
 \if{latex}{\out{\hypertarget{method-FeatureSampler-sample_newdata}{}}}
-\subsection{Method \code{sample_newdata()}}{
-Sample values for feature(s) using external data
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FeatureSampler$sample_newdata(feature, newdata)}\if{html}{\out{</div>}}
+\subsection{\code{FeatureSampler$sample_newdata()}}{
+  Sample values for feature(s) using external data
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FeatureSampler$sample_newdata(feature, newdata)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{feature}}{(\code{character}) Feature name(s) to sample (can be single or multiple)}
+      \item{\code{newdata}}{(\code{\link[data.table:data.table]{data.table}} ) External data to use for sampling.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{feature}}{(\code{character}) Feature name(s) to sample (can be single or multiple)}
-
-\item{\code{newdata}}{(\code{\link[data.table:data.table]{data.table}} ) External data to use for sampling.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FeatureSampler-print"></a>}}
 \if{latex}{\out{\hypertarget{method-FeatureSampler-print}{}}}
-\subsection{Method \code{print()}}{
-Print sampler
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FeatureSampler$print(...)}\if{html}{\out{</div>}}
+\subsection{\code{FeatureSampler$print()}}{
+  Print sampler
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FeatureSampler$print(...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{...}}{Ignored.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{Ignored.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FeatureSampler-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-FeatureSampler-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FeatureSampler$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{FeatureSampler$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FeatureSampler$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

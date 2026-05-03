@@ -5,8 +5,6 @@
 \title{Feature Importance Method Class}
 \description{
 Feature Importance Method Class
-
-Feature Importance Method Class
 }
 \references{
 Nadeau C, Bengio Y (2003).
@@ -19,56 +17,57 @@ In Longo L (ed.), \emph{Explainable Artificial Intelligence}, 456--479.
 ISBN 978-3-031-44064-9, \doi{10.1007/978-3-031-44064-9_24}.
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{label}}{(\code{character(1)}) Method label.}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{label}}{(\code{character(1)}) Method label.}
 
-\item{\code{task}}{(\link[mlr3:Task]{mlr3::Task})}
+    \item{\code{task}}{(\link[mlr3:Task]{mlr3::Task})}
 
-\item{\code{learner}}{(\link[mlr3:Learner]{mlr3::Learner})}
+    \item{\code{learner}}{(\link[mlr3:Learner]{mlr3::Learner})}
 
-\item{\code{measure}}{(\link[mlr3:Measure]{mlr3::Measure})}
+    \item{\code{measure}}{(\link[mlr3:Measure]{mlr3::Measure})}
 
-\item{\code{resampling}}{(\link[mlr3:Resampling]{mlr3::Resampling}), instantiated upon construction.}
+    \item{\code{resampling}}{(\link[mlr3:Resampling]{mlr3::Resampling}), instantiated upon construction.}
 
-\item{\code{resample_result}}{(\link[mlr3:ResampleResult]{mlr3::ResampleResult}) of the original \code{learner} and \code{task}, used for baseline scores.}
+    \item{\code{resample_result}}{(\link[mlr3:ResampleResult]{mlr3::ResampleResult}) of the original \code{learner} and \code{task}, used for baseline scores.}
 
-\item{\code{features}}{(\code{character}: \code{NULL}) Features of interest. By default, importances will be computed for each feature
+    \item{\code{features}}{(\code{character}: \code{NULL}) Features of interest. By default, importances will be computed for each feature
 in \code{task}, but optionally this can be restricted to at least one feature. Ignored if \code{groups} is specified.}
 
-\item{\code{groups}}{(\code{list}: \code{NULL}) A (named) list of features (names or indices as in \code{task}).
+    \item{\code{groups}}{(\code{list}: \code{NULL}) A (named) list of features (names or indices as in \code{task}).
 If \code{groups} is specified, \code{features} is ignored.
 Importances will be calculated for group of features at a time, e.g., in \link{PFI} not one but the group of features will be permuted at each step.
 Analogously in \link{WVIM}, each group of features will be left out (or in) for each model refit.
 Not all methods support groups (e.g., \link{SAGE}).}
 
-\item{\code{param_set}}{(\code{\link[paradox:ps]{paradox::ps()}})}
+    \item{\code{param_set}}{(\code{\link[paradox:ps]{paradox::ps()}})}
 
-\item{\code{predictions}}{(\link[data.table:data.table]{data.table}) Feature-specific prediction objects provided for some methods (\link{PFI}, \link{WVIM}). Contains columns for feature of interest, resampling iteration, refit or perturbation iteration, and \link[mlr3:Prediction]{mlr3::Prediction} objects.}
-}
-\if{html}{\out{</div>}}
+    \item{\code{predictions}}{(\link[data.table:data.table]{data.table}) Feature-specific prediction objects provided for some methods (\link{PFI}, \link{WVIM}). Contains columns for feature of interest, resampling iteration, refit or perturbation iteration, and \link[mlr3:Prediction]{mlr3::Prediction} objects.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-FeatureImportanceMethod-new}{\code{FeatureImportanceMethod$new()}}
-\item \href{#method-FeatureImportanceMethod-compute}{\code{FeatureImportanceMethod$compute()}}
-\item \href{#method-FeatureImportanceMethod-importance}{\code{FeatureImportanceMethod$importance()}}
-\item \href{#method-FeatureImportanceMethod-obs_loss}{\code{FeatureImportanceMethod$obs_loss()}}
-\item \href{#method-FeatureImportanceMethod-reset}{\code{FeatureImportanceMethod$reset()}}
-\item \href{#method-FeatureImportanceMethod-print}{\code{FeatureImportanceMethod$print()}}
-\item \href{#method-FeatureImportanceMethod-scores}{\code{FeatureImportanceMethod$scores()}}
-\item \href{#method-FeatureImportanceMethod-clone}{\code{FeatureImportanceMethod$clone()}}
-}
+  \itemize{
+    \item \href{#method-FeatureImportanceMethod-initialize}{\code{FeatureImportanceMethod$new()}}
+    \item \href{#method-FeatureImportanceMethod-compute}{\code{FeatureImportanceMethod$compute()}}
+    \item \href{#method-FeatureImportanceMethod-importance}{\code{FeatureImportanceMethod$importance()}}
+    \item \href{#method-FeatureImportanceMethod-obs_loss}{\code{FeatureImportanceMethod$obs_loss()}}
+    \item \href{#method-FeatureImportanceMethod-reset}{\code{FeatureImportanceMethod$reset()}}
+    \item \href{#method-FeatureImportanceMethod-print}{\code{FeatureImportanceMethod$print()}}
+    \item \href{#method-FeatureImportanceMethod-scores}{\code{FeatureImportanceMethod$scores()}}
+    \item \href{#method-FeatureImportanceMethod-clone}{\code{FeatureImportanceMethod$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-FeatureImportanceMethod-new"></a>}}
-\if{latex}{\out{\hypertarget{method-FeatureImportanceMethod-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
+\if{html}{\out{<a id="method-FeatureImportanceMethod-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-FeatureImportanceMethod-initialize}{}}}
+\subsection{\code{FeatureImportanceMethod$new()}}{
+  Creates a new instance of this \link[R6:R6Class]{R6} class.
 This is typically intended for use by derived classes.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FeatureImportanceMethod$new(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FeatureImportanceMethod$new(
   task,
   learner,
   measure = NULL,
@@ -77,43 +76,47 @@ This is typically intended for use by derived classes.
   groups = NULL,
   param_set = paradox::ps(),
   label
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task, learner, measure, resampling, features, groups, param_set, label}}{Used to set fields}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task, learner, measure, resampling, features, groups, param_set, label}}{Used to set fields}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FeatureImportanceMethod-compute"></a>}}
 \if{latex}{\out{\hypertarget{method-FeatureImportanceMethod-compute}{}}}
-\subsection{Method \code{compute()}}{
-Compute feature importance scores
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FeatureImportanceMethod$compute(store_backends = TRUE)}\if{html}{\out{</div>}}
+\subsection{\code{FeatureImportanceMethod$compute()}}{
+  Compute feature importance scores
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FeatureImportanceMethod$compute(store_backends = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{store_backends}}{(\code{logical(1): TRUE}) Whether to store backends.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{store_backends}}{(\code{logical(1): TRUE}) Whether to store backends.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FeatureImportanceMethod-importance"></a>}}
 \if{latex}{\out{\hypertarget{method-FeatureImportanceMethod-importance}{}}}
-\subsection{Method \code{importance()}}{
-Get aggregated importance scores.
+\subsection{\code{FeatureImportanceMethod$importance()}}{
+  Get aggregated importance scores.
 The stored \code{\link[mlr3:Measure]{measure}} object's \code{aggregator} (default: \code{mean}) will be used to aggregated importance scores
 across resampling iterations and, depending on the method use, permutations (\link{PerturbationImportance} or refits \link{LOCO}).
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FeatureImportanceMethod$importance(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FeatureImportanceMethod$importance(
   relation = NULL,
   standardize = FALSE,
   ci_method = c("none", "raw", "nadeau_bengio", "quantile"),
@@ -121,48 +124,42 @@ across resampling iterations and, depending on the method use, permutations (\li
   alternative = c("two.sided", "greater"),
   p_adjust = "none",
   ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{relation}}{(character(1)) How to relate perturbed scores to originals ("difference" or "ratio").
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{relation}}{(character(1)) How to relate perturbed scores to originals ("difference" or "ratio").
 If \code{NULL}, uses stored parameter value. This is only applicable for methods where importance is based on some
 relation between baseline and post-modification loss, i.e. \link{PerturbationImportance} methods such as \link{PFI} or \link{WVIM} / \link{LOCO}.
 Not available for \link{SAGE} methods.}
-
-\item{\code{standardize}}{(\code{logical(1)}: \code{FALSE}) If \code{TRUE}, importances are standardized by the highest score so all scores fall in \verb{[-1, 1]}.}
-
-\item{\code{ci_method}}{(\code{character(1)}: \code{"none"}) Which confidence interval estimation method to use, defaulting to omitting
+      \item{\code{standardize}}{(\code{logical(1)}: \code{FALSE}) If \code{TRUE}, importances are standardized by the highest score so all scores fall in \verb{[-1, 1]}.}
+      \item{\code{ci_method}}{(\code{character(1)}: \code{"none"}) Which confidence interval estimation method to use, defaulting to omitting
 variance estimation (\code{"none"}).
 If \code{"raw"}, uncorrected (too narrow) CIs are provided purely for informative purposes.
 If \code{"nadeau_bengio"}, variance correction is performed according to Nadeau & Bengio (2003) as suggested by Molnar et al. (2023).
 If \code{"quantile"}, empirical quantiles are used to construct confidence-like intervals.
 These methods are model-agnostic and rely on suitable \code{resampling}s, e.g. subsampling with 15 repeats for \code{"nadeau_bengio"}.
 See details.}
-
-\item{\code{conf_level}}{(\code{numeric(1)}: \code{0.95}) Confidence level to use for confidence interval construction when \code{ci_method != "none"}.}
-
-\item{\code{alternative}}{(\code{character(1)}: \code{"two.sided"}) Type of alternative hypothesis for statistical tests.
+      \item{\code{conf_level}}{(\code{numeric(1)}: \code{0.95}) Confidence level to use for confidence interval construction when \code{ci_method != "none"}.}
+      \item{\code{alternative}}{(\code{character(1)}: \code{"two.sided"}) Type of alternative hypothesis for statistical tests.
 \code{"greater"} tests H0: importance <= 0 vs H1: importance > 0 (one-sided).
 \code{"two.sided"} tests H0: importance = 0 vs H1: importance != 0.
 Only used when \code{ci_method != "none"}.}
-
-\item{\code{p_adjust}}{(\code{character(1)}: \code{"none"}) Method for p-value adjustment for multiple comparisons.
-Accepts any method supported by \link[stats:p.adjust]{stats::p.adjust.methods}, e.g. \code{"holm"}, \code{"bonferroni"}, \code{"BH"}, \code{"none"}.
+      \item{\code{p_adjust}}{(\code{character(1)}: \code{"none"}) Method for p-value adjustment for multiple comparisons.
+Accepts any method supported by \link[stats:p.adjust.methods]{stats::p.adjust.methods}, e.g. \code{"holm"}, \code{"bonferroni"}, \code{"BH"}, \code{"none"}.
 Applied to p-values from \code{"raw"} and \code{"nadeau_bengio"} methods.
 When \code{"bonferroni"}, confidence intervals are also adjusted (alpha/k).
 For other correction methods (e.g. \code{"holm"}, \code{"BH"}), only p-values are adjusted;
 confidence intervals remain at the nominal \code{conf_level} because these sequential/adaptive
 procedures do not have a clean per-comparison alpha for CI construction.}
-
-\item{\code{...}}{Additional arguments passed to specialized methods, if any.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Details}{
-\subsection{Confidence Interval Methods}{
+      \item{\code{...}}{Additional arguments passed to specialized methods, if any.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Details}{
+    \subsection{Confidence Interval Methods}{
 
 The parametric methods (\code{"raw"}, \code{"nadeau_bengio"}) return standard error (\code{se}),
 test statistic (\code{statistic}), p-value (\code{p.value}), and confidence bounds
@@ -233,107 +230,117 @@ Prefer subsampling in such cases:
 The \code{"nadeau_bengio"} correction was validated for PFI; its use with other methods
 like LOCO or SAGE is experimental.
 }
+  }
+  \subsection{Returns}{
+    (\link[data.table:data.table]{data.table}) Aggregated importance scores with columns \code{"feature"}, \code{"importance"},
+and depending on \code{ci_method} also \code{"se"}, \code{"statistic"}, \code{"p.value"}, \code{"conf_lower"}, \code{"conf_upper"}.
+  }
 }
 
-\subsection{Returns}{
-(\link[data.table:data.table]{data.table}) Aggregated importance scores with columns \code{"feature"}, \code{"importance"},
-and depending on \code{ci_method} also \code{"se"}, \code{"statistic"}, \code{"p.value"}, \code{"conf_lower"}, \code{"conf_upper"}.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FeatureImportanceMethod-obs_loss"></a>}}
 \if{latex}{\out{\hypertarget{method-FeatureImportanceMethod-obs_loss}{}}}
-\subsection{Method \code{obs_loss()}}{
-Calculate observation-wise importance scores.
+\subsection{\code{FeatureImportanceMethod$obs_loss()}}{
+  Calculate observation-wise importance scores.
 
 Requires that \verb{$compute()} was run and that \code{measure} is decomposable and
 has an observation-wise loss (\code{Measure$obs_loss()}) associated with it.
 This is not the case for measure like \code{classif.auc}, which is not decomposable.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FeatureImportanceMethod$obs_loss(relation = NULL)}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FeatureImportanceMethod$obs_loss(relation = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{relation}}{(character(1)) How to relate perturbed scores to originals ("difference" or "ratio"). If \code{NULL}, uses stored parameter value. This is only applicable for methods where importance is based on some
+relation between baseline and post-modification loss, i.e. \link{PerturbationImportance} methods such as \link{PFI} or \link{WVIM} / \link{LOCO}. Not available for \link{SAGE} methods.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    (\link[data.table:data.table]{data.table}) Observation-wise losses and importance scores with columns
+\code{"feature"}, \code{"iter_rsmp"}, \code{"iter_repeat"} (if applicable), \code{"row_ids"}, \code{"loss_baseline"}, \code{"loss_post"}, and \code{"obs_importance"}.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{relation}}{(character(1)) How to relate perturbed scores to originals ("difference" or "ratio"). If \code{NULL}, uses stored parameter value. This is only applicable for methods where importance is based on some
-relation between baseline and post-modification loss, i.e. \link{PerturbationImportance} methods such as \link{PFI} or \link{WVIM} / \link{LOCO}. Not available for \link{SAGE} methods.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-(\link[data.table:data.table]{data.table}) Observation-wise losses and importance scores with columns
-\code{"feature"}, \code{"iter_rsmp"}, \code{"iter_repeat"} (if applicable), \code{"row_ids"}, \code{"loss_baseline"}, \code{"loss_post"}, and \code{"obs_importance"}.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FeatureImportanceMethod-reset"></a>}}
 \if{latex}{\out{\hypertarget{method-FeatureImportanceMethod-reset}{}}}
-\subsection{Method \code{reset()}}{
-Resets all stored fields populated by \verb{$compute}: \verb{$resample_result}, \verb{$scores}, \verb{$obs_losses}, and \verb{$predictions}.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FeatureImportanceMethod$reset()}\if{html}{\out{</div>}}
+\subsection{\code{FeatureImportanceMethod$reset()}}{
+  Resets all stored fields populated by \verb{$compute}: \verb{$resample_result}, \verb{$scores}, \verb{$obs_losses}, and \verb{$predictions}.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FeatureImportanceMethod$reset()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FeatureImportanceMethod-print"></a>}}
 \if{latex}{\out{\hypertarget{method-FeatureImportanceMethod-print}{}}}
-\subsection{Method \code{print()}}{
-Print importance scores
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FeatureImportanceMethod$print(...)}\if{html}{\out{</div>}}
+\subsection{\code{FeatureImportanceMethod$print()}}{
+  Print importance scores
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FeatureImportanceMethod$print(...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{...}}{Passed to \code{print()}}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{Passed to \code{print()}}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FeatureImportanceMethod-scores"></a>}}
 \if{latex}{\out{\hypertarget{method-FeatureImportanceMethod-scores}{}}}
-\subsection{Method \code{scores()}}{
-Calculate importance scores for each resampling iteration and sub-iterations
+\subsection{\code{FeatureImportanceMethod$scores()}}{
+  Calculate importance scores for each resampling iteration and sub-iterations
 (\code{iter_rsmp} in \link{PFI} for example).
 
 Iteration-wise importance are computed on the fly depending on the chosen relation
 (\code{difference} or \code{ratio}) to avoid re-computation if only a different relation is needed.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FeatureImportanceMethod$scores(relation = NULL)}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FeatureImportanceMethod$scores(relation = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{relation}}{(character(1)) How to relate perturbed scores to originals ("difference" or "ratio"). If \code{NULL}, uses stored parameter value. This is only applicable for methods where importance is based on some
+relation between baseline and post-modification loss, i.e. \link{PerturbationImportance} methods such as \link{PFI} or \link{WVIM} / \link{LOCO}. Not available for \link{SAGE} methods.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    (\link[data.table:data.table]{data.table}) Iteration-wise importance scores with columns for
+\code{"feature"}, iteration indices, baseline and post-modification scores, and \code{"importance"}.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{relation}}{(character(1)) How to relate perturbed scores to originals ("difference" or "ratio"). If \code{NULL}, uses stored parameter value. This is only applicable for methods where importance is based on some
-relation between baseline and post-modification loss, i.e. \link{PerturbationImportance} methods such as \link{PFI} or \link{WVIM} / \link{LOCO}. Not available for \link{SAGE} methods.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-(\link[data.table:data.table]{data.table}) Iteration-wise importance scores with columns for
-\code{"feature"}, iteration indices, baseline and post-modification scores, and \code{"importance"}.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FeatureImportanceMethod-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-FeatureImportanceMethod-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FeatureImportanceMethod$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{FeatureImportanceMethod$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FeatureImportanceMethod$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

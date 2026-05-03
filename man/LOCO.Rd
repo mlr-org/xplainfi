@@ -34,94 +34,93 @@ Lei J, G'Sell M, Rinaldo A, Tibshirani R, Wasserman L (2018).
 \doi{10.1080/01621459.2017.1307116}.
 }
 \section{Super classes}{
-\code{\link[xplainfi:FeatureImportanceMethod]{xplainfi::FeatureImportanceMethod}} -> \code{\link[xplainfi:WVIM]{xplainfi::WVIM}} -> \code{LOCO}
+\code{\link[xplainfi:FeatureImportanceMethod]{FeatureImportanceMethod}} -> \code{\link[xplainfi:WVIM]{WVIM}} -> \code{LOCO}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-LOCO-new}{\code{LOCO$new()}}
-\item \href{#method-LOCO-compute}{\code{LOCO$compute()}}
-\item \href{#method-LOCO-clone}{\code{LOCO$clone()}}
+  \itemize{
+    \item \href{#method-LOCO-initialize}{\code{LOCO$new()}}
+    \item \href{#method-LOCO-compute}{\code{LOCO$compute()}}
+    \item \href{#method-LOCO-clone}{\code{LOCO$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>xplainfi::FeatureImportanceMethod$obs_loss()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>xplainfi::FeatureImportanceMethod$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>xplainfi::FeatureImportanceMethod$reset()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>xplainfi::FeatureImportanceMethod$scores()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="WVIM" data-id="importance"><a href='../../xplainfi/html/WVIM.html#method-WVIM-importance'><code>xplainfi::WVIM$importance()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>FeatureImportanceMethod$obs_loss()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>FeatureImportanceMethod$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>FeatureImportanceMethod$reset()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>FeatureImportanceMethod$scores()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="WVIM" data-id="importance"><a href='../../xplainfi/html/WVIM.html#method-WVIM-importance'><code>WVIM$importance()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LOCO-new"></a>}}
-\if{latex}{\out{\hypertarget{method-LOCO-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LOCO$new(
+\if{html}{\out{<a id="method-LOCO-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-LOCO-initialize}{}}}
+\subsection{\code{LOCO$new()}}{
+  Creates a new instance of this \link[R6:R6Class]{R6} class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{LOCO$new(
   task,
   learner,
   measure = NULL,
   resampling = NULL,
   features = NULL,
   n_repeats = 30L
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to compute importance for.}
-
-\item{\code{learner}}{(\link[mlr3:Learner]{mlr3::Learner}) Learner to use for prediction.}
-
-\item{\code{measure}}{(\link[mlr3:Measure]{mlr3::Measure}: \code{NULL}) Measure to use for scoring. Defaults to
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to compute importance for.}
+      \item{\code{learner}}{(\link[mlr3:Learner]{mlr3::Learner}) Learner to use for prediction.}
+      \item{\code{measure}}{(\link[mlr3:Measure]{mlr3::Measure}: \code{NULL}) Measure to use for scoring. Defaults to
 \code{classif.ce} for classification and \code{regr.mse} for regression.}
-
-\item{\code{resampling}}{(\link[mlr3:Resampling]{mlr3::Resampling}) Resampling strategy. Defaults to holdout.}
-
-\item{\code{features}}{(\code{character()}) Features to compute importance for. Defaults to all features.}
-
-\item{\code{n_repeats}}{(\code{integer(1)}: \code{30L}) Number of refit iterations per resampling iteration.}
+      \item{\code{resampling}}{(\link[mlr3:Resampling]{mlr3::Resampling}) Resampling strategy. Defaults to holdout.}
+      \item{\code{features}}{(\code{character()}) Features to compute importance for. Defaults to all features.}
+      \item{\code{n_repeats}}{(\code{integer(1)}: \code{30L}) Number of refit iterations per resampling iteration.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LOCO-compute"></a>}}
 \if{latex}{\out{\hypertarget{method-LOCO-compute}{}}}
-\subsection{Method \code{compute()}}{
-Compute LOCO importances.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LOCO$compute(store_models = TRUE, store_backends = TRUE)}\if{html}{\out{</div>}}
+\subsection{\code{LOCO$compute()}}{
+  Compute LOCO importances.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{LOCO$compute(store_models = TRUE, store_backends = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{store_models, store_backends}}{(\code{logical(1)}: \code{TRUE}) Whether to store fitted models / data backends, passed to \link[mlr3:resample]{mlr3::resample} internally}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{store_models, store_backends}}{(\code{logical(1)}: \code{TRUE}) Whether to store fitted models / data backends, passed to \link[mlr3:resample]{mlr3::resample} internally}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LOCO-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-LOCO-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LOCO$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{LOCO$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{LOCO$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

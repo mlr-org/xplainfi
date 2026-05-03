@@ -9,7 +9,7 @@ ARF can handle mixed data types (continuous and categorical) and provides
 flexible conditional sampling by modeling the joint distribution.
 }
 \details{
-The ConditionalARFSampler fits an \link[arf:arf-package]{Adversarial Random Forest} model on the task data,
+The ConditionalARFSampler fits an \link[arf:arf]{Adversarial Random Forest} model on the task data,
 then uses it to generate samples from \eqn{P(X_j | X_{-j})} where \eqn{X_j} is the
 feature of interest and \eqn{X_{-j}} are the conditioning features.
 }
@@ -47,44 +47,43 @@ Blesch K, Koenen N, Kapar J, Golchian P, Burk L, Loecher M, Wright M (2025).
 \doi{10.1609/aaai.v39i15.33712}.
 }
 \section{Super classes}{
-\code{\link[xplainfi:FeatureSampler]{xplainfi::FeatureSampler}} -> \code{\link[xplainfi:ConditionalSampler]{xplainfi::ConditionalSampler}} -> \code{ConditionalARFSampler}
+\code{\link[xplainfi:FeatureSampler]{FeatureSampler}} -> \code{\link[xplainfi:ConditionalSampler]{ConditionalSampler}} -> \code{ConditionalARFSampler}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{feature_types}}{(\code{character()}) Feature types supported by the sampler.
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{feature_types}}{(\code{character()}) Feature types supported by the sampler.
 Will be checked against the provided \link[mlr3:Task]{mlr3::Task} to ensure compatibility.}
 
-\item{\code{arf_model}}{Adversarial Random Forest model created by \link[arf:adversarial_rf]{arf::adversarial_rf}.}
+    \item{\code{arf_model}}{Adversarial Random Forest model created by \link[arf:adversarial_rf]{arf::adversarial_rf}.}
 
-\item{\code{psi}}{Distribution parameters estimated from by \link[arf:forde]{arf::forde}.}
-}
-\if{html}{\out{</div>}}
+    \item{\code{psi}}{Distribution parameters estimated from by \link[arf:forde]{arf::forde}.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-ConditionalARFSampler-new}{\code{ConditionalARFSampler$new()}}
-\item \href{#method-ConditionalARFSampler-sample}{\code{ConditionalARFSampler$sample()}}
-\item \href{#method-ConditionalARFSampler-sample_newdata}{\code{ConditionalARFSampler$sample_newdata()}}
-\item \href{#method-ConditionalARFSampler-clone}{\code{ConditionalARFSampler$clone()}}
+  \itemize{
+    \item \href{#method-ConditionalARFSampler-initialize}{\code{ConditionalARFSampler$new()}}
+    \item \href{#method-ConditionalARFSampler-sample}{\code{ConditionalARFSampler$sample()}}
+    \item \href{#method-ConditionalARFSampler-sample_newdata}{\code{ConditionalARFSampler$sample_newdata()}}
+    \item \href{#method-ConditionalARFSampler-clone}{\code{ConditionalARFSampler$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>xplainfi::FeatureSampler$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>FeatureSampler$print()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-ConditionalARFSampler-new"></a>}}
-\if{latex}{\out{\hypertarget{method-ConditionalARFSampler-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of the ConditionalARFSampler class.
-To fit the ARF in parallel, register a parallel backend first (see \link[arf:arf-package]{arf::arf}) and set \code{parallel = TRUE}.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConditionalARFSampler$new(
+\if{html}{\out{<a id="method-ConditionalARFSampler-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-ConditionalARFSampler-initialize}{}}}
+\subsection{\code{ConditionalARFSampler$new()}}{
+  Creates a new instance of the ConditionalARFSampler class.
+To fit the ARF in parallel, register a parallel backend first (see \link[arf:arf]{arf::arf}) and set \code{parallel = TRUE}.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalARFSampler$new(
   task,
   conditioning_set = NULL,
   num_trees = 10L,
@@ -96,46 +95,38 @@ To fit the ARF in parallel, register a parallel backend first (see \link[arf:arf
   verbose = FALSE,
   parallel = FALSE,
   ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from.}
-
-\item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Default conditioning set to use in \verb{$sample()}. This parameter only affects the sampling behavior, not the ARF model fitting.}
-
-\item{\code{num_trees}}{(\code{integer(1)}: \code{10L}) Number of trees for ARF. Passed to \link[arf:adversarial_rf]{arf::adversarial_rf}.}
-
-\item{\code{min_node_size}}{(\code{integer(1)}: \code{20L}) Minimum node size for ARF. Passed to \link[arf:adversarial_rf]{arf::adversarial_rf} and in turn to \link[ranger:ranger]{ranger::ranger}.
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from.}
+      \item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Default conditioning set to use in \verb{$sample()}. This parameter only affects the sampling behavior, not the ARF model fitting.}
+      \item{\code{num_trees}}{(\code{integer(1)}: \code{10L}) Number of trees for ARF. Passed to \link[arf:adversarial_rf]{arf::adversarial_rf}.}
+      \item{\code{min_node_size}}{(\code{integer(1)}: \code{20L}) Minimum node size for ARF. Passed to \link[arf:adversarial_rf]{arf::adversarial_rf} and in turn to \link[ranger:ranger]{ranger::ranger}.
 This is increased to 20 to mitigate overfitting.}
-
-\item{\code{finite_bounds}}{(\code{character(1)}: \code{"no"}) How to handle variable bounds. Passed to \link[arf:forde]{arf::forde}. Default is \code{"no"} for compatibility. \code{"local"} may improve extrapolation but can cause issues with some data.}
-
-\item{\code{epsilon}}{(\code{numeric(1)}: \code{0}) Slack parameter for when \code{finite_bounds != "no"}. Passed to \link[arf:forde]{arf::forde}.}
-
-\item{\code{round}}{(\code{logical(1)}: \code{TRUE}) Whether to round continuous variables back to their original precision in sampling. Can be overridden in \verb{$sample()} calls.}
-
-\item{\code{stepsize}}{(\code{numeric(1)}: \code{0}) Number of rows of evidence to process at a time when \code{parallel} is \code{TRUE}. Default (\code{0}) spreads evidence evenly over registered workers. Can be overridden in \verb{$sample()} calls.}
-
-\item{\code{verbose}}{(\code{logical(1)}: \code{FALSE}) Whether to print progress messages. Default is \code{FALSE} (arf's default is \code{TRUE}). Can be overridden in \verb{$sample()} calls.}
-
-\item{\code{parallel}}{(\code{logical(1)}: \code{FALSE}) Whether to use parallel processing via \code{foreach}. See examples in \code{\link[arf:forge]{arf::forge()}}. Can be overridden in \verb{$sample()} calls.}
-
-\item{\code{...}}{Additional arguments passed to \link[arf:adversarial_rf]{arf::adversarial_rf}.}
+      \item{\code{finite_bounds}}{(\code{character(1)}: \code{"no"}) How to handle variable bounds. Passed to \link[arf:forde]{arf::forde}. Default is \code{"no"} for compatibility. \code{"local"} may improve extrapolation but can cause issues with some data.}
+      \item{\code{epsilon}}{(\code{numeric(1)}: \code{0}) Slack parameter for when \code{finite_bounds != "no"}. Passed to \link[arf:forde]{arf::forde}.}
+      \item{\code{round}}{(\code{logical(1)}: \code{TRUE}) Whether to round continuous variables back to their original precision in sampling. Can be overridden in \verb{$sample()} calls.}
+      \item{\code{stepsize}}{(\code{numeric(1)}: \code{0}) Number of rows of evidence to process at a time when \code{parallel} is \code{TRUE}. Default (\code{0}) spreads evidence evenly over registered workers. Can be overridden in \verb{$sample()} calls.}
+      \item{\code{verbose}}{(\code{logical(1)}: \code{FALSE}) Whether to print progress messages. Default is \code{FALSE} (arf's default is \code{TRUE}). Can be overridden in \verb{$sample()} calls.}
+      \item{\code{parallel}}{(\code{logical(1)}: \code{FALSE}) Whether to use parallel processing via \code{foreach}. See examples in \code{\link[arf:forge]{arf::forge()}}. Can be overridden in \verb{$sample()} calls.}
+      \item{\code{...}}{Additional arguments passed to \link[arf:adversarial_rf]{arf::adversarial_rf}.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ConditionalARFSampler-sample"></a>}}
 \if{latex}{\out{\hypertarget{method-ConditionalARFSampler-sample}{}}}
-\subsection{Method \code{sample()}}{
-Sample from stored task. Parameters use hierarchical resolution:
+\subsection{\code{ConditionalARFSampler$sample()}}{
+  Sample from stored task. Parameters use hierarchical resolution:
 function argument > stored \code{param_set} value > hard-coded default.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConditionalARFSampler$sample(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalARFSampler$sample(
   feature,
   row_ids = NULL,
   conditioning_set = NULL,
@@ -143,39 +134,35 @@ function argument > stored \code{param_set} value > hard-coded default.
   stepsize = NULL,
   verbose = NULL,
   parallel = NULL
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{feature}}{(\code{character}) Feature(s) to sample.}
+      \item{\code{row_ids}}{(\code{integer()} | \code{NULL}) Row IDs to use. If \code{NULL}, uses all rows.}
+      \item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Features to condition on.}
+      \item{\code{round}}{(\code{logical(1)} | \code{NULL}) Round continuous variables.}
+      \item{\code{stepsize}}{(\code{numeric(1)} | \code{NULL}) Batch size for parallel processing.}
+      \item{\code{verbose}}{(\code{logical(1)} | \code{NULL}) Print progress messages.}
+      \item{\code{parallel}}{(\code{logical(1)} | \code{NULL}) Use parallel processing.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Modified copy with sampled feature(s).
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{feature}}{(\code{character}) Feature(s) to sample.}
-
-\item{\code{row_ids}}{(\code{integer()} | \code{NULL}) Row IDs to use. If \code{NULL}, uses all rows.}
-
-\item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Features to condition on.}
-
-\item{\code{round}}{(\code{logical(1)} | \code{NULL}) Round continuous variables.}
-
-\item{\code{stepsize}}{(\code{numeric(1)} | \code{NULL}) Batch size for parallel processing.}
-
-\item{\code{verbose}}{(\code{logical(1)} | \code{NULL}) Print progress messages.}
-
-\item{\code{parallel}}{(\code{logical(1)} | \code{NULL}) Use parallel processing.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Modified copy with sampled feature(s).
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ConditionalARFSampler-sample_newdata"></a>}}
 \if{latex}{\out{\hypertarget{method-ConditionalARFSampler-sample_newdata}{}}}
-\subsection{Method \code{sample_newdata()}}{
-Sample from external data. See \verb{$sample()} for parameter details.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConditionalARFSampler$sample_newdata(
+\subsection{\code{ConditionalARFSampler$sample_newdata()}}{
+  Sample from external data. See \verb{$sample()} for parameter details.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalARFSampler$sample_newdata(
   feature,
   newdata,
   conditioning_set = NULL,
@@ -183,47 +170,44 @@ Sample from external data. See \verb{$sample()} for parameter details.
   stepsize = NULL,
   verbose = NULL,
   parallel = NULL
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{feature}}{(\code{character}) Feature(s) to sample.}
+      \item{\code{newdata}}{(\code{\link[data.table:data.table]{data.table}}) External data to use.}
+      \item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Features to condition on.}
+      \item{\code{round}}{(\code{logical(1)} | \code{NULL}) Round continuous variables.}
+      \item{\code{stepsize}}{(\code{numeric(1)} | \code{NULL}) Batch size for parallel processing.}
+      \item{\code{verbose}}{(\code{logical(1)} | \code{NULL}) Print progress messages.}
+      \item{\code{parallel}}{(\code{logical(1)} | \code{NULL}) Use parallel processing.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Modified copy with sampled feature(s).
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{feature}}{(\code{character}) Feature(s) to sample.}
-
-\item{\code{newdata}}{(\code{\link[data.table:data.table]{data.table}}) External data to use.}
-
-\item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Features to condition on.}
-
-\item{\code{round}}{(\code{logical(1)} | \code{NULL}) Round continuous variables.}
-
-\item{\code{stepsize}}{(\code{numeric(1)} | \code{NULL}) Batch size for parallel processing.}
-
-\item{\code{verbose}}{(\code{logical(1)} | \code{NULL}) Print progress messages.}
-
-\item{\code{parallel}}{(\code{logical(1)} | \code{NULL}) Use parallel processing.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Modified copy with sampled feature(s).
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ConditionalARFSampler-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-ConditionalARFSampler-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConditionalARFSampler$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{ConditionalARFSampler$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalARFSampler$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

@@ -65,34 +65,33 @@ Blesch K, Koenen N, Kapar J, Golchian P, Burk L, Loecher M, Wright M (2025).
 \doi{10.1609/aaai.v39i15.33712}.
 }
 \section{Super classes}{
-\code{\link[xplainfi:FeatureImportanceMethod]{xplainfi::FeatureImportanceMethod}} -> \code{\link[xplainfi:PerturbationImportance]{xplainfi::PerturbationImportance}} -> \code{CFI}
+\code{\link[xplainfi:FeatureImportanceMethod]{FeatureImportanceMethod}} -> \code{\link[xplainfi:PerturbationImportance]{PerturbationImportance}} -> \code{CFI}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-CFI-new}{\code{CFI$new()}}
-\item \href{#method-CFI-compute}{\code{CFI$compute()}}
-\item \href{#method-CFI-clone}{\code{CFI$clone()}}
+  \itemize{
+    \item \href{#method-CFI-initialize}{\code{CFI$new()}}
+    \item \href{#method-CFI-compute}{\code{CFI$compute()}}
+    \item \href{#method-CFI-clone}{\code{CFI$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>xplainfi::FeatureImportanceMethod$obs_loss()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>xplainfi::FeatureImportanceMethod$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>xplainfi::FeatureImportanceMethod$reset()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>xplainfi::FeatureImportanceMethod$scores()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="xplainfi" data-topic="PerturbationImportance" data-id="importance"><a href='../../xplainfi/html/PerturbationImportance.html#method-PerturbationImportance-importance'><code>xplainfi::PerturbationImportance$importance()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>FeatureImportanceMethod$obs_loss()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>FeatureImportanceMethod$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>FeatureImportanceMethod$reset()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>FeatureImportanceMethod$scores()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="PerturbationImportance" data-id="importance"><a href='../../xplainfi/html/PerturbationImportance.html#method-PerturbationImportance-importance'><code>PerturbationImportance$importance()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CFI-new"></a>}}
-\if{latex}{\out{\hypertarget{method-CFI-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of the CFI class
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CFI$new(
+\if{html}{\out{<a id="method-CFI-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-CFI-initialize}{}}}
+\subsection{\code{CFI$new()}}{
+  Creates a new instance of the CFI class
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CFI$new(
   task,
   learner,
   measure = NULL,
@@ -103,62 +102,64 @@ Creates a new instance of the CFI class
   n_repeats = 30L,
   batch_size = NULL,
   sampler = NULL
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task, learner, measure, resampling, features, groups, relation, n_repeats, batch_size}}{Passed to \link{PerturbationImportance}.}
+      \item{\code{sampler}}{(\link{ConditionalSampler}) Optional custom sampler. Defaults to instantiating \code{ConditionalARFSampler} internally with default parameters.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task, learner, measure, resampling, features, groups, relation, n_repeats, batch_size}}{Passed to \link{PerturbationImportance}.}
-
-\item{\code{sampler}}{(\link{ConditionalSampler}) Optional custom sampler. Defaults to instantiating \code{ConditionalARFSampler} internally with default parameters.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CFI-compute"></a>}}
 \if{latex}{\out{\hypertarget{method-CFI-compute}{}}}
-\subsection{Method \code{compute()}}{
-Compute CFI scores
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CFI$compute(
+\subsection{\code{CFI$compute()}}{
+  Compute CFI scores
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CFI$compute(
   n_repeats = NULL,
   batch_size = NULL,
   store_models = TRUE,
   store_backends = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{n_repeats}}{(\code{integer(1)}) Number of permutation iterations. If \code{NULL}, uses stored value.}
-
-\item{\code{batch_size}}{(\code{integer(1)} | \code{NULL}: \code{NULL}) Maximum number of rows to predict at once. If \code{NULL}, uses stored value.}
-
-\item{\code{store_models, store_backends}}{(\code{logical(1)}: \code{TRUE}) Whether to store fitted models / data backends, passed to \link[mlr3:resample]{mlr3::resample} internally
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{n_repeats}}{(\code{integer(1)}) Number of permutation iterations. If \code{NULL}, uses stored value.}
+      \item{\code{batch_size}}{(\code{integer(1)} | \code{NULL}: \code{NULL}) Maximum number of rows to predict at once. If \code{NULL}, uses stored value.}
+      \item{\code{store_models, store_backends}}{(\code{logical(1)}: \code{TRUE}) Whether to store fitted models / data backends, passed to \link[mlr3:resample]{mlr3::resample} internally
 for the initial fit of the learner.
 This may be required for certain measures and is recommended to leave enabled unless really necessary.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CFI-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-CFI-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CFI$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{CFI$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CFI$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }
