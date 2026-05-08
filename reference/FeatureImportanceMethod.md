@@ -11,7 +11,7 @@ Nadeau C, Bengio Y (2003). “Inference for the Generalization Error.”
 Casalicchio G, Wright M, Bischl B (2023). “Relating the Partial
 Dependence Plot and Permutation Feature Importance to the Data
 Generating Process.” In Longo L (ed.), *Explainable Artificial
-Intelligence*, 456–479. ISBN 978-3-031-44064-9,
+Intelligence*, 456–479. ISBN 978-3-031-44064-9.
 [doi:10.1007/978-3-031-44064-9_24](https://doi.org/10.1007/978-3-031-44064-9_24)
 .
 

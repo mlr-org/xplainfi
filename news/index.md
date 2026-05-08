@@ -1,5 +1,11 @@
 # Changelog
 
+## xplainfi 1.1.0.9000 (development version)
+
+- Fix `$obs_loss()` being erroneously called without `measure` in
+  `PerturbationImportance`, resulting in an error when `measures` was
+  not the task-default.
+
 ## xplainfi 1.1.0
 
 CRAN release: 2026-02-26

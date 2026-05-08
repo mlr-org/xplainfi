@@ -200,7 +200,7 @@ methods should give similar results.
 Ewald F, Bothmann L, Wright M, Bischl B, Casalicchio G, König G (2024).
 “A Guide to Feature Importance Methods for Scientific Inference.” In
 Longo L, Lapuschkin S, Seifert C (eds.), *Explainable Artificial
-Intelligence*, 440–464. ISBN 978-3-031-63797-1,
+Intelligence*, 440–464. ISBN 978-3-031-63797-1.
 [doi:10.1007/978-3-031-63797-1_22](https://doi.org/10.1007/978-3-031-63797-1_22)
 .
 
