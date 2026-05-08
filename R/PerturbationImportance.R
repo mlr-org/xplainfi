@@ -316,7 +316,7 @@ PerturbationImportance = R6Class(
 						pred <- prediction[[1]]
 
 						# Get only vector of obs losses, Prediction$obs_loss() returns full table
-						obs_loss_vals <- pred$obs_loss()[[self$measure$id]]
+						obs_loss_vals <- pred$obs_loss(measures = self$measure)[[self$measure$id]]
 
 						list(
 							row_ids = pred$row_ids,

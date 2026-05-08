@@ -14,7 +14,8 @@ Nadeau C, Bengio Y (2003).
 Molnar C, Freiesleben T, König G, Herbinger J, Reisinger T, Casalicchio G, Wright M, Bischl B (2023).
 \dQuote{Relating the Partial Dependence Plot and Permutation Feature Importance to the Data Generating Process.}
 In Longo L (ed.), \emph{Explainable Artificial Intelligence}, 456--479.
-ISBN 978-3-031-44064-9, \doi{10.1007/978-3-031-44064-9_24}.
+ISBN 978-3-031-44064-9.
+\doi{10.1007/978-3-031-44064-9_24}.
 }
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}
