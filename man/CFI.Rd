@@ -101,6 +101,7 @@ Blesch K, Koenen N, Kapar J, Golchian P, Burk L, Loecher M, Wright M (2025).
   relation = "difference",
   n_repeats = 30L,
   batch_size = NULL,
+  subsample_size = NULL,
   sampler = NULL
 )}
     \if{html}{\out{</div>}}
@@ -108,7 +109,7 @@ Blesch K, Koenen N, Kapar J, Golchian P, Burk L, Loecher M, Wright M (2025).
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{task, learner, measure, resampling, features, groups, relation, n_repeats, batch_size}}{Passed to \link{PerturbationImportance}.}
+      \item{\code{task, learner, measure, resampling, features, groups, relation, n_repeats, batch_size, subsample_size}}{Passed to \link{PerturbationImportance}.}
       \item{\code{sampler}}{(\link{ConditionalSampler}) Optional custom sampler. Defaults to instantiating \code{ConditionalARFSampler} internally with default parameters.}
     }
     \if{html}{\out{</div>}}
@@ -125,6 +126,7 @@ Blesch K, Koenen N, Kapar J, Golchian P, Burk L, Loecher M, Wright M (2025).
     \preformatted{CFI$compute(
   n_repeats = NULL,
   batch_size = NULL,
+  subsample_size = NULL,
   store_models = TRUE,
   store_backends = TRUE
 )}
@@ -135,6 +137,7 @@ Blesch K, Koenen N, Kapar J, Golchian P, Burk L, Loecher M, Wright M (2025).
     \describe{
       \item{\code{n_repeats}}{(\code{integer(1)}) Number of permutation iterations. If \code{NULL}, uses stored value.}
       \item{\code{batch_size}}{(\code{integer(1)} | \code{NULL}: \code{NULL}) Maximum number of rows to predict at once. If \code{NULL}, uses stored value.}
+      \item{\code{subsample_size}}{(\code{integer(1)} | \code{NULL}: \code{NULL}) Maximum number of test observations per resampling iteration. If \code{NULL}, uses stored value.}
       \item{\code{store_models, store_backends}}{(\code{logical(1)}: \code{TRUE}) Whether to store fitted models / data backends, passed to \link[mlr3:resample]{mlr3::resample} internally
 for the initial fit of the learner.
 This may be required for certain measures and is recommended to leave enabled unless really necessary.}

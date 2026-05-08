@@ -50,7 +50,8 @@ Abstract base class for perturbation-based importance methods PFI, CFI, and RFI
   sampler = NULL,
   relation = "difference",
   n_repeats = 30L,
-  batch_size = NULL
+  batch_size = NULL,
+  subsample_size = NULL
 )}
     \if{html}{\out{</div>}}
   }
@@ -62,6 +63,7 @@ Abstract base class for perturbation-based importance methods PFI, CFI, and RFI
       \item{\code{relation}}{(\code{character(1)}: \code{"difference"}) How to relate perturbed and baseline scores. Can also be \code{"ratio"}.}
       \item{\code{n_repeats}}{(\code{integer(1)}: \code{30L}) Number of permutation/conditional sampling iterations. Can also be overridden in \verb{$compute()}.}
       \item{\code{batch_size}}{(\code{integer(1)} | \code{NULL}: \code{NULL}) Maximum number of rows to predict at once. When \code{NULL}, predicts all \code{test_size * n_repeats} rows in one call. Use smaller values to reduce memory usage at the cost of more prediction calls. Can be overridden in \verb{$compute()}.}
+      \item{\code{subsample_size}}{(\code{integer(1)} | \code{NULL}: \code{NULL}) Maximum number of test observations to use per resampling iteration. When \code{NULL}, all test observations are used. Subsampling reduces computation time for large datasets at the cost of higher variance, which \code{n_repeats} can compensate for. Can be overridden in \verb{$compute()}.}
     }
     \if{html}{\out{</div>}}
   }

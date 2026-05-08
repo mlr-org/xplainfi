@@ -64,6 +64,7 @@ In \emph{2020 25th International Conference on Pattern Recognition (ICPR)}, 9318
   relation = "difference",
   n_repeats = 30L,
   batch_size = NULL,
+  subsample_size = NULL,
   sampler = NULL
 )}
     \if{html}{\out{</div>}}
@@ -71,7 +72,7 @@ In \emph{2020 25th International Conference on Pattern Recognition (ICPR)}, 9318
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{task, learner, measure, resampling, features, groups, relation, n_repeats, batch_size}}{Passed to \link{PerturbationImportance}.}
+      \item{\code{task, learner, measure, resampling, features, groups, relation, n_repeats, batch_size, subsample_size}}{Passed to \link{PerturbationImportance}.}
       \item{\code{conditioning_set}}{(\code{\link[=character]{character()}}) Set of features to condition on. Can be overridden in \verb{$compute()}.
 Default (\code{character(0)}) is equivalent to \code{PFI}. In \code{CFI}, this would be set to all features except that of interest.}
       \item{\code{sampler}}{(\link{ConditionalSampler}) Optional custom sampler. Defaults to \code{ConditionalARFSampler}.}
@@ -91,6 +92,7 @@ Default (\code{character(0)}) is equivalent to \code{PFI}. In \code{CFI}, this w
   conditioning_set = NULL,
   n_repeats = NULL,
   batch_size = NULL,
+  subsample_size = NULL,
   store_models = TRUE,
   store_backends = TRUE
 )}
@@ -102,6 +104,7 @@ Default (\code{character(0)}) is equivalent to \code{PFI}. In \code{CFI}, this w
       \item{\code{conditioning_set}}{(\code{character()}) Set of features to condition on. If \code{NULL}, uses the stored parameter value.}
       \item{\code{n_repeats}}{(\code{integer(1)}) Number of permutation iterations. If \code{NULL}, uses stored value.}
       \item{\code{batch_size}}{(\code{integer(1)} | \code{NULL}: \code{NULL}) Maximum number of rows to predict at once. If \code{NULL}, uses stored value.}
+      \item{\code{subsample_size}}{(\code{integer(1)} | \code{NULL}: \code{NULL}) Maximum number of test observations per resampling iteration. If \code{NULL}, uses stored value.}
       \item{\code{store_models, store_backends}}{(\code{logical(1)}: \code{TRUE}) Whether to store fitted models / data backends, passed to \link[mlr3:resample]{mlr3::resample} internally
 for the initial fit of the learner.
 This may be required for certain measures and is recommended to leave enabled unless really necessary.}
