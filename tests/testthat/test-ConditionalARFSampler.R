@@ -137,6 +137,28 @@ test_that("ConditionalARFSampler parameter priority and storage", {
 	expect_equal(sampler$param_set$values$conditioning_set, "x2")
 })
 
+test_that("ConditionalARFSampler errors when parallel = TRUE but no backend registered", {
+	skip_if_not_installed("arf")
+
+	task = tsk("iris")
+	sampler = ConditionalARFSampler$new(task, parallel = FALSE, verbose = FALSE)
+	# Simulate deserialization scenario: parallel was TRUE when saved
+	sampler$param_set$set_values(parallel = TRUE)
+
+	# Ensure no parallel backend (registerDoSEQ counts as unregistered)
+	foreach::registerDoSEQ()
+
+	expect_error(
+		sampler$sample("Sepal.Length", conditioning_set = "Sepal.Width"),
+		"no parallel backend is registered"
+	)
+
+	# Calling $sample() with parallel = FALSE override should work
+	expect_no_error(
+		sampler$sample("Sepal.Length", conditioning_set = "Sepal.Width", parallel = FALSE)
+	)
+})
+
 test_that("ConditionalARFSampler conditioning_set parameter behavior", {
 	skip_if_not_installed("arf")
 

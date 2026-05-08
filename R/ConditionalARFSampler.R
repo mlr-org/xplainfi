@@ -219,6 +219,15 @@ ConditionalARFSampler = R6Class(
 			verbose = resolve_param(verbose, self$param_set$values$verbose, FALSE)
 			parallel = resolve_param(parallel, self$param_set$values$parallel, FALSE)
 
+			if (parallel && (!foreach::getDoParRegistered() || foreach::getDoParName() == "doSEQ")) {
+				cli::cli_abort(c(
+					x = "{.code parallel = TRUE} but no parallel backend is registered.",
+					i = "This can happen when a sampler saved with {.fun saveRDS} is loaded in a new session.",
+					i = "Register a backend first, e.g. {.code doParallel::registerDoParallel(cores = 4)}",
+					i = "Or set {.code parallel = FALSE} in the {.fun $sample} call."
+				))
+			}
+
 			# Create evidence data frame with conditioning set for all rows
 			# Handle empty conditioning set by passing NULL to arf::forge()
 			if (length(conditioning_set) == 0) {
