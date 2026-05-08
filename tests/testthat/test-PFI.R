@@ -142,3 +142,35 @@ test_that("PFI scores and obs_losses agree", {
 
 	expect_equal(importance_scores, obs_agg, tolerance = sqrt(.Machine$double.eps))
 })
+
+test_that("PFI obs_loss uses specified measure, not default", {
+	# Regression test for bug where pred$obs_loss() was called without
+	# passing the measure, causing it to use the default measure (regr.mse)
+	# instead of the user-specified one. With a non-default measure like
+	# regr.mae, this caused obs_loss values to be NULL/wrong.
+	task = mlr3::tsk("mtcars")
+
+	pfi = PFI$new(
+		task = task,
+		learner = lrn("regr.rpart"),
+		measure = msr("regr.mae"),
+		n_repeats = 1L
+	)
+
+	pfi$compute()
+
+	obs_losses = pfi$obs_loss()
+	expect_obs_loss_dt(obs_losses, features = task$feature_names)
+
+	# obs_loss values should be absolute errors (MAE), not squared errors (MSE).
+	# Verify by checking that aggregating obs losses matches the score-level
+	# importance (which correctly uses the specified measure).
+	scores = pfi$scores()[, .(iter_rsmp, feature, importance)][order(iter_rsmp, feature)]
+
+	obs_agg = obs_losses[,
+		list(importance = mean(obs_importance)),
+		by = c("iter_rsmp", "feature")
+	][order(iter_rsmp, feature)]
+
+	expect_equal(scores, obs_agg, tolerance = sqrt(.Machine$double.eps))
+})
