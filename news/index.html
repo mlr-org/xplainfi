@@ -62,6 +62,8 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0.9000" id="xplainfi-1109000-development-version">xplainfi 1.1.0.9000 (development version)<a class="anchor" aria-label="anchor" href="#xplainfi-1109000-development-version"></a></h2>
 <ul><li>Fix <code>$obs_loss()</code> being erroneously called without <code>measure</code> in <code>PerturbationImportance</code>, resulting in an error when <code>measures</code> was not the task-default.</li>
+<li>
+<code>ConditionalARFSampler$sample()</code> now errors when <code>parallel = TRUE</code> but no parallel backend is registered, e.g. after deserializing a sampler in a new session.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="xplainfi-110">xplainfi 1.1.0<a class="anchor" aria-label="anchor" href="#xplainfi-110"></a></h2><p class="text-muted">CRAN release: 2026-02-26</p>

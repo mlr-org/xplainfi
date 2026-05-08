@@ -5,6 +5,9 @@
 - Fix `$obs_loss()` being erroneously called without `measure` in
   `PerturbationImportance`, resulting in an error when `measures` was
   not the task-default.
+- `ConditionalARFSampler$sample()` now errors when `parallel = TRUE` but
+  no parallel backend is registered, e.g. after deserializing a sampler
+  in a new session.
 
 ## xplainfi 1.1.0
 
