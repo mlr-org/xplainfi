@@ -39,7 +39,8 @@ sim_dgp_ewald(100)
 Ewald F, Bothmann L, Wright M, Bischl B, Casalicchio G, König G (2024).
 \dQuote{A Guide to Feature Importance Methods for Scientific Inference.}
 In Longo L, Lapuschkin S, Seifert C (eds.), \emph{Explainable Artificial Intelligence}, 440--464.
-ISBN 978-3-031-63797-1, \doi{10.1007/978-3-031-63797-1_22}.
+ISBN 978-3-031-63797-1.
+\doi{10.1007/978-3-031-63797-1_22}.
 }
 \seealso{
 Other simulation:
