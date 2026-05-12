@@ -245,17 +245,11 @@ PerturbationImportance = R6Class(
 							# and don't inherit the caller's foreach state. arf's sequential
 							# %do% path has bugs at scale, so the only reliable way to use
 							# ARF inside a mirai daemon is to give it a parallel backend.
-							# Tune workers per daemon via `options("xplainfi.arf_workers" = N)`;
-							# default 2.
-							if (
-								!is.null(sampler$param_set$values$parallel) &&
-									isTRUE(sampler$param_set$values$parallel)
-							) {
-								arf_workers = getOption("xplainfi.arf_workers", 2L)
-								if (
-									arf_workers > 0L &&
-										requireNamespace("doParallel", quietly = TRUE)
-								) {
+							# Tune workers per daemon via `xplain_opt(arf_workers = N)`.
+							if (isTRUE(sampler$param_set$values$parallel)) {
+								arf_workers = xplain_opt("arf_workers")
+								if (arf_workers > 0L) {
+									require_package("doParallel")
 									doParallel::registerDoParallel(cores = arf_workers)
 									on.exit(doParallel::stopImplicitCluster(), add = TRUE)
 								}

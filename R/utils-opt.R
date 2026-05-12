@@ -21,6 +21,7 @@
 #' | `progress` | `FALSE` | Show progress bars during computation |
 #' | `sequential` | `FALSE` | Force sequential execution (disable parallelization) |
 #' | `debug` | `FALSE` | Enable debug output for development and troubleshooting |
+#' | `arf_workers` | `2L` | doParallel workers registered inside each mirai daemon when the sampler is configured with `parallel = TRUE`. Has no effect on sequential or non-ARF execution. |
 #'
 #' @return
 #' - When **getting** a single option: the option value (logical)
@@ -59,7 +60,8 @@ xplain_opt <- function(...) {
 		verbose = TRUE,
 		progress = FALSE,
 		sequential = FALSE,
-		debug = FALSE
+		debug = FALSE,
+		arf_workers = 2L
 	)
 
 	args <- list(...)
@@ -115,19 +117,33 @@ xplain_opt <- function(...) {
 }
 
 #' Get option value with precedence: R option > env var > default
+#'
+#' Coerces to the default's storage type, so logical options stay
+#' logical and integer options like `arf_workers` stay integer. Anything
+#' that fails to coerce is treated as unset.
+#'
 #' @noRd
 #' @keywords internal
 get_option_value <- function(name, default) {
 	opt <- getOption(paste0("xplain.", tolower(name)), default = NA)
 	envvar <- Sys.getenv(toupper(paste0("xplain_", name)), unset = NA)
 
-	opt <- as.logical(opt)
-	if (is.na(opt)) {
+	coerce <- switch(
+		typeof(default),
+		logical = as.logical,
+		integer = function(x) suppressWarnings(as.integer(x)),
+		double = function(x) suppressWarnings(as.numeric(x)),
+		character = as.character,
+		identity
+	)
+
+	opt <- coerce(opt)
+	if (length(opt) == 0L || is.na(opt)) {
 		opt <- NULL
 	}
 
-	envvar <- as.logical(envvar)
-	if (is.na(envvar)) {
+	envvar <- coerce(envvar)
+	if (length(envvar) == 0L || is.na(envvar)) {
 		envvar <- NULL
 	}
 
