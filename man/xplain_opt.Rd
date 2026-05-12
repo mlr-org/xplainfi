@@ -37,6 +37,7 @@ Options can be set in three ways (in order of precedence):
    \code{progress} \tab \code{FALSE} \tab Show progress bars during computation \cr
    \code{sequential} \tab \code{FALSE} \tab Force sequential execution (disable parallelization) \cr
    \code{debug} \tab \code{FALSE} \tab Enable debug output for development and troubleshooting \cr
+   \code{arf_workers} \tab \code{2L} \tab doParallel workers registered inside each mirai daemon when the sampler is configured with \code{parallel = TRUE}. Has no effect on sequential or non-ARF execution. \cr
 }
 
 }

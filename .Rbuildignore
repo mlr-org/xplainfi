@@ -30,3 +30,4 @@
 ^xplainfi-manual\.tex$
 ^CRAN-SUBMISSION$
 ^codemeta\.json$
+^scratch$
