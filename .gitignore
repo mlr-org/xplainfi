@@ -1,5 +1,6 @@
 .Rprofile
 attic
+scratch
 README.html
 # Created by https://www.toptal.com/developers/gitignore/api/r
 # Edit at https://www.toptal.com/developers/gitignore?templates=r
@@ -55,3 +56,10 @@ lib
 /.quarto/
 TODO.md
 tests/testthat/_problems
+
+# Agent context: track only the shared CLAUDE.md, ignore personal state.
+# First re-include .claude/ because the global ~/.config/git/ignore
+# excludes it; then ignore its contents except CLAUDE.md.
+!.claude/
+.claude/*
+!.claude/CLAUDE.md

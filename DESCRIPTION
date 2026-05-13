@@ -32,6 +32,7 @@ Imports:
 Suggests:
     arf,
     DiagrammeR,
+    doParallel,
     foreach,
     future,
     future.apply,
