@@ -47,16 +47,25 @@ MarginalPermutationSampler = R6Class(
 	private = list(
 		# Implement marginal sampling via independent permutation
 		.sample_marginal = function(data, feature, samples_per_row = 1L) {
-			if (samples_per_row != 1L) {
-				cli::cli_abort(c(
-					"{.cls {class(self)[[1L]]}} does not yet implement {.code samples_per_row > 1}",
-					i = "This is a transient state during the samples_per_row refactor."
-				))
+			if (samples_per_row == 1L) {
+				data[, (feature) := lapply(.SD, sample), .SDcols = feature]
+				return(data[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)])
 			}
-			# Permute each feature independently
-			data[, (feature) := lapply(.SD, sample), .SDcols = feature]
 
-			data[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
+			# Draw-major: stack `samples_per_row` independent permutations of the feature column(s).
+			# Other columns (including the conditioning context / passthrough features) are
+			# repeated positionally so that row alignment with `row_ids` is preserved.
+			out = data[rep.int(seq_len(.N), times = samples_per_row)]
+
+			for (feat in feature) {
+				shuffled = unlist(
+					lapply(seq_len(samples_per_row), function(d) sample(data[[feat]])),
+					use.names = FALSE
+				)
+				data.table::set(out, j = feat, value = shuffled)
+			}
+
+			out[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
 		}
 	)
 )
