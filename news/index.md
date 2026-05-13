@@ -8,6 +8,15 @@
 - `ConditionalARFSampler$sample()` now errors when `parallel = TRUE` but
   no parallel backend is registered, e.g. after deserializing a sampler
   in a new session.
+- `PerturbationImportance` (PFI/CFI/RFI) now registers a `doParallel`
+  backend inside each mirai daemon when the sampler is configured with
+  `parallel = TRUE`. This lets `ConditionalARFSampler` use parallel
+  [`arf::forge()`](https://bips-hb.github.io/arf/reference/forge.html)
+  from within mirai workers, which don’t inherit the caller’s foreach
+  state. Worker count per daemon is controlled by the new `arf_workers`
+  option (default `2L`); see
+  [`?xplain_opt`](https://mlr-org.github.io/xplainfi/reference/xplain_opt.md).
+  Requires the `doParallel` package (now in Suggests).
 
 ## xplainfi 1.1.0
 

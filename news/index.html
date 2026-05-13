@@ -64,6 +64,8 @@
 <ul><li>Fix <code>$obs_loss()</code> being erroneously called without <code>measure</code> in <code>PerturbationImportance</code>, resulting in an error when <code>measures</code> was not the task-default.</li>
 <li>
 <code>ConditionalARFSampler$sample()</code> now errors when <code>parallel = TRUE</code> but no parallel backend is registered, e.g. after deserializing a sampler in a new session.</li>
+<li>
+<code>PerturbationImportance</code> (PFI/CFI/RFI) now registers a <code>doParallel</code> backend inside each mirai daemon when the sampler is configured with <code>parallel = TRUE</code>. This lets <code>ConditionalARFSampler</code> use parallel <code><a href="https://bips-hb.github.io/arf/reference/forge.html" class="external-link">arf::forge()</a></code> from within mirai workers, which don’t inherit the caller’s foreach state. Worker count per daemon is controlled by the new <code>arf_workers</code> option (default <code>2L</code>); see <code><a href="../reference/xplain_opt.html">?xplain_opt</a></code>. Requires the <code>doParallel</code> package (now in Suggests).</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="xplainfi-110">xplainfi 1.1.0<a class="anchor" aria-label="anchor" href="#xplainfi-110"></a></h2><p class="text-muted">CRAN release: 2026-02-26</p>

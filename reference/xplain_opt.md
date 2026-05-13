@@ -50,6 +50,7 @@ Options can be set in three ways (in order of precedence):
 | `progress` | `FALSE` | Show progress bars during computation |
 | `sequential` | `FALSE` | Force sequential execution (disable parallelization) |
 | `debug` | `FALSE` | Enable debug output for development and troubleshooting |
+| `arf_workers` | `2L` | doParallel workers registered inside each mirai daemon when the sampler is configured with `parallel = TRUE`. Has no effect on sequential or non-ARF execution. |
 
 ## Examples
 
@@ -71,6 +72,9 @@ xplain_opt()
 #> 
 #> $debug
 #> [1] FALSE
+#> 
+#> $arf_workers
+#> [1] 2
 #> 
 
 # Set an option (returns previous value invisibly)
