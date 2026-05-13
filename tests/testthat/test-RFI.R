@@ -97,6 +97,10 @@ test_that("RFI single feature", {
 # -----------------------------------------------------------------------------
 
 test_that("RFI difference vs ratio relations", {
+	# Seed needed: 33-row holdout + rpart on 2dnormals can yield a zero
+	# baseline classif.ce, which makes the ratio relation 0/0 = NaN.
+	# Flaky under covr where the RNG state differs from R CMD check.
+	withr::local_seed(42)
 	task = tgen("2dnormals")$generate(n = 100)
 
 	test_relation_parameter(
