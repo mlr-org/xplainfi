@@ -141,6 +141,7 @@ Troyanskaya O, Cantor M, Sherlock G, Brown P, Hastie T, Tibshirani R, Botstein D
   feature,
   row_ids = NULL,
   conditioning_set = NULL,
+  samples_per_row = 1L,
   k = NULL
 )}
     \if{html}{\out{</div>}}
@@ -152,6 +153,8 @@ Troyanskaya O, Cantor M, Sherlock G, Brown P, Hastie T, Tibshirani R, Botstein D
       \item{\code{row_ids}}{(\code{integer()} | \code{NULL}) Row IDs from task to use as conditioning values.}
       \item{\code{conditioning_set}}{(\code{character()} | \code{NULL}) Features to condition on.
 If \code{NULL}, samples from marginal distribution (random sampling from training data).}
+      \item{\code{samples_per_row}}{(\code{integer(1)}: \code{1L}) Number of independent samples per input row.
+See \link{FeatureSampler}\verb{$sample()} for output shape and ordering.}
       \item{\code{k}}{(\code{integer(1)} | \code{NULL}) Number of neighbors. If \code{NULL}, uses stored parameter.}
     }
     \if{html}{\out{</div>}}
@@ -172,6 +175,7 @@ If \code{NULL}, samples from marginal distribution (random sampling from trainin
   feature,
   newdata,
   conditioning_set = NULL,
+  samples_per_row = 1L,
   k = NULL
 )}
     \if{html}{\out{</div>}}
@@ -182,6 +186,8 @@ If \code{NULL}, samples from marginal distribution (random sampling from trainin
       \item{\code{feature}}{(\code{character()}) Feature(s) to sample.}
       \item{\code{newdata}}{(\code{\link[data.table:data.table]{data.table}}) External data to use.}
       \item{\code{conditioning_set}}{(\code{character()} | \code{NULL}) Features to condition on.}
+      \item{\code{samples_per_row}}{(\code{integer(1)}: \code{1L}) Number of independent samples per input row.
+See \link{FeatureSampler}\verb{$sample()} for output shape and ordering.}
       \item{\code{k}}{(\code{integer(1)} | \code{NULL}) Number of neighbors. If \code{NULL}, uses stored parameter.}
     }
     \if{html}{\out{</div>}}

@@ -92,10 +92,12 @@ ConditionalKNNSampler = R6Class(
 		#' @param row_ids (`integer()` | `NULL`) Row IDs from task to use as conditioning values.
 		#' @param conditioning_set (`character()` | `NULL`) Features to condition on.
 		#'   If `NULL`, samples from marginal distribution (random sampling from training data).
+		#' @param samples_per_row (`integer(1)`: `1L`) Number of independent samples per input row.
+		#'   See [FeatureSampler]`$sample()` for output shape and ordering.
 		#' @param k (`integer(1)` | `NULL`) Number of neighbors. If `NULL`, uses stored parameter.
 		#' @return Modified copy with sampled feature(s).
-		sample = function(feature, row_ids = NULL, conditioning_set = NULL, k = NULL) {
-			super$sample(feature, row_ids, conditioning_set, k = k)
+		sample = function(feature, row_ids = NULL, conditioning_set = NULL, samples_per_row = 1L, k = NULL) {
+			super$sample(feature, row_ids, conditioning_set, samples_per_row = samples_per_row, k = k)
 		},
 
 		#' @description
@@ -104,16 +106,24 @@ ConditionalKNNSampler = R6Class(
 		#' @param feature (`character()`) Feature(s) to sample.
 		#' @param newdata ([`data.table`][data.table::data.table]) External data to use.
 		#' @param conditioning_set (`character()` | `NULL`) Features to condition on.
+		#' @param samples_per_row (`integer(1)`: `1L`) Number of independent samples per input row.
+		#'   See [FeatureSampler]`$sample()` for output shape and ordering.
 		#' @param k (`integer(1)` | `NULL`) Number of neighbors. If `NULL`, uses stored parameter.
 		#' @return Modified copy with sampled feature(s).
-		sample_newdata = function(feature, newdata, conditioning_set = NULL, k = NULL) {
-			super$sample_newdata(feature, newdata, conditioning_set, k = k)
+		sample_newdata = function(feature, newdata, conditioning_set = NULL, samples_per_row = 1L, k = NULL) {
+			super$sample_newdata(feature, newdata, conditioning_set, samples_per_row = samples_per_row, k = k)
 		}
 	),
 
 	private = list(
 		# Core kNN sampling logic implementing k-nearest neighbors conditional sampling
-		.sample_conditional = function(data, feature, conditioning_set, k = NULL, ...) {
+		.sample_conditional = function(data, feature, conditioning_set, samples_per_row = 1L, k = NULL, ...) {
+			if (samples_per_row != 1L) {
+				cli::cli_abort(c(
+					"{.cls {class(self)[[1L]]}} does not yet implement {.code samples_per_row > 1}",
+					i = "This is a transient state during the samples_per_row refactor."
+				))
+			}
 			# Resolve k parameter
 			k = resolve_param(k, self$param_set$values$k, 5L)
 

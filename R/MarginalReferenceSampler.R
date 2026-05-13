@@ -78,7 +78,13 @@ MarginalReferenceSampler = R6Class(
 
 	private = list(
 		# Implement marginal sampling via reference row sampling
-		.sample_marginal = function(data, feature) {
+		.sample_marginal = function(data, feature, samples_per_row = 1L) {
+			if (samples_per_row != 1L) {
+				cli::cli_abort(c(
+					"{.cls {class(self)[[1L]]}} does not yet implement {.code samples_per_row > 1}",
+					i = "This is a transient state during the samples_per_row refactor."
+				))
+			}
 			# For each row, sample one complete observation from reference data
 			# and take the specified features from it
 			sampled_indices = sample.int(

@@ -46,7 +46,13 @@ MarginalPermutationSampler = R6Class(
 
 	private = list(
 		# Implement marginal sampling via independent permutation
-		.sample_marginal = function(data, feature) {
+		.sample_marginal = function(data, feature, samples_per_row = 1L) {
+			if (samples_per_row != 1L) {
+				cli::cli_abort(c(
+					"{.cls {class(self)[[1L]]}} does not yet implement {.code samples_per_row > 1}",
+					i = "This is a transient state during the samples_per_row refactor."
+				))
+			}
 			# Permute each feature independently
 			data[, (feature) := lapply(.SD, sample), .SDcols = feature]
 

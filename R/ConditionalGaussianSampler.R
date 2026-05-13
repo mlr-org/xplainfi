@@ -84,7 +84,13 @@ ConditionalGaussianSampler = R6Class(
 
 	private = list(
 		# Core sampling logic implementing conditional Gaussian sampling
-		.sample_conditional = function(data, feature, conditioning_set, ...) {
+		.sample_conditional = function(data, feature, conditioning_set, samples_per_row = 1L, ...) {
+			if (samples_per_row != 1L) {
+				cli::cli_abort(c(
+					"{.cls {class(self)[[1L]]}} does not yet implement {.code samples_per_row > 1}",
+					i = "This is a transient state during the samples_per_row refactor."
+				))
+			}
 			# Handle marginal case (no conditioning)
 			if (length(conditioning_set) == 0) {
 				# Sample from marginal Gaussian N(mu_feature, Sigma_feature)

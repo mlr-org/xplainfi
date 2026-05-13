@@ -130,6 +130,7 @@ function argument > stored \code{param_set} value > hard-coded default.
   feature,
   row_ids = NULL,
   conditioning_set = NULL,
+  samples_per_row = 1L,
   round = NULL,
   stepsize = NULL,
   verbose = NULL,
@@ -143,6 +144,8 @@ function argument > stored \code{param_set} value > hard-coded default.
       \item{\code{feature}}{(\code{character}) Feature(s) to sample.}
       \item{\code{row_ids}}{(\code{integer()} | \code{NULL}) Row IDs to use. If \code{NULL}, uses all rows.}
       \item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Features to condition on.}
+      \item{\code{samples_per_row}}{(\code{integer(1)}: \code{1L}) Number of independent samples per input row.
+See \link{FeatureSampler}\verb{$sample()} for output shape and ordering.}
       \item{\code{round}}{(\code{logical(1)} | \code{NULL}) Round continuous variables.}
       \item{\code{stepsize}}{(\code{numeric(1)} | \code{NULL}) Batch size for parallel processing.}
       \item{\code{verbose}}{(\code{logical(1)} | \code{NULL}) Print progress messages.}
@@ -166,6 +169,7 @@ function argument > stored \code{param_set} value > hard-coded default.
   feature,
   newdata,
   conditioning_set = NULL,
+  samples_per_row = 1L,
   round = NULL,
   stepsize = NULL,
   verbose = NULL,
@@ -179,6 +183,8 @@ function argument > stored \code{param_set} value > hard-coded default.
       \item{\code{feature}}{(\code{character}) Feature(s) to sample.}
       \item{\code{newdata}}{(\code{\link[data.table:data.table]{data.table}}) External data to use.}
       \item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Features to condition on.}
+      \item{\code{samples_per_row}}{(\code{integer(1)}: \code{1L}) Number of independent samples per input row.
+See \link{FeatureSampler}\verb{$sample()} for output shape and ordering.}
       \item{\code{round}}{(\code{logical(1)} | \code{NULL}) Round continuous variables.}
       \item{\code{stepsize}}{(\code{numeric(1)} | \code{NULL}) Batch size for parallel processing.}
       \item{\code{verbose}}{(\code{logical(1)} | \code{NULL}) Print progress messages.}

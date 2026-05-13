@@ -96,7 +96,7 @@ instances per observation.}
 their knockoff counterparts from the pre-generated knockoff matrix.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{KnockoffSampler$sample(feature, row_ids = NULL)}
+    \preformatted{KnockoffSampler$sample(feature, row_ids = NULL, samples_per_row = 1L)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -104,6 +104,8 @@ their knockoff counterparts from the pre-generated knockoff matrix.
     \describe{
       \item{\code{feature}}{(\code{character}) Feature(s) to sample.}
       \item{\code{row_ids}}{(\code{integer()} | \code{NULL}) Row IDs to use. If \code{NULL}, uses all rows.}
+      \item{\code{samples_per_row}}{(\code{integer(1)}: \code{1L}) Number of independent samples per input row.
+See \link{FeatureSampler}\verb{$sample()} for output shape and ordering.}
     }
     \if{html}{\out{</div>}}
   }

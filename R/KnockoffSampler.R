@@ -88,11 +88,20 @@ KnockoffSampler = R6Class(
 		#' their knockoff counterparts from the pre-generated knockoff matrix.
 		#' @param feature (`character`) Feature(s) to sample.
 		#' @param row_ids (`integer()` | `NULL`) Row IDs to use. If `NULL`, uses all rows.
+		#' @param samples_per_row (`integer(1)`: `1L`) Number of independent samples per input row.
+		#'   See [FeatureSampler]`$sample()` for output shape and ordering.
 		#' @return Modified copy with knockoff feature(s).
 		sample = function(
 			feature,
-			row_ids = NULL
+			row_ids = NULL,
+			samples_per_row = 1L
 		) {
+			if (samples_per_row != 1L) {
+				cli::cli_abort(c(
+					"{.cls {class(self)[[1L]]}} does not yet implement {.code samples_per_row > 1}",
+					i = "This is a transient state during the samples_per_row refactor."
+				))
+			}
 			if (is.null(row_ids)) {
 				row_ids = self$task$row_ids
 			}

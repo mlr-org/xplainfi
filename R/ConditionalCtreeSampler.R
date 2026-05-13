@@ -117,7 +117,13 @@ ConditionalCtreeSampler = R6Class(
 
 	private = list(
 		# Core ctree sampling logic implementing conditional inference tree sampling
-		.sample_conditional = function(data, feature, conditioning_set, ...) {
+		.sample_conditional = function(data, feature, conditioning_set, samples_per_row = 1L, ...) {
+			if (samples_per_row != 1L) {
+				cli::cli_abort(c(
+					"{.cls {class(self)[[1L]]}} does not yet implement {.code samples_per_row > 1}",
+					i = "This is a transient state during the samples_per_row refactor."
+				))
+			}
 			# Get training data from task
 			training_data = self$task$data(cols = self$task$feature_names)
 			# Handle marginal case (no conditioning)

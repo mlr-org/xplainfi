@@ -146,6 +146,8 @@ ConditionalARFSampler = R6Class(
 		#' @param feature (`character`) Feature(s) to sample.
 		#' @param row_ids (`integer()` | `NULL`) Row IDs to use. If `NULL`, uses all rows.
 		#' @param conditioning_set (`character` | `NULL`) Features to condition on.
+		#' @param samples_per_row (`integer(1)`: `1L`) Number of independent samples per input row.
+		#'   See [FeatureSampler]`$sample()` for output shape and ordering.
 		#' @param round (`logical(1)` | `NULL`) Round continuous variables.
 		#' @param stepsize (`numeric(1)` | `NULL`) Batch size for parallel processing.
 		#' @param verbose (`logical(1)` | `NULL`) Print progress messages.
@@ -155,6 +157,7 @@ ConditionalARFSampler = R6Class(
 			feature,
 			row_ids = NULL,
 			conditioning_set = NULL,
+			samples_per_row = 1L,
 			round = NULL,
 			stepsize = NULL,
 			verbose = NULL,
@@ -164,6 +167,7 @@ ConditionalARFSampler = R6Class(
 				feature,
 				row_ids,
 				conditioning_set,
+				samples_per_row = samples_per_row,
 				round = round,
 				stepsize = stepsize,
 				verbose = verbose,
@@ -176,6 +180,8 @@ ConditionalARFSampler = R6Class(
 		#' @param feature (`character`) Feature(s) to sample.
 		#' @param newdata ([`data.table`][data.table::data.table]) External data to use.
 		#' @param conditioning_set (`character` | `NULL`) Features to condition on.
+		#' @param samples_per_row (`integer(1)`: `1L`) Number of independent samples per input row.
+		#'   See [FeatureSampler]`$sample()` for output shape and ordering.
 		#' @param round (`logical(1)` | `NULL`) Round continuous variables.
 		#' @param stepsize (`numeric(1)` | `NULL`) Batch size for parallel processing.
 		#' @param verbose (`logical(1)` | `NULL`) Print progress messages.
@@ -185,6 +191,7 @@ ConditionalARFSampler = R6Class(
 			feature,
 			newdata,
 			conditioning_set = NULL,
+			samples_per_row = 1L,
 			round = NULL,
 			stepsize = NULL,
 			verbose = NULL,
@@ -194,6 +201,7 @@ ConditionalARFSampler = R6Class(
 				feature,
 				newdata,
 				conditioning_set,
+				samples_per_row = samples_per_row,
 				round = round,
 				stepsize = stepsize,
 				verbose = verbose,
@@ -208,11 +216,18 @@ ConditionalARFSampler = R6Class(
 			data,
 			feature,
 			conditioning_set = NULL,
+			samples_per_row = 1L,
 			round = NULL,
 			stepsize = NULL,
 			verbose = NULL,
 			parallel = NULL
 		) {
+			if (samples_per_row != 1L) {
+				cli::cli_abort(c(
+					"{.cls {class(self)[[1L]]}} does not yet implement {.code samples_per_row > 1}",
+					i = "This is a transient state during the samples_per_row refactor."
+				))
+			}
 			# Determine arf::forge parameters using hierarchical resolution
 			round = resolve_param(round, self$param_set$values$round, TRUE)
 			stepsize = resolve_param(stepsize, self$param_set$values$stepsize, 0)

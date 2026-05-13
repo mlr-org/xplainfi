@@ -33,31 +33,37 @@ MarginalSampler = R6Class(
 		#' Sample features from their marginal distribution.
 		#' @param feature (`character()`) Feature name(s) to sample.
 		#' @param row_ids (`integer()` | `NULL`) Row IDs from task to use.
+		#' @param samples_per_row (`integer(1)`: `1L`) Number of independent samples per input row.
+		#'   See [FeatureSampler]`$sample()` for output shape and ordering.
 		#' @return Modified copy with sampled feature(s).
-		sample = function(feature, row_ids = NULL) {
+		sample = function(feature, row_ids = NULL, samples_per_row = 1L) {
+			checkmate::assert_count(samples_per_row, positive = TRUE)
 			data_copy = private$.get_task_data_by_row_id(row_ids)
-			private$.sample_marginal(data_copy, feature)
+			private$.sample_marginal(data_copy, feature, samples_per_row = samples_per_row)
 		},
 
 		#' @description
 		#' Sample from external data.
 		#' @param feature (`character()`) Feature(s) to sample.
 		#' @param newdata ([`data.table`][data.table::data.table]) External data to use.
+		#' @param samples_per_row (`integer(1)`: `1L`) Number of independent samples per input row.
+		#'   See [FeatureSampler]`$sample()` for output shape and ordering.
 		#' @return Modified copy with sampled feature(s).
-		sample_newdata = function(feature, newdata) {
+		sample_newdata = function(feature, newdata, samples_per_row = 1L) {
+			checkmate::assert_count(samples_per_row, positive = TRUE)
 			if (inherits(newdata, "data.table")) {
 				data_copy = data.table::copy(newdata)
 			} else {
 				data_copy = as.data.table(newdata)
 			}
-			private$.sample_marginal(data_copy, feature)
+			private$.sample_marginal(data_copy, feature, samples_per_row = samples_per_row)
 		}
 	),
 
 	private = list(
 		# Abstract method for marginal sampling
 		# Subclasses must implement this
-		.sample_marginal = function(data, feature) {
+		.sample_marginal = function(data, feature, samples_per_row = 1L) {
 			cli::cli_abort(c(
 				"Abstract method",
 				"i" = "Subclasses must implement the {.fn .sample_marginal} method"
