@@ -236,45 +236,62 @@ ConditionalARFSampler = R6Class(
 				))
 			}
 
+			n = nrow(data)
+
 			if (length(conditioning_set) == 0) {
 				if (xplain_opt("debug")) {
 					cli::cli_alert_info(
 						"{.val conditioning_set} is length 0, passing {.code evidence = NULL} to {.fun arf::forge}"
 					)
 				}
-				evidence = NULL
+
+				# Marginal case: arf::forge(evidence = NULL, n_synth = k) returns only k rows
+				# (k unconditional draws), not n * k. We need n * samples_per_row independent
+				# marginal draws so every (instance, draw) pair gets its own sample, so request
+				# the full count up front; no reshape needed since marginal draws are
+				# exchangeable across instances.
+				synthetic = arf::forge(
+					params = self$psi,
+					n_synth = n * samples_per_row,
+					evidence = NULL,
+					evidence_row_mode = "separate",
+					round = round,
+					sample_NAs = FALSE,
+					nomatch = "force",
+					verbose = verbose,
+					stepsize = stepsize,
+					parallel = parallel
+				)
 			} else {
 				evidence = data[, .SD, .SDcols = conditioning_set]
-			}
 
-			if (xplain_opt("debug")) {
-				cli::cli_inform(c(
-					i = "Feature is {.val {feature}}",
-					i = "Conditioning set is {.val {conditioning_set}}",
-					i = "samples_per_row = {.val {samples_per_row}}"
-				))
-			}
+				if (xplain_opt("debug")) {
+					cli::cli_inform(c(
+						i = "Feature is {.val {feature}}",
+						i = "Conditioning set is {.val {conditioning_set}}",
+						i = "samples_per_row = {.val {samples_per_row}}"
+					))
+				}
 
-			synthetic = arf::forge(
-				params = self$psi,
-				n_synth = samples_per_row,
-				evidence = evidence,
-				evidence_row_mode = "separate",
-				round = round,
-				sample_NAs = FALSE,
-				nomatch = "force",
-				verbose = verbose,
-				stepsize = stepsize,
-				parallel = parallel
-			)
+				synthetic = arf::forge(
+					params = self$psi,
+					n_synth = samples_per_row,
+					evidence = evidence,
+					evidence_row_mode = "separate",
+					round = round,
+					sample_NAs = FALSE,
+					nomatch = "force",
+					verbose = verbose,
+					stepsize = stepsize,
+					parallel = parallel
+				)
 
-			n = nrow(data)
-
-			if (samples_per_row > 1L) {
-				# arf returns evidence-major: e1d1, e1d2, ..., e1dk, e2d1, ..., endk
-				# we want draw-major: e1d1, e2d1, ..., end1, e1d2, ..., endk
-				draw_idx = ((seq_len(n * samples_per_row) - 1L) %% samples_per_row) + 1L
-				synthetic = synthetic[order(draw_idx)]
+				if (samples_per_row > 1L) {
+					# arf returns evidence-major: e1d1, e1d2, ..., e1dk, e2d1, ..., endk
+					# we want draw-major: e1d1, e2d1, ..., end1, e1d2, ..., endk
+					draw_idx = ((seq_len(n * samples_per_row) - 1L) %% samples_per_row) + 1L
+					synthetic = synthetic[order(draw_idx)]
+				}
 			}
 
 			out = data[rep.int(seq_len(.N), times = samples_per_row)]
