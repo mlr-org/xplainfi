@@ -63,3 +63,7 @@ tests/testthat/_problems
 !.claude/
 .claude/*
 !.claude/CLAUDE.md
+
+# Slurm job logs from bench/run.slurm
+bench/slurm-*.out
+bench/slurm-*.err
