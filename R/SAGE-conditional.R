@@ -110,29 +110,28 @@ ConditionalSAGE = R6Class(
 				marginalize_features = setdiff(self$features, coalition)
 
 				if (length(marginalize_features) > 0) {
-					# Expand test data to sample multiple times for averaging
-					# Each test instance is replicated n_samples times
-					test_dt_expanded = test_dt[rep(
-						seq_len(n_test),
-						each = self$param_set$values$n_samples
-					)]
+					n_samples = self$param_set$values$n_samples
 
-					# Sample conditionally using a sampler
+					# Sample conditionally using a sampler. Pass `samples_per_row = n_samples`
+					# on the unique test rows so the sampler can use its native efficient
+					# multi-draw path (e.g. ConditionalARFSampler invokes
+					# `arf::forge(n_synth = n_samples)` on n_test evidence rows rather than
+					# n_samples * n_test replicated rows).
 					# Returns test_dt with "marginalized" features replaced by conditional samples
 					# sampler: P(marginalize_features | coalition_features)
 					marginalized_test = self$sampler$sample_newdata(
 						feature = marginalize_features,
-						newdata = test_dt_expanded,
-						conditioning_set = coalition
+						newdata = test_dt,
+						conditioning_set = coalition,
+						samples_per_row = n_samples
 					)
 
-					# Add test instance ID for tracking which original test instance each row belongs to
-					# Must be done AFTER sampling since sampler does not preserve extra columns
+					# Tag rows with their originating test instance. Sampler output is
+					# draw-major: rows 1..n_test = draw 1 across all test rows in order,
+					# rows n_test+1..2*n_test = draw 2, etc. Hence `times`, not `each`.
+					# Must be done AFTER sampling since sampler does not preserve extra columns.
 					marginalized_test[,
-						.test_instance_id := rep(
-							seq_len(n_test),
-							each = self$param_set$values$n_samples
-						)
+						.test_instance_id := rep(seq_len(n_test), times = n_samples)
 					]
 				} else {
 					# If marginalize_features is empty then we evaluate the coalition of all features
