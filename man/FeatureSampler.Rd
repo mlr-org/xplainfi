@@ -57,7 +57,7 @@ Will be checked against the provided \link[mlr3:Task]{mlr3::Task} to ensure comp
   Sample values for feature(s) from stored task
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{FeatureSampler$sample(feature, row_ids = NULL)}
+    \preformatted{FeatureSampler$sample(feature, row_ids = NULL, samples_per_row = 1L)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -65,12 +65,15 @@ Will be checked against the provided \link[mlr3:Task]{mlr3::Task} to ensure comp
     \describe{
       \item{\code{feature}}{(\code{character}) Feature name(s) to sample (can be single or multiple). Must match those in the stored \link[mlr3:Task]{Task}.}
       \item{\code{row_ids}}{(\code{integer()}: \code{NULL}) Row IDs of the stored \link[mlr3:Task]{Task} to use as basis for sampling.}
+      \item{\code{samples_per_row}}{(\code{integer(1)}: \code{1L}) Number of independent samples to draw per input row.
+When \verb{> 1}, the returned data.table has \code{samples_per_row * length(row_ids)} rows in \strong{draw-major}
+order: rows \verb{1..n} are draw 1 across all input rows in order, rows \verb{n+1..2n} are draw 2, and so on.}
     }
     \if{html}{\out{</div>}}
   }
   \subsection{Returns}{
-    Modified copy of the input features with the feature(s) sampled:
-A \link[data.table:data.table]{data.table} with same number of columns and one row matching the supplied \code{row_ids}
+    Modified copy of the input features with the feature(s) sampled. A
+\link[data.table:data.table]{data.table} with \code{samples_per_row * length(row_ids)} rows in draw-major order.
   }
 }
 
@@ -81,14 +84,16 @@ A \link[data.table:data.table]{data.table} with same number of columns and one r
   Sample values for feature(s) using external data
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{FeatureSampler$sample_newdata(feature, newdata)}
+    \preformatted{FeatureSampler$sample_newdata(feature, newdata, samples_per_row = 1L)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
       \item{\code{feature}}{(\code{character}) Feature name(s) to sample (can be single or multiple)}
-      \item{\code{newdata}}{(\code{\link[data.table:data.table]{data.table}} ) External data to use for sampling.}
+      \item{\code{newdata}}{(\code{\link[data.table:data.table]{data.table}}) External data to use for sampling.}
+      \item{\code{samples_per_row}}{(\code{integer(1)}: \code{1L}) See \verb{$sample()}. Output is \code{samples_per_row * nrow(newdata)}
+rows in draw-major order.}
     }
     \if{html}{\out{</div>}}
   }

@@ -33,9 +33,12 @@ ConditionalSampler = R6Class(
 		#' @param feature (`character`) Feature(s) to sample.
 		#' @param row_ids (`integer()` | `NULL`) Row IDs to use. If `NULL`, uses all rows.
 		#' @param conditioning_set (`character` | `NULL`) Features to condition on.
+		#' @param samples_per_row (`integer(1)`: `1L`) Number of independent samples per input row.
+		#'   See [FeatureSampler]`$sample()` for output shape and ordering.
 		#' @param ... Additional arguments passed to the sampler implementation.
 		#' @return Modified copy with sampled feature(s).
-		sample = function(feature, row_ids = NULL, conditioning_set = NULL, ...) {
+		sample = function(feature, row_ids = NULL, conditioning_set = NULL, samples_per_row = 1L, ...) {
+			checkmate::assert_count(samples_per_row, positive = TRUE)
 			data_copy = private$.get_task_data_by_row_id(row_ids)
 
 			# Determine conditioning set (note: NULL is different than character(0))
@@ -55,7 +58,7 @@ ConditionalSampler = R6Class(
 				)
 			}
 
-			private$.sample_conditional(data_copy, feature, conditioning_set, ...)
+			private$.sample_conditional(data_copy, feature, conditioning_set, samples_per_row = samples_per_row, ...)
 		},
 
 		#' @description
@@ -63,9 +66,12 @@ ConditionalSampler = R6Class(
 		#' @param feature (`character`) Feature(s) to sample.
 		#' @param newdata ([`data.table`][data.table::data.table]) External data to use.
 		#' @param conditioning_set (`character` | `NULL`) Features to condition on.
+		#' @param samples_per_row (`integer(1)`: `1L`) Number of independent samples per input row.
+		#'   See [FeatureSampler]`$sample()` for output shape and ordering.
 		#' @param ... Additional arguments passed to the sampler implementation.
 		#' @return Modified copy with sampled feature(s).
-		sample_newdata = function(feature, newdata, conditioning_set = NULL, ...) {
+		sample_newdata = function(feature, newdata, conditioning_set = NULL, samples_per_row = 1L, ...) {
+			checkmate::assert_count(samples_per_row, positive = TRUE)
 			# Create copy to avoid modifying original
 			if (inherits(newdata, "data.table")) {
 				data_copy = data.table::copy(newdata)
@@ -90,7 +96,7 @@ ConditionalSampler = R6Class(
 				)
 			}
 
-			private$.sample_conditional(data_copy, feature, conditioning_set, ...)
+			private$.sample_conditional(data_copy, feature, conditioning_set, samples_per_row = samples_per_row, ...)
 		}
 	),
 
@@ -100,8 +106,9 @@ ConditionalSampler = R6Class(
 		# @param data (`data.table`) Data to sample from (copy that can be modified).
 		# @param feature (`character`) Feature(s) to sample.
 		# @param conditioning_set (`character` | `NULL`) Features to condition on.
+		# @param samples_per_row (`integer(1)`) Number of draws per input row.
 		# @param ... Additional sampler-specific arguments.
-		.sample_conditional = function(data, feature, conditioning_set, ...) {
+		.sample_conditional = function(data, feature, conditioning_set, samples_per_row = 1L, ...) {
 			cli::cli_abort(c(
 				"Abstract method",
 				i = "Subclasses must implement the {.fn .sample_conditional} method"

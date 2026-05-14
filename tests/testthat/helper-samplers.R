@@ -404,3 +404,45 @@ test_conditioning_set_behavior = function(sampler_class, task, ...) {
 
 	invisible(NULL)
 }
+
+# -----------------------------------------------------------------------------
+# expect_draw_major_row_order
+# -----------------------------------------------------------------------------
+
+# Assert that a sampler obeys the draw-major contract:
+# `sampler$sample(feature, row_ids, samples_per_row = k)` returns
+# `samples_per_row * length(row_ids)` rows, organized so that for every
+# d in 1..samples_per_row, rows `(d-1)*n + 1 .. d*n` correspond positionally
+# to `row_ids` for any column that the sampler did NOT perturb.
+#
+# `tag_column` must be a feature on `task` that the sampler will not touch
+# (because it's not in `feature` and, where applicable, not in the
+# conditioning set used to construct the sampler).
+#
+# @param sampler `FeatureSampler` instance constructed against `task`.
+# @param task `mlr3::Task` containing `feature` plus `tag_column`.
+# @param feature character. Feature(s) being sampled.
+# @param tag_column character(1). Identifier feature whose values must pass
+#   through unchanged in draw-major order.
+# @param samples_per_row integer(1).
+# @param row_ids integer(). Defaults to all task row IDs.
+expect_draw_major_row_order = function(
+	sampler,
+	task,
+	feature,
+	tag_column,
+	samples_per_row,
+	row_ids = task$row_ids
+) {
+	out = sampler$sample(feature, row_ids = row_ids, samples_per_row = samples_per_row)
+
+	n = length(row_ids)
+	testthat::expect_equal(nrow(out), n * samples_per_row,
+		info = sprintf("sampler: %s", class(sampler)[[1L]]))
+
+	expected_tag = rep(task$data(rows = row_ids)[[tag_column]], times = samples_per_row)
+	testthat::expect_identical(out[[tag_column]], expected_tag,
+		info = sprintf("draw-major tag order, sampler: %s", class(sampler)[[1L]]))
+
+	invisible(out)
+}

@@ -39,21 +39,26 @@ FeatureSampler = R6Class(
 		#' Sample values for feature(s) from stored task
 		#' @param feature (`character`) Feature name(s) to sample (can be single or multiple). Must match those in the stored [Task][mlr3::Task].
 		#' @param row_ids (`integer()`: `NULL`) Row IDs of the stored [Task][mlr3::Task] to use as basis for sampling.
-		#' @return Modified copy of the input features with the feature(s) sampled:
-		#'   A [data.table][data.table::data.table] with same number of columns and one row matching the supplied `row_ids`
-		sample = function(feature, row_ids = NULL) {
+		#' @param samples_per_row (`integer(1)`: `1L`) Number of independent samples to draw per input row.
+		#'   When `> 1`, the returned data.table has `samples_per_row * length(row_ids)` rows in **draw-major**
+		#'   order: rows `1..n` are draw 1 across all input rows in order, rows `n+1..2n` are draw 2, and so on.
+		#' @return Modified copy of the input features with the feature(s) sampled. A
+		#'   [data.table][data.table::data.table] with `samples_per_row * length(row_ids)` rows in draw-major order.
+		sample = function(feature, row_ids = NULL, samples_per_row = 1L) {
 			cli::cli_abort(c(
-				"Abtract method",
+				"Abstract method",
 				i = "Use a concrete implementation."
 			))
 		},
 		#' @description
 		#' Sample values for feature(s) using external data
 		#' @param feature (`character`) Feature name(s) to sample (can be single or multiple)
-		#' @param newdata ([`data.table`][data.table::data.table] ) External data to use for sampling.
-		sample_newdata = function(feature, newdata) {
+		#' @param newdata ([`data.table`][data.table::data.table]) External data to use for sampling.
+		#' @param samples_per_row (`integer(1)`: `1L`) See `$sample()`. Output is `samples_per_row * nrow(newdata)`
+		#'   rows in draw-major order.
+		sample_newdata = function(feature, newdata, samples_per_row = 1L) {
 			cli::cli_abort(c(
-				"Abtract method",
+				"Abstract method",
 				i = "Use a concrete implementation."
 			))
 		},

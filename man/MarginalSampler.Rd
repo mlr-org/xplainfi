@@ -55,7 +55,7 @@ delegating to private \code{.sample_marginal()} which subclasses must implement.
   Sample features from their marginal distribution.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{MarginalSampler$sample(feature, row_ids = NULL)}
+    \preformatted{MarginalSampler$sample(feature, row_ids = NULL, samples_per_row = 1L)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -63,6 +63,8 @@ delegating to private \code{.sample_marginal()} which subclasses must implement.
     \describe{
       \item{\code{feature}}{(\code{character()}) Feature name(s) to sample.}
       \item{\code{row_ids}}{(\code{integer()} | \code{NULL}) Row IDs from task to use.}
+      \item{\code{samples_per_row}}{(\code{integer(1)}: \code{1L}) Number of independent samples per input row.
+See \link{FeatureSampler}\verb{$sample()} for output shape and ordering.}
     }
     \if{html}{\out{</div>}}
   }
@@ -78,7 +80,7 @@ delegating to private \code{.sample_marginal()} which subclasses must implement.
   Sample from external data.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{MarginalSampler$sample_newdata(feature, newdata)}
+    \preformatted{MarginalSampler$sample_newdata(feature, newdata, samples_per_row = 1L)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -86,6 +88,8 @@ delegating to private \code{.sample_marginal()} which subclasses must implement.
     \describe{
       \item{\code{feature}}{(\code{character()}) Feature(s) to sample.}
       \item{\code{newdata}}{(\code{\link[data.table:data.table]{data.table}}) External data to use.}
+      \item{\code{samples_per_row}}{(\code{integer(1)}: \code{1L}) Number of independent samples per input row.
+See \link{FeatureSampler}\verb{$sample()} for output shape and ordering.}
     }
     \if{html}{\out{</div>}}
   }

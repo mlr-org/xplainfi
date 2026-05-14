@@ -78,19 +78,20 @@ MarginalReferenceSampler = R6Class(
 
 	private = list(
 		# Implement marginal sampling via reference row sampling
-		.sample_marginal = function(data, feature) {
-			# For each row, sample one complete observation from reference data
-			# and take the specified features from it
+		.sample_marginal = function(data, feature, samples_per_row = 1L) {
+			n = nrow(data)
+			total = n * samples_per_row
+
 			sampled_indices = sample.int(
 				nrow(self$reference_data),
-				nrow(data),
+				total,
 				replace = TRUE
 			)
 
-			# Replace features with values from sampled reference rows
-			data[, (feature) := self$reference_data[sampled_indices, .SD, .SDcols = feature]]
+			out = data[rep.int(seq_len(.N), times = samples_per_row)]
+			out[, (feature) := self$reference_data[sampled_indices, .SD, .SDcols = feature]]
 
-			data[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
+			out[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
 		}
 	)
 )

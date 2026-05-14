@@ -146,6 +146,8 @@ ConditionalARFSampler = R6Class(
 		#' @param feature (`character`) Feature(s) to sample.
 		#' @param row_ids (`integer()` | `NULL`) Row IDs to use. If `NULL`, uses all rows.
 		#' @param conditioning_set (`character` | `NULL`) Features to condition on.
+		#' @param samples_per_row (`integer(1)`: `1L`) Number of independent samples per input row.
+		#'   See [FeatureSampler]`$sample()` for output shape and ordering.
 		#' @param round (`logical(1)` | `NULL`) Round continuous variables.
 		#' @param stepsize (`numeric(1)` | `NULL`) Batch size for parallel processing.
 		#' @param verbose (`logical(1)` | `NULL`) Print progress messages.
@@ -155,6 +157,7 @@ ConditionalARFSampler = R6Class(
 			feature,
 			row_ids = NULL,
 			conditioning_set = NULL,
+			samples_per_row = 1L,
 			round = NULL,
 			stepsize = NULL,
 			verbose = NULL,
@@ -164,6 +167,7 @@ ConditionalARFSampler = R6Class(
 				feature,
 				row_ids,
 				conditioning_set,
+				samples_per_row = samples_per_row,
 				round = round,
 				stepsize = stepsize,
 				verbose = verbose,
@@ -176,6 +180,8 @@ ConditionalARFSampler = R6Class(
 		#' @param feature (`character`) Feature(s) to sample.
 		#' @param newdata ([`data.table`][data.table::data.table]) External data to use.
 		#' @param conditioning_set (`character` | `NULL`) Features to condition on.
+		#' @param samples_per_row (`integer(1)`: `1L`) Number of independent samples per input row.
+		#'   See [FeatureSampler]`$sample()` for output shape and ordering.
 		#' @param round (`logical(1)` | `NULL`) Round continuous variables.
 		#' @param stepsize (`numeric(1)` | `NULL`) Batch size for parallel processing.
 		#' @param verbose (`logical(1)` | `NULL`) Print progress messages.
@@ -185,6 +191,7 @@ ConditionalARFSampler = R6Class(
 			feature,
 			newdata,
 			conditioning_set = NULL,
+			samples_per_row = 1L,
 			round = NULL,
 			stepsize = NULL,
 			verbose = NULL,
@@ -194,6 +201,7 @@ ConditionalARFSampler = R6Class(
 				feature,
 				newdata,
 				conditioning_set,
+				samples_per_row = samples_per_row,
 				round = round,
 				stepsize = stepsize,
 				verbose = verbose,
@@ -208,15 +216,15 @@ ConditionalARFSampler = R6Class(
 			data,
 			feature,
 			conditioning_set = NULL,
+			samples_per_row = 1L,
 			round = NULL,
 			stepsize = NULL,
 			verbose = NULL,
 			parallel = NULL
 		) {
-			# Determine arf::forge parameters using hierarchical resolution
-			round = resolve_param(round, self$param_set$values$round, TRUE)
+			round    = resolve_param(round,    self$param_set$values$round,    TRUE)
 			stepsize = resolve_param(stepsize, self$param_set$values$stepsize, 0)
-			verbose = resolve_param(verbose, self$param_set$values$verbose, FALSE)
+			verbose  = resolve_param(verbose,  self$param_set$values$verbose,  FALSE)
 			parallel = resolve_param(parallel, self$param_set$values$parallel, FALSE)
 
 			if (parallel && (!foreach::getDoParRegistered() || foreach::getDoParName() == "doSEQ")) {
@@ -228,10 +236,7 @@ ConditionalARFSampler = R6Class(
 				))
 			}
 
-			# Create evidence data frame with conditioning set for all rows
-			# Handle empty conditioning set by passing NULL to arf::forge()
 			if (length(conditioning_set) == 0) {
-				# Equivalent (ish) to marginal sampling
 				if (xplain_opt("debug")) {
 					cli::cli_alert_info(
 						"{.val conditioning_set} is length 0, passing {.code evidence = NULL} to {.fun arf::forge}"
@@ -245,13 +250,14 @@ ConditionalARFSampler = R6Class(
 			if (xplain_opt("debug")) {
 				cli::cli_inform(c(
 					i = "Feature is {.val {feature}}",
-					i = "Conditioning set is {.val {conditioning_set}}"
+					i = "Conditioning set is {.val {conditioning_set}}",
+					i = "samples_per_row = {.val {samples_per_row}}"
 				))
 			}
-			# Generate conditional samples
+
 			synthetic = arf::forge(
 				params = self$psi,
-				n_synth = 1L, # would be nrow(data) for evidence_row_mode = "or"
+				n_synth = samples_per_row,
 				evidence = evidence,
 				evidence_row_mode = "separate",
 				round = round,
@@ -262,12 +268,19 @@ ConditionalARFSampler = R6Class(
 				parallel = parallel
 			)
 
-			# Replace the feature(s) with sampled values using .SDcols pattern
-			# Both "separate" and "or" modes now return exactly nrow(data) samples
-			data[, (feature) := synthetic[, .SD, .SDcols = feature]]
+			n = nrow(data)
 
-			# Return in order of original task
-			data[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
+			if (samples_per_row > 1L) {
+				# arf returns evidence-major: e1d1, e1d2, ..., e1dk, e2d1, ..., endk
+				# we want draw-major: e1d1, e2d1, ..., end1, e1d2, ..., endk
+				draw_idx = ((seq_len(n * samples_per_row) - 1L) %% samples_per_row) + 1L
+				synthetic = synthetic[order(draw_idx)]
+			}
+
+			out = data[rep.int(seq_len(.N), times = samples_per_row)]
+			out[, (feature) := synthetic[, .SD, .SDcols = feature]]
+
+			out[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
 		}
 	)
 )

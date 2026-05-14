@@ -162,3 +162,23 @@ test_that("MarginalReferenceSampler handles n_samples edge cases", {
 test_that("MarginalReferenceSampler preserves feature types", {
 	test_sampler_feature_types(MarginalReferenceSampler)
 })
+
+test_that("MarginalReferenceSampler obeys draw-major order under samples_per_row > 1", {
+	set.seed(123L)
+	n = 10L
+	dt = data.table::data.table(
+		y   = rnorm(n),
+		x   = rnorm(n),
+		tag = seq_len(n) + 0.5
+	)
+	task = mlr3::as_task_regr(dt, target = "y")
+	sampler = MarginalReferenceSampler$new(task)
+
+	expect_draw_major_row_order(
+		sampler,
+		task,
+		feature = "x",
+		tag_column = "tag",
+		samples_per_row = 4L
+	)
+})

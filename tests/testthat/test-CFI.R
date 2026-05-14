@@ -209,6 +209,52 @@ test_that("CFI with KnockoffSampler and KnockoffGaussianSampler", {
 # CFI-specific: CPI variance method
 # -----------------------------------------------------------------------------
 
+test_that("CFI importance is statistically equivalent across the samples_per_row refactor", {
+	skip_if_not_installed("arf")
+	skip_if_not_installed("ranger")
+	skip_if_not_installed("mlr3learners")
+
+	# Regression guard for the samples_per_row refactor (sampling-repeat-efficiency
+	# branch vs main). The two code paths differ in RNG consumption order:
+	#   - old: arf::forge(n_synth = 1) on evidence replicated n_repeats times
+	#   - new: arf::forge(n_synth = n_repeats) on unique evidence rows
+	# So values are not bitwise identical but are draws from the same distribution.
+	#
+	# Reference values captured via cross::run_branches() with n_repeats = 50.
+	# Max absolute diff observed across features: 0.0804 (on x1, the largest-importance
+	# signal feature, ~2.4% relative). Signal features (x1, x3) agreed within ~3%.
+	# Noise features (x2, x4) agreed within ~9e-4 absolute.
+	# Tolerance = max(0.01, 3 * max_abs_diff) ~= 0.241 gives headroom for run-to-run
+	# variation if the test ever executes on a different RNG implementation.
+	#
+	# To regenerate after an R / arf / ranger toolchain bump: run this test body via
+	# `cross::run_branches(branches = c("main", "<this-branch>"), { ... })` and paste
+	# the current-branch importance vector below; recompute the tolerance from the
+	# max observed absolute diff.
+	expected_features = c("x1", "x2", "x3", "x4")
+	expected_importance = c(
+		3.39659680872389,
+		-0.00555866600268278,
+		1.39995939734368,
+		0.00696214631206585
+	)
+
+	set.seed(42L)
+	task = sim_dgp_correlated(n = 200L, r = 0.7)
+	cfi = CFI$new(
+		task = task,
+		learner = lrn("regr.ranger", num.trees = 100L),
+		measure = msr("regr.mse"),
+		sampler = ConditionalARFSampler$new(task, verbose = FALSE),
+		n_repeats = 50L
+	)
+	cfi$compute()
+	got = cfi$importance()
+
+	expect_equal(got$feature, expected_features)
+	expect_equal(got$importance, expected_importance, tolerance = 0.241)
+})
+
 test_that("CFI with CPI variance method using KnockoffGaussianSampler", {
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")

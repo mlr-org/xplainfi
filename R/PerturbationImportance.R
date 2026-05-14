@@ -42,17 +42,6 @@ PerturbationImportance = R6Class(
 			# If no sampler is provided, create a default one (implementation dependent)
 			self$sampler = sampler
 
-			# Knockoffs only generate one x_tilde, hence n_repeats > 1 is meaningless
-			if (inherits(sampler, "KnockoffSampler") && n_repeats > sampler$param_set$values$iters) {
-				cli::cli_inform(c(
-					"Requested {.code n_repeats = {n_repeats}} permutations with {.cls {class(sampler)[[1]]}}",
-					"!" = "A {.cls KnockoffSampler} was constructed with {.val {sampler$param_set$values$iters}} iterations",
-					i = "Proceeding with {.code n_repeats = {sampler$param_set$values$iters}}",
-					i = "Reconstruct {.cls {class(sampler)[[1]]}} with {.code iters >= {n_repeats}} or use {.cls ConditionalARFSampler} if repeated sampling is required."
-				))
-				n_repeats = sampler$param_set$values$iters
-			}
-
 			# Set up common parameters for all perturbation-based methods
 			ps = paradox::ps(
 				relation = paradox::p_fct(c("difference", "ratio"), default = "difference"),
@@ -255,12 +244,16 @@ PerturbationImportance = R6Class(
 							}
 						}
 
-						# Sample feature - sampler handles conditioning appropriately
-						test_row_ids_replicated = rep.int(test_row_ids, times = n_repeats)
-						perturbed_data = sampler$sample(foi, row_ids = test_row_ids_replicated)
-
-						# Split perturbed data into repeats (n_repeats elements, each with test_size rows)
+						# Sampler produces `samples_per_row * test_size` rows in draw-major order;
+						# see `FeatureSampler$sample()` for the contract.
 						test_size = length(test_row_ids)
+						perturbed_data = sampler$sample(
+							foi,
+							row_ids = test_row_ids,
+							samples_per_row = n_repeats
+						)
+
+						# Split into n_repeats groups, each of test_size rows in test_row_ids order.
 						perturbed_data_list = split(
 							perturbed_data,
 							rep(seq_len(n_repeats), each = test_size)

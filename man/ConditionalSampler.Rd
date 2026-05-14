@@ -56,6 +56,7 @@ that should be extended by concrete implementations.
   feature,
   row_ids = NULL,
   conditioning_set = NULL,
+  samples_per_row = 1L,
   ...
 )}
     \if{html}{\out{</div>}}
@@ -66,6 +67,8 @@ that should be extended by concrete implementations.
       \item{\code{feature}}{(\code{character}) Feature(s) to sample.}
       \item{\code{row_ids}}{(\code{integer()} | \code{NULL}) Row IDs to use. If \code{NULL}, uses all rows.}
       \item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Features to condition on.}
+      \item{\code{samples_per_row}}{(\code{integer(1)}: \code{1L}) Number of independent samples per input row.
+See \link{FeatureSampler}\verb{$sample()} for output shape and ordering.}
       \item{\code{...}}{Additional arguments passed to the sampler implementation.}
     }
     \if{html}{\out{</div>}}
@@ -86,6 +89,7 @@ that should be extended by concrete implementations.
   feature,
   newdata,
   conditioning_set = NULL,
+  samples_per_row = 1L,
   ...
 )}
     \if{html}{\out{</div>}}
@@ -96,6 +100,8 @@ that should be extended by concrete implementations.
       \item{\code{feature}}{(\code{character}) Feature(s) to sample.}
       \item{\code{newdata}}{(\code{\link[data.table:data.table]{data.table}}) External data to use.}
       \item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Features to condition on.}
+      \item{\code{samples_per_row}}{(\code{integer(1)}: \code{1L}) Number of independent samples per input row.
+See \link{FeatureSampler}\verb{$sample()} for output shape and ordering.}
       \item{\code{...}}{Additional arguments passed to the sampler implementation.}
     }
     \if{html}{\out{</div>}}

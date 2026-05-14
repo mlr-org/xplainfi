@@ -117,66 +117,61 @@ ConditionalCtreeSampler = R6Class(
 
 	private = list(
 		# Core ctree sampling logic implementing conditional inference tree sampling
-		.sample_conditional = function(data, feature, conditioning_set, ...) {
-			# Get training data from task
+		.sample_conditional = function(data, feature, conditioning_set, samples_per_row = 1L, ...) {
 			training_data = self$task$data(cols = self$task$feature_names)
-			# Handle marginal case (no conditioning)
+
+			# Marginal fallback (no conditioning): draw samples_per_row x nrow(data) values
+			# per feature with replacement from the training column, organized draw-major.
 			if (length(conditioning_set) == 0) {
-				# Simple random sampling (with replacement) from training data
-				data[, (feature) := lapply(.SD, sample, replace = TRUE), .SDcols = feature]
-				return(data[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)])
+				n = nrow(data)
+				out = data[rep.int(seq_len(.N), times = samples_per_row)]
+				for (feat in feature) {
+					out[, (feat) := sample(training_data[[feat]], n * samples_per_row, replace = TRUE)]
+				}
+				return(out[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)])
 			}
 
-			# Get or build tree for this feature/conditioning set combination
 			tree = private$.get_or_build_tree(feature, conditioning_set)
 
-			# Add temporary ID to track original rows
+			n = nrow(data)
 			data[, ..eval_id := seq_len(.N)]
-
-			# Predict terminal node for each observation
-			# Use type = "node" to get node IDs
 			node_ids = predict(tree, newdata = data, type = "node")
 			data[, ..node_id := node_ids]
 
-			# Get terminal node memberships for training data
 			train_nodes = predict(tree, newdata = training_data, type = "node")
-			train_data_with_nodes = copy(training_data)
+			train_data_with_nodes = data.table::copy(training_data)
 			train_data_with_nodes[, ..node_id := train_nodes]
 
-			# For each evaluation observation, sample from training observations in same node
-			result = data[,
-				{
-					# Get training observations in this node
-					node_obs = train_data_with_nodes[..node_id == ..node_id[1]]
+			# For each draw, sample one training observation per evidence row from its terminal node.
+			# Stack the draws in draw-major order so positional alignment with row_ids is preserved.
+			out = data[rep.int(seq_len(.N), times = samples_per_row)]
 
-					if (nrow(node_obs) == 0) {
-						cli::cli_warn("No training observations in terminal node, using marginal sample")
-						sampled_values = lapply(feature, function(feat) {
-							sample(training_data[[feat]], 1)
-						})
-					} else {
-						# Sample one observation from this node
-						sampled_idx = sample(seq_len(nrow(node_obs)), 1)
-						sampled_values = lapply(feature, function(feat) {
-							node_obs[[feat]][sampled_idx]
-						})
+			for (i in seq_len(n)) {
+				node_obs = train_data_with_nodes[..node_id == node_ids[i]]
+				if (nrow(node_obs) == 0) {
+					cli::cli_warn("No training observations in terminal node, using marginal sample")
+					# Marginal fallback per draw: draw samples_per_row values for this row from training_data
+					for (d in seq_len(samples_per_row)) {
+						out_row_idx = (d - 1L) * n + i
+						for (feat in feature) {
+							sampled_value = sample(training_data[[feat]], 1L)
+							data.table::set(out, i = out_row_idx, j = feat, value = sampled_value)
+						}
 					}
-
-					# Create result row
-					result_row = .SD[1]
-					for (i in seq_along(feature)) {
-						set(result_row, j = feature[i], value = sampled_values[[i]])
+				} else {
+					picks = node_obs[sample.int(.N, samples_per_row, replace = TRUE)]
+					for (d in seq_len(samples_per_row)) {
+						out_row_idx = (d - 1L) * n + i
+						for (feat in feature) {
+							data.table::set(out, i = out_row_idx, j = feat, value = picks[[feat]][d])
+						}
 					}
-					result_row
-				},
-				by = ..eval_id
-			]
+				}
+			}
 
-			# Clean up temporary columns
-			result[, ..eval_id := NULL]
-			result[, ..node_id := NULL]
-
-			result[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
+			data[, ..eval_id := NULL]
+			data[, ..node_id := NULL]
+			out[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
 		},
 
 		# Get cached tree or build a new one
