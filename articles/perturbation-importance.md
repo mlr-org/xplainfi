@@ -726,11 +726,11 @@ comp_ind_wide[, .(
 
 | Feature      | Mean Importance | Coef. of Variation | Agreement Level |
 |:-------------|----------------:|-------------------:|:----------------|
-| important1   |          10.636 |              0.575 | Low             |
-| important2   |           2.258 |              0.587 | Low             |
-| important3   |           0.615 |              0.767 | Low             |
-| unimportant1 |           0.008 |              2.431 | Low             |
-| unimportant2 |           0.022 |              1.938 | Low             |
+| important1   |           7.177 |              0.033 | High            |
+| important2   |           1.516 |              0.051 | High            |
+| important3   |           0.347 |              0.026 | High            |
+| unimportant1 |          -0.003 |             -0.307 | High            |
+| unimportant2 |          -0.001 |             -2.591 | High            |
 
 Method Agreement on Independent Features {.table}
 

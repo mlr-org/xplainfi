@@ -31,6 +31,15 @@
     option (default `2L`); see
     [`?xplain_opt`](https://mlr-org.github.io/xplainfi/reference/xplain_opt.md).
   - Requires the `doParallel` package (now in Suggests).
+- `ConditionalSAGE` now passes `samples_per_row = n_samples` to the
+  sampler on unique test rows, instead of replicating test rows
+  externally before calling the sampler.
+  - For `ConditionalARFSampler` this triggers the same
+    `arf::forge(n_synth = n_samples)` speedup as
+    `PerturbationImportance`, on `n_test` unique evidence rows rather
+    than `n_samples * n_test` replicated rows.
+  - Marginal SAGE (`MarginalSAGE`) does not use a `FeatureSampler` and
+    is unaffected.
 
 ### Bug fixes
 
@@ -40,6 +49,23 @@
 - `ConditionalARFSampler$sample()` now errors when `parallel = TRUE` but
   no parallel backend is registered, e.g. after deserializing a sampler
   in a new session.
+- Fix `ConditionalARFSampler` returning under-sampled (and, with
+  `samples_per_row > 1`, partially `NA`-filled) outputs when
+  `conditioning_set` is empty.
+  - `arf::forge(evidence = NULL, n_synth = k)` returns only `k`
+    unconditional draws, not `nrow(data) * k`; the previous code path
+    silently recycled a single sample across all output rows when
+    `samples_per_row = 1L`.
+  - The marginal case now requests `nrow(data) * samples_per_row`
+    independent unconditional draws so every (instance, draw) pair gets
+    its own sample.
+  - In practice this only affects `ConditionalSAGE` (which calls the
+    sampler with an empty conditioning set on every empty coalition);
+    CFI/RFI/PFI condition on the complement of the perturbed feature and
+    never trigger the empty-conditioning path.
+  - As a side effect, `ConditionalSAGE` importance estimates for noise
+    features are now substantially less inflated under the same
+    `n_permutations` / `n_samples` budget.
 
 ### Internal changes
 

@@ -79,12 +79,24 @@
 <li>Worker count per daemon is controlled by the new <code>arf_workers</code> option (default <code>2L</code>); see <code><a href="../reference/xplain_opt.html">?xplain_opt</a></code>.</li>
 <li>Requires the <code>doParallel</code> package (now in Suggests).</li>
 </ul></li>
+<li>
+<code>ConditionalSAGE</code> now passes <code>samples_per_row = n_samples</code> to the sampler on unique test rows, instead of replicating test rows externally before calling the sampler.
+<ul><li>For <code>ConditionalARFSampler</code> this triggers the same <code>arf::forge(n_synth = n_samples)</code> speedup as <code>PerturbationImportance</code>, on <code>n_test</code> unique evidence rows rather than <code>n_samples * n_test</code> replicated rows.</li>
+<li>Marginal SAGE (<code>MarginalSAGE</code>) does not use a <code>FeatureSampler</code> and is unaffected.</li>
+</ul></li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-1-1-0-9000">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-0-9000"></a></h3>
 <ul><li>Fix <code>$obs_loss()</code> being erroneously called without <code>measure</code> in <code>PerturbationImportance</code>, resulting in an error when <code>measures</code> was not the task-default.</li>
 <li>
 <code>ConditionalARFSampler$sample()</code> now errors when <code>parallel = TRUE</code> but no parallel backend is registered, e.g. after deserializing a sampler in a new session.</li>
+<li>Fix <code>ConditionalARFSampler</code> returning under-sampled (and, with <code>samples_per_row &gt; 1</code>, partially <code>NA</code>-filled) outputs when <code>conditioning_set</code> is empty.
+<ul><li>
+<code>arf::forge(evidence = NULL, n_synth = k)</code> returns only <code>k</code> unconditional draws, not <code>nrow(data) * k</code>; the previous code path silently recycled a single sample across all output rows when <code>samples_per_row = 1L</code>.</li>
+<li>The marginal case now requests <code>nrow(data) * samples_per_row</code> independent unconditional draws so every (instance, draw) pair gets its own sample.</li>
+<li>In practice this only affects <code>ConditionalSAGE</code> (which calls the sampler with an empty conditioning set on every empty coalition); CFI/RFI/PFI condition on the complement of the perturbed feature and never trigger the empty-conditioning path.</li>
+<li>As a side effect, <code>ConditionalSAGE</code> importance estimates for noise features are now substantially less inflated under the same <code>n_permutations</code> / <code>n_samples</code> budget.</li>
+</ul></li>
 </ul></div>
 <div class="section level3">
 <h3 id="internal-changes-1-1-0-9000">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-1-0-9000"></a></h3>
