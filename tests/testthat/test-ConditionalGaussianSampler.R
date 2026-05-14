@@ -107,3 +107,24 @@ test_that("ConditionalGaussianSampler conditioning_set parameter behavior", {
 test_that("ConditionalGaussianSampler preserves feature types", {
 	test_sampler_feature_types(ConditionalGaussianSampler)
 })
+
+test_that("ConditionalGaussianSampler obeys draw-major order under samples_per_row > 1", {
+	set.seed(123L)
+	n = 20L
+	dt = data.table::data.table(
+		y   = rnorm(n),
+		x1  = rnorm(n),
+		x2  = rnorm(n),
+		tag = seq_len(n) + 0.5
+	)
+	task = mlr3::as_task_regr(dt, target = "y")
+	sampler = ConditionalGaussianSampler$new(task, conditioning_set = c("x2", "tag"))
+
+	expect_draw_major_row_order(
+		sampler,
+		task,
+		feature = "x1",
+		tag_column = "tag",
+		samples_per_row = 4L
+	)
+})
