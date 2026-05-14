@@ -2,38 +2,50 @@
 
 ## xplainfi 1.1.0.9000 (development version)
 
+### Performance and new features
+
 - New `samples_per_row` argument on `FeatureSampler$sample()` and
-  `$sample_newdata()` (default `1L`). When `> 1`, samplers return
-  `samples_per_row * length(row_ids)` rows in draw-major order (one
-  block of all input rows per draw). Default behaviour is unchanged.
+  `$sample_newdata()` (default `1L`).
+  - When `> 1`, samplers return `samples_per_row * length(row_ids)` rows
+    in draw-major order (one block of all input rows per draw).
+  - Default behaviour is unchanged.
 - `PerturbationImportance` (`PFI`/`CFI`/`RFI`) now passes
   `samples_per_row = n_repeats` to the sampler on unique test row IDs,
-  instead of replicating row IDs externally. For `ConditionalARFSampler`
-  this means `arf::forge(n_synth = n_repeats)` on `n_test` unique
-  evidence rows rather than `n_synth = 1` on `n_repeats * n_test`
-  replicated rows, which is dramatically faster at scale and dodges an
-  int32 overflow inside
-  [`arf::forge`](https://bips-hb.github.io/arf/reference/forge.html) for
-  large `n_test * n_repeats`. All other in-package samplers implement
-  `samples_per_row` natively as well.
-- The `KnockoffSampler` `n_repeats > iters` cap-and-warn behaviour moved
-  from `PerturbationImportance$initialize()` into
-  `KnockoffSampler$sample()` itself; behaviour is unchanged.
+  instead of replicating row IDs externally.
+  - For `ConditionalARFSampler` this means
+    `arf::forge(n_synth = n_repeats)` on `n_test` unique evidence rows
+    rather than `n_synth = 1` on `n_repeats * n_test` replicated rows.
+  - Dramatically faster at scale and dodges an int32 overflow inside
+    [`arf::forge`](https://bips-hb.github.io/arf/reference/forge.html)
+    for large `n_test * n_repeats`.
+  - All other in-package samplers implement `samples_per_row` natively
+    as well.
+- `PerturbationImportance` (PFI/CFI/RFI) now registers a `doParallel`
+  backend inside each mirai daemon when the sampler is configured with
+  `parallel = TRUE`.
+  - This lets `ConditionalARFSampler` use parallel
+    [`arf::forge()`](https://bips-hb.github.io/arf/reference/forge.html)
+    from within mirai workers, which don’t inherit the caller’s foreach
+    state.
+  - Worker count per daemon is controlled by the new `arf_workers`
+    option (default `2L`); see
+    [`?xplain_opt`](https://mlr-org.github.io/xplainfi/reference/xplain_opt.md).
+  - Requires the `doParallel` package (now in Suggests).
+
+### Bug fixes
+
 - Fix `$obs_loss()` being erroneously called without `measure` in
   `PerturbationImportance`, resulting in an error when `measures` was
   not the task-default.
 - `ConditionalARFSampler$sample()` now errors when `parallel = TRUE` but
   no parallel backend is registered, e.g. after deserializing a sampler
   in a new session.
-- `PerturbationImportance` (PFI/CFI/RFI) now registers a `doParallel`
-  backend inside each mirai daemon when the sampler is configured with
-  `parallel = TRUE`. This lets `ConditionalARFSampler` use parallel
-  [`arf::forge()`](https://bips-hb.github.io/arf/reference/forge.html)
-  from within mirai workers, which don’t inherit the caller’s foreach
-  state. Worker count per daemon is controlled by the new `arf_workers`
-  option (default `2L`); see
-  [`?xplain_opt`](https://mlr-org.github.io/xplainfi/reference/xplain_opt.md).
-  Requires the `doParallel` package (now in Suggests).
+
+### Internal changes
+
+- The `KnockoffSampler` `n_repeats > iters` cap-and-warn behaviour moved
+  from `PerturbationImportance$initialize()` into
+  `KnockoffSampler$sample()` itself; behaviour is unchanged.
 
 ## xplainfi 1.1.0
 
