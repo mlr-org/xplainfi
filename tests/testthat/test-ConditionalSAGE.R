@@ -294,3 +294,56 @@ test_that("ConditionalSAGE SE tracking in convergence_history", {
 		sage$features
 	)
 })
+
+# -----------------------------------------------------------------------------
+# Regression guard for the samples_per_row migration (+ underlying ARF fix)
+# -----------------------------------------------------------------------------
+
+test_that("ConditionalSAGE noise feature receives ~0 importance with ARFSampler", {
+	skip_if_not_installed("arf")
+	skip_if_not_installed("ranger")
+	skip_if_not_installed("mlr3learners")
+
+	# `sim_dgp_correlated`: y = 2 * x1 + x3 + noise; x1 correlated with x2 (r),
+	# x4 is pure noise (independent, no causal effect). The expected SAGE pattern:
+	#   - x1 dominant (signal, coef 2)
+	#   - x3 next (signal, coef 1)
+	#   - x2 some attribution via Shapley (correlated with x1 but no causal effect)
+	#   - x4 ~ 0 (pure noise)
+	#
+	# A regression in the multi-draw conditional sampling path tends to inflate
+	# all SAGE values (notably for x4) because empty-coalition predictions become
+	# garbage. This test pins both the signal/noise pattern and concrete values
+	# captured on the post-fix branch.
+	set.seed(42L)
+	task = sim_dgp_correlated(n = 200L, r = 0.7)
+	sage = ConditionalSAGE$new(
+		task = task,
+		learner = lrn("regr.ranger", num.trees = 100L),
+		measure = msr("regr.mse"),
+		sampler = ConditionalARFSampler$new(task, verbose = FALSE),
+		n_permutations = 30L,
+		n_samples = 30L
+	)
+	sage$compute()
+	imp = sage$importance()
+
+	# Correctness: noise feature x4 stays near zero, signal features dominate.
+	expect_lt(abs(imp[feature == "x4", importance]), 0.3)
+	expect_gt(imp[feature == "x1", importance], 0.5)
+	expect_gt(imp[feature == "x1", importance], imp[feature == "x4", importance] + 1.0)
+
+	# Regression guard. Captured on the post-fix branch at the same settings.
+	# Tolerance generous enough to absorb run-to-run MC variation under different
+	# R / arf / ranger versions; if it ever breaks, regenerate by running the same
+	# block and pasting `imp$importance` below.
+	expected_features = c("x1", "x2", "x3", "x4")
+	expected_importance = c(
+		 1.75718693344525,
+		 0.359611168661264,
+		 0.651142439812633,
+		-0.0157528350794578
+	)
+	expect_equal(imp$feature, expected_features)
+	expect_equal(imp$importance, expected_importance, tolerance = 0.5)
+})
