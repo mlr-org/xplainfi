@@ -57,13 +57,14 @@ MarginalPermutationSampler = R6Class(
 			# repeated positionally so that row alignment with `row_ids` is preserved.
 			out = data[rep.int(seq_len(.N), times = samples_per_row)]
 
-			for (feat in feature) {
-				shuffled = unlist(
+			# One `:=` assigns all target columns at once; the inner `lapply` builds one stacked
+			# vector per feature (`samples_per_row` independent permutations concatenated).
+			out[, (feature) := lapply(feature, function(feat) {
+				unlist(
 					lapply(seq_len(samples_per_row), function(d) sample(data[[feat]])),
 					use.names = FALSE
 				)
-				data.table::set(out, j = feat, value = shuffled)
-			}
+			})]
 
 			out[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
 		}

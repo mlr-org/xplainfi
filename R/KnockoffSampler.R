@@ -110,7 +110,6 @@ KnockoffSampler = R6Class(
 			}
 
 			data_copy = private$.get_task_data_by_row_id(row_ids)
-			n = length(row_ids)
 
 			out = data_copy[rep.int(seq_len(.N), times = samples_per_row)]
 
@@ -134,7 +133,7 @@ KnockoffSampler = R6Class(
 				iter_block[row_idx_in_block, .SD, .SDcols = feature]
 			})
 			feat_values = data.table::rbindlist(feat_blocks)
-			out[, (feature) := feat_values[, .SD, .SDcols = feature]]
+			out[, (feature) := feat_values]
 
 			out = private$.ensure_feature_types(out)
 			setcolorder(out, self$task$feature_names)

@@ -226,6 +226,11 @@ test_that("CFI importance is statistically equivalent across the samples_per_row
 	# Noise features (x2, x4) agreed within ~9e-4 absolute.
 	# Tolerance = max(0.01, 3 * max_abs_diff) ~= 0.241 gives headroom for run-to-run
 	# variation if the test ever executes on a different RNG implementation.
+	#
+	# To regenerate after an R / arf / ranger toolchain bump: run this test body via
+	# `cross::run_branches(branches = c("main", "<this-branch>"), { ... })` and paste
+	# the current-branch importance vector below; recompute the tolerance from the
+	# max observed absolute diff.
 	expected_features = c("x1", "x2", "x3", "x4")
 	expected_importance = c(
 		3.39659680872389,

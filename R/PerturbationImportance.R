@@ -244,8 +244,8 @@ PerturbationImportance = R6Class(
 							}
 						}
 
-						# Sample feature - sampler handles conditioning appropriately, and produces
-						# `samples_per_row * test_size` rows in draw-major order.
+						# Sampler produces `samples_per_row * test_size` rows in draw-major order;
+						# see `FeatureSampler$sample()` for the contract.
 						test_size = length(test_row_ids)
 						perturbed_data = sampler$sample(
 							foi,

@@ -251,7 +251,7 @@ ConditionalARFSampler = R6Class(
 				cli::cli_inform(c(
 					i = "Feature is {.val {feature}}",
 					i = "Conditioning set is {.val {conditioning_set}}",
-					i = "samples_per_row = {samples_per_row}"
+					i = "samples_per_row = {.val {samples_per_row}}"
 				))
 			}
 
@@ -271,7 +271,7 @@ ConditionalARFSampler = R6Class(
 			n = nrow(data)
 
 			if (samples_per_row > 1L) {
-				# arf returns evidence-major: e1d1, e1d2, ..., e1dk, e2d1, ..., enk
+				# arf returns evidence-major: e1d1, e1d2, ..., e1dk, e2d1, ..., endk
 				# we want draw-major: e1d1, e2d1, ..., end1, e1d2, ..., endk
 				draw_idx = ((seq_len(n * samples_per_row) - 1L) %% samples_per_row) + 1L
 				synthetic = synthetic[order(draw_idx)]

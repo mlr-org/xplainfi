@@ -89,7 +89,6 @@ ConditionalGaussianSampler = R6Class(
 			if (length(conditioning_set) == 0) {
 				mu_feature = self$mu[feature]
 				sigma_feature = self$sigma[feature, feature, drop = FALSE]
-				n_features = length(feature)
 				n = nrow(data)
 
 				out = data[rep.int(seq_len(.N), times = samples_per_row)]
