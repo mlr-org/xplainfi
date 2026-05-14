@@ -175,3 +175,25 @@ test_that("ConditionalCtreeSampler preserves feature types", {
 	skip_if_not_installed("partykit")
 	test_sampler_feature_types(ConditionalCtreeSampler)
 })
+
+test_that("ConditionalCtreeSampler obeys draw-major order under samples_per_row > 1", {
+	skip_if_not_installed("partykit")
+	set.seed(123L)
+	n = 30L
+	dt = data.table::data.table(
+		y   = rnorm(n),
+		x1  = rnorm(n),
+		x2  = rnorm(n),
+		tag = seq_len(n) + 0.5
+	)
+	task = mlr3::as_task_regr(dt, target = "y")
+	sampler = ConditionalCtreeSampler$new(task, conditioning_set = c("x2", "tag"))
+
+	expect_draw_major_row_order(
+		sampler,
+		task,
+		feature = "x1",
+		tag_column = "tag",
+		samples_per_row = 3L
+	)
+})
