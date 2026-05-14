@@ -163,6 +163,7 @@ ISBN 9780470526798.</p>
 <span>  <span class="va">feature</span>,</span>
 <span>  row_ids <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  conditioning_set <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  samples_per_row <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  k <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
@@ -176,6 +177,10 @@ ISBN 9780470526798.</p>
       <dt><code>conditioning_set</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code> | <code>NULL</code>) Features to condition on.
 If <code>NULL</code>, samples from marginal distribution (random sampling from training data).</p></dd>
+
+      <dt><code>samples_per_row</code></dt>
+<dd><p>(<code>integer(1)</code>: <code>1L</code>) Number of independent samples per input row.
+See <a href="FeatureSampler.html">FeatureSampler</a><code>$sample()</code> for output shape and ordering.</p></dd>
 
       <dt><code>k</code></dt>
 <dd><p>(<code>integer(1)</code> | <code>NULL</code>) Number of neighbors. If <code>NULL</code>, uses stored parameter.</p></dd>
@@ -197,6 +202,7 @@ If <code>NULL</code>, samples from marginal distribution (random sampling from t
 <span>  <span class="va">feature</span>,</span>
 <span>  <span class="va">newdata</span>,</span>
 <span>  conditioning_set <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  samples_per_row <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  k <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
@@ -209,6 +215,10 @@ If <code>NULL</code>, samples from marginal distribution (random sampling from t
 
       <dt><code>conditioning_set</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code> | <code>NULL</code>) Features to condition on.</p></dd>
+
+      <dt><code>samples_per_row</code></dt>
+<dd><p>(<code>integer(1)</code>: <code>1L</code>) Number of independent samples per input row.
+See <a href="FeatureSampler.html">FeatureSampler</a><code>$sample()</code> for output shape and ordering.</p></dd>
 
       <dt><code>k</code></dt>
 <dd><p>(<code>integer(1)</code> | <code>NULL</code>) Number of neighbors. If <code>NULL</code>, uses stored parameter.</p></dd>

@@ -112,6 +112,7 @@ that should be extended by concrete implementations.</p>
 <span>  <span class="va">feature</span>,</span>
 <span>  row_ids <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  conditioning_set <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  samples_per_row <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
@@ -124,6 +125,10 @@ that should be extended by concrete implementations.</p>
 
       <dt><code>conditioning_set</code></dt>
 <dd><p>(<code>character</code> | <code>NULL</code>) Features to condition on.</p></dd>
+
+      <dt><code>samples_per_row</code></dt>
+<dd><p>(<code>integer(1)</code>: <code>1L</code>) Number of independent samples per input row.
+See <a href="FeatureSampler.html">FeatureSampler</a><code>$sample()</code> for output shape and ordering.</p></dd>
 
       <dt><code>...</code></dt>
 <dd><p>Additional arguments passed to the sampler implementation.</p></dd>
@@ -145,6 +150,7 @@ that should be extended by concrete implementations.</p>
 <span>  <span class="va">feature</span>,</span>
 <span>  <span class="va">newdata</span>,</span>
 <span>  conditioning_set <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  samples_per_row <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
@@ -157,6 +163,10 @@ that should be extended by concrete implementations.</p>
 
       <dt><code>conditioning_set</code></dt>
 <dd><p>(<code>character</code> | <code>NULL</code>) Features to condition on.</p></dd>
+
+      <dt><code>samples_per_row</code></dt>
+<dd><p>(<code>integer(1)</code>: <code>1L</code>) Number of independent samples per input row.
+See <a href="FeatureSampler.html">FeatureSampler</a><code>$sample()</code> for output shape and ordering.</p></dd>
 
       <dt><code>...</code></dt>
 <dd><p>Additional arguments passed to the sampler implementation.</p></dd>

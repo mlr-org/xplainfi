@@ -70,10 +70,10 @@ pfi$importance()
 #> Key: <feature>
 #>    feature   importance
 #>     <char>        <num>
-#> 1:      x1  6.476555494
-#> 2:      x2  0.095842584
-#> 3:      x3  1.793989195
-#> 4:      x4 -0.000962437
+#> 1:      x1  6.438492669
+#> 2:      x2  0.096075680
+#> 3:      x3  1.794307978
+#> 4:      x4 -0.001031032
 ```
 
 There are several ways to quantify the variability of these estimates,
@@ -96,12 +96,12 @@ consistency with other methods to ease visualization.
 pfi_ci_quantile = pfi$importance(ci_method = "quantile", alternative = "two.sided")
 pfi_ci_quantile
 #> Key: <feature>
-#>    feature   importance   conf_lower   conf_upper
-#>     <char>        <num>        <num>        <num>
-#> 1:      x1  6.476555494  6.108602488 6.8752121255
-#> 2:      x2  0.095842584  0.071144370 0.1213703258
-#> 3:      x3  1.793989195  1.736434146 1.8848348302
-#> 4:      x4 -0.000962437 -0.003342628 0.0006686405
+#>    feature   importance   conf_lower  conf_upper
+#>     <char>        <num>        <num>       <num>
+#> 1:      x1  6.438492669  6.069884413 6.941655631
+#> 2:      x2  0.096075680  0.074212298 0.119418944
+#> 3:      x3  1.794307978  1.712816839 1.882614290
+#> 4:      x4 -0.001031032 -0.003989459 0.000776648
 ```
 
 ### Raw confidence intervals
@@ -118,18 +118,18 @@ assumption underlying the t-distribution.
 pfi_ci_raw = pfi$importance(ci_method = "raw", alternative = "two.sided")
 pfi_ci_raw
 #> Key: <feature>
-#>    feature   importance           se  statistic      p.value  conf_lower
-#>     <char>        <num>        <num>      <num>        <num>       <num>
-#> 1:      x1  6.476555494 0.0707450088  91.547879 7.519530e-21  6.32482254
-#> 2:      x2  0.095842584 0.0042155496  22.735490 1.879277e-12  0.08680113
-#> 3:      x3  1.793989195 0.0132950768 134.936355 3.311520e-23  1.76547409
-#> 4:      x4 -0.000962437 0.0002849623  -3.377418 4.511052e-03 -0.00157362
+#>    feature   importance          se  statistic      p.value   conf_lower
+#>     <char>        <num>       <num>      <num>        <num>        <num>
+#> 1:      x1  6.438492669 0.076085973  84.621283 2.258096e-20  6.275304487
+#> 2:      x2  0.096075680 0.003812197  25.202183 4.589294e-13  0.087899331
+#> 3:      x3  1.794307978 0.013566832 132.256961 4.384134e-23  1.765210018
+#> 4:      x4 -0.001031032 0.000347573  -2.966375 1.020949e-02 -0.001776502
 #>       conf_upper
 #>            <num>
-#> 1:  6.6282884472
-#> 2:  0.1048840389
-#> 3:  1.8225042988
-#> 4: -0.0003512536
+#> 1:  6.6016808513
+#> 2:  0.1042520290
+#> 3:  1.8234059392
+#> 4: -0.0002855619
 ```
 
 The parametric CI methods (`"raw"` and `"nadeau_bengio"`) return `se`,
@@ -153,18 +153,18 @@ training sets, yielding wider (and more honest) confidence intervals:
 pfi_ci_corrected = pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided")
 pfi_ci_corrected
 #> Key: <feature>
-#>    feature   importance           se statistic      p.value   conf_lower
-#>     <char>        <num>        <num>     <num>        <num>        <num>
-#> 1:      x1  6.476555494 0.2063236235 31.390276 2.231930e-14  6.034035333
-#> 2:      x2  0.095842584 0.0122944003  7.795629 1.848448e-06  0.069473718
-#> 3:      x3  1.793989195 0.0387743032 46.267477 1.027030e-16  1.710826586
-#> 4:      x4 -0.000962437 0.0008310757 -1.158062 2.662136e-01 -0.002744917
-#>      conf_upper
-#>           <num>
-#> 1: 6.9190756552
-#> 2: 0.1222114505
-#> 3: 1.8771518043
-#> 4: 0.0008200431
+#>    feature   importance          se statistic      p.value   conf_lower
+#>     <char>        <num>       <num>     <num>        <num>        <num>
+#> 1:      x1  6.438492669 0.221900229 29.015259 6.610673e-14  5.962564012
+#> 2:      x2  0.096075680 0.011118046  8.641418 5.518158e-07  0.072229844
+#> 3:      x3  1.794307978 0.039566861 45.348757 1.357598e-16  1.709445501
+#> 4:      x4 -0.001031032 0.001013676 -1.017122 3.263518e-01 -0.003205151
+#>     conf_upper
+#>          <num>
+#> 1: 6.914421327
+#> 2: 0.119921517
+#> 3: 1.879170456
+#> 4: 0.001143087
 ```
 
 The Nadeau-Bengio correction provides better (but still imperfect)
@@ -238,18 +238,18 @@ defaults to `"none"` (no adjustment).
 
 pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided", p_adjust = "none")
 #> Key: <feature>
-#>    feature   importance           se statistic      p.value   conf_lower
-#>     <char>        <num>        <num>     <num>        <num>        <num>
-#> 1:      x1  6.476555494 0.2063236235 31.390276 2.231930e-14  6.034035333
-#> 2:      x2  0.095842584 0.0122944003  7.795629 1.848448e-06  0.069473718
-#> 3:      x3  1.793989195 0.0387743032 46.267477 1.027030e-16  1.710826586
-#> 4:      x4 -0.000962437 0.0008310757 -1.158062 2.662136e-01 -0.002744917
-#>      conf_upper
-#>           <num>
-#> 1: 6.9190756552
-#> 2: 0.1222114505
-#> 3: 1.8771518043
-#> 4: 0.0008200431
+#>    feature   importance          se statistic      p.value   conf_lower
+#>     <char>        <num>       <num>     <num>        <num>        <num>
+#> 1:      x1  6.438492669 0.221900229 29.015259 6.610673e-14  5.962564012
+#> 2:      x2  0.096075680 0.011118046  8.641418 5.518158e-07  0.072229844
+#> 3:      x3  1.794307978 0.039566861 45.348757 1.357598e-16  1.709445501
+#> 4:      x4 -0.001031032 0.001013676 -1.017122 3.263518e-01 -0.003205151
+#>     conf_upper
+#>          <num>
+#> 1: 6.914421327
+#> 2: 0.119921517
+#> 3: 1.879170456
+#> 4: 0.001143087
 ```
 
 With Bonferroni correction (FWER control), both p-values and confidence
@@ -261,18 +261,18 @@ features:
 
 pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided", p_adjust = "bonferroni")
 #> Key: <feature>
-#>    feature   importance           se statistic      p.value   conf_lower
-#>     <char>        <num>        <num>     <num>        <num>        <num>
-#> 1:      x1  6.476555494 0.2063236235 31.390276 8.927721e-14  5.748317045
-#> 2:      x2  0.095842584 0.0122944003  7.795629 7.393792e-06  0.052448353
-#> 3:      x3  1.793989195 0.0387743032 46.267477 4.108119e-16  1.657131680
-#> 4:      x4 -0.000962437 0.0008310757 -1.158062 1.000000e+00 -0.003895796
+#>    feature   importance          se statistic      p.value   conf_lower
+#>     <char>        <num>       <num>     <num>        <num>        <num>
+#> 1:      x1  6.438492669 0.221900229 29.015259 2.644269e-13  5.655275139
+#> 2:      x2  0.096075680 0.011118046  8.641418 2.207263e-06  0.056833502
+#> 3:      x3  1.794307978 0.039566861 45.348757 5.430393e-16  1.654653056
+#> 4:      x4 -0.001031032 0.001013676 -1.017122 1.000000e+00 -0.004608896
 #>     conf_upper
 #>          <num>
-#> 1: 7.204793944
-#> 2: 0.139236816
-#> 3: 1.930846710
-#> 4: 0.001970922
+#> 1: 7.221710199
+#> 2: 0.135317858
+#> 3: 1.933962901
+#> 4: 0.002546832
 ```
 
 For sequential or adaptive procedures such as Holm (FWER) or
@@ -284,18 +284,18 @@ construction, so confidence intervals remain at the nominal level:
 
 pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided", p_adjust = "BH")
 #> Key: <feature>
-#>    feature   importance           se statistic      p.value   conf_lower
-#>     <char>        <num>        <num>     <num>        <num>        <num>
-#> 1:      x1  6.476555494 0.2063236235 31.390276 4.463861e-14  6.034035333
-#> 2:      x2  0.095842584 0.0122944003  7.795629 2.464597e-06  0.069473718
-#> 3:      x3  1.793989195 0.0387743032 46.267477 4.108119e-16  1.710826586
-#> 4:      x4 -0.000962437 0.0008310757 -1.158062 2.662136e-01 -0.002744917
-#>      conf_upper
-#>           <num>
-#> 1: 6.9190756552
-#> 2: 0.1222114505
-#> 3: 1.8771518043
-#> 4: 0.0008200431
+#>    feature   importance          se statistic      p.value   conf_lower
+#>     <char>        <num>       <num>     <num>        <num>        <num>
+#> 1:      x1  6.438492669 0.221900229 29.015259 1.322135e-13  5.962564012
+#> 2:      x2  0.096075680 0.011118046  8.641418 7.357544e-07  0.072229844
+#> 3:      x3  1.794307978 0.039566861 45.348757 5.430393e-16  1.709445501
+#> 4:      x4 -0.001031032 0.001013676 -1.017122 3.263518e-01 -0.003205151
+#>     conf_upper
+#>          <num>
+#> 1: 6.914421327
+#> 2: 0.119921517
+#> 3: 1.879170456
+#> 4: 0.001143087
 ```
 
 This applies to all `ci_method`s that produce p-values (`"raw"`,
@@ -360,18 +360,18 @@ setnames(cpi_res, "Variable", "feature")
 cpi_res[, method := "CPI"]
 
 cpi_res
-#>    feature           CPI          SE   test  statistic      estimate
-#>     <char>         <num>       <num> <char>      <num>         <num>
-#> 1:      x1  4.5092929912 0.147978747      t 30.4725717  4.5092929912
-#> 2:      x2  0.0029567621 0.003362453      t  0.8793467  0.0029567621
-#> 3:      x3  1.8536055915 0.060102228      t 30.8408797  1.8536055915
-#> 4:      x4 -0.0008885688 0.000770307      t -1.1535255 -0.0008885688
-#>          p.value        ci.lo method
-#>            <num>        <num> <char>
-#> 1: 3.859678e-168  4.265776760    CPI
-#> 2:  1.896595e-01 -0.002576545    CPI
-#> 3: 1.768282e-171  1.754700388    CPI
-#> 4:  8.755837e-01 -0.002156198    CPI
+#>    feature           CPI           SE   test  statistic      estimate
+#>     <char>         <num>        <num> <char>      <num>         <num>
+#> 1:      x1  4.5869424151 0.1431664627      t 32.0392243  4.5869424151
+#> 2:      x2  0.0059452604 0.0031447720      t  1.8905219  0.0059452604
+#> 3:      x3  1.7932108925 0.0568503126      t 31.5426743  1.7932108925
+#> 4:      x4 -0.0001760563 0.0006907253      t -0.2548861 -0.0001760563
+#>          p.value         ci.lo method
+#>            <num>         <num> <char>
+#> 1: 1.943871e-182  4.3513453579    CPI
+#> 2:  2.941635e-02  0.0007701724    CPI
+#> 3: 7.024418e-178  1.6996570945    CPI
+#> 4:  6.005814e-01 -0.0013127250    CPI
 ```
 
 #### CPI with knockoffs
@@ -409,18 +409,18 @@ cfi_cpi_res = cfi$importance(ci_method = "cpi")
 #> ℹ See `vignette("inference", package = "xplainfi")` for details.
 cfi_cpi_res
 #> Key: <feature>
-#>    feature   importance           se  statistic       p.value   conf_lower
-#>     <char>        <num>        <num>      <num>         <num>        <num>
-#> 1:      x1  4.362355571 0.1355320358 32.1868962 1.697321e-183  4.096556727
-#> 2:      x2  0.001742650 0.0029223989  0.5963079  5.510371e-01 -0.003988617
-#> 3:      x3  1.769344462 0.0548657780 32.2485988 4.580895e-184  1.661744364
-#> 4:      x4 -0.000470146 0.0009370589 -0.5017251  6.159162e-01 -0.002307860
+#>    feature    importance           se   statistic       p.value   conf_lower
+#>     <char>         <num>        <num>       <num>         <num>        <num>
+#> 1:      x1  4.395218e+00 0.1415894276 31.04199614 5.239790e-173  4.117540158
+#> 2:      x2  8.896505e-05 0.0027613624  0.03221781  9.743016e-01 -0.005326485
+#> 3:      x3  1.778738e+00 0.0554645059 32.06983591 2.032142e-182  1.669963309
+#> 4:      x4 -7.539052e-05 0.0006942513 -0.10859256  9.135366e-01 -0.001436922
 #>     conf_upper
 #>          <num>
-#> 1: 4.628154415
-#> 2: 0.007473916
-#> 3: 1.876944560
-#> 4: 0.001367568
+#> 1: 4.672896772
+#> 2: 0.005504415
+#> 3: 1.887511898
+#> 4: 0.001286141
 
 # Rename columns to match cpi package output for comparison
 setnames(cfi_cpi_res, c("importance", "conf_lower"), c("CPI", "ci.lo"))
@@ -494,18 +494,18 @@ cfi_arf_res = cfi_arf$importance(ci_method = "cpi")
 #> ℹ See `vignette("inference", package = "xplainfi")` for details.
 cfi_arf_res
 #> Key: <feature>
-#>    feature    importance           se statistic    p.value    conf_lower
-#>     <char>         <num>        <num>     <num>      <num>         <num>
-#> 1:      x1  3.9865071718 0.0715166883 55.742335 0.00000000  3.8462521170
-#> 2:      x2  0.0053611218 0.0025570164  2.096632 0.03615158  0.0003464254
-#> 3:      x3  1.7527732858 0.0325190020 53.899972 0.00000000  1.6889985989
-#> 4:      x4 -0.0009391978 0.0004918991 -1.909330 0.05636256 -0.0019038865
+#>    feature   importance           se statistic     p.value   conf_lower
+#>     <char>        <num>        <num>     <num>       <num>        <num>
+#> 1:      x1  4.044285644 0.0693916277 58.282040 0.000000000  3.908198155
+#> 2:      x2  0.006856456 0.0023740754  2.888053 0.003918033  0.002200535
+#> 3:      x3  1.747585238 0.0323011990 54.102798 0.000000000  1.684237696
+#> 4:      x4 -0.000582180 0.0005116255 -1.137903 0.255297527 -0.001585555
 #>      conf_upper
 #>           <num>
-#> 1: 4.126762e+00
-#> 2: 1.037582e-02
-#> 3: 1.816548e+00
-#> 4: 2.549088e-05
+#> 1: 4.1803731337
+#> 2: 0.0115123777
+#> 3: 1.8109327801
+#> 4: 0.0004211951
 
 # Rename columns to match cpi package output for comparison
 setnames(cfi_arf_res, c("importance", "conf_lower"), c("CPI", "ci.lo"))
@@ -570,18 +570,12 @@ specifically the Wilcoxon-, Fisher-, or binomial test:
 #> ℹ With bootstrap or subsampling, test observations are not i.i.d.
 #> ℹ See `vignette("inference", package = "xplainfi")` for details.
 #> Key: <feature>
-#>    feature    importance    se statistic      p.value    conf_lower
-#>     <char>         <num> <num>     <num>        <num>         <num>
-#> 1:      x1  3.9865071718    NA   2001000 0.000000e+00  3.2122074217
-#> 2:      x2  0.0053611218    NA   1194853 5.284662e-14  0.0029276504
-#> 3:      x3  1.7527732858    NA   2000886 0.000000e+00  1.3958358130
-#> 4:      x4 -0.0009391978    NA   1031351 2.323267e-01 -0.0001657344
-#>      conf_upper
-#>           <num>
-#> 1: 3.4270970290
-#> 2: 0.0049551400
-#> 3: 1.4966237507
-#> 4: 0.0006339549
+#>    feature   importance    se statistic    p.value   conf_lower   conf_upper
+#>     <char>        <num> <num>     <num>      <num>        <num>        <num>
+#> 1:      x1  4.044285644    NA   2000992 0.00000000 3.3096887486 3.5231735716
+#> 2:      x2  0.006856456    NA   1228176 0.00000000 0.0036493355 0.0056801550
+#> 3:      x3  1.747585238    NA   2000670 0.00000000 1.3988656777 1.4988176162
+#> 4:      x4 -0.000582180    NA   1065012 0.01250432 0.0001062227 0.0008677457
 # Fisher test with same default for B as in cpi()
 (cpi_res_fisher = cfi_arf$importance(ci_method = "cpi", test = "fisher", B = 1999))
 #> Warning: Observation-wise inference was validated with a single test set.
@@ -591,12 +585,12 @@ specifically the Wilcoxon-, Fisher-, or binomial test:
 #> ℹ With bootstrap or subsampling, test observations are not i.i.d.
 #> ℹ See `vignette("inference", package = "xplainfi")` for details.
 #> Key: <feature>
-#>    feature    importance    se     statistic p.value    conf_lower   conf_upper
-#>     <char>         <num> <num>         <num>   <num>         <num>        <num>
-#> 1:      x1  3.9865071718    NA  3.9865071718  0.0005  3.7697941737 4.203211e+00
-#> 2:      x2  0.0053611218    NA  0.0053611218  0.0365  0.0001883662 1.032052e-02
-#> 3:      x3  1.7527732858    NA  1.7527732858  0.0005  1.6527820910 1.848633e+00
-#> 4:      x4 -0.0009391978    NA -0.0009391978  0.0650 -0.0019275157 7.687918e-05
+#>    feature   importance    se    statistic p.value   conf_lower   conf_upper
+#>     <char>        <num> <num>        <num>   <num>        <num>        <num>
+#> 1:      x1  4.044285644    NA  4.044285644  0.0005  3.832263065 4.2552721488
+#> 2:      x2  0.006856456    NA  0.006856456  0.0025  0.002331908 0.0112049096
+#> 3:      x3  1.747585238    NA  1.747585238  0.0005  1.650433230 1.8452822956
+#> 4:      x4 -0.000582180    NA -0.000582180  0.2505 -0.001592239 0.0003824977
 (cpi_res_binom = cfi_arf$importance(ci_method = "cpi", test = "binomial"))
 #> Warning: Observation-wise inference was validated with a single test set.
 #> ! Current resampling has 5 iterations.
@@ -605,12 +599,12 @@ specifically the Wilcoxon-, Fisher-, or binomial test:
 #> ℹ With bootstrap or subsampling, test observations are not i.i.d.
 #> ℹ See `vignette("inference", package = "xplainfi")` for details.
 #> Key: <feature>
-#>    feature    importance    se statistic      p.value conf_lower conf_upper
-#>     <char>         <num> <num>     <num>        <num>      <num>      <num>
-#> 1:      x1  3.9865071718    NA      2000 0.000000e+00  0.9981573  1.0000000
-#> 2:      x2  0.0053611218    NA      1215 5.988736e-22  0.5857045  0.6289798
-#> 3:      x3  1.7527732858    NA      1995 0.000000e+00  0.9941756  0.9991878
-#> 4:      x4 -0.0009391978    NA      1094 2.860106e-05  0.5248785  0.5689835
+#>    feature   importance    se statistic      p.value conf_lower conf_upper
+#>     <char>        <num> <num>     <num>        <num>      <num>      <num>
+#> 1:      x1  4.044285644    NA      1999 0.000000e+00  0.9972174  0.9999873
+#> 2:      x2  0.006856456    NA      1260 1.783486e-31  0.6084123  0.6512059
+#> 3:      x3  1.747585238    NA      1996 0.000000e+00  0.9948872  0.9994548
+#> 4:      x4 -0.000582180    NA      1133 2.955404e-09  0.5444474  0.5883574
 
 rbindlist(
     list(
@@ -668,18 +662,18 @@ cfi_arf$importance(ci_method = "cpi", p_adjust = "BH")
 #> ℹ With bootstrap or subsampling, test observations are not i.i.d.
 #> ℹ See `vignette("inference", package = "xplainfi")` for details.
 #> Key: <feature>
-#>    feature    importance           se statistic    p.value    conf_lower
-#>     <char>         <num>        <num>     <num>      <num>         <num>
-#> 1:      x1  3.9865071718 0.0715166883 55.742335 0.00000000  3.8462521170
-#> 2:      x2  0.0053611218 0.0025570164  2.096632 0.04820210  0.0003464254
-#> 3:      x3  1.7527732858 0.0325190020 53.899972 0.00000000  1.6889985989
-#> 4:      x4 -0.0009391978 0.0004918991 -1.909330 0.05636256 -0.0019038865
+#>    feature   importance           se statistic     p.value   conf_lower
+#>     <char>        <num>        <num>     <num>       <num>        <num>
+#> 1:      x1  4.044285644 0.0693916277 58.282040 0.000000000  3.908198155
+#> 2:      x2  0.006856456 0.0023740754  2.888053 0.005224044  0.002200535
+#> 3:      x3  1.747585238 0.0323011990 54.102798 0.000000000  1.684237696
+#> 4:      x4 -0.000582180 0.0005116255 -1.137903 0.255297527 -0.001585555
 #>      conf_upper
 #>           <num>
-#> 1: 4.126762e+00
-#> 2: 1.037582e-02
-#> 3: 1.816548e+00
-#> 4: 2.549088e-05
+#> 1: 4.1803731337
+#> 2: 0.0115123777
+#> 3: 1.8109327801
+#> 4: 0.0004211951
 ```
 
 Note that multiplcity adjustment is in the general case limited to
@@ -734,10 +728,10 @@ loco$importance(
 #> Key: <feature>
 #>    feature importance    se statistic      p.value conf_lower conf_upper
 #>     <char>      <num> <num>     <num>        <num>      <num>      <num>
-#> 1:      x1 0.80833037    NA    216167 0.000000e+00 0.82052360 1.00057066
-#> 2:      x2 0.01819719    NA    135421 5.538819e-06 0.01210851 0.03837064
-#> 3:      x3 0.52495928    NA    211296 0.000000e+00 0.51589328 0.64318191
-#> 4:      x4 0.01989962    NA    146280 9.640289e-12 0.01774627 0.03932460
+#> 1:      x1 0.78001060    NA    216103 0.000000e+00 0.82337718  1.0131531
+#> 2:      x2 0.01658437    NA    134020 2.189333e-05 0.01012887  0.0352678
+#> 3:      x3 0.53870890    NA    212805 0.000000e+00 0.53374763  0.6537748
+#> 4:      x4 0.03210217    NA    163495 0.000000e+00 0.03226547  0.0531605
 ```
 
 The `ci_method = "lei"` method works on observation-wise loss
@@ -775,8 +769,8 @@ loco$importance(
 #> Key: <feature>
 #>    feature importance          se statistic       p.value conf_lower conf_upper
 #>     <char>      <num>       <num>     <num>         <num>      <num>      <num>
-#> 1:      x1 0.97220860 0.033777130 28.783043 2.152723e-118 0.90588611 1.03853109
-#> 2:      x2 0.04079587 0.007403802  5.510125  5.128595e-08 0.02625827 0.05533348
-#> 3:      x3 0.61203461 0.022878509 26.751508 3.754000e-107 0.56711192 0.65695730
-#> 4:      x4 0.04338934 0.005255062  8.256675  1.611160e-15 0.03307085 0.05370782
+#> 1:      x1 0.98892424 0.035456738 27.891010 2.070435e-113 0.91930379 1.05854469
+#> 2:      x2 0.03331979 0.006929113  4.808666  1.880031e-06 0.01971425 0.04692533
+#> 3:      x3 0.62348162 0.022478700 27.736552 1.136010e-112 0.57934397 0.66761928
+#> 4:      x4 0.05637134 0.004996358 11.282485  7.767841e-27 0.04656083 0.06618185
 ```

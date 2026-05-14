@@ -99,7 +99,7 @@ knockoff matrix.
 
 #### Usage
 
-    KnockoffSampler$sample(feature, row_ids = NULL)
+    KnockoffSampler$sample(feature, row_ids = NULL, samples_per_row = 1L)
 
 #### Arguments
 
@@ -111,6 +111,12 @@ knockoff matrix.
 
   ([`integer()`](https://rdrr.io/r/base/integer.html) \| `NULL`) Row IDs
   to use. If `NULL`, uses all rows.
+
+- `samples_per_row`:
+
+  (`integer(1)`: `1L`) Number of independent samples per input row. See
+  [FeatureSampler](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)`$sample()`
+  for output shape and ordering.
 
 #### Returns
 

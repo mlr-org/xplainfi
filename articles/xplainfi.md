@@ -83,16 +83,16 @@ pfi$importance()
 #> Key: <feature>
 #>          feature   importance
 #>           <char>        <num>
-#>  1:   important1  5.545674370
-#>  2:   important2  8.968101641
-#>  3:   important3  1.261353831
-#>  4:   important4 12.673269112
-#>  5:   important5  2.005969867
-#>  6: unimportant1  0.004208592
-#>  7: unimportant2  0.093948304
-#>  8: unimportant3  0.080041842
-#>  9: unimportant4 -0.029783843
-#> 10: unimportant5 -0.088944796
+#>  1:   important1  5.632570030
+#>  2:   important2  8.762289513
+#>  3:   important3  1.292054658
+#>  4:   important4 12.221628592
+#>  5:   important5  2.131459883
+#>  6: unimportant1  0.003511222
+#>  7: unimportant2  0.112647945
+#>  8: unimportant3  0.082912466
+#>  9: unimportant4 -0.037130061
+#> 10: unimportant5 -0.076628652
 ```
 
 The `importance` column shows the performance difference when each
@@ -119,16 +119,16 @@ pfi_stable$importance()
 #> Key: <feature>
 #>          feature  importance
 #>           <char>       <num>
-#>  1:   important1  5.47062536
-#>  2:   important2  8.31221894
-#>  3:   important3  1.19280876
-#>  4:   important4 12.24462886
-#>  5:   important5  2.01412225
-#>  6: unimportant1 -0.02250072
-#>  7: unimportant2  0.12486533
-#>  8: unimportant3  0.04175966
-#>  9: unimportant4  0.05038402
-#> 10: unimportant5 -0.09342671
+#>  1:   important1  6.16945266
+#>  2:   important2  8.84844835
+#>  3:   important3  1.19806624
+#>  4:   important4 12.42473403
+#>  5:   important5  1.92886715
+#>  6: unimportant1 -0.01201695
+#>  7: unimportant2  0.16133513
+#>  8: unimportant3  0.03651396
+#>  9: unimportant4  0.08331531
+#> 10: unimportant5 -0.06196614
 ```
 
 To illustrate why this is important, we can take a look at the
@@ -152,9 +152,9 @@ pfi_stable$scores()[feature == "important2", ] |>
 
 ![](xplainfi_files/figure-html/pif-nrepeats-1.png)
 
-The aggregated importance score for this feature is approximately 8.3,
-but across all resamplings the estimated PFI scores range from 4.51 to
-12.67, and with insufficient resampling or low `n_repeats`, we might
+The aggregated importance score for this feature is approximately 8.8,
+but across all resamplings the estimated PFI scores range from 5.93 to
+12.74, and with insufficient resampling or low `n_repeats`, we might
 have over- or underestimated the features PFI by some margin.
 
 We can also use the ratio of performance scores instead of their
@@ -167,16 +167,16 @@ pfi_stable$importance(relation = "ratio")
 #> Key: <feature>
 #>          feature importance
 #>           <char>      <num>
-#>  1:   important1  1.8678890
-#>  2:   important2  2.3092581
-#>  3:   important3  1.1900256
-#>  4:   important4  2.9573191
-#>  5:   important5  1.3219625
-#>  6: unimportant1  0.9969603
-#>  7: unimportant2  1.0166104
-#>  8: unimportant3  1.0070529
-#>  9: unimportant4  1.0074279
-#> 10: unimportant5  0.9873048
+#>  1:   important1  2.0243082
+#>  2:   important2  2.4624805
+#>  3:   important3  1.1991376
+#>  4:   important4  3.0667250
+#>  5:   important5  1.3191694
+#>  6: unimportant1  0.9978850
+#>  7: unimportant2  1.0266634
+#>  8: unimportant3  1.0061687
+#>  9: unimportant4  1.0137466
+#> 10: unimportant5  0.9895111
 ```
 
 ## Leave-One-Covariate-Out (LOCO)
@@ -198,18 +198,18 @@ loco <- LOCO$new(
 loco$compute()
 loco$importance()
 #> Key: <feature>
-#>          feature  importance
-#>           <char>       <num>
-#>  1:   important1  3.62257756
-#>  2:   important2  5.60038686
-#>  3:   important3  0.96616913
-#>  4:   important4  7.77084397
-#>  5:   important5  0.91573094
-#>  6: unimportant1 -0.21657782
-#>  7: unimportant2 -0.10069618
-#>  8: unimportant3 -0.07475981
-#>  9: unimportant4 -0.13525518
-#> 10: unimportant5 -0.23400214
+#>          feature importance
+#>           <char>      <num>
+#>  1:   important1  3.3430096
+#>  2:   important2  4.7465412
+#>  3:   important3  0.6079202
+#>  4:   important4  7.2998327
+#>  5:   important5  0.5541375
+#>  6: unimportant1 -0.5955017
+#>  7: unimportant2 -0.6082412
+#>  8: unimportant3 -0.4519835
+#>  9: unimportant4 -0.4972118
+#> 10: unimportant5 -0.4346899
 ```
 
 LOCO is computationally expensive as it requires retraining for each
@@ -265,11 +265,11 @@ sample_data[, .(important1, important2, important3)]
 sampled_conditional[, .(important1, important2, important3)]
 #>    important1  important2 important3
 #>         <num>       <num>      <num>
-#> 1:  0.7928991 0.784575267  0.2372297
-#> 2:  0.6233185 0.009429905  0.6864904
-#> 3:  0.1203356 0.779065883  0.2258184
-#> 4:  0.8458796 0.729390652  0.3184946
-#> 5:  0.8990316 0.630131853  0.1739838
+#> 1:  0.8502091 0.784575267  0.2372297
+#> 2: -0.1656936 0.009429905  0.6864904
+#> 3:  0.3339015 0.779065883  0.2258184
+#> 4:  0.7164983 0.729390652  0.3184946
+#> 5:  0.6126986 0.630131853  0.1739838
 ```
 
 This conditional sampling is essential for methods like CFI and RFI that
@@ -294,16 +294,16 @@ pfi$scores() |>
 
 | feature    | iter_rsmp | iter_repeat | regr.mse_baseline | regr.mse_post | importance |
 |:-----------|----------:|------------:|------------------:|--------------:|-----------:|
-| important1 |         1 |           1 |            4.3358 |       10.6616 |     6.3258 |
-| important1 |         1 |           2 |            4.3358 |        9.4661 |     5.1303 |
-| important1 |         1 |           3 |            4.3358 |        7.7194 |     3.3837 |
-| important1 |         1 |           4 |            4.3358 |        8.9057 |     4.5699 |
-| important1 |         1 |           5 |            4.3358 |        9.4691 |     5.1333 |
-| important1 |         1 |           6 |            4.3358 |        9.0111 |     4.6753 |
-| important1 |         1 |           7 |            4.3358 |        9.3553 |     5.0195 |
-| important1 |         1 |           8 |            4.3358 |       10.0281 |     5.6923 |
-| important1 |         1 |           9 |            4.3358 |        9.7933 |     5.4575 |
-| important1 |         1 |          10 |            4.3358 |        9.1412 |     4.8055 |
+| important1 |         1 |           1 |            4.3358 |        8.4459 |     4.1102 |
+| important1 |         1 |           2 |            4.3358 |       10.9707 |     6.6349 |
+| important1 |         1 |           3 |            4.3358 |        8.6713 |     4.3355 |
+| important1 |         1 |           4 |            4.3358 |        8.0078 |     3.6720 |
+| important1 |         1 |           5 |            4.3358 |        8.9719 |     4.6362 |
+| important1 |         1 |           6 |            4.3358 |        8.9658 |     4.6300 |
+| important1 |         1 |           7 |            4.3358 |        9.3660 |     5.0302 |
+| important1 |         1 |           8 |            4.3358 |        8.3508 |     4.0150 |
+| important1 |         1 |           9 |            4.3358 |        7.9364 |     3.6006 |
+| important1 |         1 |          10 |            4.3358 |        9.2786 |     4.9428 |
 
 Detailed PFI scores (first 10 rows) {.table}
 
@@ -340,16 +340,16 @@ pfi$scores(relation = "ratio") |>
 
 | feature    | iter_rsmp | iter_repeat | regr.mse_baseline | regr.mse_post | importance |
 |:-----------|----------:|------------:|------------------:|--------------:|-----------:|
-| important1 |         1 |           1 |            4.3358 |       10.6616 |     2.4590 |
-| important1 |         1 |           2 |            4.3358 |        9.4661 |     2.1833 |
-| important1 |         1 |           3 |            4.3358 |        7.7194 |     1.7804 |
-| important1 |         1 |           4 |            4.3358 |        8.9057 |     2.0540 |
-| important1 |         1 |           5 |            4.3358 |        9.4691 |     2.1840 |
-| important1 |         1 |           6 |            4.3358 |        9.0111 |     2.0783 |
-| important1 |         1 |           7 |            4.3358 |        9.3553 |     2.1577 |
-| important1 |         1 |           8 |            4.3358 |       10.0281 |     2.3129 |
-| important1 |         1 |           9 |            4.3358 |        9.7933 |     2.2587 |
-| important1 |         1 |          10 |            4.3358 |        9.1412 |     2.1083 |
+| important1 |         1 |           1 |            4.3358 |        8.4459 |     1.9480 |
+| important1 |         1 |           2 |            4.3358 |       10.9707 |     2.5303 |
+| important1 |         1 |           3 |            4.3358 |        8.6713 |     1.9999 |
+| important1 |         1 |           4 |            4.3358 |        8.0078 |     1.8469 |
+| important1 |         1 |           5 |            4.3358 |        8.9719 |     2.0693 |
+| important1 |         1 |           6 |            4.3358 |        8.9658 |     2.0679 |
+| important1 |         1 |           7 |            4.3358 |        9.3660 |     2.1602 |
+| important1 |         1 |           8 |            4.3358 |        8.3508 |     1.9260 |
+| important1 |         1 |           9 |            4.3358 |        7.9364 |     1.8304 |
+| important1 |         1 |          10 |            4.3358 |        9.2786 |     2.1400 |
 
 PFI scores using the ratio (first 10 rows) {.table}
 
@@ -364,32 +364,32 @@ detailed level:
 ``` r
 
 pfi$obs_loss()
-#>             feature iter_rsmp iter_repeat row_ids loss_baseline  loss_post
-#>              <char>     <int>       <int>   <int>         <num>      <num>
-#>     1:   important1         1           1       1     3.3403244  2.5440536
-#>     2:   important1         1           1       9     0.4640003  5.2814472
-#>     3:   important1         1           1      11     1.0938319  0.4286004
-#>     4:   important1         1           1      12     2.0091331  2.3334294
-#>     5:   important1         1           1      15    11.4484770 41.8831124
-#>    ---                                                                    
-#> 29996: unimportant5         3          10     290    16.8041217 15.2572740
-#> 29997: unimportant5         3          10     294     0.4212832  0.5242628
-#> 29998: unimportant5         3          10     295     8.0016602  9.3209027
-#> 29999: unimportant5         3          10     296     0.2308082  0.1680013
-#> 30000: unimportant5         3          10     298    18.8129904 19.7120160
+#>             feature iter_rsmp iter_repeat row_ids loss_baseline   loss_post
+#>              <char>     <int>       <int>   <int>         <num>       <num>
+#>     1:   important1         1           1       1     3.3403244  0.26184209
+#>     2:   important1         1           1       9     0.4640003  0.00316609
+#>     3:   important1         1           1      11     1.0938319 10.11218211
+#>     4:   important1         1           1      12     2.0091331  2.28764800
+#>     5:   important1         1           1      15    11.4484770 38.11092543
+#>    ---                                                                     
+#> 29996: unimportant5         3          10     290    16.8041217 15.25727404
+#> 29997: unimportant5         3          10     294     0.4212832  0.31602332
+#> 29998: unimportant5         3          10     295     8.0016602  7.86721528
+#> 29999: unimportant5         3          10     296     0.2308082  0.18523584
+#> 30000: unimportant5         3          10     298    18.8129904 20.48257193
 #>        obs_importance
 #>                 <num>
-#>     1:    -0.79627076
-#>     2:     4.81744691
-#>     3:    -0.66523150
-#>     4:     0.32429633
-#>     5:    30.43463535
+#>     1:    -3.07848231
+#>     2:    -0.46083425
+#>     3:     9.01835017
+#>     4:     0.27851489
+#>     5:    26.66244838
 #>    ---               
 #> 29996:    -1.54684765
-#> 29997:     0.10297959
-#> 29998:     1.31924248
-#> 29999:    -0.06280688
-#> 30000:     0.89902555
+#> 29997:    -0.10525993
+#> 29998:    -0.13444495
+#> 29999:    -0.04557236
+#> 30000:     1.66958152
 ```
 
 Since we computed PFI using the mean squared error (`msr("regr.mse")`),
@@ -463,18 +463,18 @@ pfi_pretrained <- PFI$new(
 pfi_pretrained$compute()
 pfi_pretrained$importance()
 #> Key: <feature>
-#>          feature  importance
-#>           <char>       <num>
-#>  1:   important1  4.90596578
-#>  2:   important2  9.70222982
-#>  3:   important3  1.27523296
-#>  4:   important4 13.27365797
-#>  5:   important5  2.09879343
-#>  6: unimportant1 -0.03733685
-#>  7: unimportant2  0.14397918
-#>  8: unimportant3  0.02300583
-#>  9: unimportant4  0.05327077
-#> 10: unimportant5 -0.01233854
+#>          feature   importance
+#>           <char>        <num>
+#>  1:   important1  6.728510965
+#>  2:   important2  8.838636697
+#>  3:   important3  1.205915997
+#>  4:   important4 13.031767131
+#>  5:   important5  1.690985717
+#>  6: unimportant1 -0.015699992
+#>  7: unimportant2 -0.024724978
+#>  8: unimportant3  0.004969437
+#>  9: unimportant4  0.077583896
+#> 10: unimportant5 -0.041979763
 ```
 
 A common real-world scenario is that the learner was trained on some
@@ -511,18 +511,18 @@ pfi_newdata <- PFI$new(
 pfi_newdata$compute()
 pfi_newdata$importance()
 #> Key: <feature>
-#>          feature   importance
-#>           <char>        <num>
-#>  1:   important1  7.367319221
-#>  2:   important2  6.605859756
-#>  3:   important3  0.588785391
-#>  4:   important4 15.696286629
-#>  5:   important5  2.805833984
-#>  6: unimportant1 -0.145515481
-#>  7: unimportant2 -0.011919069
-#>  8: unimportant3 -0.002688459
-#>  9: unimportant4  0.166218449
-#> 10: unimportant5  0.014330499
+#>          feature    importance
+#>           <char>         <num>
+#>  1:   important1  6.7759279691
+#>  2:   important2  8.2868297756
+#>  3:   important3  0.6668026485
+#>  4:   important4 11.8804933067
+#>  5:   important5  1.5529025512
+#>  6: unimportant1 -0.0251120766
+#>  7: unimportant2  0.0402123498
+#>  8: unimportant3  0.0002462674
+#>  9: unimportant4  0.0554416808
+#> 10: unimportant5 -0.0473285402
 ```
 
 If you pass a trained learner with a multi-fold or non-instantiated

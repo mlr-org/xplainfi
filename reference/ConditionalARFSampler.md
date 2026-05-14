@@ -177,6 +177,7 @@ function argument \> stored `param_set` value \> hard-coded default.
       feature,
       row_ids = NULL,
       conditioning_set = NULL,
+      samples_per_row = 1L,
       round = NULL,
       stepsize = NULL,
       verbose = NULL,
@@ -197,6 +198,12 @@ function argument \> stored `param_set` value \> hard-coded default.
 - `conditioning_set`:
 
   (`character` \| `NULL`) Features to condition on.
+
+- `samples_per_row`:
+
+  (`integer(1)`: `1L`) Number of independent samples per input row. See
+  [FeatureSampler](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)`$sample()`
+  for output shape and ordering.
 
 - `round`:
 
@@ -230,6 +237,7 @@ Sample from external data. See `$sample()` for parameter details.
       feature,
       newdata,
       conditioning_set = NULL,
+      samples_per_row = 1L,
       round = NULL,
       stepsize = NULL,
       verbose = NULL,
@@ -250,6 +258,12 @@ Sample from external data. See `$sample()` for parameter details.
 - `conditioning_set`:
 
   (`character` \| `NULL`) Features to condition on.
+
+- `samples_per_row`:
+
+  (`integer(1)`: `1L`) Number of independent samples per input row. See
+  [FeatureSampler](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)`$sample()`
+  for output shape and ordering.
 
 - `round`:
 

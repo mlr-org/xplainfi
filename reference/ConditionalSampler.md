@@ -59,6 +59,7 @@ Sample from stored task conditionally on other features.
       feature,
       row_ids = NULL,
       conditioning_set = NULL,
+      samples_per_row = 1L,
       ...
     )
 
@@ -76,6 +77,12 @@ Sample from stored task conditionally on other features.
 - `conditioning_set`:
 
   (`character` \| `NULL`) Features to condition on.
+
+- `samples_per_row`:
+
+  (`integer(1)`: `1L`) Number of independent samples per input row. See
+  [FeatureSampler](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)`$sample()`
+  for output shape and ordering.
 
 - `...`:
 
@@ -97,6 +104,7 @@ Sample from external data conditionally.
       feature,
       newdata,
       conditioning_set = NULL,
+      samples_per_row = 1L,
       ...
     )
 
@@ -114,6 +122,12 @@ Sample from external data conditionally.
 - `conditioning_set`:
 
   (`character` \| `NULL`) Features to condition on.
+
+- `samples_per_row`:
+
+  (`integer(1)`: `1L`) Number of independent samples per input row. See
+  [FeatureSampler](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)`$sample()`
+  for output shape and ordering.
 
 - `...`:
 

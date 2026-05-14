@@ -149,8 +149,8 @@ loco$importance()
 #> Key: <feature>
 #>    feature importance
 #>     <char>      <num>
-#> 1:      x1  0.5432402
+#> 1:      x1  0.5343380
 #> 2:      x2  0.0000000
-#> 3:      x3  0.4093390
+#> 3:      x3  0.4572831
 #> 4:      x4  0.0000000
 ```

@@ -1598,11 +1598,11 @@ model (faster)</li>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature       loco          pfi</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  noise1 -0.7663935 -0.002685962</span></span>
-<span><span class="co">#&gt; 2:  noise2 -0.5653578  0.002991822</span></span>
-<span><span class="co">#&gt; 3:      x1  2.8024966  6.496274359</span></span>
-<span><span class="co">#&gt; 4:      x2  2.8173232  6.578501614</span></span>
-<span><span class="co">#&gt; 5:      x3  0.7637862  1.770219866</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:  noise1 -0.7663935 -0.003606058</span></span>
+<span><span class="co">#&gt; 2:  noise2 -0.5653578  0.003187806</span></span>
+<span><span class="co">#&gt; 3:      x1  2.8024966  6.493881124</span></span>
+<span><span class="co">#&gt; 4:      x2  2.8173232  6.752315063</span></span>
+<span><span class="co">#&gt; 5:      x3  0.7637862  1.789657989</span></span></code></pre></div>
 <p><strong>Note:</strong> Using the same instantiated resampling ensures
 we evaluate both methods on identical train/test splits. Even so,
 stochastic learners like <code>ranger</code> will produce slightly
@@ -1651,13 +1651,13 @@ resulting in the LOCO procedure.</p>
 <span></span>
 <span><span class="va">comparison_wvim</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature       loco       wvim</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  noise1 -0.7663935 -1.1171265</span></span>
-<span><span class="co">#&gt; 2:  noise2 -0.5653578 -1.4339895</span></span>
-<span><span class="co">#&gt; 3:      x1  2.8024966  2.2075487</span></span>
-<span><span class="co">#&gt; 4:      x2  2.8173232  2.2197634</span></span>
-<span><span class="co">#&gt; 5:      x3  0.7637862 -0.1849607</span></span></code></pre></div>
+<span><span class="co">#&gt;    feature       loco      wvim</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  noise1 -0.7663935 0.5251158</span></span>
+<span><span class="co">#&gt; 2:  noise2 -0.5653578 0.6938759</span></span>
+<span><span class="co">#&gt; 3:      x1  2.8024966 3.9790219</span></span>
+<span><span class="co">#&gt; 4:      x2  2.8173232 3.9849221</span></span>
+<span><span class="co">#&gt; 5:      x3  0.7637862 1.8003850</span></span></code></pre></div>
 <p><strong>Note:</strong> To get comparable results between methods, we
 must use the same instantiated resampling. Even then, stochastic
 learners like <code>ranger</code> will produce slightly different
@@ -1689,13 +1689,13 @@ trivial to compute if desired:</p>
 <span><span class="va">wvim_loci</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">wvim_loci</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature   importance</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  noise1 -0.005507611</span></span>
-<span><span class="co">#&gt; 2:  noise2 -0.030116216</span></span>
-<span><span class="co">#&gt; 3:      x1 -6.172977924</span></span>
-<span><span class="co">#&gt; 4:      x2 -0.276415375</span></span>
-<span><span class="co">#&gt; 5:      x3  0.986802222</span></span></code></pre></div>
+<span><span class="co">#&gt;    feature  importance</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;       &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  noise1 -0.02262651</span></span>
+<span><span class="co">#&gt; 2:  noise2 -0.02966216</span></span>
+<span><span class="co">#&gt; 3:      x1 -0.19811082</span></span>
+<span><span class="co">#&gt; 4:      x2 -0.12966511</span></span>
+<span><span class="co">#&gt; 5:      x3  1.00387975</span></span></code></pre></div>
 <p>LOCI interprets importance differently from LOCO:</p>
 <ul>
 <li>
@@ -1787,9 +1787,9 @@ f(X)))\]</span></p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;             feature importance</span></span>
 <span><span class="co">#&gt;              &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: interaction_pair  3.3780282</span></span>
-<span><span class="co">#&gt; 2:      main_effect  1.3852866</span></span>
-<span><span class="co">#&gt; 3:   noise_features -0.3314483</span></span></code></pre></div>
+<span><span class="co">#&gt; 1: interaction_pair  3.2318575</span></span>
+<span><span class="co">#&gt; 2:      main_effect  0.9127828</span></span>
+<span><span class="co">#&gt; 3:   noise_features -0.5017692</span></span></code></pre></div>
 <p><strong>Interpretation:</strong></p>
 <ul>
 <li>
@@ -1828,9 +1828,9 @@ features.</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;             feature importance</span></span>
 <span><span class="co">#&gt;              &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: interaction_pair  3.6348866</span></span>
-<span><span class="co">#&gt; 2:      main_effect  0.9813703</span></span>
-<span><span class="co">#&gt; 3:   noise_features -0.2612117</span></span></code></pre></div>
+<span><span class="co">#&gt; 1: interaction_pair  3.3878173</span></span>
+<span><span class="co">#&gt; 2:      main_effect  0.9983443</span></span>
+<span><span class="co">#&gt; 3:   noise_features -1.0814479</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="comparing-leave-out-vs-leave-in-for-groups">Comparing Leave-Out vs Leave-In for Groups<a class="anchor" aria-label="anchor" href="#comparing-leave-out-vs-leave-in-for-groups"></a>
@@ -1868,9 +1868,9 @@ baseline</li>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;             feature  leave_out   leave_in</span></span>
 <span><span class="co">#&gt;              &lt;char&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: interaction_pair  3.3780282  3.6348866</span></span>
-<span><span class="co">#&gt; 2:      main_effect  1.3852866  0.9813703</span></span>
-<span><span class="co">#&gt; 3:   noise_features -0.3314483 -0.2612117</span></span></code></pre></div>
+<span><span class="co">#&gt; 1: interaction_pair  3.2318575  3.3878173</span></span>
+<span><span class="co">#&gt; 2:      main_effect  0.9127828  0.9983443</span></span>
+<span><span class="co">#&gt; 3:   noise_features -0.5017692 -1.0814479</span></span></code></pre></div>
 <p>For our interaction data where <span class="math inline">\(y = 2
 \cdot x_1 \cdot x_2 + x_3 + \epsilon\)</span>:</p>
 <ul>

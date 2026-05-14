@@ -189,6 +189,7 @@ function argument &gt; stored <code>param_set</code> value &gt; hard-coded defau
 <span>  <span class="va">feature</span>,</span>
 <span>  row_ids <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  conditioning_set <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  samples_per_row <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  round <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  stepsize <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -204,6 +205,10 @@ function argument &gt; stored <code>param_set</code> value &gt; hard-coded defau
 
       <dt><code>conditioning_set</code></dt>
 <dd><p>(<code>character</code> | <code>NULL</code>) Features to condition on.</p></dd>
+
+      <dt><code>samples_per_row</code></dt>
+<dd><p>(<code>integer(1)</code>: <code>1L</code>) Number of independent samples per input row.
+See <a href="FeatureSampler.html">FeatureSampler</a><code>$sample()</code> for output shape and ordering.</p></dd>
 
       <dt><code>round</code></dt>
 <dd><p>(<code>logical(1)</code> | <code>NULL</code>) Round continuous variables.</p></dd>
@@ -234,6 +239,7 @@ function argument &gt; stored <code>param_set</code> value &gt; hard-coded defau
 <span>  <span class="va">feature</span>,</span>
 <span>  <span class="va">newdata</span>,</span>
 <span>  conditioning_set <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  samples_per_row <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  round <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  stepsize <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -249,6 +255,10 @@ function argument &gt; stored <code>param_set</code> value &gt; hard-coded defau
 
       <dt><code>conditioning_set</code></dt>
 <dd><p>(<code>character</code> | <code>NULL</code>) Features to condition on.</p></dd>
+
+      <dt><code>samples_per_row</code></dt>
+<dd><p>(<code>integer(1)</code>: <code>1L</code>) Number of independent samples per input row.
+See <a href="FeatureSampler.html">FeatureSampler</a><code>$sample()</code> for output shape and ordering.</p></dd>
 
       <dt><code>round</code></dt>
 <dd><p>(<code>logical(1)</code> | <code>NULL</code>) Round continuous variables.</p></dd>

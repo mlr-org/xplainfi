@@ -174,16 +174,16 @@ when shuffled.</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;          feature   importance</span></span>
 <span><span class="co">#&gt;           &lt;char&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  5.545674370</span></span>
-<span><span class="co">#&gt;  2:   important2  8.968101641</span></span>
-<span><span class="co">#&gt;  3:   important3  1.261353831</span></span>
-<span><span class="co">#&gt;  4:   important4 12.673269112</span></span>
-<span><span class="co">#&gt;  5:   important5  2.005969867</span></span>
-<span><span class="co">#&gt;  6: unimportant1  0.004208592</span></span>
-<span><span class="co">#&gt;  7: unimportant2  0.093948304</span></span>
-<span><span class="co">#&gt;  8: unimportant3  0.080041842</span></span>
-<span><span class="co">#&gt;  9: unimportant4 -0.029783843</span></span>
-<span><span class="co">#&gt; 10: unimportant5 -0.088944796</span></span></code></pre></div>
+<span><span class="co">#&gt;  1:   important1  5.632570030</span></span>
+<span><span class="co">#&gt;  2:   important2  8.762289513</span></span>
+<span><span class="co">#&gt;  3:   important3  1.292054658</span></span>
+<span><span class="co">#&gt;  4:   important4 12.221628592</span></span>
+<span><span class="co">#&gt;  5:   important5  2.131459883</span></span>
+<span><span class="co">#&gt;  6: unimportant1  0.003511222</span></span>
+<span><span class="co">#&gt;  7: unimportant2  0.112647945</span></span>
+<span><span class="co">#&gt;  8: unimportant3  0.082912466</span></span>
+<span><span class="co">#&gt;  9: unimportant4 -0.037130061</span></span>
+<span><span class="co">#&gt; 10: unimportant5 -0.076628652</span></span></code></pre></div>
 <p>The <code>importance</code> column shows the performance difference
 when each feature is permuted. Higher values indicate more important
 features.</p>
@@ -207,16 +207,16 @@ yield unreliable results.</p>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;          feature  importance</span></span>
 <span><span class="co">#&gt;           &lt;char&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  5.47062536</span></span>
-<span><span class="co">#&gt;  2:   important2  8.31221894</span></span>
-<span><span class="co">#&gt;  3:   important3  1.19280876</span></span>
-<span><span class="co">#&gt;  4:   important4 12.24462886</span></span>
-<span><span class="co">#&gt;  5:   important5  2.01412225</span></span>
-<span><span class="co">#&gt;  6: unimportant1 -0.02250072</span></span>
-<span><span class="co">#&gt;  7: unimportant2  0.12486533</span></span>
-<span><span class="co">#&gt;  8: unimportant3  0.04175966</span></span>
-<span><span class="co">#&gt;  9: unimportant4  0.05038402</span></span>
-<span><span class="co">#&gt; 10: unimportant5 -0.09342671</span></span></code></pre></div>
+<span><span class="co">#&gt;  1:   important1  6.16945266</span></span>
+<span><span class="co">#&gt;  2:   important2  8.84844835</span></span>
+<span><span class="co">#&gt;  3:   important3  1.19806624</span></span>
+<span><span class="co">#&gt;  4:   important4 12.42473403</span></span>
+<span><span class="co">#&gt;  5:   important5  1.92886715</span></span>
+<span><span class="co">#&gt;  6: unimportant1 -0.01201695</span></span>
+<span><span class="co">#&gt;  7: unimportant2  0.16133513</span></span>
+<span><span class="co">#&gt;  8: unimportant3  0.03651396</span></span>
+<span><span class="co">#&gt;  9: unimportant4  0.08331531</span></span>
+<span><span class="co">#&gt; 10: unimportant5 -0.06196614</span></span></code></pre></div>
 <p>To illustrate why this is important, we can take a look at the
 variability of PFI scores for feature <code>important2</code> within
 each resampling iteration using individual importance scores via
@@ -234,8 +234,8 @@ each resampling iteration using individual importance scores via
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="xplainfi_files/figure-html/pif-nrepeats-1.png" class="r-plt" alt="" width="768"></p>
 <p>The aggregated importance score for this feature is approximately
-8.3, but across all resamplings the estimated PFI scores range from 4.51
-to 12.67, and with insufficient resampling or low
+8.8, but across all resamplings the estimated PFI scores range from 5.93
+to 12.74, and with insufficient resampling or low
 <code>n_repeats</code>, we might have over- or underestimated the
 features PFI by some margin.</p>
 <p>We can also use the ratio of performance scores instead of their
@@ -247,16 +247,16 @@ feature is now expected to get an importance score of 1 rather than
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;          feature importance</span></span>
 <span><span class="co">#&gt;           &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  1.8678890</span></span>
-<span><span class="co">#&gt;  2:   important2  2.3092581</span></span>
-<span><span class="co">#&gt;  3:   important3  1.1900256</span></span>
-<span><span class="co">#&gt;  4:   important4  2.9573191</span></span>
-<span><span class="co">#&gt;  5:   important5  1.3219625</span></span>
-<span><span class="co">#&gt;  6: unimportant1  0.9969603</span></span>
-<span><span class="co">#&gt;  7: unimportant2  1.0166104</span></span>
-<span><span class="co">#&gt;  8: unimportant3  1.0070529</span></span>
-<span><span class="co">#&gt;  9: unimportant4  1.0074279</span></span>
-<span><span class="co">#&gt; 10: unimportant5  0.9873048</span></span></code></pre></div>
+<span><span class="co">#&gt;  1:   important1  2.0243082</span></span>
+<span><span class="co">#&gt;  2:   important2  2.4624805</span></span>
+<span><span class="co">#&gt;  3:   important3  1.1991376</span></span>
+<span><span class="co">#&gt;  4:   important4  3.0667250</span></span>
+<span><span class="co">#&gt;  5:   important5  1.3191694</span></span>
+<span><span class="co">#&gt;  6: unimportant1  0.9978850</span></span>
+<span><span class="co">#&gt;  7: unimportant2  1.0266634</span></span>
+<span><span class="co">#&gt;  8: unimportant3  1.0061687</span></span>
+<span><span class="co">#&gt;  9: unimportant4  1.0137466</span></span>
+<span><span class="co">#&gt; 10: unimportant5  0.9895111</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="leave-one-covariate-out-loco">Leave-One-Covariate-Out (LOCO)<a class="anchor" aria-label="anchor" href="#leave-one-covariate-out-loco"></a>
@@ -276,18 +276,18 @@ of each feature when all other features are present.</p>
 <span><span class="va">loco</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">loco</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;          feature  importance</span></span>
-<span><span class="co">#&gt;           &lt;char&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  3.62257756</span></span>
-<span><span class="co">#&gt;  2:   important2  5.60038686</span></span>
-<span><span class="co">#&gt;  3:   important3  0.96616913</span></span>
-<span><span class="co">#&gt;  4:   important4  7.77084397</span></span>
-<span><span class="co">#&gt;  5:   important5  0.91573094</span></span>
-<span><span class="co">#&gt;  6: unimportant1 -0.21657782</span></span>
-<span><span class="co">#&gt;  7: unimportant2 -0.10069618</span></span>
-<span><span class="co">#&gt;  8: unimportant3 -0.07475981</span></span>
-<span><span class="co">#&gt;  9: unimportant4 -0.13525518</span></span>
-<span><span class="co">#&gt; 10: unimportant5 -0.23400214</span></span></code></pre></div>
+<span><span class="co">#&gt;          feature importance</span></span>
+<span><span class="co">#&gt;           &lt;char&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:   important1  3.3430096</span></span>
+<span><span class="co">#&gt;  2:   important2  4.7465412</span></span>
+<span><span class="co">#&gt;  3:   important3  0.6079202</span></span>
+<span><span class="co">#&gt;  4:   important4  7.2998327</span></span>
+<span><span class="co">#&gt;  5:   important5  0.5541375</span></span>
+<span><span class="co">#&gt;  6: unimportant1 -0.5955017</span></span>
+<span><span class="co">#&gt;  7: unimportant2 -0.6082412</span></span>
+<span><span class="co">#&gt;  8: unimportant3 -0.4519835</span></span>
+<span><span class="co">#&gt;  9: unimportant4 -0.4972118</span></span>
+<span><span class="co">#&gt; 10: unimportant5 -0.4346899</span></span></code></pre></div>
 <p>LOCO is computationally expensive as it requires retraining for each
 feature, but provides clear interpretation: higher values mean larger
 performance drop when the feature is removed. However, it cannot
@@ -337,11 +337,11 @@ given the values of <code>important2</code> and
 <span><span class="va">sampled_conditional</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">important1</span>, <span class="va">important2</span>, <span class="va">important3</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;    important1  important2 important3</span></span>
 <span><span class="co">#&gt;         &lt;num&gt;       &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  0.7928991 0.784575267  0.2372297</span></span>
-<span><span class="co">#&gt; 2:  0.6233185 0.009429905  0.6864904</span></span>
-<span><span class="co">#&gt; 3:  0.1203356 0.779065883  0.2258184</span></span>
-<span><span class="co">#&gt; 4:  0.8458796 0.729390652  0.3184946</span></span>
-<span><span class="co">#&gt; 5:  0.8990316 0.630131853  0.1739838</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:  0.8502091 0.784575267  0.2372297</span></span>
+<span><span class="co">#&gt; 2: -0.1656936 0.009429905  0.6864904</span></span>
+<span><span class="co">#&gt; 3:  0.3339015 0.779065883  0.2258184</span></span>
+<span><span class="co">#&gt; 4:  0.7164983 0.729390652  0.3184946</span></span>
+<span><span class="co">#&gt; 5:  0.6126986 0.630131853  0.1739838</span></span></code></pre></div>
 <p>This conditional sampling is essential for methods like CFI and RFI
 that need to preserve feature dependencies. See the <a href="https://mlr-org.github.io/xplainfi/articles/perturbation-importance.html">perturbation-importance
 article</a> for detailed comparisons and
@@ -382,80 +382,80 @@ detailed scores:</p>
 <td align="right">1</td>
 <td align="right">1</td>
 <td align="right">4.3358</td>
-<td align="right">10.6616</td>
-<td align="right">6.3258</td>
+<td align="right">8.4459</td>
+<td align="right">4.1102</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">2</td>
 <td align="right">4.3358</td>
-<td align="right">9.4661</td>
-<td align="right">5.1303</td>
+<td align="right">10.9707</td>
+<td align="right">6.6349</td>
 </tr>
 <tr class="odd">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">3</td>
 <td align="right">4.3358</td>
-<td align="right">7.7194</td>
-<td align="right">3.3837</td>
+<td align="right">8.6713</td>
+<td align="right">4.3355</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">4</td>
 <td align="right">4.3358</td>
-<td align="right">8.9057</td>
-<td align="right">4.5699</td>
+<td align="right">8.0078</td>
+<td align="right">3.6720</td>
 </tr>
 <tr class="odd">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">5</td>
 <td align="right">4.3358</td>
-<td align="right">9.4691</td>
-<td align="right">5.1333</td>
+<td align="right">8.9719</td>
+<td align="right">4.6362</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">6</td>
 <td align="right">4.3358</td>
-<td align="right">9.0111</td>
-<td align="right">4.6753</td>
+<td align="right">8.9658</td>
+<td align="right">4.6300</td>
 </tr>
 <tr class="odd">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">7</td>
 <td align="right">4.3358</td>
-<td align="right">9.3553</td>
-<td align="right">5.0195</td>
+<td align="right">9.3660</td>
+<td align="right">5.0302</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">8</td>
 <td align="right">4.3358</td>
-<td align="right">10.0281</td>
-<td align="right">5.6923</td>
+<td align="right">8.3508</td>
+<td align="right">4.0150</td>
 </tr>
 <tr class="odd">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">9</td>
 <td align="right">4.3358</td>
-<td align="right">9.7933</td>
-<td align="right">5.4575</td>
+<td align="right">7.9364</td>
+<td align="right">3.6006</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">10</td>
 <td align="right">4.3358</td>
-<td align="right">9.1412</td>
-<td align="right">4.8055</td>
+<td align="right">9.2786</td>
+<td align="right">4.9428</td>
 </tr>
 </tbody>
 </table>
@@ -506,80 +506,80 @@ by default.</p>
 <td align="right">1</td>
 <td align="right">1</td>
 <td align="right">4.3358</td>
-<td align="right">10.6616</td>
-<td align="right">2.4590</td>
+<td align="right">8.4459</td>
+<td align="right">1.9480</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">2</td>
 <td align="right">4.3358</td>
-<td align="right">9.4661</td>
-<td align="right">2.1833</td>
+<td align="right">10.9707</td>
+<td align="right">2.5303</td>
 </tr>
 <tr class="odd">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">3</td>
 <td align="right">4.3358</td>
-<td align="right">7.7194</td>
-<td align="right">1.7804</td>
+<td align="right">8.6713</td>
+<td align="right">1.9999</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">4</td>
 <td align="right">4.3358</td>
-<td align="right">8.9057</td>
-<td align="right">2.0540</td>
+<td align="right">8.0078</td>
+<td align="right">1.8469</td>
 </tr>
 <tr class="odd">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">5</td>
 <td align="right">4.3358</td>
-<td align="right">9.4691</td>
-<td align="right">2.1840</td>
+<td align="right">8.9719</td>
+<td align="right">2.0693</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">6</td>
 <td align="right">4.3358</td>
-<td align="right">9.0111</td>
-<td align="right">2.0783</td>
+<td align="right">8.9658</td>
+<td align="right">2.0679</td>
 </tr>
 <tr class="odd">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">7</td>
 <td align="right">4.3358</td>
-<td align="right">9.3553</td>
-<td align="right">2.1577</td>
+<td align="right">9.3660</td>
+<td align="right">2.1602</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">8</td>
 <td align="right">4.3358</td>
-<td align="right">10.0281</td>
-<td align="right">2.3129</td>
+<td align="right">8.3508</td>
+<td align="right">1.9260</td>
 </tr>
 <tr class="odd">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">9</td>
 <td align="right">4.3358</td>
-<td align="right">9.7933</td>
-<td align="right">2.2587</td>
+<td align="right">7.9364</td>
+<td align="right">1.8304</td>
 </tr>
 <tr class="even">
 <td align="left">important1</td>
 <td align="right">1</td>
 <td align="right">10</td>
 <td align="right">4.3358</td>
-<td align="right">9.1412</td>
-<td align="right">2.1083</td>
+<td align="right">9.2786</td>
+<td align="right">2.1400</td>
 </tr>
 </tbody>
 </table>
@@ -595,32 +595,32 @@ also retrieve observation-level information with
 more detailed level:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfi</span><span class="op">$</span><span class="fu">obs_loss</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;             feature iter_rsmp iter_repeat row_ids loss_baseline  loss_post</span></span>
-<span><span class="co">#&gt;              &lt;char&gt;     &lt;int&gt;       &lt;int&gt;   &lt;int&gt;         &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;     1:   important1         1           1       1     3.3403244  2.5440536</span></span>
-<span><span class="co">#&gt;     2:   important1         1           1       9     0.4640003  5.2814472</span></span>
-<span><span class="co">#&gt;     3:   important1         1           1      11     1.0938319  0.4286004</span></span>
-<span><span class="co">#&gt;     4:   important1         1           1      12     2.0091331  2.3334294</span></span>
-<span><span class="co">#&gt;     5:   important1         1           1      15    11.4484770 41.8831124</span></span>
-<span><span class="co">#&gt;    ---                                                                    </span></span>
-<span><span class="co">#&gt; 29996: unimportant5         3          10     290    16.8041217 15.2572740</span></span>
-<span><span class="co">#&gt; 29997: unimportant5         3          10     294     0.4212832  0.5242628</span></span>
-<span><span class="co">#&gt; 29998: unimportant5         3          10     295     8.0016602  9.3209027</span></span>
-<span><span class="co">#&gt; 29999: unimportant5         3          10     296     0.2308082  0.1680013</span></span>
-<span><span class="co">#&gt; 30000: unimportant5         3          10     298    18.8129904 19.7120160</span></span>
+<span><span class="co">#&gt;             feature iter_rsmp iter_repeat row_ids loss_baseline   loss_post</span></span>
+<span><span class="co">#&gt;              &lt;char&gt;     &lt;int&gt;       &lt;int&gt;   &lt;int&gt;         &lt;num&gt;       &lt;num&gt;</span></span>
+<span><span class="co">#&gt;     1:   important1         1           1       1     3.3403244  0.26184209</span></span>
+<span><span class="co">#&gt;     2:   important1         1           1       9     0.4640003  0.00316609</span></span>
+<span><span class="co">#&gt;     3:   important1         1           1      11     1.0938319 10.11218211</span></span>
+<span><span class="co">#&gt;     4:   important1         1           1      12     2.0091331  2.28764800</span></span>
+<span><span class="co">#&gt;     5:   important1         1           1      15    11.4484770 38.11092543</span></span>
+<span><span class="co">#&gt;    ---                                                                     </span></span>
+<span><span class="co">#&gt; 29996: unimportant5         3          10     290    16.8041217 15.25727404</span></span>
+<span><span class="co">#&gt; 29997: unimportant5         3          10     294     0.4212832  0.31602332</span></span>
+<span><span class="co">#&gt; 29998: unimportant5         3          10     295     8.0016602  7.86721528</span></span>
+<span><span class="co">#&gt; 29999: unimportant5         3          10     296     0.2308082  0.18523584</span></span>
+<span><span class="co">#&gt; 30000: unimportant5         3          10     298    18.8129904 20.48257193</span></span>
 <span><span class="co">#&gt;        obs_importance</span></span>
 <span><span class="co">#&gt;                 &lt;num&gt;</span></span>
-<span><span class="co">#&gt;     1:    -0.79627076</span></span>
-<span><span class="co">#&gt;     2:     4.81744691</span></span>
-<span><span class="co">#&gt;     3:    -0.66523150</span></span>
-<span><span class="co">#&gt;     4:     0.32429633</span></span>
-<span><span class="co">#&gt;     5:    30.43463535</span></span>
+<span><span class="co">#&gt;     1:    -3.07848231</span></span>
+<span><span class="co">#&gt;     2:    -0.46083425</span></span>
+<span><span class="co">#&gt;     3:     9.01835017</span></span>
+<span><span class="co">#&gt;     4:     0.27851489</span></span>
+<span><span class="co">#&gt;     5:    26.66244838</span></span>
 <span><span class="co">#&gt;    ---               </span></span>
 <span><span class="co">#&gt; 29996:    -1.54684765</span></span>
-<span><span class="co">#&gt; 29997:     0.10297959</span></span>
-<span><span class="co">#&gt; 29998:     1.31924248</span></span>
-<span><span class="co">#&gt; 29999:    -0.06280688</span></span>
-<span><span class="co">#&gt; 30000:     0.89902555</span></span></code></pre></div>
+<span><span class="co">#&gt; 29997:    -0.10525993</span></span>
+<span><span class="co">#&gt; 29998:    -0.13444495</span></span>
+<span><span class="co">#&gt; 29999:    -0.04557236</span></span>
+<span><span class="co">#&gt; 30000:     1.66958152</span></span></code></pre></div>
 <p>Since we computed PFI using the mean squared error
 (<code>msr("regr.mse")</code>), we can use the associated
 <code>Measure$obs_loss()</code>, the squared error.<br>
@@ -692,18 +692,18 @@ using the trained learner and the corresponding test set defined by the
 <span><span class="va">pfi_pretrained</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">pfi_pretrained</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;          feature  importance</span></span>
-<span><span class="co">#&gt;           &lt;char&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  4.90596578</span></span>
-<span><span class="co">#&gt;  2:   important2  9.70222982</span></span>
-<span><span class="co">#&gt;  3:   important3  1.27523296</span></span>
-<span><span class="co">#&gt;  4:   important4 13.27365797</span></span>
-<span><span class="co">#&gt;  5:   important5  2.09879343</span></span>
-<span><span class="co">#&gt;  6: unimportant1 -0.03733685</span></span>
-<span><span class="co">#&gt;  7: unimportant2  0.14397918</span></span>
-<span><span class="co">#&gt;  8: unimportant3  0.02300583</span></span>
-<span><span class="co">#&gt;  9: unimportant4  0.05327077</span></span>
-<span><span class="co">#&gt; 10: unimportant5 -0.01233854</span></span></code></pre></div>
+<span><span class="co">#&gt;          feature   importance</span></span>
+<span><span class="co">#&gt;           &lt;char&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:   important1  6.728510965</span></span>
+<span><span class="co">#&gt;  2:   important2  8.838636697</span></span>
+<span><span class="co">#&gt;  3:   important3  1.205915997</span></span>
+<span><span class="co">#&gt;  4:   important4 13.031767131</span></span>
+<span><span class="co">#&gt;  5:   important5  1.690985717</span></span>
+<span><span class="co">#&gt;  6: unimportant1 -0.015699992</span></span>
+<span><span class="co">#&gt;  7: unimportant2 -0.024724978</span></span>
+<span><span class="co">#&gt;  8: unimportant3  0.004969437</span></span>
+<span><span class="co">#&gt;  9: unimportant4  0.077583896</span></span>
+<span><span class="co">#&gt; 10: unimportant5 -0.041979763</span></span></code></pre></div>
 <p>A common real-world scenario is that the learner was trained on some
 dataset and you want to explain the model on entirely new, unseen data.
 In that case, create a task from the new data (via
@@ -735,18 +735,18 @@ to achieve the same goal.</p>
 <span><span class="va">pfi_newdata</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">pfi_newdata</span><span class="op">$</span><span class="fu">importance</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;          feature   importance</span></span>
-<span><span class="co">#&gt;           &lt;char&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   important1  7.367319221</span></span>
-<span><span class="co">#&gt;  2:   important2  6.605859756</span></span>
-<span><span class="co">#&gt;  3:   important3  0.588785391</span></span>
-<span><span class="co">#&gt;  4:   important4 15.696286629</span></span>
-<span><span class="co">#&gt;  5:   important5  2.805833984</span></span>
-<span><span class="co">#&gt;  6: unimportant1 -0.145515481</span></span>
-<span><span class="co">#&gt;  7: unimportant2 -0.011919069</span></span>
-<span><span class="co">#&gt;  8: unimportant3 -0.002688459</span></span>
-<span><span class="co">#&gt;  9: unimportant4  0.166218449</span></span>
-<span><span class="co">#&gt; 10: unimportant5  0.014330499</span></span></code></pre></div>
+<span><span class="co">#&gt;          feature    importance</span></span>
+<span><span class="co">#&gt;           &lt;char&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:   important1  6.7759279691</span></span>
+<span><span class="co">#&gt;  2:   important2  8.2868297756</span></span>
+<span><span class="co">#&gt;  3:   important3  0.6668026485</span></span>
+<span><span class="co">#&gt;  4:   important4 11.8804933067</span></span>
+<span><span class="co">#&gt;  5:   important5  1.5529025512</span></span>
+<span><span class="co">#&gt;  6: unimportant1 -0.0251120766</span></span>
+<span><span class="co">#&gt;  7: unimportant2  0.0402123498</span></span>
+<span><span class="co">#&gt;  8: unimportant3  0.0002462674</span></span>
+<span><span class="co">#&gt;  9: unimportant4  0.0554416808</span></span>
+<span><span class="co">#&gt; 10: unimportant5 -0.0473285402</span></span></code></pre></div>
 <p>If you pass a trained learner with a multi-fold or non-instantiated
 resampling, you will get an informative error at construction time:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">

@@ -155,14 +155,14 @@ rfi$importance()
 #> Key: <feature>
 #>          feature importance
 #>           <char>      <num>
-#>  1:   important1   0.000000
-#>  2:   important2   4.131735
-#>  3:   important3   0.000000
-#>  4:   important4  14.631406
-#>  5:   important5   0.000000
-#>  6: unimportant1   1.614474
-#>  7: unimportant2   0.000000
-#>  8: unimportant3   0.000000
-#>  9: unimportant4   0.000000
-#> 10: unimportant5   0.000000
+#>  1:   important1  0.0000000
+#>  2:   important2  5.7647729
+#>  3:   important3  0.0000000
+#>  4:   important4 15.6595160
+#>  5:   important5  0.6524636
+#>  6: unimportant1  0.0000000
+#>  7: unimportant2  0.0000000
+#>  8: unimportant3  0.0000000
+#>  9: unimportant4  0.0000000
+#> 10: unimportant5  0.0000000
 ```

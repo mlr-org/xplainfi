@@ -64,7 +64,7 @@ Sample features from their marginal distribution.
 
 #### Usage
 
-    MarginalSampler$sample(feature, row_ids = NULL)
+    MarginalSampler$sample(feature, row_ids = NULL, samples_per_row = 1L)
 
 #### Arguments
 
@@ -78,6 +78,12 @@ Sample features from their marginal distribution.
   ([`integer()`](https://rdrr.io/r/base/integer.html) \| `NULL`) Row IDs
   from task to use.
 
+- `samples_per_row`:
+
+  (`integer(1)`: `1L`) Number of independent samples per input row. See
+  [FeatureSampler](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)`$sample()`
+  for output shape and ordering.
+
 #### Returns
 
 Modified copy with sampled feature(s).
@@ -90,7 +96,7 @@ Sample from external data.
 
 #### Usage
 
-    MarginalSampler$sample_newdata(feature, newdata)
+    MarginalSampler$sample_newdata(feature, newdata, samples_per_row = 1L)
 
 #### Arguments
 
@@ -103,6 +109,12 @@ Sample from external data.
 
   ([`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html))
   External data to use.
+
+- `samples_per_row`:
+
+  (`integer(1)`: `1L`) Number of independent samples per input row. See
+  [FeatureSampler](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)`$sample()`
+  for output shape and ordering.
 
 #### Returns
 

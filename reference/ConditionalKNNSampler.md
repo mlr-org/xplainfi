@@ -152,6 +152,7 @@ Sample features from their kNN-based conditional distribution.
       feature,
       row_ids = NULL,
       conditioning_set = NULL,
+      samples_per_row = 1L,
       k = NULL
     )
 
@@ -172,6 +173,12 @@ Sample features from their kNN-based conditional distribution.
   ([`character()`](https://rdrr.io/r/base/character.html) \| `NULL`)
   Features to condition on. If `NULL`, samples from marginal
   distribution (random sampling from training data).
+
+- `samples_per_row`:
+
+  (`integer(1)`: `1L`) Number of independent samples per input row. See
+  [FeatureSampler](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)`$sample()`
+  for output shape and ordering.
 
 - `k`:
 
@@ -194,6 +201,7 @@ Sample from external data conditionally.
       feature,
       newdata,
       conditioning_set = NULL,
+      samples_per_row = 1L,
       k = NULL
     )
 
@@ -213,6 +221,12 @@ Sample from external data conditionally.
 
   ([`character()`](https://rdrr.io/r/base/character.html) \| `NULL`)
   Features to condition on.
+
+- `samples_per_row`:
+
+  (`integer(1)`: `1L`) Number of independent samples per input row. See
+  [FeatureSampler](https://mlr-org.github.io/xplainfi/reference/FeatureSampler.md)`$sample()`
+  for output shape and ordering.
 
 - `k`:
 

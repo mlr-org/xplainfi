@@ -349,11 +349,11 @@ comparison
 #> Key: <feature>
 #>    feature       loco          pfi
 #>     <char>      <num>        <num>
-#> 1:  noise1 -0.7663935 -0.002685962
-#> 2:  noise2 -0.5653578  0.002991822
-#> 3:      x1  2.8024966  6.496274359
-#> 4:      x2  2.8173232  6.578501614
-#> 5:      x3  0.7637862  1.770219866
+#> 1:  noise1 -0.7663935 -0.003606058
+#> 2:  noise2 -0.5653578  0.003187806
+#> 3:      x1  2.8024966  6.493881124
+#> 4:      x2  2.8173232  6.752315063
+#> 5:      x3  0.7637862  1.789657989
 ```
 
 **Note:** Using the same instantiated resampling ensures we evaluate
@@ -403,13 +403,13 @@ comparison_wvim <- merge(
 
 comparison_wvim
 #> Key: <feature>
-#>    feature       loco       wvim
-#>     <char>      <num>      <num>
-#> 1:  noise1 -0.7663935 -1.1171265
-#> 2:  noise2 -0.5653578 -1.4339895
-#> 3:      x1  2.8024966  2.2075487
-#> 4:      x2  2.8173232  2.2197634
-#> 5:      x3  0.7637862 -0.1849607
+#>    feature       loco      wvim
+#>     <char>      <num>     <num>
+#> 1:  noise1 -0.7663935 0.5251158
+#> 2:  noise2 -0.5653578 0.6938759
+#> 3:      x1  2.8024966 3.9790219
+#> 4:      x2  2.8173232 3.9849221
+#> 5:      x3  0.7637862 1.8003850
 ```
 
 **Note:** To get comparable results between methods, we must use the
@@ -445,13 +445,13 @@ wvim_loci <- WVIM$new(
 wvim_loci$compute()
 wvim_loci$importance()
 #> Key: <feature>
-#>    feature   importance
-#>     <char>        <num>
-#> 1:  noise1 -0.005507611
-#> 2:  noise2 -0.030116216
-#> 3:      x1 -6.172977924
-#> 4:      x2 -0.276415375
-#> 5:      x3  0.986802222
+#>    feature  importance
+#>     <char>       <num>
+#> 1:  noise1 -0.02262651
+#> 2:  noise2 -0.02966216
+#> 3:      x1 -0.19811082
+#> 4:      x2 -0.12966511
+#> 5:      x3  1.00387975
 ```
 
 LOCI interprets importance differently from LOCO:
@@ -540,9 +540,9 @@ wvim_groups_out$importance()
 #> Key: <feature>
 #>             feature importance
 #>              <char>      <num>
-#> 1: interaction_pair  3.3780282
-#> 2:      main_effect  1.3852866
-#> 3:   noise_features -0.3314483
+#> 1: interaction_pair  3.2318575
+#> 2:      main_effect  0.9127828
+#> 3:   noise_features -0.5017692
 ```
 
 **Interpretation:**
@@ -579,9 +579,9 @@ wvim_groups_in$importance()
 #> Key: <feature>
 #>             feature importance
 #>              <char>      <num>
-#> 1: interaction_pair  3.6348866
-#> 2:      main_effect  0.9813703
-#> 3:   noise_features -0.2612117
+#> 1: interaction_pair  3.3878173
+#> 2:      main_effect  0.9983443
+#> 3:   noise_features -1.0814479
 ```
 
 ### Comparing Leave-Out vs Leave-In for Groups
@@ -608,9 +608,9 @@ comparison_directions
 #> Key: <feature>
 #>             feature  leave_out   leave_in
 #>              <char>      <num>      <num>
-#> 1: interaction_pair  3.3780282  3.6348866
-#> 2:      main_effect  1.3852866  0.9813703
-#> 3:   noise_features -0.3314483 -0.2612117
+#> 1: interaction_pair  3.2318575  3.3878173
+#> 2:      main_effect  0.9127828  0.9983443
+#> 3:   noise_features -0.5017692 -1.0814479
 ```
 
 For our interaction data where \\y = 2 \cdot x_1 \cdot x_2 + x_3 +
