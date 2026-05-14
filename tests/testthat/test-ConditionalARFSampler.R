@@ -170,3 +170,55 @@ test_that("ConditionalARFSampler preserves feature types", {
 	skip_if_not_installed("arf")
 	test_sampler_feature_types(ConditionalARFSampler, verbose = FALSE)
 })
+
+test_that("ConditionalARFSampler obeys draw-major order under samples_per_row > 1", {
+	skip_if_not_installed("arf")
+	set.seed(123L)
+	n = 20L
+	dt = data.table::data.table(
+		y   = rnorm(n),
+		x1  = rnorm(n),
+		x2  = rnorm(n),
+		tag = seq_len(n) + 0.5
+	)
+	task = mlr3::as_task_regr(dt, target = "y")
+	sampler = ConditionalARFSampler$new(task, conditioning_set = c("x2", "tag"), verbose = FALSE)
+
+	expect_draw_major_row_order(
+		sampler,
+		task,
+		feature = "x1",
+		tag_column = "tag",
+		samples_per_row = 4L
+	)
+})
+
+test_that("ConditionalARFSampler calls arf::forge with n_synth > 1, not duplicated evidence", {
+	skip_if_not_installed("arf")
+	set.seed(123L)
+	task = mlr3::tgen("2dnormals")$generate(n = 50L)
+	sampler = ConditionalARFSampler$new(task, conditioning_set = "x2", verbose = FALSE)
+
+	forge_calls = list()
+	real_forge = arf::forge  # capture before mocking to avoid recursion
+	recorder = function(...) {
+		args = list(...)
+		forge_calls[[length(forge_calls) + 1L]] <<- list(
+			n_synth = args$n_synth,
+			nrow_evidence = if (is.null(args$evidence)) 0L else nrow(args$evidence)
+		)
+		real_forge(...)  # delegate to real implementation
+	}
+
+	testthat::with_mocked_bindings(
+		forge = recorder,
+		.package = "arf",
+		{
+			sampler$sample("x1", row_ids = task$row_ids[1:10], samples_per_row = 5L)
+		}
+	)
+
+	expect_length(forge_calls, 1L)
+	expect_equal(forge_calls[[1L]]$n_synth, 5L)
+	expect_equal(forge_calls[[1L]]$nrow_evidence, 10L)
+})
