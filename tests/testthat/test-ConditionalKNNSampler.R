@@ -176,3 +176,24 @@ test_that("ConditionalKNNSampler works with mixed numeric and categorical condit
 	expect_sampler_output_structure(sampled, task, nrows = 10)
 	expect_non_sampled_unchanged(sampled, test_data, c("island", "body_mass"))
 })
+
+test_that("ConditionalKNNSampler obeys draw-major order under samples_per_row > 1", {
+	set.seed(123L)
+	n = 20L
+	dt = data.table::data.table(
+		y   = rnorm(n),
+		x1  = rnorm(n),
+		x2  = rnorm(n),
+		tag = seq_len(n) + 0.5
+	)
+	task = mlr3::as_task_regr(dt, target = "y")
+	sampler = ConditionalKNNSampler$new(task, conditioning_set = c("x2", "tag"), k = 3L)
+
+	expect_draw_major_row_order(
+		sampler,
+		task,
+		feature = "x1",
+		tag_column = "tag",
+		samples_per_row = 4L
+	)
+})

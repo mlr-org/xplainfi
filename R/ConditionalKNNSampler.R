@@ -118,109 +118,62 @@ ConditionalKNNSampler = R6Class(
 	private = list(
 		# Core kNN sampling logic implementing k-nearest neighbors conditional sampling
 		.sample_conditional = function(data, feature, conditioning_set, samples_per_row = 1L, k = NULL, ...) {
-			if (samples_per_row != 1L) {
-				cli::cli_abort(c(
-					"{.cls {class(self)[[1L]]}} does not yet implement {.code samples_per_row > 1}",
-					i = "This is a transient state during the samples_per_row refactor."
-				))
-			}
-			# Resolve k parameter
 			k = resolve_param(k, self$param_set$values$k, 5L)
-
-			# Get training data from task
 			training_data = self$task$data(cols = self$task$feature_names)
 
-			# Handle marginal case (no conditioning)
+			# Marginal fallback (no conditioning): draw with replacement, draw-major
 			if (length(conditioning_set) == 0) {
-				# Simple random sampling (with replacement) from training data
-				data[, (feature) := lapply(.SD, sample, replace = TRUE), .SDcols = feature]
-				return(data[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)])
+				n = nrow(data)
+				out = data[rep.int(seq_len(.N), times = samples_per_row)]
+				for (feat in feature) {
+					out[, (feat) := sample(training_data[[feat]], n * samples_per_row, replace = TRUE)]
+				}
+				return(out[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)])
 			}
 
-			# Determine distance metric based on conditioning feature types
-			# Use Gower distance if any non-numeric features present, otherwise Euclidean
 			cond_types = self$task$feature_types[id %in% conditioning_set, type]
 			use_gower = !all(cond_types %in% c("numeric", "integer"))
+			if (use_gower) require_package("gower")
 
-			if (use_gower) {
-				require_package("gower")
-			}
-
-			# Conditional case: find k nearest neighbors for each observation
-			# Extract conditioning features from both data sources
 			query_cond_dt = data[, .SD, .SDcols = conditioning_set]
 			train_cond_dt = training_data[, .SD, .SDcols = conditioning_set]
 
-			# For Euclidean distance: convert to matrix and standardize
 			if (!use_gower) {
 				query_cond = as.matrix(query_cond_dt)
 				train_cond = as.matrix(train_cond_dt)
-
-				# Normalize numeric features for distance calculation
-				# This ensures all features contribute equally to distance
-				numeric_cols = sapply(conditioning_set, function(col) {
-					is.numeric(training_data[[col]])
-				})
-
+				numeric_cols = sapply(conditioning_set, function(col) is.numeric(training_data[[col]]))
 				if (any(numeric_cols)) {
-					# Compute means and SDs from training data
 					means = colMeans(train_cond[, numeric_cols, drop = FALSE])
 					sds = apply(train_cond[, numeric_cols, drop = FALSE], 2, stats::sd)
-					sds[sds == 0] = 1 # Avoid division by zero for constant features
-
-					# Standardize both query and training data
-					query_cond[, numeric_cols] = scale(
-						query_cond[, numeric_cols, drop = FALSE],
-						center = means,
-						scale = sds
-					)
-					train_cond[, numeric_cols] = scale(
-						train_cond[, numeric_cols, drop = FALSE],
-						center = means,
-						scale = sds
-					)
+					sds[sds == 0] = 1
+					query_cond[, numeric_cols] = scale(query_cond[, numeric_cols, drop = FALSE], center = means, scale = sds)
+					train_cond[, numeric_cols] = scale(train_cond[, numeric_cols, drop = FALSE], center = means, scale = sds)
 				}
 			}
 
-			# Create temporary index column
-			data[, query_idx := .I]
+			n = nrow(data)
+			# sampled_idx[d, i] = training row chosen for draw d, evidence row i
+			sampled_idx = matrix(NA_integer_, nrow = samples_per_row, ncol = n)
 
-			# Do the nearest neighbor sampling
-			sampled = data[,
-				{
-					# Calculate distances based on feature types
-					if (use_gower) {
-						# Gower distance for mixed types (handles numeric, factor, ordered, logical)
-						query_row = query_cond_dt[query_idx, ]
-						dists = gower::gower_dist(query_row, train_cond_dt)
-					} else {
-						# Euclidean distances for numeric types
-						qp = query_cond[query_idx, , drop = FALSE]
-						# sweep gets difference between each element in train_cond and query point
-						dists = sqrt(rowSums((sweep(train_cond, 2, qp))^2))
-					}
+			for (i in seq_len(n)) {
+				if (use_gower) {
+					dists = gower::gower_dist(query_cond_dt[i, ], train_cond_dt)
+				} else {
+					qp = query_cond[i, , drop = FALSE]
+					dists = sqrt(rowSums((sweep(train_cond, 2, qp))^2))
+				}
+				k_actual = min(k, length(dists))
+				neighbors = which(dists <= sort(dists, partial = k_actual)[k_actual])
+				sampled_idx[, i] = sample(neighbors, samples_per_row, replace = TRUE)
+			}
 
-					k_actual = min(k, length(dists))
-					# Thought I could use partial sorting here but
-					#   sort(dists, partial = 1:2, index.return = TRUE)$ix[1:k]
-					# ...doesn't work because we can't combine partial sorting and index return
-					# This works but does a full sort
-					# neighbors = order(dists)[seq_len(k_actual)]
-					# This way we "just" get the indices of the kth neighbours we want
-					neighbors = which(dists <= sort(dists, partial = k_actual)[k_actual])
-					# After getting the neighbours, pick one random value as the sampling result
-					sampled_idx = sample(neighbors, 1)
+			# Draw-major flatten: rows of `t(sampled_idx)` are draws, so as.vector(t(...))
+			# gives [draw 1 across all n rows, draw 2 across all n rows, ...].
+			flat_idx = as.vector(t(sampled_idx))
 
-					.(sampled_idx = sampled_idx)
-				},
-				by = query_idx
-			]
-
-			# Assign the features
-			data[, (feature) := training_data[sampled$sampled_idx, .SD, .SDcols = feature]]
-			data[, query_idx := NULL]
-
-			data[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
+			out = data[rep.int(seq_len(.N), times = samples_per_row)]
+			out[, (feature) := training_data[flat_idx, .SD, .SDcols = feature]]
+			out[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
 		}
 	)
 )
