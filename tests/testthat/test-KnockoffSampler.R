@@ -158,6 +158,9 @@ test_that("KnockoffSampler edge cases", {
 	skip_if_not_installed("knockoff")
 
 	# Test with minimum viable task (single feature)
+	# Seeded: knockoff::create.second_order warns only for some random samples,
+	# so pin the RNG to a state that reliably triggers the expected warning.
+	set.seed(1L)
 	single_feature_data = data.table::data.table(
 		x1 = rnorm(30),
 		y = rnorm(30)
@@ -294,25 +297,56 @@ test_that("KnockoffSampler works with multiple iterations", {
 	non_sampled_cols = setdiff(names(x_sampled), "x1")
 	expect_equal(x_orig[, ..non_sampled_cols], x_sampled[, ..non_sampled_cols])
 
-	# Multiple samples
+	# Multiple samples via samples_per_row
 	x_orig = task$data(rows = c(1, 1, 1))
-	x_sampled = sampler_5$sample("x1", row_ids = c(1, 1, 1))
+	x_sampled = sampler_5$sample("x1", row_ids = 1, samples_per_row = 3L)
 
 	expect_equal(x_sampled$x2, x_orig$x2)
 
-	# Sampling more than available
+	# Sampling more draws than knockoff iters triggers replacement warning
 	expect_warning(
-		sampled_1_repeats <- sampler_1$sample("x1", row_ids = c(1, 1, 1)),
-		regexp = "sample with replacement"
+		sampled_1_repeats <- sampler_1$sample("x1", row_ids = 1, samples_per_row = 3L),
+		regexp = "requested more often than they are present"
 	)
-
-	expect_equal(
-		sampled_1_repeats,
-		data.table::rbindlist(replicate(3, sampler_1$sample("x1", row_ids = 1), simplify = FALSE))
-	)
+	expect_equal(nrow(sampled_1_repeats), 3L)
 })
 
 test_that("KnockoffGaussianSampler preserves feature types", {
 	skip_if_not_installed("knockoff")
 	test_sampler_feature_types(KnockoffGaussianSampler)
+})
+
+test_that("KnockoffSampler obeys draw-major order under samples_per_row > 1", {
+	skip_if_not_installed("knockoff")
+	set.seed(123L)
+	n = 20L
+	dt = data.table::data.table(
+		y   = rnorm(n),
+		x1  = rnorm(n),
+		x2  = rnorm(n),
+		tag = seq_len(n) + 0.5
+	)
+	task = mlr3::as_task_regr(dt, target = "y")
+	sampler = KnockoffSampler$new(task, iters = 3L)
+
+	expect_draw_major_row_order(
+		sampler,
+		task,
+		feature = "x1",
+		tag_column = "tag",
+		samples_per_row = 3L
+	)
+})
+
+test_that("KnockoffSampler warns and samples with replacement when samples_per_row > iters", {
+	skip_if_not_installed("knockoff")
+	set.seed(123L)
+	task = mlr3::tgen("2dnormals")$generate(n = 20)
+	sampler = KnockoffSampler$new(task, iters = 2L)
+
+	expect_warning(
+		out <- sampler$sample("x1", row_ids = task$row_ids, samples_per_row = 5L),
+		regexp = "requested more often than they are present"
+	)
+	expect_equal(nrow(out), 20L * 5L)
 })

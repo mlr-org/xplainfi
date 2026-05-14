@@ -96,77 +96,49 @@ KnockoffSampler = R6Class(
 			row_ids = NULL,
 			samples_per_row = 1L
 		) {
-			if (samples_per_row != 1L) {
-				cli::cli_abort(c(
-					"{.cls {class(self)[[1L]]}} does not yet implement {.code samples_per_row > 1}",
-					i = "This is a transient state during the samples_per_row refactor."
-				))
-			}
-			if (is.null(row_ids)) {
-				row_ids = self$task$row_ids
-			}
-			data_copy = private$.get_task_data_by_row_id(row_ids)
-			# Add row_ids because we need them
-			data_copy[, ..row_id := row_ids]
-			# Make room for feature(s) from x_tilde
-			data_copy[, (feature) := NULL]
-			# Add a sequence number within each ..row_id group in data_copy
-			# Needed to match multiple instances per row_id if requested
-			data_copy[, ..seq_id := seq_len(.N), by = ..row_id]
-			# Count occurrences and sample from x_tilde
-			# if row_id is requested 4 times but it's present in x_tilde 10 times that must be downsampled
-			counts = data_copy[, .N, by = ..row_id]
+			checkmate::assert_count(samples_per_row, positive = TRUE)
+			if (is.null(row_ids)) row_ids = self$task$row_ids
+			iters = self$param_set$values$iters
 
-			# Decide whether to sample from x_tilde with replacement -- only do so if needed
-			replace = FALSE
-			if (any(counts$N > self$param_set$values$iters)) {
+			replace = samples_per_row > iters
+			if (replace) {
 				cli::cli_warn(c(
 					"!" = "Some instances requested more often than they are present in generated knockoff matrix",
 					i = "Will sample with replacement, so some knockoff values will be duplicated",
-					i = "Create {.cls {class(self)[[1]]}} with {.code iters = {max(counts$N)}} or higher to prevent this"
+					i = "Create {.cls {class(self)[[1L]]}} with {.code iters = {samples_per_row}} or higher to prevent this"
 				))
-				replace = TRUE
 			}
 
-			x_tilde_sampled = self$x_tilde[counts, on = "..row_id", allow.cartesian = TRUE]
-			# shuffle and only keep feature(s) from x_tilde to avoid duplicates on join later
-			x_tilde_sampled = x_tilde_sampled[,
-				.SD[sample(.N, N[1], replace = replace)],
-				.SDcols = feature,
-				by = ..row_id
-			]
-			x_tilde_sampled[, ..seq_id := seq_len(.N), by = ..row_id]
+			data_copy = private$.get_task_data_by_row_id(row_ids)
+			n = length(row_ids)
 
-			# Inner join on both ..row_id and ..seq_id
-			data_copy = data_copy[
-				x_tilde_sampled,
-				nomatch = 0L,
-				on = c("..row_id", "..seq_id")
-			]
-			# Need to ensure output has matching row ids
-			setorderv(data_copy, "..seq_id")
-			checkmate::assert_true(all.equal(data_copy[["..row_id"]], row_ids))
-			data_copy[, ..row_id := NULL]
-			data_copy[, ..seq_id := NULL]
+			out = data_copy[rep.int(seq_len(.N), times = samples_per_row)]
 
-			setcolorder(data_copy, self$task$feature_names)
+			# Pick a knockoff iter index per draw. Without replacement when possible
+			# (samples_per_row <= iters); with replacement otherwise (warned above).
+			iter_idx_per_draw = if (replace) {
+				sample.int(iters, samples_per_row, replace = TRUE)
+			} else {
+				sample.int(iters, samples_per_row, replace = FALSE)
+			}
 
-			# Restore integer types and assert type consistency
-			data_copy = private$.ensure_feature_types(data_copy)
+			# Collect per-draw feature blocks then assign in bulk so column type
+			# from x_tilde (e.g. numeric) replaces any incompatible task type
+			# (e.g. integer) without triggering data.table truncation warnings.
+			feat_blocks = lapply(seq_len(samples_per_row), function(d) {
+				iter_i = iter_idx_per_draw[d]
+				# x_tilde is `iters` knockoff matrices stacked iter-major: rows
+				# ((i-1)*task$nrow + 1) .. (i*task$nrow) belong to iter i.
+				iter_block = self$x_tilde[((iter_i - 1L) * self$task$nrow + 1L):(iter_i * self$task$nrow)]
+				row_idx_in_block = match(row_ids, iter_block[["..row_id"]])
+				iter_block[row_idx_in_block, .SD, .SDcols = feature]
+			})
+			feat_values = data.table::rbindlist(feat_blocks)
+			out[, (feature) := feat_values[, .SD, .SDcols = feature]]
 
-			data_copy[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
-
-			# Old / simpler approach doesn't work with duplicates
-			# Subsample knockoff DT to match input and selected feature(s)
-			# Ensure we get the x_tilde obs in the correct order as the supplied row_ids
-			# unlikely to become a bottleneck but could use collapse::fmatch
-			# replacements = self$x_tilde[
-			# 	match(row_ids, self$x_tilde[["..row_id"]]),
-			# 	.SD,
-			# 	.SDcols = feature
-			# ]
-			# data_copy[, (feature) := replacements]
-			# data_copy[]
+			out = private$.ensure_feature_types(out)
+			setcolorder(out, self$task$feature_names)
+			out[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
 		}
 	)
 )
