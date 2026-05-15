@@ -31,6 +31,18 @@
     option (default `2L`); see
     [`?xplain_opt`](https://mlr-org.github.io/xplainfi/reference/xplain_opt.md).
   - Requires the `doParallel` package (now in Suggests).
+- `WVIM` and `LOCO` gain a `batch_size` constructor argument (default
+  `NULL`).
+  - Controls how many refits (`design_points`) are dispatched per
+    internal
+    [`mlr3::benchmark()`](https://mlr3.mlr-org.com/reference/benchmark.html)
+    call by the `mlr3fselect::fs("design_points")` fselector.
+  - `NULL` keeps the prior behaviour (bbotk default of one design point
+    per call, i.e. sequential single-refit evaluation).
+  - Set a positive integer (e.g. the number of `future`/`mirai` workers)
+    to batch refits so mlr3’s parallelization can spread them across
+    workers; previously refits were dispatched one at a time, so
+    `future`/`mirai` backends sat idle during LOCO/WVIM computation.
 - `ConditionalSAGE` now passes `samples_per_row = n_samples` to the
   sampler on unique test rows, instead of replicating test rows
   externally before calling the sampler.

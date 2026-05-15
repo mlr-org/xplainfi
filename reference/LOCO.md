@@ -57,7 +57,8 @@ Creates a new instance of this
       measure = NULL,
       resampling = NULL,
       features = NULL,
-      n_repeats = 30L
+      n_repeats = 30L,
+      batch_size = NULL
     )
 
 #### Arguments
@@ -92,6 +93,14 @@ Creates a new instance of this
 
   (`integer(1)`: `30L`) Number of refit iterations per resampling
   iteration.
+
+- `batch_size`:
+
+  (`integer(1)`: `NULL`) Number of refits dispatched per internal
+  [`mlr3::benchmark()`](https://mlr3.mlr-org.com/reference/benchmark.html)
+  call. `NULL` (default) keeps sequential single-refit evaluation; set
+  to a positive integer (e.g. the number of `future`/`mirai` workers) to
+  enable parallel refits.
 
 ------------------------------------------------------------------------
 

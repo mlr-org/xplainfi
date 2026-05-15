@@ -107,7 +107,8 @@ feature's importance. Higher values indicate more important features.</p>
 <span>  measure <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  resampling <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  features <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  n_repeats <span class="op">=</span> <span class="fl">30L</span></span>
+<span>  n_repeats <span class="op">=</span> <span class="fl">30L</span>,</span>
+<span>  batch_size <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
@@ -129,6 +130,11 @@ feature's importance. Higher values indicate more important features.</p>
 
       <dt><code>n_repeats</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>30L</code>) Number of refit iterations per resampling iteration.</p></dd>
+
+      <dt><code>batch_size</code></dt>
+<dd><p>(<code>integer(1)</code>: <code>NULL</code>) Number of refits dispatched per internal
+<code><a href="https://mlr3.mlr-org.com/reference/benchmark.html" class="external-link">mlr3::benchmark()</a></code> call. <code>NULL</code> (default) keeps sequential single-refit evaluation; set to a
+positive integer (e.g. the number of <code>future</code>/<code>mirai</code> workers) to enable parallel refits.</p></dd>
 
 
 </dl><p></p></div>

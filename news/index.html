@@ -80,6 +80,13 @@
 <li>Requires the <code>doParallel</code> package (now in Suggests).</li>
 </ul></li>
 <li>
+<code>WVIM</code> and <code>LOCO</code> gain a <code>batch_size</code> constructor argument (default <code>NULL</code>).
+<ul><li>Controls how many refits (<code>design_points</code>) are dispatched per internal <code><a href="https://mlr3.mlr-org.com/reference/benchmark.html" class="external-link">mlr3::benchmark()</a></code> call by the <code>mlr3fselect::fs("design_points")</code> fselector.</li>
+<li>
+<code>NULL</code> keeps the prior behaviour (bbotk default of one design point per call, i.e. sequential single-refit evaluation).</li>
+<li>Set a positive integer (e.g. the number of <code>future</code>/<code>mirai</code> workers) to batch refits so mlr3’s parallelization can spread them across workers; previously refits were dispatched one at a time, so <code>future</code>/<code>mirai</code> backends sat idle during LOCO/WVIM computation.</li>
+</ul></li>
+<li>
 <code>ConditionalSAGE</code> now passes <code>samples_per_row = n_samples</code> to the sampler on unique test rows, instead of replicating test rows externally before calling the sampler.
 <ul><li>For <code>ConditionalARFSampler</code> this triggers the same <code>arf::forge(n_synth = n_samples)</code> speedup as <code>PerturbationImportance</code>, on <code>n_test</code> unique evidence rows rather than <code>n_samples * n_test</code> replicated rows.</li>
 <li>Marginal SAGE (<code>MarginalSAGE</code>) does not use a <code>FeatureSampler</code> and is unaffected.</li>

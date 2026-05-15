@@ -76,7 +76,8 @@ Creates a new instance of this
       groups = NULL,
       direction = c("leave-out", "leave-in"),
       label = "Williamson's Variable Importance Measure (WVIM)",
-      n_repeats = 30L
+      n_repeats = 30L,
+      batch_size = NULL
     )
 
 #### Arguments
@@ -97,6 +98,18 @@ Creates a new instance of this
 
   (`integer(1)`: `30L`) Number of refit iterations per resampling
   iteration.
+
+- `batch_size`:
+
+  (`integer(1)`: `NULL`) Number of design points (refits) dispatched per
+  internal
+  [`mlr3::benchmark()`](https://mlr3.mlr-org.com/reference/benchmark.html)
+  call by the `mlr3fselect::fs("design_points")` fselector. `NULL`
+  (default) keeps the bbotk default of one design point per call, i.e.
+  sequential single-refit evaluation. Set to a positive integer to batch
+  refits so mlr3's `future`/`mirai` parallelization can spread them
+  across workers; a sensible value is the number of available
+  workers/daemons.
 
 ------------------------------------------------------------------------
 

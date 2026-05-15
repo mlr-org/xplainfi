@@ -128,7 +128,8 @@ also the archive of all evaluations, possible useful for future use. Only stored
 <span>  groups <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"leave-out"</span>, <span class="st">"leave-in"</span><span class="op">)</span>,</span>
 <span>  label <span class="op">=</span> <span class="st">"Williamson's Variable Importance Measure (WVIM)"</span>,</span>
-<span>  n_repeats <span class="op">=</span> <span class="fl">30L</span></span>
+<span>  n_repeats <span class="op">=</span> <span class="fl">30L</span>,</span>
+<span>  batch_size <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
@@ -143,6 +144,13 @@ also the archive of all evaluations, possible useful for future use. Only stored
 
       <dt><code>n_repeats</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>30L</code>) Number of refit iterations per resampling iteration.</p></dd>
+
+      <dt><code>batch_size</code></dt>
+<dd><p>(<code>integer(1)</code>: <code>NULL</code>) Number of design points (refits) dispatched per internal
+<code><a href="https://mlr3.mlr-org.com/reference/benchmark.html" class="external-link">mlr3::benchmark()</a></code> call by the <code>mlr3fselect::fs("design_points")</code> fselector. <code>NULL</code> (default) keeps
+the bbotk default of one design point per call, i.e. sequential single-refit evaluation. Set to a
+positive integer to batch refits so mlr3's <code>future</code>/<code>mirai</code> parallelization can spread them across
+workers; a sensible value is the number of available workers/daemons.</p></dd>
 
 
 </dl><p></p></div>
