@@ -43,6 +43,9 @@
     to batch refits so mlr3’s parallelization can spread them across
     workers; previously refits were dispatched one at a time, so
     `future`/`mirai` backends sat idle during LOCO/WVIM computation.
+  - Post-benchmark aggregation keys on the per-design-point
+    resample-result `uhash`, so scores/obs-losses are attributed
+    correctly for any `batch_size`.
 - `ConditionalSAGE` now passes `samples_per_row = n_samples` to the
   sampler on unique test rows, instead of replicating test rows
   externally before calling the sampler.

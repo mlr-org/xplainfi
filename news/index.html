@@ -85,6 +85,7 @@
 <li>
 <code>NULL</code> keeps the prior behaviour (bbotk default of one design point per call, i.e. sequential single-refit evaluation).</li>
 <li>Set a positive integer (e.g. the number of <code>future</code>/<code>mirai</code> workers) to batch refits so mlr3’s parallelization can spread them across workers; previously refits were dispatched one at a time, so <code>future</code>/<code>mirai</code> backends sat idle during LOCO/WVIM computation.</li>
+<li>Post-benchmark aggregation keys on the per-design-point resample-result <code>uhash</code>, so scores/obs-losses are attributed correctly for any <code>batch_size</code>.</li>
 </ul></li>
 <li>
 <code>ConditionalSAGE</code> now passes <code>samples_per_row = n_samples</code> to the sampler on unique test rows, instead of replicating test rows externally before calling the sampler.
