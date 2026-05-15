@@ -47,6 +47,11 @@ WVIM = R6Class(
 		#' @param direction (`character(1)`) Either "leave-out" or "leave-in".
 		#' @param label (`character(1)`) Method label.
 		#' @param n_repeats (`integer(1)`: `30L`) Number of refit iterations per resampling iteration.
+		#' @param batch_size (`integer(1)`: `NULL`) Number of design points (refits) dispatched per internal
+		#'   `mlr3::benchmark()` call by the `mlr3fselect::fs("design_points")` fselector. `NULL` (default) keeps
+		#'   the bbotk default of one design point per call, i.e. sequential single-refit evaluation. Set to a
+		#'   positive integer to batch refits so mlr3's `future`/`mirai` parallelization can spread them across
+		#'   workers; a sensible value is the number of available workers/daemons.
 		initialize = function(
 			task,
 			learner,
@@ -56,12 +61,15 @@ WVIM = R6Class(
 			groups = NULL,
 			direction = c("leave-out", "leave-in"),
 			label = "Williamson's Variable Importance Measure (WVIM)",
-			n_repeats = 30L
+			n_repeats = 30L,
+			batch_size = NULL
 		) {
 			# Should this go in the param_set?
 			direction = match.arg(direction)
 			self$direction = direction
 			checkmate::assert_int(n_repeats, lower = 1L)
+			checkmate::assert_int(batch_size, lower = 1L, null.ok = TRUE)
+			private$.batch_size = batch_size
 
 			# params
 			ps = ps(
@@ -230,6 +238,10 @@ WVIM = R6Class(
 	),
 
 	private = list(
+		# Number of design points per internal benchmark() call; NULL = bbotk default (1).
+		# Forwarded to fs("design_points", batch_size=) so future/mirai can parallelize refits.
+		.batch_size = NULL,
+
 		# Compute baseline scores for WVIM, which depend on the direction
 		# "leave-out" -> baseline is the "full" model with all features in the task used
 		# "leave-in" -> baseline is the "empty" model, so we swap in the featureless learner
@@ -266,9 +278,16 @@ WVIM = R6Class(
 		) {
 			scores_baseline = private$.compute_baseline(store_backends = store_backends)
 
-			# Fselect section
+			# Fselect section.
+			# batch_size is set post-hoc rather than passed to fs(): the fselector's
+			# paradox ParamSet rejects an explicit NULL value, but NULL is exactly the
+			# "use bbotk default (1 design point per benchmark call)" sentinel we want.
+			fselector = mlr3fselect::fs("design_points", design = design)
+			if (!is.null(private$.batch_size)) {
+				fselector$param_set$values$batch_size = private$.batch_size
+			}
 			instance = mlr3fselect::fselect(
-				fselector = mlr3fselect::fs("design_points", design = design),
+				fselector = fselector,
 				task = self$task,
 				learner = self$learner,
 				resampling = self$resampling,
@@ -412,13 +431,17 @@ LOCO = R6Class(
 		#' @param resampling ([mlr3::Resampling]) Resampling strategy. Defaults to holdout.
 		#' @param features (`character()`) Features to compute importance for. Defaults to all features.
 		#' @param n_repeats (`integer(1)`: `30L`) Number of refit iterations per resampling iteration.
+		#' @param batch_size (`integer(1)`: `NULL`) Number of refits dispatched per internal
+		#'   `mlr3::benchmark()` call. `NULL` (default) keeps sequential single-refit evaluation; set to a
+		#'   positive integer (e.g. the number of `future`/`mirai` workers) to enable parallel refits.
 		initialize = function(
 			task,
 			learner,
 			measure = NULL,
 			resampling = NULL,
 			features = NULL,
-			n_repeats = 30L
+			n_repeats = 30L,
+			batch_size = NULL
 		) {
 			if (!is.null(features)) {
 				# LOCO specifically does not "allow" grouped features
@@ -434,7 +457,8 @@ LOCO = R6Class(
 				features = features,
 				direction = "leave-out",
 				label = "Leave-One-Covariate-Out (LOCO)",
-				n_repeats = n_repeats
+				n_repeats = n_repeats,
+				batch_size = batch_size
 			)
 		},
 

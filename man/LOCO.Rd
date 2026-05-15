@@ -66,7 +66,8 @@ Lei J, G'Sell M, Rinaldo A, Tibshirani R, Wasserman L (2018).
   measure = NULL,
   resampling = NULL,
   features = NULL,
-  n_repeats = 30L
+  n_repeats = 30L,
+  batch_size = NULL
 )}
     \if{html}{\out{</div>}}
   }
@@ -80,6 +81,9 @@ Lei J, G'Sell M, Rinaldo A, Tibshirani R, Wasserman L (2018).
       \item{\code{resampling}}{(\link[mlr3:Resampling]{mlr3::Resampling}) Resampling strategy. Defaults to holdout.}
       \item{\code{features}}{(\code{character()}) Features to compute importance for. Defaults to all features.}
       \item{\code{n_repeats}}{(\code{integer(1)}: \code{30L}) Number of refit iterations per resampling iteration.}
+      \item{\code{batch_size}}{(\code{integer(1)}: \code{NULL}) Number of refits dispatched per internal
+\code{mlr3::benchmark()} call. \code{NULL} (default) keeps sequential single-refit evaluation; set to a
+positive integer (e.g. the number of \code{future}/\code{mirai} workers) to enable parallel refits.}
     }
     \if{html}{\out{</div>}}
   }

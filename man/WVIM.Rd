@@ -88,7 +88,8 @@ also the archive of all evaluations, possible useful for future use. Only stored
   groups = NULL,
   direction = c("leave-out", "leave-in"),
   label = "Williamson's Variable Importance Measure (WVIM)",
-  n_repeats = 30L
+  n_repeats = 30L,
+  batch_size = NULL
 )}
     \if{html}{\out{</div>}}
   }
@@ -99,6 +100,11 @@ also the archive of all evaluations, possible useful for future use. Only stored
       \item{\code{direction}}{(\code{character(1)}) Either "leave-out" or "leave-in".}
       \item{\code{label}}{(\code{character(1)}) Method label.}
       \item{\code{n_repeats}}{(\code{integer(1)}: \code{30L}) Number of refit iterations per resampling iteration.}
+      \item{\code{batch_size}}{(\code{integer(1)}: \code{NULL}) Number of design points (refits) dispatched per internal
+\code{mlr3::benchmark()} call by the \code{mlr3fselect::fs("design_points")} fselector. \code{NULL} (default) keeps
+the bbotk default of one design point per call, i.e. sequential single-refit evaluation. Set to a
+positive integer to batch refits so mlr3's \code{future}/\code{mirai} parallelization can spread them across
+workers; a sensible value is the number of available workers/daemons.}
     }
     \if{html}{\out{</div>}}
   }
