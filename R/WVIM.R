@@ -296,11 +296,18 @@ WVIM = R6Class(
 			)
 
 			archive_dt = as.data.table(instance$archive)
-			archive_base = copy(archive_dt)
-			# Match features in fselect instance to features left in or out, and
-			# assign group names to "feature" var for consistency
-			archive_base[, feature := private$.foi_chr(features)]
-			archive_base = archive_base[, .(batch_nr, feature)]
+			# NOTE: `as.data.table(archive)$batch_nr` is the bbotk *batch* index
+			# (one value per `eval_batch` chunk of `batch_size` design points), not
+			# a per-design-point id. Keying on it joins N design points to the same
+			# group when `batch_size > 1` (data.table cartesian blow-up / wrong
+			# scores). The resample-result `uhash` is unique per evaluated design
+			# point and matches the benchmark result, regardless of `batch_size`.
+			archive_base = data.table::data.table(
+				uhash = vapply(archive_dt$resample_result, function(rr) rr$uhash, character(1)),
+				# Match features in fselect instance to features left in or out, and
+				# assign group names to "feature" var for consistency
+				feature = private$.foi_chr(archive_dt$features)
+			)
 
 			# Only keep instance if requested, otherwise would just increase memory footprint
 			if (store_instance) {
@@ -311,17 +318,19 @@ WVIM = R6Class(
 			scores = instance$archive$benchmark_result$score(self$measure)
 			setnames(scores, self$measure$id, "score_post")
 			setnames(scores, "iteration", "iter_rsmp")
-			setnames(scores, "nr", "batch_nr")
+			# `nr` = per-design-point resample-result index in the combined
+			# benchmark result; kept (not renamed) to map obs_loss below.
 
 			# merge baseline scores and post-modification scores
 			scores = scores[scores_baseline, on = "iter_rsmp"]
-			# join with batch_nr to identify the foi for eatch iteration
-			scores = archive_base[scores, on = "batch_nr"]
-			# Regain n_repeats (hacky but kind of works I guess)
-			scores[, iter_repeat := seq_along(batch_nr), by = c("iter_rsmp", "feature")]
+			# attach the feature-of-interest per design point via the unique uhash
+			scores = archive_base[scores, on = "uhash"]
+			# Regain n_repeats: enumerate the n_repeats replicates of each
+			# (resampling iter, feature) in evaluation (= design-row) order.
+			scores[, iter_repeat := seq_len(.N), by = c("iter_rsmp", "feature")]
 
 			# Sanity check for iter refit
-			#scores[, .(iter_rsmp, batch_nr, iter_repeat, feature)][feature == "important1"]
+			#scores[, .(iter_rsmp, nr, iter_repeat, feature)][feature == "important1"]
 			private$.scores = scores[, .(feature, iter_rsmp, iter_repeat, score_baseline, score_post)]
 
 			# Extract prediction for storage
@@ -334,11 +343,13 @@ WVIM = R6Class(
 			# obs losses ----
 			if (has_obs_loss(self$measure)) {
 				obs_loss_vals = instance$archive$benchmark_result$obs_loss(self$measure)
-				setnames(obs_loss_vals, "resample_result", "batch_nr")
-				# add iter_repeat to keep track
-				obs_loss_vals[, iter_repeat := (batch_nr %% (self$param_set$values$n_repeats) + 1)]
-
-				obs_loss_vals = archive_base[obs_loss_vals, on = "batch_nr"]
+				# `obs_loss()$resample_result` is the per-design-point index, equal
+				# to the benchmark score `nr`. Map it to the design point's feature
+				# and repeat via `scores`, so iter_repeat stays consistent with
+				# `$scores()` (avoids the old `%% n_repeats` reconstruction, which
+				# also broke under `batch_size > 1`).
+				dp_map = unique(scores[, .(nr, feature, iter_repeat)])
+				obs_loss_vals = dp_map[obs_loss_vals, on = c(nr = "resample_result")]
 
 				setnames(obs_loss_vals, "iteration", "iter_rsmp")
 				setnames(obs_loss_vals, self$measure$id, "loss_post")

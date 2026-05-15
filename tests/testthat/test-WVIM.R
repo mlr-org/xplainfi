@@ -181,6 +181,77 @@ test_that("LOCO with multiple refits", {
 	expect_true(all(scores$iter_repeat %in% 1:3))
 })
 
+test_that("LOCO batch_size > 1 matches sequential (no cartesian join blow-up)", {
+	# Regression: batch_size > 1 chunks multiple design points per internal
+	# benchmark() call. The post-benchmark aggregation must key on a
+	# per-design-point id, not the bbotk batch index, or the archive<->scores
+	# join explodes (data.table cartesian guard) / yields wrong importances.
+	make_loco = function(bs) {
+		LOCO$new(
+			task = sim_dgp_independent(n = 200),
+			learner = lrn("regr.rpart"),
+			measure = msr("regr.mse"),
+			n_repeats = 3L,
+			batch_size = bs
+		)
+	}
+
+	withr::local_seed(6829)
+	loco_seq = make_loco(NULL)
+	loco_seq$compute()
+
+	withr::local_seed(6829)
+	loco_batched = make_loco(4L)
+	# Must not raise the data.table cartesian-join error
+	expect_no_error(loco_batched$compute())
+
+	n_feat = length(loco_seq$features)
+	# holdout -> 1 resampling iteration; expect exactly n_features * n_repeats rows,
+	# NOT inflated by batch_size
+	expect_equal(nrow(loco_batched$scores()), n_feat * 3L)
+	expect_setequal(loco_batched$scores()$iter_repeat, 1:3)
+
+	# Same seed + same per-design-point training => identical importances
+	imp_seq = loco_seq$importance()
+	imp_batched = loco_batched$importance()
+	expect_equal(
+		imp_batched[order(feature)]$importance,
+		imp_seq[order(feature)]$importance
+	)
+})
+
+test_that("LOCO batch_size > 1 obs_loss path (ci_method='lei') matches sequential", {
+	# The obs_loss aggregation has a separate archive<->obs_loss join with the
+	# same per-design-point keying requirement; exercised via Lei inference.
+	# Re-seed and rebuild before each compute so both runs consume RNG from the
+	# same state (rpart fit + holdout split are stochastic).
+	make_loco = function(bs) {
+		LOCO$new(
+			task = sim_dgp_independent(n = 200),
+			learner = lrn("regr.rpart"),
+			measure = msr("regr.mae"),
+			n_repeats = 1L,
+			batch_size = bs
+		)
+	}
+
+	withr::local_seed(415)
+	loco_seq = make_loco(NULL)
+	loco_seq$compute()
+	imp_seq = loco_seq$importance(ci_method = "lei")
+
+	withr::local_seed(415)
+	loco_batched = make_loco(4L)
+	expect_no_error(loco_batched$compute())
+	imp_batched = loco_batched$importance(ci_method = "lei")
+
+	expect_importance_dt(imp_batched, features = loco_batched$features)
+	expect_equal(
+		imp_batched[order(feature)]$importance,
+		imp_seq[order(feature)]$importance
+	)
+})
+
 test_that("LOCO with cross-validation", {
 	task = tgen("friedman1")$generate(n = 150)
 
