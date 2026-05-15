@@ -2,7 +2,9 @@
 #SBATCH --job-name=xplainfi-bench
 #SBATCH --partition=compute
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=8G
+# Pre-refactor SAGE on the default workload peaks at ~15 GB RSS; 24G gives
+# headroom. The post-refactor builds need a small fraction of this.
+#SBATCH --mem=24G
 #SBATCH --time=01:00:00
 #SBATCH --output=bench/slurm-%j.out
 #SBATCH --error=bench/slurm-%j.err
