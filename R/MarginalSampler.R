@@ -61,8 +61,9 @@ MarginalSampler = R6Class(
 	),
 
 	private = list(
-		# Abstract method for marginal sampling
-		# Subclasses must implement this
+		# Abstract method for marginal sampling. Subclasses must implement it.
+		# Implementations may mutate `data` by reference; callers MUST pass a
+		# disposable table (this class's sample()/sample_newdata() guarantee it).
 		.sample_marginal = function(data, feature, samples_per_row = 1L) {
 			cli::cli_abort(c(
 				"Abstract method",

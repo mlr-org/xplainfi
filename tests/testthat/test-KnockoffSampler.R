@@ -341,11 +341,11 @@ test_that("KnockoffSampler obeys draw-major order under samples_per_row > 1", {
 test_that("KnockoffSampler warns and samples with replacement when samples_per_row > iters", {
 	skip_if_not_installed("knockoff")
 	set.seed(123L)
-	task = mlr3::tgen("2dnormals")$generate(n = 20)
+	task = mlr3::tgen("friedman1")$generate(n = 20)
 	sampler = KnockoffSampler$new(task, iters = 2L)
 
 	expect_warning(
-		out <- sampler$sample("x1", row_ids = task$row_ids, samples_per_row = 5L),
+		out <- sampler$sample("important1", row_ids = task$row_ids, samples_per_row = 5L),
 		regexp = "requested more often than they are present"
 	)
 	expect_equal(nrow(out), 20L * 5L)

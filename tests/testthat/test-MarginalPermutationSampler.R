@@ -91,3 +91,27 @@ test_that("MarginalPermutationSampler obeys draw-major order under samples_per_r
 		samples_per_row = 4L
 	)
 })
+
+test_that("$sample() does not mutate the task data", {
+	task = sim_dgp_independent(n = 50)
+	before = task$data(rows = task$row_ids)[["important1"]]
+
+	sampler = MarginalPermutationSampler$new(task)
+	out = sampler$sample("important1", row_ids = task$row_ids)
+
+	# task is unchanged after sampling (sampler must work on a disposable copy)
+	expect_identical(task$data(rows = task$row_ids)[["important1"]], before)
+	checkmate::expect_data_table(out, nrows = task$nrow)
+})
+
+test_that("$sample_newdata() does not mutate the caller's newdata", {
+	task = sim_dgp_independent(n = 50)
+	sampler = MarginalPermutationSampler$new(task)
+
+	newdata = task$data()
+	snapshot = data.table::copy(newdata)
+
+	sampler$sample_newdata("important1", newdata = newdata)
+
+	expect_identical(newdata, snapshot)
+})

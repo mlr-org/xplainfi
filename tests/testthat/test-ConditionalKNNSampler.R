@@ -197,3 +197,51 @@ test_that("ConditionalKNNSampler obeys draw-major order under samples_per_row > 
 		samples_per_row = 4L
 	)
 })
+
+test_that("ConditionalKNNSampler Gower branch obeys draw-major order (samples_per_row > 1)", {
+	skip_if_not_installed("gower")
+	set.seed(503L)
+	n = 20L
+	dt = data.table::data.table(
+		y   = rnorm(n),
+		x1  = rnorm(n),
+		g   = factor(sample(c("a", "b", "c"), n, replace = TRUE)),
+		tag = seq_len(n) + 0.5
+	)
+	task = mlr3::as_task_regr(dt, target = "y")
+	# factor in conditioning set -> Gower distance branch
+	sampler = ConditionalKNNSampler$new(task, conditioning_set = "g", k = 3L)
+
+	expect_draw_major_row_order(
+		sampler,
+		task,
+		feature = "x1",
+		tag_column = "tag",
+		samples_per_row = 4L
+	)
+})
+
+test_that("ConditionalKNNSampler marginal-fallback branch obeys draw-major order (samples_per_row > 1)", {
+	set.seed(617L)
+	n = 20L
+	dt = data.table::data.table(
+		y   = rnorm(n),
+		x1  = rnorm(n),
+		x2  = rnorm(n),
+		tag = seq_len(n) + 0.5
+	)
+	task = mlr3::as_task_regr(dt, target = "y")
+	# conditioning_set = character(0) is non-NULL so it is stored in param_set;
+	# the helper's $sample() call (which passes conditioning_set = NULL) resolves via
+	# resolve_param(NULL, stored = character(0), default) -> character(0), hitting the
+	# length(conditioning_set) == 0 marginal-fallback branch at ConditionalKNNSampler.R:125.
+	sampler = ConditionalKNNSampler$new(task, conditioning_set = character(0), k = 3L)
+
+	expect_draw_major_row_order(
+		sampler,
+		task,
+		feature = "x1",
+		tag_column = "tag",
+		samples_per_row = 4L
+	)
+})

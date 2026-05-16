@@ -39,6 +39,8 @@
 
 ## Bug fixes
 
+- `relation = "ratio"` importances now return `NA` (with a warning) instead of
+  `Inf`/`NaN` for features whose baseline score is `0`.
 - Fix `$obs_loss()` being erroneously called without `measure` in `PerturbationImportance`,
   resulting in an error when `measures` was not the task-default.
 - `ConditionalARFSampler$sample()` now errors when `parallel = TRUE` but no parallel backend

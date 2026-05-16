@@ -121,6 +121,7 @@ FeatureImportanceMethod = R6Class(
 		#'   If `NULL`, uses stored parameter value. This is only applicable for methods where importance is based on some
 		#'   relation between baseline and post-modification loss, i.e. [PerturbationImportance] methods such as [PFI] or [WVIM] / [LOCO].
 		#'   Not available for [SAGE] methods.
+		#'   For `"ratio"`, features whose baseline score is `0` yield `NA` (with a warning) and therefore aggregate to `NA`.
 		#' @param standardize (`logical(1)`: `FALSE`) If `TRUE`, importances are standardized by the highest score so all scores fall in `[-1, 1]`.
 		#' @param ci_method (`character(1)`: `"none"`) Which confidence interval estimation method to use, defaulting to omitting
 		#'   variance estimation (`"none"`).
@@ -300,6 +301,7 @@ FeatureImportanceMethod = R6Class(
 		#'
 		#' @param relation (character(1)) How to relate perturbed scores to originals ("difference" or "ratio"). If `NULL`, uses stored parameter value. This is only applicable for methods where importance is based on some
 		#' relation between baseline and post-modification loss, i.e. [PerturbationImportance] methods such as [PFI] or [WVIM] / [LOCO]. Not available for [SAGE] methods.
+		#'   For `"ratio"`, features whose baseline score is `0` yield `NA` (with a warning) and therefore aggregate to `NA`.
 		#'
 		#' @return ([data.table][data.table::data.table]) Observation-wise losses and importance scores with columns
 		#'   `"feature"`, `"iter_rsmp"`, `"iter_repeat"` (if applicable), `"row_ids"`, `"loss_baseline"`, `"loss_post"`, and `"obs_importance"`.
@@ -417,6 +419,7 @@ FeatureImportanceMethod = R6Class(
 		#'
 		#' @param relation (character(1)) How to relate perturbed scores to originals ("difference" or "ratio"). If `NULL`, uses stored parameter value. This is only applicable for methods where importance is based on some
 		#' relation between baseline and post-modification loss, i.e. [PerturbationImportance] methods such as [PFI] or [WVIM] / [LOCO]. Not available for [SAGE] methods.
+		#'   For `"ratio"`, features whose baseline score is `0` yield `NA` (with a warning) and therefore aggregate to `NA`.
 		#'
 		#' @return ([data.table][data.table::data.table]) Iteration-wise importance scores with columns for
 		#'   `"feature"`, iteration indices, baseline and post-modification scores, and `"importance"`.
@@ -524,10 +527,18 @@ FeatureImportanceMethod = R6Class(
 			# General expectation -> higher score => more important
 			if (minimize) {
 				# Lower is better, e.g. ce, where scores_pre is expected to be smaller and scores_post larger
-				switch(relation, difference = scores_post - scores_pre, ratio = scores_post / scores_pre)
+				switch(
+					relation,
+					difference = scores_post - scores_pre,
+					ratio = safe_ratio(scores_post, scores_pre)
+				)
 			} else {
 				# Higher is better, e.g. accuracy, where scores_pre is expected to be larger and scores_post smaller
-				switch(relation, difference = scores_pre - scores_post, ratio = scores_pre / scores_post)
+				switch(
+					relation,
+					difference = scores_pre - scores_post,
+					ratio = safe_ratio(scores_pre, scores_post)
+				)
 			}
 		},
 

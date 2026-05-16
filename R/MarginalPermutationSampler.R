@@ -45,7 +45,14 @@ MarginalPermutationSampler = R6Class(
 	),
 
 	private = list(
-		# Implement marginal sampling via independent permutation
+		# Implement marginal sampling via independent permutation.
+		# CONTRACT: may mutate `data` by reference (the single-draw branch
+		# permutes the feature column in place via `:=`). Callers MUST pass a
+		# disposable table -- both entry points do: MarginalSampler$sample()
+		# uses .get_task_data_by_row_id() -> task$data() (always a fresh
+		# data.table) and $sample_newdata() takes data.table::copy(newdata). The in-place
+		# branch is deliberate (avoids copying a potentially large table just
+		# to shuffle one column); the draw-major branch must allocate anyway.
 		.sample_marginal = function(data, feature, samples_per_row = 1L) {
 			if (samples_per_row == 1L) {
 				data[, (feature) := lapply(.SD, sample), .SDcols = feature]
@@ -59,12 +66,14 @@ MarginalPermutationSampler = R6Class(
 
 			# One `:=` assigns all target columns at once; the inner `lapply` builds one stacked
 			# vector per feature (`samples_per_row` independent permutations concatenated).
-			out[, (feature) := lapply(feature, function(feat) {
-				unlist(
-					lapply(seq_len(samples_per_row), function(d) sample(data[[feat]])),
-					use.names = FALSE
-				)
-			})]
+			out[,
+				(feature) := lapply(feature, function(feat) {
+					unlist(
+						lapply(seq_len(samples_per_row), function(d) sample(data[[feat]])),
+						use.names = FALSE
+					)
+				})
+			]
 
 			out[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
 		}

@@ -495,3 +495,37 @@ importance_loco = function(
 	test = match.arg(test)
 	test_obs_importance(obs_loss_agg, test, alternative, conf_level, p_adjust, aggregator)
 }
+
+# Score Relation Helpers ----
+
+#' Ratio of two score vectors with a zero-denominator guard
+#'
+#' Used by `FeatureImportanceMethod$.compute_score()` for `relation = "ratio"`.
+#' A zero denominator (zero baseline score) makes the ratio `Inf` (x/0) or
+#' `NaN` (0/0). Those elements are set to `NA_real_` and a single warning is
+#' emitted. Affected features then aggregate to `NA` under the default `mean`
+#' aggregator -- intentional: an undefined ratio should surface, not propagate
+#' as `Inf`/`NaN`. `NA` denominators already yield `NA` from the division and
+#' do not trigger the zero-baseline warning.
+#'
+#' Kept as a standalone internal function (not an R6 private method) to keep
+#' [FeatureImportanceMethod] objects lean for serialization.
+#'
+#' @param numerator,denominator (`numeric()`) Equal-length score vectors.
+#' @return (`numeric()`) `numerator / denominator` with zero-denominator
+#'   elements replaced by `NA_real_`.
+#' @keywords internal
+#' @noRd
+safe_ratio = function(numerator, denominator) {
+	out = numerator / denominator
+	zero_denom = denominator == 0
+	if (any(zero_denom, na.rm = TRUE)) {
+		n_bad = sum(zero_denom, na.rm = TRUE)
+		cli::cli_warn(c(
+			"!" = "{.val ratio} relation undefined for {n_bad} score{?s} with a zero baseline.",
+			"i" = "Setting {n_bad} result{?s} to {.val NA}; affected feature{?s} aggregate to {.val NA}."
+		))
+		out[which(zero_denom)] = NA_real_
+	}
+	out
+}

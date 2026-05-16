@@ -209,7 +209,7 @@ test_that("CFI with KnockoffSampler and KnockoffGaussianSampler", {
 # CFI-specific: CPI variance method
 # -----------------------------------------------------------------------------
 
-test_that("CFI importance is statistically equivalent across the samples_per_row refactor", {
+test_that("CFI importance is approximately equivalent at seed 42 across the samples_per_row refactor", {
 	skip_if_not_installed("arf")
 	skip_if_not_installed("ranger")
 	skip_if_not_installed("mlr3learners")
