@@ -243,9 +243,10 @@ SAGE = R6Class(
 				}
 
 				if (xplain_opt("verbose") && !xplain_opt("progress")) {
-					cli::cli_inform(
-						"Computing SAGE: {length(iters_remaining)} iteration{?s} x {perms_per_iter} permutations across {length(work)} work unit{?s}"
-					)
+					cli::cli_inform(paste0(
+						"Computing SAGE: {length(iters_remaining)} iteration{?s} x ",
+						"{perms_per_iter} permutations across {length(work)} work unit{?s}"
+					))
 				}
 
 				this_learners = rr$learners
