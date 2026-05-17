@@ -329,3 +329,47 @@ test_that("compute_chunk_partial reproduces sequential checkpoint math", {
 	checkmate::expect_numeric(full$sv, names = "named", any.missing = FALSE)
 	expect_setequal(names(full$sv), sage$features)
 })
+
+test_that("MarginalSAGE refactor preserves results under sequential fallback", {
+	withr::local_options(xplainfi.sequential = TRUE)
+
+	run_sage = function() {
+		withr::local_seed(13)
+		task = sim_dgp_independent(n = 160)
+		sage = MarginalSAGE$new(
+			task = task,
+			learner = lrn("regr.rpart"),
+			n_permutations = 8L,
+			n_samples = 25L,
+			early_stopping = FALSE
+		)
+		sage$compute()
+		sage
+	}
+
+	a = run_sage()
+	b = run_sage()
+
+	expect_importance_dt(a$importance(), features = a$features)
+	expect_equal(sort(names(a$scores())), sort(c("iter_rsmp", "feature", "importance")))
+	# Deterministic under sequential + fixed seed: two runs identical.
+	expect_equal(a$importance()$importance, b$importance()$importance, tolerance = 1e-10)
+})
+
+test_that("MarginalSAGE iters > 1 keeps per-iter schema under sequential fallback", {
+	withr::local_options(xplainfi.sequential = TRUE)
+	withr::local_seed(99)
+	task = sim_dgp_independent(n = 160)
+	sage = MarginalSAGE$new(
+		task = task,
+		learner = lrn("regr.rpart"),
+		resampling = rsmp("cv", folds = 3),
+		n_permutations = 4L,
+		n_samples = 20L,
+		early_stopping = FALSE
+	)
+	sage$compute()
+	scores = sage$scores()
+	expect_setequal(unique(scores$iter_rsmp), 1:3)
+	expect_importance_dt(sage$importance(), features = sage$features)
+})

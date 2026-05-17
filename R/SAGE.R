@@ -163,55 +163,140 @@ SAGE = R6Class(
 			# Store results
 			self$resample_result = rr
 
-			# For convergence tracking, we'll use the first resampling iteration
-			# (convergence is about permutation count, not resampling)
-			iter_for_convergence = 1L
+			# Phase 2 — early-stopping calibration (sequential, iter 1 only).
+			# When early stopping is on, iter 1 must run the sequential
+			# checkpoint/convergence loop to determine n_permutations_used.
+			partials = list()
+			iters_remaining = seq_len(self$resampling$iters)
 
-			# Compute SAGE values for convergence tracking (first iteration)
-			first_result = private$.compute_sage_scores(
-				learner = rr$learners[[iter_for_convergence]],
-				test_dt = self$task$data(rows = rr$resampling$test_set(iter_for_convergence)),
-				n_permutations = self$n_permutations,
-				batch_size = batch_size,
-				early_stopping = early_stopping,
-				se_threshold = se_threshold,
-				min_permutations = min_permutations,
-				check_interval = check_interval
-			)
+			if (early_stopping) {
+				first_result = private$.compute_sage_scores(
+					learner = rr$learners[[1]],
+					test_dt = self$task$data(rows = rr$resampling$test_set(1)),
+					n_permutations = self$n_permutations,
+					batch_size = batch_size,
+					early_stopping = TRUE,
+					se_threshold = se_threshold,
+					min_permutations = min_permutations,
+					check_interval = check_interval
+				)
+				self$convergence_history = first_result$convergence_data$convergence_history
+				self$converged = first_result$convergence_data$converged
+				self$n_permutations_used = first_result$convergence_data$n_permutations_used
 
-			# Extract convergence data from first iteration
-			# `convergence_data` exists even if early_stopping = FALSE
-			self$convergence_history = first_result$convergence_data$convergence_history
-			self$converged = first_result$convergence_data$converged
-			self$n_permutations_used = first_result$convergence_data$n_permutations_used
-
-			# If we have multiple resampling iterations, compute the rest without convergence tracking
-			if (self$resampling$iters > 1) {
-				remaining_results = lapply(seq_len(self$resampling$iters)[-iter_for_convergence], \(iter) {
-					private$.compute_sage_scores(
-						learner = rr$learners[[iter]],
-						test_dt = self$task$data(rows = rr$resampling$test_set(iter)),
-						# n_permutations_used is either same as n_permutations (if early_stopping = FALSE)
-						# or its a smaller value if early_stopping = TRUE and it stopped early
-						# The fallback to self$n_permutations should not be needed
-						n_permutations = self$n_permutations_used %||% self$n_permutations,
-						batch_size = batch_size,
-						# Only track convergence etc. for first iteration
-						early_stopping = FALSE
-					)
-				})
-
-				# Extract scores from all results (always list format now)
-				all_scores = c(list(first_result$scores), lapply(remaining_results, function(x) x$scores))
+				# Fold iter 1 in as a precomputed partial.
+				sv = first_result$scores$importance * self$n_permutations_used
+				names(sv) = first_result$scores$feature
+				partials[[1]] = list(
+					iter = 1L,
+					sv = sv,
+					sv_sq = sv, # unused downstream (SE not recomputed for SAGE scores)
+					# sage_reduce_partials sums `n` via vapply(integer(1)); n_completed
+					# is numeric, so coerce to keep the partial-list type contract.
+					n = as.integer(self$n_permutations_used)
+				)
+				iters_remaining = iters_remaining[-1]
+				perms_per_iter = self$n_permutations_used
 			} else {
-				all_scores = list(first_result$scores)
+				self$convergence_history = NULL
+				self$converged = FALSE
+				self$n_permutations_used = self$n_permutations
+				perms_per_iter = self$n_permutations
 			}
 
-			# Combine results across resampling iterations
-			scores = rbindlist(all_scores, idcol = "iter_rsmp")
+			# Phase 3 — flattened parallel bulk over {iter} x {perm-group}.
+			if (length(iters_remaining) > 0L) {
+				target_units = 64L # first-draft constant; see spec scope posture
+				group_size = max(1L, perms_per_iter %/% target_units)
 
-			# iter_rsmp, feature, importance -- score_baseline or so don't apply here
-			private$.scores = scores
+				# Pre-generate permutations caller-side (reproducible set)
+				# and hoist per-iter baselines before dispatch.
+				work = list()
+				baselines = list()
+				test_dts = list()
+				for (it in iters_remaining) {
+					test_dt_it = self$task$data(rows = rr$resampling$test_set(it))
+					test_dts[[as.character(it)]] = test_dt_it
+					baselines[[as.character(it)]] = private$.sage_baseline(
+						rr$learners[[it]],
+						test_dt_it,
+						batch_size
+					)
+					perms = replicate(perms_per_iter, sample(self$features), simplify = FALSE)
+					groups = split(perms, ceiling(seq_along(perms) / group_size))
+					for (g in groups) {
+						work[[length(work) + 1L]] = list(iter = it, perms = g)
+					}
+				}
+
+				if (xplain_opt("verbose") && !xplain_opt("progress")) {
+					cli::cli_inform(
+						"Computing SAGE: {length(iters_remaining)} iteration{?s} × {perms_per_iter} permutations across {length(work)} work unit{?s}"
+					)
+				}
+
+				this_learners = rr$learners
+				sampler = if (inherits(self, "ConditionalSAGE")) self$sampler else NULL
+				learner_packages = self$learner$packages
+
+				bulk = xplainfi_map(
+					length(work),
+					\(
+						unit,
+						self_obj,
+						learners,
+						test_dts,
+						baselines,
+						batch_size,
+						sampler,
+						learner_packages,
+						arf_workers,
+						is_sequential = TRUE
+					) {
+						if (!is_sequential) {
+							library("data.table")
+							library("mlr3")
+							library("xplainfi")
+							for (pkg in learner_packages) {
+								library(pkg, character.only = TRUE)
+							}
+							if (
+								!is.null(sampler) &&
+									isTRUE(sampler$param_set$values$parallel) &&
+									arf_workers > 0L
+							) {
+								require_package("doParallel")
+								doParallel::registerDoParallel(cores = arf_workers)
+								on.exit(doParallel::stopImplicitCluster(), add = TRUE)
+							}
+						}
+						it = unit$iter
+						res = self_obj$compute_chunk_partial(
+							learners[[it]],
+							test_dts[[as.character(it)]],
+							unit$perms,
+							baselines[[as.character(it)]],
+							batch_size
+						)
+						list(iter = it, sv = res$sv, sv_sq = res$sv_sq, n = res$n)
+					},
+					work,
+					.args = list(
+						self_obj = self,
+						learners = this_learners,
+						test_dts = test_dts,
+						baselines = baselines,
+						batch_size = batch_size,
+						sampler = sampler,
+						learner_packages = learner_packages,
+						arf_workers = xplain_opt("arf_workers")
+					)
+				)
+
+				partials = c(partials, bulk)
+			}
+
+			private$.scores = sage_reduce_partials(partials, self$features)
 		},
 
 		#' @description
@@ -566,6 +651,7 @@ SAGE = R6Class(
 					feature = names(final_sage_values),
 					importance = as.numeric(final_sage_values)
 				),
+				baseline = baseline_loss,
 				convergence_data = list(
 					convergence_history = if (length(convergence_history) > 0) {
 						rbindlist(convergence_history)
