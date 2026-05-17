@@ -303,3 +303,29 @@ test_that("MarginalSAGE .sage_baseline equals empty-coalition loss", {
 	checkmate::expect_number(baseline, finite = TRUE)
 	expect_equal(baseline, via_batch)
 })
+
+test_that("compute_chunk_partial reproduces sequential checkpoint math", {
+	withr::local_seed(424242)
+	task = sim_dgp_independent(n = 150)
+	learner = lrn("regr.rpart")
+	sage = MarginalSAGE$new(task = task, learner = learner, n_permutations = 6L, n_samples = 25L)
+	rr = assemble_rr(task, learner, sage$resampling, store_models = TRUE)
+	test_dt = task$data(rows = rr$resampling$test_set(1))
+	priv = sage$.__enclos_env__$private
+
+	withr::local_seed(7)
+	perms = replicate(6L, sample(sage$features), simplify = FALSE)
+	baseline = priv$.sage_baseline(rr$learners[[1]], test_dt, 5000L)
+
+	# One chunk of all 6 permutations
+	full = sage$compute_chunk_partial(rr$learners[[1]], test_dt, perms, baseline, 5000L)
+	# Two chunks of 3 — additive reduction must match
+	a = sage$compute_chunk_partial(rr$learners[[1]], test_dt, perms[1:3], baseline, 5000L)
+	b = sage$compute_chunk_partial(rr$learners[[1]], test_dt, perms[4:6], baseline, 5000L)
+
+	expect_equal(full$n, 6L)
+	expect_equal(a$sv + b$sv, full$sv, tolerance = 1e-10)
+	expect_equal(a$sv_sq + b$sv_sq, full$sv_sq, tolerance = 1e-10)
+	checkmate::expect_numeric(full$sv, names = "named", any.missing = FALSE)
+	expect_setequal(names(full$sv), sage$features)
+})

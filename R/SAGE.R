@@ -271,6 +271,66 @@ SAGE = R6Class(
 			}
 
 			p
+		},
+
+		#' @description
+		#' Compute partial SAGE sums for one permutation chunk. Internal
+		#' worker entry point for parallel execution; not intended for
+		#' direct use. Pure given `(learner, test_dt, perm_sublist,
+		#' baseline)` — additive across chunks.
+		#' @param learner Trained [mlr3::Learner] for this resampling iteration.
+		#' @param test_dt ([data.table::data.table]) Test data for this iteration.
+		#' @param perm_sublist (`list`) Feature-name permutations to evaluate.
+		#' @param baseline (`numeric(1)`) Shared empty-coalition loss.
+		#' @param batch_size (`integer(1)` | `NULL`) Prediction batch size.
+		#' @return `list(sv, sv_sq, n)` — named numeric vectors over features
+		#'   and the number of permutations processed.
+		#' @keywords internal
+		compute_chunk_partial = function(learner, test_dt, perm_sublist, baseline, batch_size = NULL) {
+			sage_values = numeric(length(self$features))
+			sage_values_sq = numeric(length(self$features))
+			names(sage_values) = self$features
+			names(sage_values_sq) = self$features
+
+			# Build all growing coalitions for this chunk in one batch.
+			coalitions = list()
+			coal_map = list()
+			k = 1L
+			for (i in seq_along(perm_sublist)) {
+				perm = perm_sublist[[i]]
+				for (j in seq_along(perm)) {
+					coalitions[[k]] = perm[seq_len(j)]
+					coal_map[[k]] = list(perm_idx = i, step = j)
+					k = k + 1L
+				}
+			}
+
+			losses = private$.evaluate_coalitions_batch(
+				learner,
+				test_dt,
+				coalitions,
+				batch_size
+			)
+
+			for (i in seq_along(perm_sublist)) {
+				perm = perm_sublist[[i]]
+				prev_loss = baseline
+				for (j in seq_along(perm)) {
+					feature = perm[j]
+					idx = which(vapply(
+						coal_map,
+						function(m) m$perm_idx == i && m$step == j,
+						logical(1)
+					))
+					current_loss = losses[idx]
+					contribution = prev_loss - current_loss
+					sage_values[feature] = sage_values[feature] + contribution
+					sage_values_sq[feature] = sage_values_sq[feature] + contribution^2
+					prev_loss = current_loss
+				}
+			}
+
+			list(sv = sage_values, sv_sq = sage_values_sq, n = length(perm_sublist))
 		}
 	),
 
