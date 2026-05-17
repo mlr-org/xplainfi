@@ -179,6 +179,8 @@ or refits [LOCO](https://mlr-org.github.io/xplainfi/reference/LOCO.md)).
   [LOCO](https://mlr-org.github.io/xplainfi/reference/LOCO.md). Not
   available for
   [SAGE](https://mlr-org.github.io/xplainfi/reference/SAGE.md) methods.
+  For `"ratio"`, features whose baseline score is `0` yield `NA` (with a
+  warning) and therefore aggregate to `NA`.
 
 - `standardize`:
 
@@ -338,6 +340,8 @@ decomposable.
   [LOCO](https://mlr-org.github.io/xplainfi/reference/LOCO.md). Not
   available for
   [SAGE](https://mlr-org.github.io/xplainfi/reference/SAGE.md) methods.
+  For `"ratio"`, features whose baseline score is `0` yield `NA` (with a
+  warning) and therefore aggregate to `NA`.
 
 #### Returns
 
@@ -404,6 +408,8 @@ only a different relation is needed.
   [LOCO](https://mlr-org.github.io/xplainfi/reference/LOCO.md). Not
   available for
   [SAGE](https://mlr-org.github.io/xplainfi/reference/SAGE.md) methods.
+  For `"ratio"`, features whose baseline score is `0` yield `NA` (with a
+  warning) and therefore aggregate to `NA`.
 
 #### Returns
 

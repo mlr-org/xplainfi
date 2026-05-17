@@ -204,7 +204,8 @@ across resampling iterations and, depending on the method use, permutations (<a 
 <dd><p>(character(1)) How to relate perturbed scores to originals ("difference" or "ratio").
 If <code>NULL</code>, uses stored parameter value. This is only applicable for methods where importance is based on some
 relation between baseline and post-modification loss, i.e. <a href="PerturbationImportance.html">PerturbationImportance</a> methods such as <a href="PFI.html">PFI</a> or <a href="WVIM.html">WVIM</a> / <a href="LOCO.html">LOCO</a>.
-Not available for <a href="SAGE.html">SAGE</a> methods.</p></dd>
+Not available for <a href="SAGE.html">SAGE</a> methods.
+For <code>"ratio"</code>, features whose baseline score is <code>0</code> yield <code>NA</code> (with a warning) and therefore aggregate to <code>NA</code>.</p></dd>
 
       <dt><code>standardize</code></dt>
 <dd><p>(<code>logical(1)</code>: <code>FALSE</code>) If <code>TRUE</code>, importances are standardized by the highest score so all scores fall in <code>[-1, 1]</code>.</p></dd>
@@ -318,7 +319,8 @@ This is not the case for measure like <code>classif.auc</code>, which is not dec
 <h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>relation</code></dt>
 <dd><p>(character(1)) How to relate perturbed scores to originals ("difference" or "ratio"). If <code>NULL</code>, uses stored parameter value. This is only applicable for methods where importance is based on some
-relation between baseline and post-modification loss, i.e. <a href="PerturbationImportance.html">PerturbationImportance</a> methods such as <a href="PFI.html">PFI</a> or <a href="WVIM.html">WVIM</a> / <a href="LOCO.html">LOCO</a>. Not available for <a href="SAGE.html">SAGE</a> methods.</p></dd>
+relation between baseline and post-modification loss, i.e. <a href="PerturbationImportance.html">PerturbationImportance</a> methods such as <a href="PFI.html">PFI</a> or <a href="WVIM.html">WVIM</a> / <a href="LOCO.html">LOCO</a>. Not available for <a href="SAGE.html">SAGE</a> methods.
+For <code>"ratio"</code>, features whose baseline score is <code>0</code> yield <code>NA</code> (with a warning) and therefore aggregate to <code>NA</code>.</p></dd>
 
 
 </dl><p></p></div>
@@ -367,7 +369,8 @@ relation between baseline and post-modification loss, i.e. <a href="Perturbation
 <h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>relation</code></dt>
 <dd><p>(character(1)) How to relate perturbed scores to originals ("difference" or "ratio"). If <code>NULL</code>, uses stored parameter value. This is only applicable for methods where importance is based on some
-relation between baseline and post-modification loss, i.e. <a href="PerturbationImportance.html">PerturbationImportance</a> methods such as <a href="PFI.html">PFI</a> or <a href="WVIM.html">WVIM</a> / <a href="LOCO.html">LOCO</a>. Not available for <a href="SAGE.html">SAGE</a> methods.</p></dd>
+relation between baseline and post-modification loss, i.e. <a href="PerturbationImportance.html">PerturbationImportance</a> methods such as <a href="PFI.html">PFI</a> or <a href="WVIM.html">WVIM</a> / <a href="LOCO.html">LOCO</a>. Not available for <a href="SAGE.html">SAGE</a> methods.
+For <code>"ratio"</code>, features whose baseline score is <code>0</code> yield <code>NA</code> (with a warning) and therefore aggregate to <code>NA</code>.</p></dd>
 
 
 </dl><p></p></div>
