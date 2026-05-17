@@ -373,3 +373,49 @@ test_that("MarginalSAGE iters > 1 keeps per-iter schema under sequential fallbac
 	expect_setequal(unique(scores$iter_rsmp), 1:3)
 	expect_importance_dt(sage$importance(), features = sage$features)
 })
+
+test_that("MarginalSAGE parallel (future) matches sequential within MC tolerance", {
+	skip_on_cran()
+	skip_if_not_installed("future")
+
+	# SAGE's permutation set, the simulated task, and the internal
+	# resample() all consume the RNG stream, so a fair parallel-vs-
+	# sequential comparison must seed the *entire* pipeline (task +
+	# construction + compute) identically for each run. With the same
+	# permutation set the parallel reduction must reproduce sequential
+	# exactly -- a stronger check than rank agreement, and one that is
+	# not fooled by MC ties among the near-zero noise features.
+	run_sage = function(sequential) {
+		set.seed(2026)
+		task = sim_dgp_independent(n = 200)
+		withr::local_options(xplainfi.sequential = sequential)
+		sage = MarginalSAGE$new(
+			task = task,
+			learner = lrn("regr.rpart"),
+			n_permutations = 40L,
+			n_samples = 30L,
+			early_stopping = FALSE
+		)
+		sage$compute()
+		sage
+	}
+
+	seq_sage = run_sage(TRUE)
+
+	old_plan = future::plan("multisession", workers = 2)
+	withr::defer(future::plan(old_plan))
+	par_sage = run_sage(FALSE)
+
+	expect_importance_dt(par_sage$importance(), features = par_sage$features)
+	expect_setequal(par_sage$scores()$feature, seq_sage$scores()$feature)
+	# Same permutation set => parallel reduction must reproduce the
+	# sequential importances exactly, and therefore the rankings too.
+	expect_equal(
+		par_sage$importance()$importance,
+		seq_sage$importance()$importance
+	)
+	expect_equal(
+		rank(par_sage$importance()$importance),
+		rank(seq_sage$importance()$importance)
+	)
+})

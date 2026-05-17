@@ -239,6 +239,13 @@ SAGE = R6Class(
 				sampler = if (inherits(self, "ConditionalSAGE")) self$sampler else NULL
 				learner_packages = self$learner$packages
 
+				# compute_chunk_partial needs features/task/measure/sampler
+				# but never resample_result; ship a shallow clone with the
+				# heavy fold-learner blob dropped so each parallel worker
+				# payload stays small (learners are hoisted separately).
+				self_for_workers = self$clone(deep = FALSE)
+				self_for_workers$resample_result = NULL
+
 				bulk = xplainfi_map(
 					length(work),
 					\(
@@ -282,7 +289,7 @@ SAGE = R6Class(
 					},
 					work,
 					.args = list(
-						self_obj = self,
+						self_obj = self_for_workers,
 						learners = this_learners,
 						test_dts = test_dts,
 						baselines = baselines,

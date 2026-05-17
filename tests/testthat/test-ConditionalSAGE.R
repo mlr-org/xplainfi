@@ -339,11 +339,36 @@ test_that("ConditionalSAGE noise feature receives ~0 importance with ARFSampler"
 	# block and pasting `imp$importance` below.
 	expected_features = c("x1", "x2", "x3", "x4")
 	expected_importance = c(
-		 1.75718693344525,
-		 0.359611168661264,
-		 0.651142439812633,
+		1.75718693344525,
+		0.359611168661264,
+		0.651142439812633,
 		-0.0157528350794578
 	)
 	expect_equal(imp$feature, expected_features)
 	expect_equal(imp$importance, expected_importance, tolerance = 0.5)
+})
+
+test_that("ConditionalSAGE parallel (future) produces valid schema", {
+	skip_on_cran()
+	skip_if_not_installed("future")
+	skip_if_not_installed("arf")
+
+	withr::local_seed(515)
+	task = sim_dgp_correlated(n = 200)
+	old_plan = future::plan("multisession", workers = 2)
+	withr::defer(future::plan(old_plan))
+
+	sage = ConditionalSAGE$new(
+		task = task,
+		learner = lrn("regr.ranger", num.trees = 10),
+		n_permutations = 12L,
+		n_samples = 20L,
+		early_stopping = FALSE
+	)
+	sage$compute()
+	expect_importance_dt(sage$importance(), features = sage$features)
+	expect_setequal(
+		sort(names(sage$scores())),
+		sort(c("iter_rsmp", "feature", "importance"))
+	)
 })
