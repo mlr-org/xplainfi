@@ -294,13 +294,11 @@ SAGE = R6Class(
 
 			# Build all growing coalitions for this chunk in one batch.
 			coalitions = list()
-			coal_map = list()
 			k = 1L
 			for (i in seq_along(perm_sublist)) {
 				perm = perm_sublist[[i]]
 				for (j in seq_along(perm)) {
 					coalitions[[k]] = perm[seq_len(j)]
-					coal_map[[k]] = list(perm_idx = i, step = j)
 					k = k + 1L
 				}
 			}
@@ -317,12 +315,9 @@ SAGE = R6Class(
 				prev_loss = baseline
 				for (j in seq_along(perm)) {
 					feature = perm[j]
-					idx = which(vapply(
-						coal_map,
-						function(m) m$perm_idx == i && m$step == j,
-						logical(1)
-					))
-					current_loss = losses[idx]
+					# coalitions built row-major over (perm, step); every perm is a full
+					# permutation so the flat index is closed-form — no search/map needed.
+					current_loss = losses[(i - 1L) * length(perm) + j]
 					contribution = prev_loss - current_loss
 					sage_values[feature] = sage_values[feature] + contribution
 					sage_values_sq[feature] = sage_values_sq[feature] + contribution^2
