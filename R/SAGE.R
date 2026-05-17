@@ -163,7 +163,7 @@ SAGE = R6Class(
 			# Store results
 			self$resample_result = rr
 
-			# Phase 2 — early-stopping calibration (sequential, iter 1 only).
+			# Phase 2: early-stopping calibration (sequential, iter 1 only).
 			# When early stopping is on, iter 1 must run the sequential
 			# checkpoint/convergence loop to determine n_permutations_used.
 			partials = list()
@@ -204,7 +204,7 @@ SAGE = R6Class(
 				perms_per_iter = self$n_permutations
 			}
 
-			# Phase 3 — flattened parallel bulk over {iter} x {perm-group}.
+			# Phase 3: flattened parallel bulk over {iter} x {perm-group}.
 			if (length(iters_remaining) > 0L) {
 				target_units = 64L # first-draft constant; see spec scope posture
 				group_size = max(1L, perms_per_iter %/% target_units)
@@ -231,7 +231,7 @@ SAGE = R6Class(
 
 				if (xplain_opt("verbose") && !xplain_opt("progress")) {
 					cli::cli_inform(
-						"Computing SAGE: {length(iters_remaining)} iteration{?s} × {perms_per_iter} permutations across {length(work)} work unit{?s}"
+						"Computing SAGE: {length(iters_remaining)} iteration{?s} x {perms_per_iter} permutations across {length(work)} work unit{?s}"
 					)
 				}
 
@@ -369,13 +369,13 @@ SAGE = R6Class(
 		#' Compute partial SAGE sums for one permutation chunk. Internal
 		#' worker entry point for parallel execution; not intended for
 		#' direct use. Pure given `(learner, test_dt, perm_sublist,
-		#' baseline)` — additive across chunks.
+		#' baseline)`, additive across chunks.
 		#' @param learner Trained [mlr3::Learner] for this resampling iteration.
 		#' @param test_dt ([data.table::data.table]) Test data for this iteration.
 		#' @param perm_sublist (`list`) Feature-name permutations to evaluate.
 		#' @param baseline (`numeric(1)`) Shared empty-coalition loss.
 		#' @param batch_size (`integer(1)` | `NULL`) Prediction batch size.
-		#' @return `list(sv, sv_sq, n)` — named numeric vectors over features
+		#' @return `list(sv, sv_sq, n)`: named numeric vectors over features
 		#'   and the number of permutations processed.
 		#' @keywords internal
 		compute_chunk_partial = function(learner, test_dt, perm_sublist, baseline, batch_size = NULL) {
@@ -408,7 +408,7 @@ SAGE = R6Class(
 				for (j in seq_along(perm)) {
 					feature = perm[j]
 					# coalitions built row-major over (perm, step); every perm is a full
-					# permutation so the flat index is closed-form — no search/map needed.
+					# permutation so the flat index is closed-form, no search/map needed.
 					current_loss = losses[(i - 1L) * length(perm) + j]
 					contribution = prev_loss - current_loss
 					sage_values[feature] = sage_values[feature] + contribution

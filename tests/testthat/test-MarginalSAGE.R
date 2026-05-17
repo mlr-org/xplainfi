@@ -319,7 +319,7 @@ test_that("compute_chunk_partial reproduces sequential checkpoint math", {
 
 	# One chunk of all 6 permutations
 	full = sage$compute_chunk_partial(rr$learners[[1]], test_dt, perms, baseline, 5000L)
-	# Two chunks of 3 — additive reduction must match
+	# Two chunks of 3, additive reduction must match
 	a = sage$compute_chunk_partial(rr$learners[[1]], test_dt, perms[1:3], baseline, 5000L)
 	b = sage$compute_chunk_partial(rr$learners[[1]], test_dt, perms[4:6], baseline, 5000L)
 
