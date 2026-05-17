@@ -281,3 +281,25 @@ test_that("MarginalSAGE SE-based convergence detection", {
 	expect_false(is.null(sage$convergence_history))
 	expect_contains(colnames(sage$convergence_history), "se")
 })
+
+test_that("MarginalSAGE .sage_baseline equals empty-coalition loss", {
+	withr::local_seed(20260517)
+	task = sim_dgp_independent(n = 120)
+	learner = lrn("regr.rpart")
+	sage = MarginalSAGE$new(task = task, learner = learner, n_permutations = 2L, n_samples = 20L)
+	rr = assemble_rr(task, learner, sage$resampling, store_models = TRUE)
+	test_dt = task$data(rows = rr$resampling$test_set(1))
+
+	priv = sage$.__enclos_env__$private
+	baseline = priv$.sage_baseline(rr$learners[[1]], test_dt, batch_size = 5000L)
+	# Empty coalition routed through the existing batch evaluator
+	via_batch = priv$.evaluate_coalitions_batch(
+		rr$learners[[1]],
+		test_dt,
+		list(character(0)),
+		5000L
+	)[1]
+
+	checkmate::expect_number(baseline, finite = TRUE)
+	expect_equal(baseline, via_batch)
+})

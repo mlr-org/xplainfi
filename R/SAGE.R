@@ -523,6 +523,18 @@ SAGE = R6Class(
 			)
 		},
 
+		# Empty-coalition (no-feature) loss. Hoisted out of the
+		# checkpoint loop so every permutation chunk shares one
+		# baseline anchor across parallel workers.
+		.sage_baseline = function(learner, test_dt, batch_size = NULL) {
+			private$.evaluate_coalitions_batch(
+				learner,
+				test_dt,
+				list(character(0)),
+				batch_size
+			)[1]
+		},
+
 		# Template method: Defines the complete prediction and aggregation pipeline
 		# Subclasses only need to implement .expand_coalitions_data()
 		.evaluate_coalitions_batch = function(learner, test_dt, all_coalitions, batch_size = NULL) {
