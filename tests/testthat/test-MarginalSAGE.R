@@ -374,6 +374,46 @@ test_that("MarginalSAGE iters > 1 keeps per-iter schema under sequential fallbac
 	expect_importance_dt(sage$importance(), features = sage$features)
 })
 
+test_that("MarginalSAGE early_stopping path still tracks convergence", {
+	withr::local_seed(31337)
+	task = sim_dgp_independent(n = 200)
+	sage = MarginalSAGE$new(
+		task = task,
+		learner = lrn("regr.rpart"),
+		n_permutations = 30L,
+		n_samples = 25L,
+		early_stopping = TRUE,
+		min_permutations = 5L,
+		se_threshold = 0.05
+	)
+	sage$compute()
+
+	expect_importance_dt(sage$importance(), features = sage$features)
+	checkmate::expect_data_table(sage$convergence_history, min.rows = 1L)
+	checkmate::expect_int(sage$n_permutations_used, lower = 5L, upper = 30L)
+	expect_setequal(
+		sort(names(sage$scores())),
+		sort(c("iter_rsmp", "feature", "importance"))
+	)
+})
+
+test_that("MarginalSAGE early_stopping + cv keeps per-iter rows", {
+	withr::local_seed(808)
+	task = sim_dgp_independent(n = 180)
+	sage = MarginalSAGE$new(
+		task = task,
+		learner = lrn("regr.rpart"),
+		resampling = rsmp("cv", folds = 2),
+		n_permutations = 20L,
+		n_samples = 20L,
+		early_stopping = TRUE,
+		min_permutations = 5L
+	)
+	sage$compute()
+	expect_setequal(unique(sage$scores()$iter_rsmp), 1:2)
+	checkmate::expect_int(sage$n_permutations_used, lower = 5L, upper = 20L)
+})
+
 test_that("MarginalSAGE parallel (future) matches sequential within MC tolerance", {
 	skip_on_cran()
 	skip_if_not_installed("future")
