@@ -198,3 +198,33 @@ test_that("sage_aggregate_predictions handles multiple test instances", {
 	expect_equal(result[.coalition_id == 2 & .test_instance_id == 1]$avg_pred, mean(c(5, 6)))
 	expect_equal(result[.coalition_id == 2 & .test_instance_id == 2]$avg_pred, mean(c(7, 8)))
 })
+
+test_that("sage_reduce_partials sums additively per iteration", {
+	feature_names = c("x1", "x2")
+	partials = list(
+		list(iter = 1L, sv = c(x1 = 2, x2 = 4), sv_sq = c(x1 = 6, x2 = 10), n = 2L),
+		list(iter = 1L, sv = c(x1 = 1, x2 = 1), sv_sq = c(x1 = 1, x2 = 1), n = 1L),
+		list(iter = 2L, sv = c(x1 = 9, x2 = 3), sv_sq = c(x1 = 27, x2 = 5), n = 3L)
+	)
+
+	res = sage_reduce_partials(partials, feature_names)
+
+	checkmate::expect_data_table(res, nrows = 4L)
+	expect_setequal(names(res), c("iter_rsmp", "feature", "importance"))
+
+	# iter 1: sv = (3, 5), n = 3 -> importance = (1, 5/3)
+	it1 = res[iter_rsmp == 1L][order(feature)]
+	expect_equal(it1$importance, c(3 / 3, 5 / 3))
+	# iter 2: sv = (9, 3), n = 3 -> importance = (3, 1)
+	it2 = res[iter_rsmp == 2L][order(feature)]
+	expect_equal(it2$importance, c(9 / 3, 3 / 3))
+})
+
+test_that("sage_reduce_partials handles a single partial per iter", {
+	res = sage_reduce_partials(
+		list(list(iter = 1L, sv = c(a = 4), sv_sq = c(a = 8), n = 2L)),
+		"a"
+	)
+	checkmate::expect_data_table(res, nrows = 1L)
+	expect_equal(res$importance, 2)
+})

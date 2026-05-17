@@ -72,6 +72,33 @@ sage_batch_predict = function(learner, combined_data, task, batch_size, task_typ
 	}
 }
 
+#' Reduce SAGE worker partials into per-iteration importance
+#'
+#' Pure additive reduction. Each partial is
+#' `list(iter, sv, sv_sq, n)` where `sv`/`sv_sq` are named numeric
+#' vectors over features. Summation is order-independent, so the
+#' result is identical regardless of worker dispatch order.
+#'
+#' @param partials (`list`) Worker partials.
+#' @param feature_names (`character`) Feature order for the output.
+#' @return [data.table::data.table] with `iter_rsmp`, `feature`, `importance`.
+#' @keywords internal
+#' @noRd
+sage_reduce_partials = function(partials, feature_names) {
+	iters = vapply(partials, function(p) p$iter, integer(1))
+	out = lapply(sort(unique(iters)), function(it) {
+		these = partials[iters == it]
+		sv = Reduce(`+`, lapply(these, function(p) p$sv[feature_names]))
+		n = sum(vapply(these, function(p) p$n, integer(1)))
+		data.table::data.table(
+			iter_rsmp = it,
+			feature = feature_names,
+			importance = as.numeric(sv / n)
+		)
+	})
+	data.table::rbindlist(out)
+}
+
 #' Aggregate Predictions by Coalition and Test Instance
 #'
 #' Averages predictions across multiple samples (reference data or conditional samples)
