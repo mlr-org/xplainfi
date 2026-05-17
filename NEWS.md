@@ -2,6 +2,11 @@
 
 ## Performance and new features
 
+- `SAGE` (`MarginalSAGE`, `ConditionalSAGE`) now parallelizes its
+  permutation loop through the same backend layer as PFI/CFI
+  (`future` / `mirai`). No API change; results are statistically
+  equivalent to sequential execution. Early stopping still runs its
+  convergence iteration sequentially.
 - New `samples_per_row` argument on `FeatureSampler$sample()` and `$sample_newdata()` (default `1L`).
   - When `> 1`, samplers return `samples_per_row * length(row_ids)` rows in draw-major order
     (one block of all input rows per draw).

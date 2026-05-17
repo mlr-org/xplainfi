@@ -21,6 +21,19 @@ These SEs quantify the Monte Carlo sampling error for a fixed trained model
 and are only valid for inference about the importance of features for that
 specific model. They do not capture broader uncertainty from model variability
 across different train/test splits or resampling iterations.
+
+\strong{Parallelization}: SAGE participates in xplainfi's parallel
+backend layer (set a \code{\link[future:plan]{future::plan()}} or \code{\link[mirai:daemons]{mirai::daemons()}}).
+Permutations are distributed across workers. The permutation set is
+reproducible (generated on the caller under the active seed); sampler
+draws inside workers are statistically equivalent to sequential
+execution but not bitwise identical, matching the contract of PFI/CFI.
+Early stopping (\code{early_stopping = TRUE}) requires the convergence
+iteration to run sequentially: with a single resampling iteration
+this means no parallel speedup for that run. Choose \code{early_stopping}
+(work economy at small permutation counts) or parallel execution
+(wall-time economy at large counts); under early stopping, a larger
+\code{check_interval} widens each sequential batch.
 }
 \references{
 Covert I, Lundberg S, Lee S (2020).
@@ -31,6 +44,7 @@ In \emph{Advances in Neural Information Processing Systems}, volume 33, 17212--1
 \seealso{
 \link{MarginalSAGE} \link{ConditionalSAGE}
 }
+\keyword{internal}
 \section{Super class}{
 \code{\link[xplainfi:FeatureImportanceMethod]{FeatureImportanceMethod}} -> \code{SAGE}
 }
@@ -53,6 +67,7 @@ In \emph{Advances in Neural Information Processing Systems}, volume 33, 17212--1
     \item \href{#method-SAGE-initialize}{\code{SAGE$new()}}
     \item \href{#method-SAGE-compute}{\code{SAGE$compute()}}
     \item \href{#method-SAGE-plot_convergence}{\code{SAGE$plot_convergence()}}
+    \item \href{#method-SAGE-compute_chunk_partial}{\code{SAGE$compute_chunk_partial()}}
     \item \href{#method-SAGE-clone}{\code{SAGE$clone()}}
   }
 }
@@ -164,6 +179,41 @@ detection scale-invariant. Default \code{0.01} means convergence when relative S
   }
   \subsection{Returns}{
     A \link[ggplot2:ggplot]{ggplot2} object
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SAGE-compute_chunk_partial"></a>}}
+\if{latex}{\out{\hypertarget{method-SAGE-compute_chunk_partial}{}}}
+\subsection{\code{SAGE$compute_chunk_partial()}}{
+  Compute partial SAGE sums for one permutation chunk. Internal
+worker entry point for parallel execution; not intended for
+direct use. Pure given \verb{(learner, test_dt, perm_sublist, baseline)}, additive across chunks.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{SAGE$compute_chunk_partial(
+  learner,
+  test_dt,
+  perm_sublist,
+  baseline,
+  batch_size = NULL
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{learner}}{Trained \link[mlr3:Learner]{mlr3::Learner} for this resampling iteration.}
+      \item{\code{test_dt}}{(\link[data.table:data.table]{data.table::data.table}) Test data for this iteration.}
+      \item{\code{perm_sublist}}{(\code{list}) Feature-name permutations to evaluate.}
+      \item{\code{baseline}}{(\code{numeric(1)}) Shared empty-coalition loss.}
+      \item{\code{batch_size}}{(\code{integer(1)} | \code{NULL}) Prediction batch size.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \code{list(sv, sv_sq, n)}: named numeric vectors over features
+and the number of permutations processed.
   }
 }
 

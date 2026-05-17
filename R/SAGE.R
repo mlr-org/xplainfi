@@ -18,6 +18,19 @@
 #' specific model. They do not capture broader uncertainty from model variability
 #' across different train/test splits or resampling iterations.
 #'
+#' **Parallelization**: SAGE participates in xplainfi's parallel
+#' backend layer (set a [future::plan()] or [mirai::daemons()]).
+#' Permutations are distributed across workers. The permutation set is
+#' reproducible (generated on the caller under the active seed); sampler
+#' draws inside workers are statistically equivalent to sequential
+#' execution but not bitwise identical, matching the contract of PFI/CFI.
+#' Early stopping (`early_stopping = TRUE`) requires the convergence
+#' iteration to run sequentially: with a single resampling iteration
+#' this means no parallel speedup for that run. Choose `early_stopping`
+#' (work economy at small permutation counts) or parallel execution
+#' (wall-time economy at large counts); under early stopping, a larger
+#' `check_interval` widens each sequential batch.
+#'
 #' @references
 #' `r print_bib("lundberg_2020")`
 #'
