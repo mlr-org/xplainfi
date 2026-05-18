@@ -228,3 +228,36 @@ test_that("sage_reduce_partials handles a single partial per iter", {
 	checkmate::expect_data_table(res, nrows = 1L)
 	expect_equal(res$importance, 2)
 })
+
+test_that("sage_growing_coalitions builds row-major growing prefixes", {
+	perms = list(c("a", "b"), c("b", "a"))
+	co = sage_growing_coalitions(perms)
+	expect_length(co, 4L)
+	expect_identical(co[[1]], "a")
+	expect_identical(co[[2]], c("a", "b"))
+	expect_identical(co[[3]], "b")
+	expect_identical(co[[4]], c("b", "a"))
+})
+
+test_that("sage_marginal_contributions accumulates closed-form, offset-aware", {
+	feats = c("a", "b")
+	perms = list(c("a", "b"), c("b", "a"))
+	baseline = 10
+	# losses laid out row-major over (perm, step), no offset:
+	# perm1: {a}=8, {a,b}=5 ; perm2: {b}=9, {b,a}=4
+	losses = c(8, 5, 9, 4)
+	r = sage_marginal_contributions(perms, losses, baseline, feats, offset = 0L)
+	# perm1: a: 10-8=2 ; b: 8-5=3
+	# perm2: b: 10-9=1 ; a: 9-4=5
+	expect_equal(r$sv[["a"]], 2 + 5)
+	expect_equal(r$sv[["b"]], 3 + 1)
+	expect_equal(r$sv_sq[["a"]], 2^2 + 5^2)
+	expect_equal(r$sv_sq[["b"]], 3^2 + 1^2)
+	expect_setequal(names(r$sv), feats)
+
+	# offset = 1L: an extra leading slot (e.g. empty coalition) shifts indices by 1
+	losses_off = c(99, 8, 5, 9, 4)
+	r2 = sage_marginal_contributions(perms, losses_off, baseline, feats, offset = 1L)
+	expect_equal(r2$sv, r$sv)
+	expect_equal(r2$sv_sq, r$sv_sq)
+})

@@ -393,45 +393,20 @@ SAGE = R6Class(
 		#'   and the number of permutations processed.
 		#' @keywords internal
 		compute_chunk_partial = function(learner, test_dt, perm_sublist, baseline, batch_size = NULL) {
-			sage_values = numeric(length(self$features))
-			sage_values_sq = numeric(length(self$features))
-			names(sage_values) = self$features
-			names(sage_values_sq) = self$features
-
-			# Build all growing coalitions for this chunk in one batch.
-			coalitions = list()
-			k = 1L
-			for (i in seq_along(perm_sublist)) {
-				perm = perm_sublist[[i]]
-				for (j in seq_along(perm)) {
-					coalitions[[k]] = perm[seq_len(j)]
-					k = k + 1L
-				}
-			}
-
+			coalitions = sage_growing_coalitions(perm_sublist)
 			losses = private$.evaluate_coalitions_batch(
 				learner,
 				test_dt,
 				coalitions,
 				batch_size
 			)
-
-			for (i in seq_along(perm_sublist)) {
-				perm = perm_sublist[[i]]
-				prev_loss = baseline
-				for (j in seq_along(perm)) {
-					feature = perm[j]
-					# coalitions built row-major over (perm, step); every perm is a full
-					# permutation so the flat index is closed-form, no search/map needed.
-					current_loss = losses[(i - 1L) * length(perm) + j]
-					contribution = prev_loss - current_loss
-					sage_values[feature] = sage_values[feature] + contribution
-					sage_values_sq[feature] = sage_values_sq[feature] + contribution^2
-					prev_loss = current_loss
-				}
-			}
-
-			list(sv = sage_values, sv_sq = sage_values_sq, n = length(perm_sublist))
+			acc = sage_marginal_contributions(
+				perm_sublist,
+				losses,
+				baseline,
+				self$features
+			)
+			list(sv = acc$sv, sv_sq = acc$sv_sq, n = length(perm_sublist))
 		}
 	),
 

@@ -149,3 +149,67 @@ sage_aggregate_predictions = function(combined_data, predictions, task_type, cla
 		]
 	}
 }
+
+#' Build row-major growing-prefix coalitions for a permutation list
+#'
+#' For each permutation, emit its growing prefixes
+#' (`perm[1]`, `perm[1:2]`, ..., `perm`). Row-major over
+#' `(permutation, step)`. Pure; no evaluation, no RNG.
+#'
+#' @param perm_sublist (`list`) Feature-name permutations.
+#' @return `list` of character vectors (coalitions).
+#' @keywords internal
+#' @noRd
+sage_growing_coalitions = function(perm_sublist) {
+	coalitions = list()
+	k = 1L
+	for (i in seq_along(perm_sublist)) {
+		perm = perm_sublist[[i]]
+		for (j in seq_along(perm)) {
+			coalitions[[k]] = perm[seq_len(j)]
+			k = k + 1L
+		}
+	}
+	coalitions
+}
+
+#' Accumulate SAGE marginal contributions from a loss vector
+#'
+#' Given growing-prefix losses laid out row-major over
+#' `(permutation, step)` (optionally preceded by `offset` leading
+#' slots, e.g. an empty-coalition entry), accumulate per-feature SAGE
+#' value sums and squared sums. Every permutation is a full feature
+#' permutation, so the loss index is closed-form: no search/map.
+#' Pure; order-independent across permutations.
+#'
+#' @param perm_sublist (`list`) Feature-name permutations.
+#' @param losses (`numeric`) Losses for `offset` leading slots then the
+#'   row-major growing-prefix coalitions of `perm_sublist`.
+#' @param baseline (`numeric(1)`) Empty-coalition loss anchor.
+#' @param feature_names (`character`) Names for the output vectors.
+#' @param offset (`integer(1)`: `0L`) Leading loss slots to skip.
+#' @return `list(sv, sv_sq)` named numeric vectors over `feature_names`.
+#' @keywords internal
+#' @noRd
+sage_marginal_contributions = function(perm_sublist, losses, baseline, feature_names, offset = 0L) {
+	sv = numeric(length(feature_names))
+	sv_sq = numeric(length(feature_names))
+	names(sv) = feature_names
+	names(sv_sq) = feature_names
+
+	for (i in seq_along(perm_sublist)) {
+		perm = perm_sublist[[i]]
+		p = length(perm)
+		prev_loss = baseline
+		for (j in seq_len(p)) {
+			feature = perm[j]
+			current_loss = losses[offset + (i - 1L) * p + j]
+			contribution = prev_loss - current_loss
+			sv[feature] = sv[feature] + contribution
+			sv_sq[feature] = sv_sq[feature] + contribution^2
+			prev_loss = current_loss
+		}
+	}
+
+	list(sv = sv, sv_sq = sv_sq)
+}
