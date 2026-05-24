@@ -112,3 +112,49 @@ xplainfi_map = function(n, .f, ..., .args = list()) {
 	# Sequential fallback
 	mapply(.f, ..., MoreArgs = .args, SIMPLIFY = FALSE, USE.NAMES = TRUE)
 }
+
+#' Worker preamble: package loads + optional ARF doParallel registration
+#'
+#' Centralizes setup that `xplainfi_map` workers need before running
+#' user code. When `is_sequential` is TRUE this is a no-op (the
+#' sequential fallback runs in the main process and inherits state).
+#' When the sampler carries `parallel = TRUE`, registers a doParallel
+#' cluster inside this worker and installs a cleanup handler on the
+#' CALLER's `on.exit` so the cluster is stopped when the calling
+#' worker function returns.
+#'
+#' @param learner_packages (`character`) Packages the learner needs.
+#' @param sampler ([FeatureSampler] | `NULL`) Sampler; if it carries
+#'   `parallel = TRUE`, register doParallel inside this worker.
+#' @param arf_workers (`integer(1)`) Workers for the ARF doParallel
+#'   cluster, resolved caller-side via `xplain_opt("arf_workers")`
+#'   (mirai daemons do not inherit options).
+#' @param is_sequential (`logical(1)`) If TRUE, no-op.
+#' @return Invisibly NULL.
+#' @keywords internal
+#' @noRd
+xplain_worker_preamble = function(learner_packages, sampler, arf_workers, is_sequential) {
+	if (is_sequential) {
+		return(invisible(NULL))
+	}
+	library("data.table")
+	library("mlr3")
+	library("xplainfi")
+	for (pkg in learner_packages) {
+		library(pkg, character.only = TRUE)
+	}
+	if (
+		!is.null(sampler) &&
+			isTRUE(sampler$param_set$values$parallel) &&
+			arf_workers > 0L
+	) {
+		require_package("doParallel")
+		doParallel::registerDoParallel(cores = arf_workers)
+		do.call(
+			"on.exit",
+			list(quote(doParallel::stopImplicitCluster()), add = TRUE),
+			envir = parent.frame()
+		)
+	}
+	invisible(NULL)
+}

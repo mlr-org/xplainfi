@@ -221,28 +221,22 @@ PerturbationImportance = R6Class(
 						arf_workers,
 						is_sequential = TRUE
 					) {
-						# Load required packages in parallel workers
-						if (!is_sequential) {
-							library("data.table")
-							library("mlr3")
-							library("xplainfi")
-							for (pkg in learner_packages) {
-								library(pkg, character.only = TRUE)
-							}
-							# If sampler is configured for parallel sampling (e.g. arf::forge
-							# with parallel = TRUE), foreach needs a backend registered inside
-							# THIS daemon's R session — mirai daemons are separate processes
-							# and don't inherit the caller's foreach state. arf's sequential
-							# %do% path has bugs at scale, so the only reliable way to use
-							# ARF inside a mirai daemon is to give it a parallel backend.
-							# Tune workers per daemon via `xplain_opt(arf_workers = N)`
-							# in the caller session (value resolved before dispatch).
-							if (isTRUE(sampler$param_set$values$parallel) && arf_workers > 0L) {
-								require_package("doParallel")
-								doParallel::registerDoParallel(cores = arf_workers)
-								on.exit(doParallel::stopImplicitCluster(), add = TRUE)
-							}
-						}
+						# Load required packages + register ARF doParallel inside
+						# this worker. The helper installs `on.exit` on the
+						# calling frame (this closure), so the doParallel
+						# cluster is stopped when this worker returns.
+						# mirai daemons are separate R processes and don't
+						# inherit the caller's foreach state; arf's sequential
+						# %do% path has bugs at scale, so giving ARF a parallel
+						# backend per daemon is the only reliable option. Tune
+						# via `xplain_opt(arf_workers = N)` (resolved caller-
+						# side because daemons don't inherit options).
+						xplain_worker_preamble(
+							learner_packages,
+							sampler,
+							arf_workers,
+							is_sequential
+						)
 
 						# Sampler produces `samples_per_row * test_size` rows in draw-major order;
 						# see `FeatureSampler$sample()` for the contract.

@@ -262,45 +262,7 @@ SAGE = R6Class(
 
 				bulk = xplainfi_map(
 					length(work),
-					\(
-						unit,
-						self_obj,
-						learners,
-						test_dts,
-						baselines,
-						batch_size,
-						sampler,
-						learner_packages,
-						arf_workers,
-						is_sequential = TRUE
-					) {
-						if (!is_sequential) {
-							library("data.table")
-							library("mlr3")
-							library("xplainfi")
-							for (pkg in learner_packages) {
-								library(pkg, character.only = TRUE)
-							}
-							if (
-								!is.null(sampler) &&
-									isTRUE(sampler$param_set$values$parallel) &&
-									arf_workers > 0L
-							) {
-								require_package("doParallel")
-								doParallel::registerDoParallel(cores = arf_workers)
-								on.exit(doParallel::stopImplicitCluster(), add = TRUE)
-							}
-						}
-						it = unit$iter
-						res = self_obj$compute_chunk_partial(
-							learners[[it]],
-							test_dts[[as.character(it)]],
-							unit$perms,
-							baselines[[as.character(it)]],
-							batch_size
-						)
-						list(iter = it, sv = res$sv, sv_sq = res$sv_sq, n = res$n)
-					},
+					private$.sage_chunk_worker,
 					work,
 					.args = list(
 						self_obj = self_for_workers,
@@ -624,6 +586,35 @@ SAGE = R6Class(
 				list(character(0)),
 				batch_size
 			)[1]
+		},
+
+		# Worker entry for the flattened {iter} x {perm-group} map in
+		# compute(). Passed as the .f to xplainfi_map; receives one
+		# work unit plus the hoisted .args. Kept on the SAGE object so
+		# the heavy inline closure no longer clutters compute() and is
+		# unit-test-reachable via private$.sage_chunk_worker.
+		.sage_chunk_worker = function(
+			unit,
+			self_obj,
+			learners,
+			test_dts,
+			baselines,
+			batch_size,
+			sampler,
+			learner_packages,
+			arf_workers,
+			is_sequential = TRUE
+		) {
+			xplain_worker_preamble(learner_packages, sampler, arf_workers, is_sequential)
+			it = unit$iter
+			res = self_obj$compute_chunk_partial(
+				learners[[it]],
+				test_dts[[as.character(it)]],
+				unit$perms,
+				baselines[[as.character(it)]],
+				batch_size
+			)
+			list(iter = it, sv = res$sv, sv_sq = res$sv_sq, n = res$n)
 		},
 
 		# Template method: Defines the complete prediction and aggregation pipeline
