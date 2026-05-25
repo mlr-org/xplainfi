@@ -37,6 +37,15 @@ SCALES = list(
 	heavy  = list(n = 2000L, p = 20L, n_perm = 50L, n_samples = 100L)
 )
 
+# Per-run SAGE chunking target. Set globally for this whole run via
+# xplain_opt("sage_target_units"). Lower means fewer, larger work
+# units (better for ConditionalSAGE on big samplers); higher means
+# more, smaller units (better load balancing for cheap workers).
+# Sweep by re-running the script with different values; each run
+# writes its own timestamped CSV so you can compare.
+# Override at the shell: XPLAIN_SAGE_TARGET_UNITS=8 Rscript ...
+TARGET_UNITS = as.integer(Sys.getenv("XPLAIN_SAGE_TARGET_UNITS", "64"))
+
 # Mirai daemon counts. Heavy auto-sized to a safe local cap.
 N_MIRAI_MEDIUM = 4L
 N_MIRAI_HEAVY  = min(parallel::detectCores() - 2L, 12L)
@@ -169,6 +178,8 @@ cat(sprintf("Host: %s | cores detected: %d\n",
 	Sys.info()[["nodename"]], parallel::detectCores()))
 cat(sprintf("Mirai medium = %d daemons | mirai heavy = %d daemons | compute profile = %s\n",
 	N_MIRAI_MEDIUM, N_MIRAI_HEAVY, MIRAI_COMPUTE))
+cat(sprintf("sage_target_units = %d (lower = fewer, larger work units)\n", TARGET_UNITS))
+xplain_opt(sage_target_units = TARGET_UNITS)
 cat(sprintf("Cells: %d (2 methods x 2 scales x 3 backends)\n\n", nrow(grid)))
 
 results = vector("list", nrow(grid))
@@ -210,6 +221,7 @@ print(res_dt[, .(method, scale, backend, wall_s = round(wall_s, 1),
 	speedup = round(speedup, 2), fingerprint = substr(fingerprint, 1, 32))])
 
 ts = format(Sys.time(), "%Y%m%dT%H%M%S")
-csv_path = file.path("scripts", sprintf("bench-sage-parallel-%s.csv", ts))
+csv_path = file.path("scripts",
+	sprintf("bench-sage-parallel-tu%d-%s.csv", TARGET_UNITS, ts))
 fwrite(res_dt, csv_path)
 cat("\nSaved:", csv_path, "\n")
