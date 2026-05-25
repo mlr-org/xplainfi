@@ -219,7 +219,10 @@ SAGE = R6Class(
 
 			# Phase 3: flattened parallel bulk over {iter} x {perm-group}.
 			if (length(iters_remaining) > 0L) {
-				target_units = 64L # first-draft constant; see spec scope posture
+				# target_units: tunable via xplain_opt("sage_target_units").
+				# Default 64L; lower (e.g. 8L) for ConditionalSAGE on big
+				# samplers where per-dispatch payload dominates.
+				target_units = xplain_opt("sage_target_units")
 				group_size = max(1L, perms_per_iter %/% target_units)
 
 				# Pre-generate permutations caller-side (reproducible set)

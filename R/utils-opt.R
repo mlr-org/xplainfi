@@ -22,6 +22,7 @@
 #' | `sequential` | `FALSE` | Force sequential execution (disable parallelization) |
 #' | `debug` | `FALSE` | Enable debug output for development and troubleshooting |
 #' | `arf_workers` | `2L` | doParallel workers registered inside each mirai daemon when the sampler is configured with `parallel = TRUE`. Has no effect on sequential or non-ARF execution. |
+#' | `sage_target_units` | `64L` | Target number of `{iter} x {perm-group}` work units the parallel SAGE bulk phase splits into. Group size is `max(1L, perms_per_iter %/% sage_target_units)`. Lower values yield fewer, larger work units (better per-dispatch amortization, especially for `ConditionalSAGE` where each unit carries the fitted sampler payload); higher values yield more, smaller units (better load balancing). Affects only `MarginalSAGE`/`ConditionalSAGE` parallel execution. |
 #'
 #' @return
 #' - When **getting** a single option: the option value (logical)
@@ -61,7 +62,8 @@ xplain_opt <- function(...) {
 		progress = FALSE,
 		sequential = FALSE,
 		debug = FALSE,
-		arf_workers = 2L
+		arf_workers = 2L,
+		sage_target_units = 64L
 	)
 
 	args <- list(...)

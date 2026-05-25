@@ -98,3 +98,12 @@ test_that("xplain_opt() errors on unknown options", {
 	expect_error(xplain_opt("nonexistent"), "subset")
 	expect_error(xplain_opt(nonexistent = TRUE), "subset")
 })
+
+test_that("sage_target_units round-trips as an integer option", {
+	prev <- xplain_opt(sage_target_units = 8L)
+	on.exit(xplain_opt(sage_target_units = prev$sage_target_units), add = TRUE)
+
+	val <- xplain_opt("sage_target_units")
+	checkmate::expect_int(val, lower = 1L)
+	expect_equal(val, 8L)
+})

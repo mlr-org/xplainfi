@@ -7,6 +7,12 @@
   (`future` / `mirai`). No API change; results are statistically
   equivalent to sequential execution. Early stopping still runs its
   convergence iteration sequentially.
+- New `xplain_opt("sage_target_units")` (default `64L`) controls how
+  many `{iter} x {perm-group}` work units the parallel SAGE bulk phase
+  splits into. Lower values yield fewer, larger work units (better
+  per-dispatch amortization, especially for `ConditionalSAGE` with
+  large samplers); higher values yield more, smaller units (better
+  load balancing).
 - New `samples_per_row` argument on `FeatureSampler$sample()` and `$sample_newdata()` (default `1L`).
   - When `> 1`, samplers return `samples_per_row * length(row_ids)` rows in draw-major order
     (one block of all input rows per draw).

@@ -38,6 +38,7 @@ Options can be set in three ways (in order of precedence):
    \code{sequential} \tab \code{FALSE} \tab Force sequential execution (disable parallelization) \cr
    \code{debug} \tab \code{FALSE} \tab Enable debug output for development and troubleshooting \cr
    \code{arf_workers} \tab \code{2L} \tab doParallel workers registered inside each mirai daemon when the sampler is configured with \code{parallel = TRUE}. Has no effect on sequential or non-ARF execution. \cr
+   \code{sage_target_units} \tab \code{64L} \tab Target number of \verb{\{iter\} x \{perm-group\}} work units the parallel SAGE bulk phase splits into. Group size is \code{max(1L, perms_per_iter \%/\% sage_target_units)}. Lower values yield fewer, larger work units (better per-dispatch amortization, especially for \code{ConditionalSAGE} where each unit carries the fitted sampler payload); higher values yield more, smaller units (better load balancing). Affects only \code{MarginalSAGE}/\code{ConditionalSAGE} parallel execution. \cr
 }
 
 }
