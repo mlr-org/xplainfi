@@ -31,3 +31,4 @@
 ^CRAN-SUBMISSION$
 ^codemeta\.json$
 ^scratch$
+^scripts$
