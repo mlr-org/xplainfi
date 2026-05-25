@@ -137,8 +137,13 @@ xplain_worker_preamble = function(learner_packages, sampler, arf_workers, is_seq
 	if (is_sequential) {
 		return(invisible(NULL))
 	}
-	library("data.table")
-	library("mlr3")
+	# Use loadNamespace for Imports packages: attaches namespace
+	# (S3 method tables, R6 classes registered) without polluting
+	# search path. library() here triggers R CMD check WARNING about
+	# undeclared library calls. xplainfi itself stays library()-loaded
+	# so the worker closure can reach package internals.
+	loadNamespace("data.table")
+	loadNamespace("mlr3")
 	library("xplainfi")
 	for (pkg in learner_packages) {
 		library(pkg, character.only = TRUE)
