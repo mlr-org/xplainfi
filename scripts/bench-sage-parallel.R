@@ -41,8 +41,30 @@ SCALES = list(
 N_MIRAI_MEDIUM = 4L
 N_MIRAI_HEAVY  = min(parallel::detectCores() - 2L, 12L)
 
+# xplainfi_map reads daemons from a NAMED mirai compute profile, not
+# the default one. Same option mlr3 uses. End-user gotcha: a plain
+# mirai::daemons(N) sets the default profile and xplainfi_map will
+# not see it; xplainfi falls back to future/sequential silently.
+MIRAI_COMPUTE = getOption("mlr3.mirai_parallelization", "mlr3_parallelization")
+
 # Backends: each entry has setup() returning prev state and
 # teardown(prev) restoring it. Sequential is always the reference.
+mk_mirai_backend = function(n_workers) {
+	list(
+		setup = function() {
+			prev = xplain_opt(sequential = FALSE)
+			mirai::daemons(n_workers, .compute = MIRAI_COMPUTE)
+			# Sanity: confirm xplainfi will actually see the daemons.
+			stopifnot(mirai::daemons_set(.compute = MIRAI_COMPUTE))
+			list(sequential = prev)
+		},
+		teardown = function(prev) {
+			mirai::daemons(0L, .compute = MIRAI_COMPUTE)
+			xplain_opt(sequential = prev$sequential)
+		}
+	)
+}
+
 BACKENDS = list(
 	sequential = list(
 		setup = function() {
@@ -53,28 +75,8 @@ BACKENDS = list(
 			xplain_opt(sequential = prev$sequential)
 		}
 	),
-	mirai_medium = list(
-		setup = function() {
-			prev = xplain_opt(sequential = FALSE)
-			mirai::daemons(N_MIRAI_MEDIUM)
-			list(sequential = prev)
-		},
-		teardown = function(prev) {
-			mirai::daemons(0L)
-			xplain_opt(sequential = prev$sequential)
-		}
-	),
-	mirai_heavy = list(
-		setup = function() {
-			prev = xplain_opt(sequential = FALSE)
-			mirai::daemons(N_MIRAI_HEAVY)
-			list(sequential = prev)
-		},
-		teardown = function(prev) {
-			mirai::daemons(0L)
-			xplain_opt(sequential = prev$sequential)
-		}
-	)
+	mirai_medium = mk_mirai_backend(N_MIRAI_MEDIUM),
+	mirai_heavy = mk_mirai_backend(N_MIRAI_HEAVY)
 )
 
 # --------------------------------------------------------------------
@@ -165,8 +167,8 @@ grid = grid[order(grid$method, grid$scale, grid$backend != "sequential"), ]
 
 cat(sprintf("Host: %s | cores detected: %d\n",
 	Sys.info()[["nodename"]], parallel::detectCores()))
-cat(sprintf("Mirai medium = %d daemons | mirai heavy = %d daemons\n",
-	N_MIRAI_MEDIUM, N_MIRAI_HEAVY))
+cat(sprintf("Mirai medium = %d daemons | mirai heavy = %d daemons | compute profile = %s\n",
+	N_MIRAI_MEDIUM, N_MIRAI_HEAVY, MIRAI_COMPUTE))
 cat(sprintf("Cells: %d (2 methods x 2 scales x 3 backends)\n\n", nrow(grid)))
 
 results = vector("list", nrow(grid))
