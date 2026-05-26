@@ -360,11 +360,36 @@ test_obs_importance = function(
 				)
 			}
 		} else {
-			htest_result = test_function(
-				feat_obs,
-				alternative = alternative,
-				conf.level = ci_conf_level,
-				conf.int = TRUE
+			# R-devel (2026-05) rewrote stats:::wilcox.test internals; the
+			# new asymptotic CI path errors with
+			# "missing value where TRUE/FALSE needed" when the variance
+			# estimator returns NA (many-ties / many-zeros inputs that the
+			# previous implementation tolerated). Defensive fallback returns
+			# a degenerate-shape htest so downstream code keeps going with
+			# NA inference fields. Affects R-release runs only if R-devel
+			# bug ships; safe no-op on stable R versions.
+			htest_result = tryCatch(
+				test_function(
+					feat_obs,
+					alternative = alternative,
+					conf.level = ci_conf_level,
+					conf.int = TRUE
+				),
+				error = function(e) {
+					cli::cli_warn(c(
+						"Hypothesis test failed for feature {.val {feat}}; returning NA inference fields.",
+						"i" = "{conditionMessage(e)}"
+					))
+					list(
+						statistic = NA_real_,
+						p.value = NA_real_,
+						conf.int = if (alternative == "greater") {
+							c(NA_real_, Inf)
+						} else {
+							c(NA_real_, NA_real_)
+						}
+					)
+				}
 			)
 		}
 
