@@ -134,7 +134,11 @@ sage_aggregate_predictions = function(combined_data, predictions, task_type, cla
 #' @keywords internal
 #' @noRd
 sage_growing_coalitions = function(perm_sublist) {
-	coalitions = list()
+	# Pre-allocate to the exact coalition count (sum of permutation
+	# lengths). Growing the list by index instead relies on R's
+	# amortized vector growth -- not quadratic, but ~2-3x slower and
+	# ~2x the allocation here for no benefit.
+	coalitions = vector("list", sum(lengths(perm_sublist)))
 	k = 1L
 	for (i in seq_along(perm_sublist)) {
 		perm = perm_sublist[[i]]
