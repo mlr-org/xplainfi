@@ -331,48 +331,23 @@ SAGE = R6Class(
 				# Get the actual permutation sequences for this checkpoint from the pre-generated list.
 				checkpoint_permutations = all_permutations[checkpoint_perms]
 
-				# Prepare lists to store unique coalitions and their mapping back to permutations.
-				# This avoids redundant evaluations of the same coalition across different permutations/steps.
-				checkpoint_coalitions = list() # Stores unique feature coalitions (e.g., c("x1", "x2"))
-				checkpoint_coalition_map = list() # Maps coalition index to its permutation and step (e.g., list(checkpoint_perm_idx = 1, step = 2))
-				coalition_idx = 1 # Counter for unique coalitions
-
-				# Add the empty coalition ({}) only for the very first checkpoint.
-				# The loss of the empty coalition serves as the baseline for marginal contributions.
+				# Build this checkpoint's growing-prefix coalitions. The
+				# empty coalition is prepended only in the first checkpoint;
+				# its loss is the baseline anchor for marginal contributions.
+				# Same single-batch call/order as before, so the RNG-bearing
+				# marginal sampling inside .evaluate_coalitions_batch is
+				# byte-identical to the pre-refactor scheme.
+				checkpoint_coalitions = sage_growing_coalitions(checkpoint_permutations)
+				offset = 0L
 				if (n_completed == 0) {
-					checkpoint_coalitions[[1]] = character(0) # Represents the empty set of features
-					checkpoint_coalition_map[[1]] = list(checkpoint_perm_idx = 0, step = 0) # Special mapping for baseline
-					coalition_idx = 2 # Start next coalition index from 2
+					checkpoint_coalitions = c(list(character(0)), checkpoint_coalitions)
+					offset = 1L
 				}
 
-				# Iterate through each permutation in the current checkpoint to build all necessary coalitions.
-				# For each permutation (e.g., P = (x2, x1, x3)), we generate coalitions:
-				# {}, {x2}, {x2, x1}, {x2, x1, x3}
-				for (i in seq_along(checkpoint_permutations)) {
-					perm_features = checkpoint_permutations[[i]] # Current permutation (e.g., c("x2", "x1", "x3"))
-
-					# Build growing coalitions for the current permutation.
-					for (j in seq_along(perm_features)) {
-						# 'coalition' is the set of features considered up to the current step 'j'.
-						# Example: for P=(x2, x1, x3):
-						# j=1: coalition = c("x2")
-						# j=2: coalition = c("x2", "x1")
-						# j=3: coalition = c("x2", "x1", "x3")
-						coalition = perm_features[seq_len(j)]
-
-						# Store the coalition and its mapping. This allows us to retrieve the loss
-						# for this specific coalition later from the batch evaluation results.
-						checkpoint_coalitions[[coalition_idx]] = coalition
-						checkpoint_coalition_map[[coalition_idx]] = list(checkpoint_perm_idx = i, step = j)
-						coalition_idx = coalition_idx + 1
-					}
-				}
-
-				# Update progress: indicate that a new checkpoint is starting.
+				# Progress: one tick per checkpoint (unchanged cadence).
 				current_checkpoint = current_checkpoint + 1
-				n_coalitions_in_checkpoint = length(checkpoint_coalitions) # Total unique coalitions to evaluate in this batch
 
-				# Evaluate all unique coalitions collected in this checkpoint in a single batch.
+				# Evaluate all coalitions collected in this checkpoint in a single batch.
 				# This is a performance optimization to minimize prediction calls to the learner.
 				checkpoint_losses = private$.evaluate_coalitions_batch(
 					learner,
@@ -392,39 +367,23 @@ SAGE = R6Class(
 					baseline_loss = checkpoint_losses[1] # The first element is always the empty coalition's loss
 				}
 
-				# Process the results from the current checkpoint to calculate marginal contributions.
-				for (i in seq_along(checkpoint_permutations)) {
-					perm_features = checkpoint_permutations[[i]] # Current permutation (e.g., c("x2", "x1", "x3"))
-					prev_loss = baseline_loss # Start with baseline loss for the first feature in permutation
-
-					# Iterate through features in the current permutation to calculate their marginal contributions.
-					for (j in seq_along(perm_features)) {
-						feature = perm_features[j] # The feature being added at this step (e.g., "x2", then "x1", then "x3")
-
-						# Find the index of the current coalition's loss in the 'checkpoint_losses' vector.
-						# This uses the 'checkpoint_coalition_map' to link back to the batched results.
-						coalition_lookup_idx = which(sapply(checkpoint_coalition_map, function(x) {
-							x$checkpoint_perm_idx == i && x$step == j
-						}))
-
-						# Get the loss for the current coalition (e.g., loss({x2}), then loss({x2, x1}), etc.).
-						current_loss = checkpoint_losses[coalition_lookup_idx]
-
-						# Calculate the marginal contribution of the 'feature' just added.
-						# Contribution = (Loss without feature) - (Loss with feature)
-						# A smaller loss is better, so a positive contribution means the feature improved performance.
-						marginal_contribution = prev_loss - current_loss
-
-						# Add this marginal contribution to the total SAGE value for the 'feature'.
-						# Also track the squared contribution for variance calculation.
-						sage_values[feature] = sage_values[feature] + marginal_contribution
-						sage_values_sq[feature] = sage_values_sq[feature] + marginal_contribution^2
-
-						# Update 'prev_loss' for the next iteration in this permutation.
-						# The current coalition's loss becomes the 'previous' loss for the next feature's contribution.
-						prev_loss = current_loss
-					}
-				}
+				# Closed-form accumulation over the growing-prefix losses.
+				# Every permutation is a full feature permutation, so each
+				# coalition's loss index is computed directly; `offset` skips
+				# the leading empty-coalition slot present in the first
+				# checkpoint. Replaces the former O(n^2) which(sapply())
+				# coalition-map lookup.
+				acc = sage_marginal_contributions(
+					checkpoint_permutations,
+					checkpoint_losses,
+					baseline_loss,
+					self$features,
+					offset = offset
+				)
+				# Name-aligned add (defensive: positional add is only valid if
+				# orders match; reindex by name to be safe).
+				sage_values = sage_values + acc$sv[names(sage_values)]
+				sage_values_sq = sage_values_sq + acc$sv_sq[names(sage_values_sq)]
 
 				# Update the count of completed permutations.
 				n_completed = n_completed + checkpoint_size
