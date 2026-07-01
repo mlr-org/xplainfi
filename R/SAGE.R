@@ -533,29 +533,68 @@ SAGE = R6Class(
 		},
 
 		# Private method - needs self$task and self$measure
-		# Calculates losses from averaged predictions for each coalition
+		# Calculates losses from averaged predictions for each coalition.
+		# Returns losses ordered by ascending `.coalition_id`, matching the
+		# order coalitions were built (the closed-form accumulation indexes
+		# this positionally).
 		.calculate_coalition_losses = function(avg_preds, n_test, test_dt) {
-			n_coalitions = length(unique(avg_preds$.coalition_id))
-			coalition_losses = numeric(n_coalitions)
+			.coalition_id = .test_instance_id = NULL # data.table NSE NOTE tax
 
-			for (i in seq_len(n_coalitions)) {
-				coalition_data = avg_preds[.coalition_id == i]
+			coalition_ids = sort(unique(avg_preds$.coalition_id))
+			truth = test_dt[[self$task$target_names]]
 
-				pred_obj = if (self$task$task_type == "classif") {
+			# Key once and subset by key (binary search) per coalition,
+			# rather than scanning `avg_preds[.coalition_id == i]` in a loop.
+			# The key includes .test_instance_id so each block is
+			# ordered to align with `truth` (test instance 1..n_test).
+			setkey(avg_preds, .coalition_id, .test_instance_id)
+			measure = self$measure
+			is_classif = self$task$task_type == "classif"
+			class_names = self$task$class_names
+
+			# For pointwise (`obs_loss`) measures whose predict_type matches
+			# the data we hold (regression response; classification prob), we
+			# can call the measure's own mlr3measures function (`$fun`)
+			# directly on (truth, response/prob), skipping the per-coalition
+			# Prediction object. This reuses the mlr3 measure
+			# implementation and does the
+			# correct per-measure aggregation. Anything else (classification
+			# response measures that need a prob->class step, measures needing
+			# task/model context, non-decomposable measures like AUC) takes
+			# the canonical Prediction$score() path, so correctness holds for
+			# every measure.
+			direct = !is.null(measure$fun) &&
+				"obs_loss" %in% measure$properties &&
+				((!is_classif && measure$predict_type == "response") ||
+					(is_classif && measure$predict_type == "prob"))
+
+			score_block = if (direct && is_classif) {
+				function(block) {
+					measure$fun(truth = truth, prob = as.matrix(block[, .SD, .SDcols = class_names]))
+				}
+			} else if (direct) {
+				function(block) measure$fun(truth = truth, response = block$avg_pred)
+			} else if (is_classif) {
+				function(block) {
 					PredictionClassif$new(
 						row_ids = seq_len(n_test),
-						truth = test_dt[[self$task$target_names]],
-						prob = as.matrix(coalition_data[, .SD, .SDcols = self$task$class_names])
-					)
-				} else {
+						truth = truth,
+						prob = as.matrix(block[, .SD, .SDcols = class_names])
+					)$score(measure)
+				}
+			} else {
+				function(block) {
 					PredictionRegr$new(
 						row_ids = seq_len(n_test),
-						truth = test_dt[[self$task$target_names]],
-						response = coalition_data$avg_pred
-					)
+						truth = truth,
+						response = block$avg_pred
+					)$score(measure)
 				}
+			}
 
-				coalition_losses[i] = pred_obj$score(self$measure)
+			coalition_losses = numeric(length(coalition_ids))
+			for (k in seq_along(coalition_ids)) {
+				coalition_losses[k] = score_block(avg_preds[list(coalition_ids[k])])
 			}
 
 			coalition_losses
