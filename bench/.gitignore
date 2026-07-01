@@ -1,0 +1,11 @@
+# Benchmark outputs are local, machine-specific dev artifacts -- not tracked.
+# Sequential-SAGE run logs accumulate under results/ with provenance columns
+# (host, git sha, ...) so you can compare *your own* runs over time; share
+# systematic cross-machine results via the xplainfi-benchmark project.
+*.png
+*.rds
+*.csv
+*.html
+
+# Keep the results/ directory itself in the repo (see results/.gitkeep).
+!results/.gitkeep

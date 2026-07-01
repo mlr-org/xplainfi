@@ -8,6 +8,7 @@
 ^\.vscode$
 ^air\.toml$
 ^attic$
+^bench$
 ^CLAUDE\.local\.md$
 ^CLAUDE\.md$
 ^codecov\.yml$
