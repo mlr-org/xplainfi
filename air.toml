@@ -1,9 +1,11 @@
 [format]
-line-width = 100
-indent-width = 2
-indent-style = "tab"
-line-ending = "auto"
-persistent-line-breaks = true
-exclude = []
-default-exclude = true
+line-width = 120                    # same as .editorconfig
+indent-width = 2                    # same as .editorconfig
+indent-style = "space"              # same as .editorconfig
+line-ending = "lf"                  # same as .editorconfig
+persistent-line-breaks = true       # preserve existing line breaks when reformatting
+default-exclude = true              # use built-in default exclusions
 assignment-style = "equal"
+
+
+# you can use "exclude" and "skip" to avoid formatting certain globs

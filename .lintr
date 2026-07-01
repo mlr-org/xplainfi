@@ -1,18 +1,13 @@
 linters: linters_with_defaults(
-    # Relax line length
-    line_length_linter = line_length_linter(120L),
-    # R6 classes use CamelCase by convention
-    object_name_linter = object_name_linter(styles = c("snake_case", "CamelCase")),
-    # need to allow = due to mlr3 style and my lack of willingness to fight it
-    assignment_linter = NULL, 
-    # use air for indentation, no need to lint it
-    indentation_linter = NULL, 
-    whitespace_linter = NULL,
-    # Allow commented out code
-    commented_code_linter = NULL,
-    # Don't check function complexity (yet?)
-    cyclocomp_linter = NULL
-  )
-exclusions: list(
-    "R/zzz.R"
-  )
+    # lintr defaults: https://lintr.r-lib.org/reference/default_linters.html
+    # the following setup changes/removes certain linters
+    assignment_linter = NULL, # do not force using <- for assignments
+    object_name_linter = object_name_linter(c("snake_case", "CamelCase", "SNAKE_CASE")), # only allow snake case and camel case object names
+    cyclocomp_linter = NULL, # do not check function complexity
+    commented_code_linter = NULL, # allow code in comments
+    line_length_linter = line_length_linter(120L), # same as .editorconfig
+    # use indent=2 as in .editorconfig; also use block-aligned continuation with 2 space,
+    # not “align under first argument” style.
+    indentation_linter = indentation_linter(indent = 2L, hanging_indent_style = "never")
+    )
+

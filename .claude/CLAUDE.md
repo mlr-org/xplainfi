@@ -11,7 +11,8 @@ R package for global feature importance measures via mlr3.
   working tree, describe the diff in chat, let the user stage and
   commit. Do not run `git add` / `git commit` / `git push` unless
   explicitly authorized.
-- **Tabs for indentation.** Match existing file style.
+- **2-space indentation** (`air.toml`, `.editorconfig`, `.lintr` all
+  agree). Run `air format` to apply.
 - **`xplain_opt()`** is the package option mechanism (`R/utils-opt.R`).
   New options need a default + a row in the doc table.
 - **`require_package()`** (`R/utils-pkg.R`) is the standard guard for
@@ -79,3 +80,15 @@ Conceptual axes worth keeping in mind when touching method code:
 
 See `R/bibentries.R` (resolved via `print_bib()` in roxygen
 `@references` blocks) for the full citation list.
+
+## Shared agent config
+
+The repo-root `AGENTS.md` holds the shared mlr3-team agent
+conventions (aligned with `mlr-org/mlr3infrastructure`). Read it:
+
+@../AGENTS.md
+
+Where the two disagree, this file (`.claude/CLAUDE.md`) is
+xplainfi-specific and wins. One known divergence: AGENTS.md says drop
+`foo::bar()` namespacing for imported packages, but xplainfi keeps
+explicit `pkg::fun()` in package code (e.g. `cli::cli_abort()`).
