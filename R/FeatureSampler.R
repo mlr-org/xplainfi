@@ -92,11 +92,11 @@ FeatureSampler = R6Class(
 		# and asserting correctness. Only modifies data when necessary.
 		# mlr3 feature types correspond to R's class(), not typeof()
 		.ensure_feature_types = function(data) {
-			feature_types <- self$task$feature_types
+			feature_types = self$task$feature_types
 
 			for (feat in self$task$feature_names) {
-				expected_type <- feature_types[id == feat, type]
-				actual_class <- class(data[[feat]])[1]
+				expected_type = feature_types[id == feat, type]
+				actual_class = class(data[[feat]])[1]
 
 				if (expected_type == actual_class) {
 					next

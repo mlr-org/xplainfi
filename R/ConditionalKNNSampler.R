@@ -96,7 +96,13 @@ ConditionalKNNSampler = R6Class(
 		#'   See [FeatureSampler]`$sample()` for output shape and ordering.
 		#' @param k (`integer(1)` | `NULL`) Number of neighbors. If `NULL`, uses stored parameter.
 		#' @return Modified copy with sampled feature(s).
-		sample = function(feature, row_ids = NULL, conditioning_set = NULL, samples_per_row = 1L, k = NULL) {
+		sample = function(
+			feature,
+			row_ids = NULL,
+			conditioning_set = NULL,
+			samples_per_row = 1L,
+			k = NULL
+		) {
 			super$sample(feature, row_ids, conditioning_set, samples_per_row = samples_per_row, k = k)
 		},
 
@@ -110,14 +116,33 @@ ConditionalKNNSampler = R6Class(
 		#'   See [FeatureSampler]`$sample()` for output shape and ordering.
 		#' @param k (`integer(1)` | `NULL`) Number of neighbors. If `NULL`, uses stored parameter.
 		#' @return Modified copy with sampled feature(s).
-		sample_newdata = function(feature, newdata, conditioning_set = NULL, samples_per_row = 1L, k = NULL) {
-			super$sample_newdata(feature, newdata, conditioning_set, samples_per_row = samples_per_row, k = k)
+		sample_newdata = function(
+			feature,
+			newdata,
+			conditioning_set = NULL,
+			samples_per_row = 1L,
+			k = NULL
+		) {
+			super$sample_newdata(
+				feature,
+				newdata,
+				conditioning_set,
+				samples_per_row = samples_per_row,
+				k = k
+			)
 		}
 	),
 
 	private = list(
 		# Core kNN sampling logic implementing k-nearest neighbors conditional sampling
-		.sample_conditional = function(data, feature, conditioning_set, samples_per_row = 1L, k = NULL, ...) {
+		.sample_conditional = function(
+			data,
+			feature,
+			conditioning_set,
+			samples_per_row = 1L,
+			k = NULL,
+			...
+		) {
 			k = resolve_param(k, self$param_set$values$k, 5L)
 			training_data = self$task$data(cols = self$task$feature_names)
 
@@ -133,7 +158,9 @@ ConditionalKNNSampler = R6Class(
 
 			cond_types = self$task$feature_types[id %in% conditioning_set, type]
 			use_gower = !all(cond_types %in% c("numeric", "integer"))
-			if (use_gower) require_package("gower")
+			if (use_gower) {
+				require_package("gower")
+			}
 
 			query_cond_dt = data[, .SD, .SDcols = conditioning_set]
 			train_cond_dt = training_data[, .SD, .SDcols = conditioning_set]
@@ -146,8 +173,16 @@ ConditionalKNNSampler = R6Class(
 					means = colMeans(train_cond[, numeric_cols, drop = FALSE])
 					sds = apply(train_cond[, numeric_cols, drop = FALSE], 2, stats::sd)
 					sds[sds == 0] = 1
-					query_cond[, numeric_cols] = scale(query_cond[, numeric_cols, drop = FALSE], center = means, scale = sds)
-					train_cond[, numeric_cols] = scale(train_cond[, numeric_cols, drop = FALSE], center = means, scale = sds)
+					query_cond[, numeric_cols] = scale(
+						query_cond[, numeric_cols, drop = FALSE],
+						center = means,
+						scale = sds
+					)
+					train_cond[, numeric_cols] = scale(
+						train_cond[, numeric_cols, drop = FALSE],
+						center = means,
+						scale = sds
+					)
 				}
 			}
 

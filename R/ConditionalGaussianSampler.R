@@ -113,7 +113,9 @@ ConditionalGaussianSampler = R6Class(
 				residuals_mat[, j] = fit$residuals
 			}
 			cond_cov = stats::cov(residuals_mat)
-			if (n_features == 1) cond_cov = matrix(cond_cov, 1, 1)
+			if (n_features == 1) {
+				cond_cov = matrix(cond_cov, 1, 1)
+			}
 
 			X_new = as.matrix(data[, .SD, .SDcols = conditioning_set])
 			X_new = cbind(1, X_new)

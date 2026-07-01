@@ -323,12 +323,12 @@ PerturbationImportance = R6Class(
 			if (has_obs_loss(self$measure)) {
 				grouping_vars = c("feature", "iter_rsmp", "iter_repeat")
 
-				obs_loss_all <- all_preds[,
+				obs_loss_all = all_preds[,
 					{
-						pred <- prediction[[1]]
+						pred = prediction[[1]]
 
 						# Get only vector of obs losses, Prediction$obs_loss() returns full table
-						obs_loss_vals <- pred$obs_loss(measures = self$measure)[[self$measure$id]]
+						obs_loss_vals = pred$obs_loss(measures = self$measure)[[self$measure$id]]
 
 						list(
 							row_ids = pred$row_ids,

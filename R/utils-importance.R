@@ -29,7 +29,7 @@ adjust_ci_alpha = function(alpha, p_adjust, k) {
 #' @return dt (modified in place) with adjusted p-values
 #' @noRd
 adjust_pvalues = function(dt, p_adjust) {
-	p.value <- NULL
+	p.value = NULL
 	if (p_adjust != "none" && "p.value" %in% names(dt)) {
 		dt[, p.value := stats::p.adjust(p.value, method = p_adjust)]
 	}
@@ -66,7 +66,7 @@ check_single_resampling_iter = function(resampling) {
 #' @param obs_loss_data data.table with columns row_ids, iter_rsmp
 #' @noRd
 check_unique_test_obs = function(obs_loss_data) {
-	N <- row_ids <- iter_rsmp <- NULL
+	N = row_ids = iter_rsmp = NULL
 	obs_per_rsmp = unique(obs_loss_data[, list(row_ids, iter_rsmp)])
 	dupes = obs_per_rsmp[, .N, by = "row_ids"][N > 1]
 
@@ -86,7 +86,7 @@ check_unique_test_obs = function(obs_loss_data) {
 #' @noRd
 importance_none = function(scores, aggregator, conf_level) {
 	# The data.table NSE tax
-	importance <- NULL
+	importance = NULL
 
 	agg_importance = scores[,
 		list(importance = aggregator(importance)),
@@ -108,7 +108,7 @@ importance_none = function(scores, aggregator, conf_level) {
 #' @noRd
 importance_raw = function(scores, aggregator, conf_level, alternative, n_iters, p_adjust = "none") {
 	# The data.table NSE tax
-	importance <- se <- statistic <- p.value <- NULL
+	importance = se = statistic = p.value = NULL
 	agg_importance = scores[,
 		list(importance = aggregator(importance)),
 		by = "feature"
@@ -175,7 +175,7 @@ importance_nadeau_bengio = function(
 	p_adjust = "none"
 ) {
 	# The data.table NSE tax
-	importance <- se <- statistic <- p.value <- NULL
+	importance = se = statistic = p.value = NULL
 
 	# Validate resampling type
 	if (!(resampling$id %in% c("bootstrap", "subsampling")) | resampling$iters < 10) {
@@ -259,7 +259,7 @@ importance_nadeau_bengio = function(
 #' @noRd
 importance_quantile = function(scores, aggregator, conf_level, alternative) {
 	# The data.table NSE tax
-	importance <- feature <- NULL
+	importance = feature = NULL
 
 	# Aggregate within resamplings first to get one value per resampling iteration
 	means_rsmp = scores[,
@@ -324,7 +324,7 @@ test_obs_importance = function(
 	aggregator = mean
 ) {
 	# The data.table NSE tax
-	obs_importance <- feature <- NULL
+	obs_importance = feature = NULL
 
 	test_function = switch(
 		test,
@@ -430,7 +430,7 @@ importance_cpi = function(
 	method_obj
 ) {
 	# The data.table NSE tax
-	N <- obs_importance <- feature <- NULL
+	N = obs_importance = feature = NULL
 
 	alternative = match.arg(alternative)
 
@@ -494,7 +494,7 @@ importance_loco = function(
 	method_obj
 ) {
 	# The data.table NSE tax
-	N <- obs_importance <- feature <- NULL
+	N = obs_importance = feature = NULL
 
 	alternative = match.arg(alternative)
 

@@ -181,9 +181,9 @@ test_that("ConditionalKNNSampler obeys draw-major order under samples_per_row > 
 	set.seed(123L)
 	n = 20L
 	dt = data.table::data.table(
-		y   = rnorm(n),
-		x1  = rnorm(n),
-		x2  = rnorm(n),
+		y = rnorm(n),
+		x1 = rnorm(n),
+		x2 = rnorm(n),
 		tag = seq_len(n) + 0.5
 	)
 	task = mlr3::as_task_regr(dt, target = "y")
@@ -203,9 +203,9 @@ test_that("ConditionalKNNSampler Gower branch obeys draw-major order (samples_pe
 	set.seed(503L)
 	n = 20L
 	dt = data.table::data.table(
-		y   = rnorm(n),
-		x1  = rnorm(n),
-		g   = factor(sample(c("a", "b", "c"), n, replace = TRUE)),
+		y = rnorm(n),
+		x1 = rnorm(n),
+		g = factor(sample(c("a", "b", "c"), n, replace = TRUE)),
 		tag = seq_len(n) + 0.5
 	)
 	task = mlr3::as_task_regr(dt, target = "y")
@@ -225,9 +225,9 @@ test_that("ConditionalKNNSampler marginal-fallback branch obeys draw-major order
 	set.seed(617L)
 	n = 20L
 	dt = data.table::data.table(
-		y   = rnorm(n),
-		x1  = rnorm(n),
-		x2  = rnorm(n),
+		y = rnorm(n),
+		x1 = rnorm(n),
+		x2 = rnorm(n),
 		tag = seq_len(n) + 0.5
 	)
 	task = mlr3::as_task_regr(dt, target = "y")

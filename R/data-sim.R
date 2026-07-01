@@ -26,17 +26,17 @@
 #' @examples
 #' sim_dgp_ewald(100)
 #'
-sim_dgp_ewald <- function(n = 500) {
-	x1 <- runif(n)
-	x3 <- runif(n)
-	x5 <- runif(n)
+sim_dgp_ewald = function(n = 500) {
+	x1 = runif(n)
+	x3 = runif(n)
+	x5 = runif(n)
 
-	x2 <- x1 + rnorm(n, 0, sd = 0.001)
-	x4 <- x3 + rnorm(n, 0, sd = 0.1)
+	x2 = x1 + rnorm(n, 0, sd = 0.001)
+	x4 = x3 + rnorm(n, 0, sd = 0.1)
 
-	y <- x4 + x5 + x4 * x5 + rnorm(n, 0, sd = 0.1)
+	y = x4 + x5 + x4 * x5 + rnorm(n, 0, sd = 0.1)
 
-	xdf <- data.table::data.table(
+	xdf = data.table::data.table(
 		y,
 		x1,
 		x2,
@@ -97,19 +97,19 @@ NULL
 #' # With different correlation
 #' task_high_cor = sim_dgp_correlated(200, r = 0.95)
 #' cor(task_high_cor$data()$x1, task_high_cor$data()$x2)
-sim_dgp_correlated <- function(n = 500L, r = 0.9) {
+sim_dgp_correlated = function(n = 500L, r = 0.9) {
 	# Generate x1 (causal) and x2 (spurious) with fixed correlation
-	x12 <- mvtnorm::rmvnorm(n, sigma = stats::toeplitz(r^(0:1)))
-	x1 <- x12[, 1]
+	x12 = mvtnorm::rmvnorm(n, sigma = stats::toeplitz(r^(0:1)))
+	x1 = x12[, 1]
 	# Spurious feature: correlated with x1 but no causal effect
-	x2 <- x12[, 2]
+	x2 = x12[, 2]
 
 	# Independent features
-	x3 <- rnorm(n) # Has causal effect
-	x4 <- rnorm(n) # No causal effect (noise)
+	x3 = rnorm(n) # Has causal effect
+	x4 = rnorm(n) # No causal effect (noise)
 
 	# Outcome depends only on x1 and x3 (x2 has NO causal effect despite correlation)
-	y <- 2 * x1 + x3 + rnorm(n, 0, 0.2)
+	y = 2 * x1 + x3 + rnorm(n, 0, 0.2)
 
 	data.table::data.table(
 		y = y,
@@ -147,21 +147,21 @@ sim_dgp_correlated <- function(n = 500L, r = 0.9) {
 #' @examples
 #' task = sim_dgp_mediated(200)
 #' task$data()
-sim_dgp_mediated <- function(n = 500L) {
+sim_dgp_mediated = function(n = 500L) {
 	# Initial exposure variable
-	exposure <- rnorm(n)
+	exposure = rnorm(n)
 
 	# Direct predictor that affects both mediator and outcome
-	direct <- rnorm(n)
+	direct = rnorm(n)
 
 	# Mediator affected by both exposure and direct
-	mediator <- 0.8 * exposure + 0.6 * direct + rnorm(n, 0, 0.3)
+	mediator = 0.8 * exposure + 0.6 * direct + rnorm(n, 0, 0.3)
 
 	# Noise variable
-	noise <- rnorm(n)
+	noise = rnorm(n)
 
 	# Outcome depends on mediator and direct effect, but NOT directly on exposure
-	y <- 1.5 * mediator + 0.5 * direct + rnorm(n, 0, 0.2)
+	y = 1.5 * mediator + 0.5 * direct + rnorm(n, 0, 0.2)
 
 	data.table::data.table(
 		y = y,
@@ -214,42 +214,42 @@ sim_dgp_mediated <- function(n = 500L) {
 #' # Observable confounder scenario
 #' task_observed = sim_dgp_confounded(200, hidden = FALSE)
 #' task_observed$feature_names  # both confounder and proxy available
-sim_dgp_confounded <- function(n = 500L, hidden = TRUE) {
+sim_dgp_confounded = function(n = 500L, hidden = TRUE) {
 	# Confounder
-	confounder <- rnorm(n)
+	confounder = rnorm(n)
 
 	# Feature affected by confounder
-	x1 <- confounder + rnorm(n, 0, 0.5)
+	x1 = confounder + rnorm(n, 0, 0.5)
 
 	# Proxy measurement of confounder (observable but noisy)
-	proxy <- confounder + rnorm(n, 0, 0.5)
+	proxy = confounder + rnorm(n, 0, 0.5)
 
 	# Independent feature unaffected by confounder
-	independent <- rnorm(n)
+	independent = rnorm(n)
 
 	# Outcome affected by confounder, x1, and independent feature
-	y <- confounder + x1 + independent + rnorm(n, 0, 0.5)
+	y = confounder + x1 + independent + rnorm(n, 0, 0.5)
 
 	# Create data.table conditionally including the confounder
 	if (hidden) {
 		# Traditional scenario: confounder is hidden, only proxy available
-		dt <- data.table::data.table(
+		dt = data.table::data.table(
 			y = y,
 			x1 = x1,
 			proxy = proxy,
 			independent = independent
 		)
-		task_id <- paste0("confounded_hidden_", n)
+		task_id = paste0("confounded_hidden_", n)
 	} else {
 		# Observable confounder scenario: both confounder and proxy available
-		dt <- data.table::data.table(
+		dt = data.table::data.table(
 			y = y,
 			x1 = x1,
 			confounder = confounder,
 			proxy = proxy,
 			independent = independent
 		)
-		task_id <- paste0("confounded_observed_", n)
+		task_id = paste0("confounded_observed_", n)
 	}
 
 	mlr3::TaskRegr$new(dt, target = "y", id = task_id)
@@ -277,20 +277,20 @@ sim_dgp_confounded <- function(n = 500L, hidden = TRUE) {
 #' @examples
 #' task = sim_dgp_interactions(200)
 #' task$data()
-sim_dgp_interactions <- function(n = 500L) {
+sim_dgp_interactions = function(n = 500L) {
 	# Independent features for interaction
-	x1 <- rnorm(n)
-	x2 <- rnorm(n)
+	x1 = rnorm(n)
+	x2 = rnorm(n)
 
 	# Independent feature with main effect
-	x3 <- rnorm(n)
+	x3 = rnorm(n)
 
 	# Noise features
-	noise1 <- rnorm(n)
-	noise2 <- rnorm(n)
+	noise1 = rnorm(n)
+	noise2 = rnorm(n)
 
 	# Outcome with ONLY interaction between x1 and x2 (no main effects), plus main effect of x3
-	y <- 2 * x1 * x2 + x3 + rnorm(n, 0, 0.5)
+	y = 2 * x1 * x2 + x3 + rnorm(n, 0, 0.5)
 
 	data.table::data.table(
 		y = y,
@@ -327,18 +327,18 @@ sim_dgp_interactions <- function(n = 500L) {
 #' @examples
 #' task = sim_dgp_independent(200)
 #' task$data()
-sim_dgp_independent <- function(n = 500L) {
+sim_dgp_independent = function(n = 500L) {
 	# Independent important features with different effect sizes
-	important1 <- rnorm(n)
-	important2 <- rnorm(n)
-	important3 <- rnorm(n)
+	important1 = rnorm(n)
+	important2 = rnorm(n)
+	important3 = rnorm(n)
 
 	# Independent unimportant features
-	unimportant1 <- rnorm(n)
-	unimportant2 <- rnorm(n)
+	unimportant1 = rnorm(n)
+	unimportant2 = rnorm(n)
 
 	# Additive linear outcome
-	y <- 2.0 * important1 + 1.0 * important2 + 0.5 * important3 + rnorm(n, 0, 0.2)
+	y = 2.0 * important1 + 1.0 * important2 + 0.5 * important3 + rnorm(n, 0, 0.2)
 
 	data.table::data.table(
 		y = y,

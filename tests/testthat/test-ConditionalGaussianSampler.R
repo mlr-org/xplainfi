@@ -112,9 +112,9 @@ test_that("ConditionalGaussianSampler obeys draw-major order under samples_per_r
 	set.seed(123L)
 	n = 20L
 	dt = data.table::data.table(
-		y   = rnorm(n),
-		x1  = rnorm(n),
-		x2  = rnorm(n),
+		y = rnorm(n),
+		x1 = rnorm(n),
+		x2 = rnorm(n),
 		tag = seq_len(n) + 0.5
 	)
 	task = mlr3::as_task_regr(dt, target = "y")

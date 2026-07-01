@@ -222,9 +222,9 @@ ConditionalARFSampler = R6Class(
 			verbose = NULL,
 			parallel = NULL
 		) {
-			round    = resolve_param(round,    self$param_set$values$round,    TRUE)
+			round = resolve_param(round, self$param_set$values$round, TRUE)
 			stepsize = resolve_param(stepsize, self$param_set$values$stepsize, 0)
-			verbose  = resolve_param(verbose,  self$param_set$values$verbose,  FALSE)
+			verbose = resolve_param(verbose, self$param_set$values$verbose, FALSE)
 			parallel = resolve_param(parallel, self$param_set$values$parallel, FALSE)
 
 			if (parallel && (!foreach::getDoParRegistered() || foreach::getDoParName() == "doSEQ")) {

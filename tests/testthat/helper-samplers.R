@@ -437,12 +437,18 @@ expect_draw_major_row_order = function(
 	out = sampler$sample(feature, row_ids = row_ids, samples_per_row = samples_per_row)
 
 	n = length(row_ids)
-	testthat::expect_equal(nrow(out), n * samples_per_row,
-		info = sprintf("sampler: %s", class(sampler)[[1L]]))
+	testthat::expect_equal(
+		nrow(out),
+		n * samples_per_row,
+		info = sprintf("sampler: %s", class(sampler)[[1L]])
+	)
 
 	expected_tag = rep(task$data(rows = row_ids)[[tag_column]], times = samples_per_row)
-	testthat::expect_identical(out[[tag_column]], expected_tag,
-		info = sprintf("draw-major tag order, sampler: %s", class(sampler)[[1L]]))
+	testthat::expect_identical(
+		out[[tag_column]],
+		expected_tag,
+		info = sprintf("draw-major tag order, sampler: %s", class(sampler)[[1L]])
+	)
 
 	invisible(out)
 }

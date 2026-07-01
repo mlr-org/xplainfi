@@ -176,9 +176,9 @@ test_that("ConditionalARFSampler obeys draw-major order under samples_per_row > 
 	set.seed(123L)
 	n = 20L
 	dt = data.table::data.table(
-		y   = rnorm(n),
-		x1  = rnorm(n),
-		x2  = rnorm(n),
+		y = rnorm(n),
+		x1 = rnorm(n),
+		x2 = rnorm(n),
 		tag = seq_len(n) + 0.5
 	)
 	task = mlr3::as_task_regr(dt, target = "y")
@@ -200,14 +200,14 @@ test_that("ConditionalARFSampler calls arf::forge with n_synth > 1, not duplicat
 	sampler = ConditionalARFSampler$new(task, conditioning_set = "x2", verbose = FALSE)
 
 	forge_calls = list()
-	real_forge = arf::forge  # capture before mocking to avoid recursion
+	real_forge = arf::forge # capture before mocking to avoid recursion
 	recorder = function(...) {
 		args = list(...)
 		forge_calls[[length(forge_calls) + 1L]] <<- list(
 			n_synth = args$n_synth,
 			nrow_evidence = if (is.null(args$evidence)) 0L else nrow(args$evidence)
 		)
-		real_forge(...)  # delegate to real implementation
+		real_forge(...) # delegate to real implementation
 	}
 
 	testthat::with_mocked_bindings(

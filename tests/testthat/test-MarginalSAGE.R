@@ -306,14 +306,18 @@ test_that("coalition-loss direct measure$fun path matches per-coalition $score()
 		# copy(): the method keys avg_preds by reference
 		fast = priv$.calculate_coalition_losses(copy(avg_preds), n_test, test_dt)
 
-		slow = vapply(seq_len(n_coal), function(i) {
-			cd = avg_preds[.coalition_id == i][order(.test_instance_id)]
-			PredictionRegr$new(
-				row_ids = seq_len(n_test),
-				truth = truth,
-				response = cd$avg_pred
-			)$score(msr(meas_id))
-		}, numeric(1))
+		slow = vapply(
+			seq_len(n_coal),
+			function(i) {
+				cd = avg_preds[.coalition_id == i][order(.test_instance_id)]
+				PredictionRegr$new(
+					row_ids = seq_len(n_test),
+					truth = truth,
+					response = cd$avg_pred
+				)$score(msr(meas_id))
+			},
+			numeric(1)
+		)
 
 		expect_equal(fast, slow, info = meas_id)
 	}
@@ -336,20 +340,26 @@ test_that("coalition-loss direct measure$fun path matches per-coalition $score()
 	avg_preds = CJ(.coalition_id = seq_len(n_coal), .test_instance_id = seq_len(n_test))
 	pm = matrix(runif(nrow(avg_preds) * length(classes)), ncol = length(classes))
 	pm = pm / rowSums(pm)
-	for (j in seq_along(classes)) avg_preds[, (classes[j]) := pm[, j]]
+	for (j in seq_along(classes)) {
+		avg_preds[, (classes[j]) := pm[, j]]
+	}
 
 	sage = MarginalSAGE$new(task, learner, measure = msr("classif.logloss"), n_permutations = 2L)
 	priv = sage$.__enclos_env__$private
 	fast = priv$.calculate_coalition_losses(copy(avg_preds), n_test, test_dt)
 
-	slow = vapply(seq_len(n_coal), function(i) {
-		cd = avg_preds[.coalition_id == i][order(.test_instance_id)]
-		PredictionClassif$new(
-			row_ids = seq_len(n_test),
-			truth = truth,
-			prob = as.matrix(cd[, .SD, .SDcols = classes])
-		)$score(msr("classif.logloss"))
-	}, numeric(1))
+	slow = vapply(
+		seq_len(n_coal),
+		function(i) {
+			cd = avg_preds[.coalition_id == i][order(.test_instance_id)]
+			PredictionClassif$new(
+				row_ids = seq_len(n_test),
+				truth = truth,
+				prob = as.matrix(cd[, .SD, .SDcols = classes])
+			)$score(msr("classif.logloss"))
+		},
+		numeric(1)
+	)
 
 	expect_equal(fast, slow)
 })

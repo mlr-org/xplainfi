@@ -1,5 +1,5 @@
 test_that("xplain_opt() returns all options when called without arguments", {
-	result <- xplain_opt()
+	result = xplain_opt()
 	expect_type(result, "list")
 	expect_true(all(c("verbose", "progress") %in% names(result)))
 })
@@ -17,7 +17,7 @@ test_that("xplain_opt() gets single option value", {
 })
 
 test_that("xplain_opt() gets multiple option values", {
-	result <- xplain_opt("verbose", "progress")
+	result = xplain_opt("verbose", "progress")
 	expect_type(result, "list")
 	expect_length(result, 2)
 	expect_named(result, c("verbose", "progress"))
@@ -25,10 +25,10 @@ test_that("xplain_opt() gets multiple option values", {
 
 test_that("xplain_opt() sets options and returns old values", {
 	# Store current values
-	old_verbose <- xplain_opt("verbose")
+	old_verbose = xplain_opt("verbose")
 
 	# Set new value
-	returned <- xplain_opt(verbose = FALSE)
+	returned = xplain_opt(verbose = FALSE)
 	expect_type(returned, "list")
 	expect_length(returned, 1)
 	expect_equal(returned$verbose, old_verbose)
@@ -43,7 +43,7 @@ test_that("xplain_opt() sets options and returns old values", {
 
 test_that("xplain_opt() sets multiple options", {
 	# Store current values
-	old <- xplain_opt()
+	old = xplain_opt()
 
 	# Set multiple
 	xplain_opt(verbose = FALSE, progress = TRUE)
@@ -57,7 +57,7 @@ test_that("xplain_opt() sets multiple options", {
 
 test_that("R option takes precedence over environment variable", {
 	# Store current
-	old_verbose <- xplain_opt("verbose")
+	old_verbose = xplain_opt("verbose")
 
 	# Set env to TRUE, option to FALSE
 	Sys.setenv("XPLAIN_VERBOSE" = "TRUE")
@@ -78,7 +78,7 @@ test_that("R option takes precedence over environment variable", {
 
 test_that("environment variable is used when R option is not set", {
 	# Store current
-	old_verbose <- xplain_opt("verbose")
+	old_verbose = xplain_opt("verbose")
 
 	# Clear R option, set env
 	options("xplain.verbose" = NULL)

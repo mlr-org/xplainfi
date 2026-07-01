@@ -97,7 +97,9 @@ KnockoffSampler = R6Class(
 			samples_per_row = 1L
 		) {
 			checkmate::assert_count(samples_per_row, positive = TRUE)
-			if (is.null(row_ids)) row_ids = self$task$row_ids
+			if (is.null(row_ids)) {
+				row_ids = self$task$row_ids
+			}
 			iters = self$param_set$values$iters
 
 			replace = samples_per_row > iters

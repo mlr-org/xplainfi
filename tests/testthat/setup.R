@@ -5,13 +5,13 @@ library(mlr3)
 
 # Get current log threshold
 logger = lgr::get_logger("mlr3")
-old_threshold <- logger$threshold
+old_threshold = logger$threshold
 
 # Reduce to warnings only for tests
 logger$set_threshold("warn")
 
 # Suppress xplainfi messages and progress during tests
-old_opts <- xplain_opt(verbose = FALSE, progress = FALSE)
+old_opts = xplain_opt(verbose = FALSE, progress = FALSE)
 
 # Restore after tests
 withr::defer(

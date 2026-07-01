@@ -76,8 +76,8 @@ test_that("MarginalPermutationSampler obeys draw-major order under samples_per_r
 	set.seed(123L)
 	n = 10L
 	dt = data.table::data.table(
-		y   = rnorm(n),
-		x   = rnorm(n),
+		y = rnorm(n),
+		x = rnorm(n),
 		tag = seq_len(n) + 0.5
 	)
 	task = mlr3::as_task_regr(dt, target = "y")

@@ -58,7 +58,13 @@ ConditionalSampler = R6Class(
 				)
 			}
 
-			private$.sample_conditional(data_copy, feature, conditioning_set, samples_per_row = samples_per_row, ...)
+			private$.sample_conditional(
+				data_copy,
+				feature,
+				conditioning_set,
+				samples_per_row = samples_per_row,
+				...
+			)
 		},
 
 		#' @description
@@ -70,7 +76,13 @@ ConditionalSampler = R6Class(
 		#'   See [FeatureSampler]`$sample()` for output shape and ordering.
 		#' @param ... Additional arguments passed to the sampler implementation.
 		#' @return Modified copy with sampled feature(s).
-		sample_newdata = function(feature, newdata, conditioning_set = NULL, samples_per_row = 1L, ...) {
+		sample_newdata = function(
+			feature,
+			newdata,
+			conditioning_set = NULL,
+			samples_per_row = 1L,
+			...
+		) {
 			checkmate::assert_count(samples_per_row, positive = TRUE)
 			# Create copy to avoid modifying original
 			if (inherits(newdata, "data.table")) {
@@ -96,7 +108,13 @@ ConditionalSampler = R6Class(
 				)
 			}
 
-			private$.sample_conditional(data_copy, feature, conditioning_set, samples_per_row = samples_per_row, ...)
+			private$.sample_conditional(
+				data_copy,
+				feature,
+				conditioning_set,
+				samples_per_row = samples_per_row,
+				...
+			)
 		}
 	),
 

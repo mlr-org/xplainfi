@@ -3,7 +3,7 @@
 #' @keywords internal
 #'
 #' @return logical(1)
-has_obs_loss <- function(x) {
+has_obs_loss = function(x) {
 	res = FALSE
 	if (inherits(x, "R6") && inherits(x, "Measure")) {
 		if (utils::packageVersion("mlr3") >= package_version("1.3.0")) {
@@ -87,7 +87,7 @@ assemble_rr = function(
 		# Clone learner: as_resample_result() clones internally but resets the model
 		# on the object it receives, which would wipe the user's original via R6 reference
 		# mlr3:::as_resample_result.list
-		rdata <- mlr3::as_result_data(
+		rdata = mlr3::as_result_data(
 			task = task,
 			learners = list(learner$clone()),
 			resampling = resampling,

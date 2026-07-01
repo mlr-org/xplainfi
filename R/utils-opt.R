@@ -54,9 +54,9 @@
 #' }
 #'
 #' @export
-xplain_opt <- function(...) {
+xplain_opt = function(...) {
 	# Define available options and their defaults
-	option_defaults <- list(
+	option_defaults = list(
 		verbose = TRUE,
 		progress = FALSE,
 		sequential = FALSE,
@@ -64,34 +64,34 @@ xplain_opt <- function(...) {
 		arf_workers = 2L
 	)
 
-	args <- list(...)
+	args = list(...)
 
 	# No arguments: return all options with current values
 	if (length(args) == 0) {
-		result <- lapply(names(option_defaults), function(opt) {
+		result = lapply(names(option_defaults), function(opt) {
 			get_option_value(opt, option_defaults[[opt]])
 		})
-		names(result) <- names(option_defaults)
+		names(result) = names(option_defaults)
 		return(result)
 	}
 
 	# Check if we're getting or setting
-	arg_names <- names(args)
+	arg_names = names(args)
 
 	if (is.null(arg_names) || all(arg_names == "")) {
 		# All unnamed arguments: getting values
 		# xplain_opt("verbose") or xplain_opt("verbose", "progress")
-		opts_to_get <- unlist(args)
+		opts_to_get = unlist(args)
 		checkmate::assert_character(opts_to_get, min.len = 1)
 		checkmate::assert_subset(opts_to_get, names(option_defaults))
 
 		if (length(opts_to_get) == 1) {
 			return(get_option_value(opts_to_get, option_defaults[[opts_to_get]]))
 		} else {
-			result <- lapply(opts_to_get, function(opt) {
+			result = lapply(opts_to_get, function(opt) {
 				get_option_value(opt, option_defaults[[opt]])
 			})
-			names(result) <- opts_to_get
+			names(result) = opts_to_get
 			return(result)
 		}
 	} else {
@@ -100,15 +100,15 @@ xplain_opt <- function(...) {
 		checkmate::assert_subset(arg_names, names(option_defaults))
 
 		# Store old values to return
-		old_values <- lapply(arg_names, function(opt) {
+		old_values = lapply(arg_names, function(opt) {
 			get_option_value(opt, option_defaults[[opt]])
 		})
-		names(old_values) <- arg_names
+		names(old_values) = arg_names
 
 		# Set new values
 		for (opt in arg_names) {
-			opt_list <- list(args[[opt]])
-			names(opt_list) <- paste0("xplain.", tolower(opt))
+			opt_list = list(args[[opt]])
+			names(opt_list) = paste0("xplain.", tolower(opt))
 			options(opt_list)
 		}
 
@@ -124,11 +124,11 @@ xplain_opt <- function(...) {
 #'
 #' @noRd
 #' @keywords internal
-get_option_value <- function(name, default) {
-	opt <- getOption(paste0("xplain.", tolower(name)), default = NA)
-	envvar <- Sys.getenv(toupper(paste0("xplain_", name)), unset = NA)
+get_option_value = function(name, default) {
+	opt = getOption(paste0("xplain.", tolower(name)), default = NA)
+	envvar = Sys.getenv(toupper(paste0("xplain_", name)), unset = NA)
 
-	coerce <- switch(
+	coerce = switch(
 		typeof(default),
 		logical = as.logical,
 		integer = function(x) suppressWarnings(as.integer(x)),
@@ -137,14 +137,14 @@ get_option_value <- function(name, default) {
 		identity
 	)
 
-	opt <- coerce(opt)
+	opt = coerce(opt)
 	if (length(opt) == 0L || is.na(opt)) {
-		opt <- NULL
+		opt = NULL
 	}
 
-	envvar <- coerce(envvar)
+	envvar = coerce(envvar)
 	if (length(envvar) == 0L || is.na(envvar)) {
-		envvar <- NULL
+		envvar = NULL
 	}
 
 	# R option > env var > default
