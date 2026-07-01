@@ -281,3 +281,75 @@ test_that("MarginalSAGE SE-based convergence detection", {
 	expect_false(is.null(sage$convergence_history))
 	expect_contains(colnames(sage$convergence_history), "se")
 })
+
+test_that("coalition-loss direct measure$fun path matches per-coalition $score() (regression)", {
+	# Guards the direct measure$fun path in .calculate_coalition_losses
+	# (used for obs_loss regression measures) against the canonical
+	# per-coalition Prediction + $score() path.
+	task = sim_dgp_independent(40)
+	# learner is irrelevant here: the private method under test only uses
+	# task + measure, so use the dependency-free featureless learner.
+	learner = lrn("regr.featureless")
+
+	n_test = 12L
+	n_coal = 5L
+	set.seed(606)
+	truth = rnorm(n_test)
+	test_dt = data.table(y = truth)
+	avg_preds = CJ(.coalition_id = seq_len(n_coal), .test_instance_id = seq_len(n_test))
+	avg_preds[, avg_pred := rnorm(.N)]
+
+	for (meas_id in c("regr.mse", "regr.mae")) {
+		sage = MarginalSAGE$new(task, learner, measure = msr(meas_id), n_permutations = 2L)
+		priv = sage$.__enclos_env__$private
+
+		# copy(): the method keys avg_preds by reference
+		fast = priv$.calculate_coalition_losses(copy(avg_preds), n_test, test_dt)
+
+		slow = vapply(seq_len(n_coal), function(i) {
+			cd = avg_preds[.coalition_id == i][order(.test_instance_id)]
+			PredictionRegr$new(
+				row_ids = seq_len(n_test),
+				truth = truth,
+				response = cd$avg_pred
+			)$score(msr(meas_id))
+		}, numeric(1))
+
+		expect_equal(fast, slow, info = meas_id)
+	}
+})
+
+test_that("coalition-loss direct measure$fun path matches per-coalition $score() (classif prob)", {
+	# classif.logloss is a prob obs_loss measure -> direct measure$fun path.
+	task = tgen("2dnormals")$generate(40)
+	learner = lrn("classif.featureless", predict_type = "prob")
+	classes = task$class_names
+
+	n_test = 12L
+	n_coal = 4L
+	set.seed(707)
+	truth = factor(sample(classes, n_test, replace = TRUE), levels = classes)
+	test_dt = data.table(class = truth)
+	setnames(test_dt, "class", task$target_names)
+
+	# synthetic averaged class probabilities per (coalition, test instance)
+	avg_preds = CJ(.coalition_id = seq_len(n_coal), .test_instance_id = seq_len(n_test))
+	pm = matrix(runif(nrow(avg_preds) * length(classes)), ncol = length(classes))
+	pm = pm / rowSums(pm)
+	for (j in seq_along(classes)) avg_preds[, (classes[j]) := pm[, j]]
+
+	sage = MarginalSAGE$new(task, learner, measure = msr("classif.logloss"), n_permutations = 2L)
+	priv = sage$.__enclos_env__$private
+	fast = priv$.calculate_coalition_losses(copy(avg_preds), n_test, test_dt)
+
+	slow = vapply(seq_len(n_coal), function(i) {
+		cd = avg_preds[.coalition_id == i][order(.test_instance_id)]
+		PredictionClassif$new(
+			row_ids = seq_len(n_test),
+			truth = truth,
+			prob = as.matrix(cd[, .SD, .SDcols = classes])
+		)$score(msr("classif.logloss"))
+	}, numeric(1))
+
+	expect_equal(fast, slow)
+})
