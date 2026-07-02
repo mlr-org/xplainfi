@@ -33,7 +33,7 @@ A key property of SAGE is that it provides a complete decomposition: the sum of 
 
 **Note on interpretation**: SAGE's theoretical properties and interpretation differ from perturbation-based methods. While PFI/CFI have clearer interpretations in terms of predictive performance, SAGE's results can be more challenging to interpret, particularly when using conditional sampling. The choice of conditional sampler can significantly affect results, and there is limited empirical guidance on best practices. This vignette focuses on demonstrating the methods rather than making strong interpretive claims.
 
-`xplainfi` provides two **estimators** for approximating SAGE values, selected with the `estimator` argument.
+`xplainfi` provides three **estimators** for computing SAGE values, selected with the `estimator` argument.
 This choice is orthogonal to the marginal-versus-conditional distinction above, so any combination is valid.
 
 **The permutation estimator** (`estimator = "permutation"`, the default) is what is referred to as the "permutation estimator" in other implementations.
@@ -43,7 +43,10 @@ The empty coalition will always be evaluated, resulting in a total number of eva
 
 **The kernel estimator** (`estimator = "kernel"`, also called Kernel SAGE) instead estimates all SAGE values jointly by fitting a weighted least-squares regression to the values of randomly sampled coalitions, using the Shapley kernel as the regression weights (Covert & Lee, 2021).
 Its sampling budget is set by `n_coalitions` rather than `n_permutations`.
-The two estimators approximate the same SAGE values but scale differently with the number of features; the [Choosing an estimator](#choosing-an-estimator) section below discusses when to prefer each.
+**The exact estimator** (`estimator = "exact"`) enumerates *all* `2^p` coalitions and computes the SAGE values in closed form, with no coalition-sampling error.
+It is only feasible for a small number of features (capped by `max_features`) and is mainly useful as a ground-truth reference for the two sampling estimators.
+
+The estimators approximate the same SAGE values but scale differently with the number of features; the [Choosing an estimator](#choosing-an-estimator) section below discusses when to prefer each.
 
 ## Demonstration with Correlated Features
 
@@ -407,6 +410,31 @@ As a rule of thumb:
 - As the feature count grows into the dozens, prefer **kernel**: it reaches a given accuracy with far fewer model evaluations.
 
 This matches the empirical results in Covert & Lee (2021) and the reference `sage` implementation, where the kernel estimator is noisier than permutation sampling for very few features but converges substantially faster once there are many features.
+
+### Exact SAGE for verification
+
+When the number of features is small, you can sidestep sampling entirely and compute the SAGE values *exactly* with `estimator = "exact"`, which enumerates all `2^p` coalitions:
+
+```{r estimator-exact}
+task_small = sim_dgp_correlated(n = 500) # four features
+resampling_s = rsmp("holdout")
+resampling_s$instantiate(task_small)
+
+sage_exact = MarginalSAGE$new(
+	task = task_small,
+	learner = lrn("regr.ranger", num.trees = 50),
+	measure = msr("regr.mse"),
+	resampling = resampling_s,
+	estimator = "exact",
+	n_samples = 50L
+)
+sage_exact$compute()
+sage_exact$importance()
+```
+
+This is guarded by `max_features` (default 12), since the number of coalitions grows as `2^p`.
+It carries no coalition-sampling error, so for `MarginalSAGE` it yields the exact SAGE values that the permutation and kernel estimators approximate -- which makes it a convenient ground-truth reference when validating or comparing estimators.
+(For `ConditionalSAGE` the value function is itself estimated by the sampler, so "exact" removes the coalition-sampling error but not the sampler's Monte Carlo error.)
 
 ## Comparison with PFI and CFI
 

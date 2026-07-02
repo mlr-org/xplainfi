@@ -84,9 +84,10 @@ sage_custom$compute()
   measure = NULL,
   resampling = NULL,
   features = NULL,
-  estimator = c("permutation", "kernel"),
+  estimator = c("permutation", "kernel", "exact"),
   n_permutations = NULL,
   n_coalitions = NULL,
+  max_features = 12L,
   sampler = NULL,
   batch_size = 5000L,
   n_samples = 100L,
@@ -100,7 +101,7 @@ sage_custom$compute()
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{task, learner, measure, resampling, features, estimator, n_permutations, n_coalitions, batch_size, n_samples, early_stopping, se_threshold, min_permutations, check_interval}}{Passed to \link{SAGE}.}
+      \item{\code{task, learner, measure, resampling, features, estimator, n_permutations, n_coalitions, max_features, batch_size, n_samples, early_stopping, se_threshold, min_permutations, check_interval}}{Passed to \link{SAGE}.}
       \item{\code{sampler}}{(\link{ConditionalSampler}) Optional custom sampler. Defaults to \link{ConditionalARFSampler}.}
     }
     \if{html}{\out{</div>}}

@@ -45,11 +45,13 @@ In \emph{Proceedings of the 24th International Conference on Artificial Intellig
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}
   \describe{
-    \item{\code{estimator}}{(\code{character(1)}) Shapley-value estimator, either \code{"permutation"} or \code{"kernel"}.}
+    \item{\code{estimator}}{(\code{character(1)}) Shapley-value estimator, one of \code{"permutation"}, \code{"kernel"}, or \code{"exact"}.}
 
     \item{\code{n_permutations}}{(\code{integer(1)} | \code{NULL}) Number of permutations to sample (permutation estimator).}
 
     \item{\code{n_coalitions}}{(\code{integer(1)} | \code{NULL}) Number of coalitions to sample (kernel estimator).}
+
+    \item{\code{max_features}}{(\code{integer(1)} | \code{NULL}) Feature-count cap for the exact estimator.}
 
     \item{\code{convergence_history}}{(\code{\link[data.table:data.table]{data.table}}) History of SAGE values during computation.}
 
@@ -90,9 +92,10 @@ In \emph{Proceedings of the 24th International Conference on Artificial Intellig
   measure = NULL,
   resampling = NULL,
   features = NULL,
-  estimator = c("permutation", "kernel"),
+  estimator = c("permutation", "kernel", "exact"),
   n_permutations = NULL,
   n_coalitions = NULL,
+  max_features = 12L,
   batch_size = 5000L,
   n_samples = 100L,
   early_stopping = TRUE,
@@ -108,10 +111,15 @@ In \emph{Proceedings of the 24th International Conference on Artificial Intellig
       \item{\code{task, learner, measure, resampling, features}}{Passed to FeatureImportanceMethod.}
       \item{\code{estimator}}{(\code{character(1)}: \code{"permutation"}) Shapley-value estimator.
 \code{"permutation"} uses the permutation-sampling estimator (Covert et al., 2020);
-\code{"kernel"} uses the regression-based kernel estimator (Kernel SAGE, Covert & Lee, 2021).
-The two estimators approximate the same SAGE values but take different budget arguments:
-\code{"permutation"} uses \code{n_permutations}, \code{"kernel"} uses \code{n_coalitions}.
-Setting the budget argument of the other estimator is an error.}
+\code{"kernel"} uses the regression-based kernel estimator (Kernel SAGE, Covert & Lee, 2021);
+\code{"exact"} enumerates all \code{2^n_features} coalitions and computes the exact Shapley values.
+The three estimators approximate the same SAGE values but take different budget arguments:
+\code{"permutation"} uses \code{n_permutations}, \code{"kernel"} uses \code{n_coalitions}, and \code{"exact"} takes no budget.
+Setting the budget argument of a different estimator is an error.
+The exact estimator has no coalition-sampling error, so it is primarily useful as a ground-truth
+reference for verifying the sampling estimators on small feature sets.
+Note that it is exact only with respect to coalition sampling: for \link{ConditionalSAGE} the value
+function itself is still a Monte Carlo estimate (the sampler redraws per coalition).}
       \item{\code{n_permutations}}{(\code{integer(1)}: \code{10L}) Number of permutations to sample for SAGE value estimation.
 Only valid for \code{estimator = "permutation"}.
 The total number of evaluated coalitions is \code{1 (empty) + n_permutations * n_features}.}
@@ -119,6 +127,10 @@ The total number of evaluated coalitions is \code{1 (empty) + n_permutations * n
 Only valid for \code{estimator = "kernel"}.
 With paired sampling each draw evaluates a coalition and its complement, so the number of
 evaluated coalitions is \code{2 (anchors) + 2 * n_coalitions}.}
+      \item{\code{max_features}}{(\code{integer(1)}: \code{12L}) Feature-count cap for \code{estimator = "exact"}.
+The exact estimator evaluates \code{2^n_features} coalitions, so it aborts when the number of
+features exceeds this cap. Increase it to override, keeping the combinatorial cost in mind.
+Ignored by the other estimators.}
       \item{\code{batch_size}}{(\code{integer(1)}: \code{5000L}) Maximum number of observations to process in a single prediction call.}
       \item{\code{n_samples}}{(\code{integer(1)}: \code{100L}) Number of samples to use for marginalizing out-of-coalition features.
 For \link{MarginalSAGE}, this is the number of marginal data samples ("background data" in other implementations).
