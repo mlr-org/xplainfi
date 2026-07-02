@@ -47,51 +47,51 @@
 #'
 #' @export
 MarginalReferenceSampler = R6Class(
-	"MarginalReferenceSampler",
-	inherit = MarginalSampler,
-	public = list(
-		#' @field reference_data ([`data.table`][data.table::data.table])
-		#'   Reference data to sample from for marginalization.
-		reference_data = NULL,
+  "MarginalReferenceSampler",
+  inherit = MarginalSampler,
+  public = list(
+    #' @field reference_data ([`data.table`][data.table::data.table])
+    #'   Reference data to sample from for marginalization.
+    reference_data = NULL,
 
-		#' @description
-		#' Creates a new instance of the MarginalReferenceSampler class.
-		#' @param task ([mlr3::Task]) Task to sample from.
-		#' @param n_samples (`integer(1)` | `NULL`) Number of reference samples to use.
-		#'   If `NULL`, uses all task data as reference.
-		initialize = function(task, n_samples = NULL) {
-			super$initialize(task)
+    #' @description
+    #' Creates a new instance of the MarginalReferenceSampler class.
+    #' @param task ([mlr3::Task]) Task to sample from.
+    #' @param n_samples (`integer(1)` | `NULL`) Number of reference samples to use.
+    #'   If `NULL`, uses all task data as reference.
+    initialize = function(task, n_samples = NULL) {
+      super$initialize(task)
 
-			if (is.null(n_samples)) {
-				# Use all task data as reference
-				self$reference_data = task$data(cols = task$feature_names)
-			} else {
-				# Subsample n_samples rows from task
-				n_ref = min(n_samples, task$nrow)
-				ref_indices = sample(task$nrow, n_ref)
-				self$reference_data = task$data(rows = ref_indices, cols = task$feature_names)
-			}
+      if (is.null(n_samples)) {
+        # Use all task data as reference
+        self$reference_data = task$data(cols = task$feature_names)
+      } else {
+        # Subsample n_samples rows from task
+        n_ref = min(n_samples, task$nrow)
+        ref_indices = sample(task$nrow, n_ref)
+        self$reference_data = task$data(rows = ref_indices, cols = task$feature_names)
+      }
 
-			self$label = "Marginal reference sampler"
-		}
-	),
+      self$label = "Marginal reference sampler"
+    }
+  ),
 
-	private = list(
-		# Implement marginal sampling via reference row sampling
-		.sample_marginal = function(data, feature, samples_per_row = 1L) {
-			n = nrow(data)
-			total = n * samples_per_row
+  private = list(
+    # Implement marginal sampling via reference row sampling
+    .sample_marginal = function(data, feature, samples_per_row = 1L) {
+      n = nrow(data)
+      total = n * samples_per_row
 
-			sampled_indices = sample.int(
-				nrow(self$reference_data),
-				total,
-				replace = TRUE
-			)
+      sampled_indices = sample.int(
+        nrow(self$reference_data),
+        total,
+        replace = TRUE
+      )
 
-			out = data[rep.int(seq_len(.N), times = samples_per_row)]
-			out[, (feature) := self$reference_data[sampled_indices, .SD, .SDcols = feature]]
+      out = data[rep.int(seq_len(.N), times = samples_per_row)]
+      out[, (feature) := self$reference_data[sampled_indices, .SD, .SDcols = feature]]
 
-			out[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
-		}
-	)
+      out[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
+    }
+  )
 )

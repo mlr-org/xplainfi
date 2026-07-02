@@ -7,36 +7,36 @@
 #' @param ... ignored
 #' @noRd
 fisher_test = function(
-	x,
-	B = 1999,
-	alternative = c("two.sided", "greater"),
-	conf.level = 0.95,
-	...
+  x,
+  B = 1999,
+  alternative = c("two.sided", "greater"),
+  conf.level = 0.95,
+  ...
 ) {
-	alternative = match.arg(alternative)
-	orig_mean = mean(x)
+  alternative = match.arg(alternative)
+  orig_mean = mean(x)
 
-	# B permutations
-	perm_means = replicate(B, {
-		signs = sample(c(-1, 1), length(x), replace = TRUE)
-		mean(signs * x)
-	})
+  # B permutations
+  perm_means = replicate(B, {
+    signs = sample(c(-1, 1), length(x), replace = TRUE)
+    mean(signs * x)
+  })
 
-	if (alternative == "greater") {
-		p.value = (sum(perm_means >= orig_mean) + 1) / (B + 1)
-		conf.int = c(orig_mean - quantile(perm_means, conf.level), Inf)
-	} else {
-		# two.sided
-		p.value = (sum(abs(perm_means) >= abs(orig_mean)) + 1) / (B + 1)
-		alpha = 1 - conf.level
-		conf.int = orig_mean - quantile(perm_means, c(1 - alpha / 2, alpha / 2))
-	}
+  if (alternative == "greater") {
+    p.value = (sum(perm_means >= orig_mean) + 1) / (B + 1)
+    conf.int = c(orig_mean - quantile(perm_means, conf.level), Inf)
+  } else {
+    # two.sided
+    p.value = (sum(abs(perm_means) >= abs(orig_mean)) + 1) / (B + 1)
+    alpha = 1 - conf.level
+    conf.int = orig_mean - quantile(perm_means, c(1 - alpha / 2, alpha / 2))
+  }
 
-	list(
-		statistic = orig_mean,
-		p.value = p.value,
-		conf.int = conf.int
-	)
+  list(
+    statistic = orig_mean,
+    p.value = p.value,
+    conf.int = conf.int
+  )
 }
 
 #' Binomial sign-test wrapper
@@ -47,6 +47,6 @@ fisher_test = function(
 #' @param ... ignored
 #' @noRd
 binom_test = function(x, alternative = c("two.sided", "greater"), conf.level = 0.95, ...) {
-	alternative = match.arg(alternative)
-	stats::binom.test(sum(x > 0), length(x), alternative = alternative, conf.level = conf.level)
+  alternative = match.arg(alternative)
+  stats::binom.test(sum(x > 0), length(x), alternative = alternative, conf.level = conf.level)
 }

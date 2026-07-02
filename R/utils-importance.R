@@ -15,11 +15,11 @@
 #' @return adjusted alpha for CI construction
 #' @noRd
 adjust_ci_alpha = function(alpha, p_adjust, k) {
-	if (p_adjust == "bonferroni" && k > 1) {
-		alpha / k
-	} else {
-		alpha
-	}
+  if (p_adjust == "bonferroni" && k > 1) {
+    alpha / k
+  } else {
+    alpha
+  }
 }
 
 #' Apply p-value adjustment to importance results
@@ -29,11 +29,11 @@ adjust_ci_alpha = function(alpha, p_adjust, k) {
 #' @return dt (modified in place) with adjusted p-values
 #' @noRd
 adjust_pvalues = function(dt, p_adjust) {
-	p.value = NULL
-	if (p_adjust != "none" && "p.value" %in% names(dt)) {
-		dt[, p.value := stats::p.adjust(p.value, method = p_adjust)]
-	}
-	dt
+  p.value = NULL
+  if (p_adjust != "none" && "p.value" %in% names(dt)) {
+    dt[, p.value := stats::p.adjust(p.value, method = p_adjust)]
+  }
+  dt
 }
 
 #' Warn if resampling has more than one iteration
@@ -45,15 +45,15 @@ adjust_pvalues = function(dt, p_adjust) {
 #' @param resampling mlr3 Resampling object
 #' @noRd
 check_single_resampling_iter = function(resampling) {
-	if (resampling$iters > 1) {
-		cli::cli_warn(c(
-			"Observation-wise inference was validated with a single test set.",
-			"!" = "Current resampling has {.val {resampling$iters}} iterations.",
-			"i" = "With cross-validation, models are fit on overlapping training data, which may affect coverage.",
-			"i" = "With bootstrap or subsampling, test observations are not i.i.d.",
-			"i" = "See {.code vignette(\"inference\", package = \"xplainfi\")} for details."
-		))
-	}
+  if (resampling$iters > 1) {
+    cli::cli_warn(c(
+      "Observation-wise inference was validated with a single test set.",
+      "!" = "Current resampling has {.val {resampling$iters}} iterations.",
+      "i" = "With cross-validation, models are fit on overlapping training data, which may affect coverage.",
+      "i" = "With bootstrap or subsampling, test observations are not i.i.d.",
+      "i" = "See {.code vignette(\"inference\", package = \"xplainfi\")} for details."
+    ))
+  }
 }
 
 #' Warn if any test observation appears in more than one resampling test set
@@ -66,17 +66,17 @@ check_single_resampling_iter = function(resampling) {
 #' @param obs_loss_data data.table with columns row_ids, iter_rsmp
 #' @noRd
 check_unique_test_obs = function(obs_loss_data) {
-	N = row_ids = iter_rsmp = NULL
-	obs_per_rsmp = unique(obs_loss_data[, list(row_ids, iter_rsmp)])
-	dupes = obs_per_rsmp[, .N, by = "row_ids"][N > 1]
+  N = row_ids = iter_rsmp = NULL
+  obs_per_rsmp = unique(obs_loss_data[, list(row_ids, iter_rsmp)])
+  dupes = obs_per_rsmp[, .N, by = "row_ids"][N > 1]
 
-	if (nrow(dupes) >= 1) {
-		cli::cli_warn(c(
-			"Found {.val {nrow(dupes)}} observation{?s} appearing in multiple test sets.",
-			x = "Inference assumes unique test observations; duplicates may invalidate inference.",
-			i = "Use a resampling strategy where each observation appears at most once in the test set(s)."
-		))
-	}
+  if (nrow(dupes) >= 1) {
+    cli::cli_warn(c(
+      "Found {.val {nrow(dupes)}} observation{?s} appearing in multiple test sets.",
+      x = "Inference assumes unique test observations; duplicates may invalidate inference.",
+      i = "Use a resampling strategy where each observation appears at most once in the test set(s)."
+    ))
+  }
 }
 
 #' No variance estimation - just aggregated performance
@@ -85,14 +85,14 @@ check_unique_test_obs = function(obs_loss_data) {
 #' @param conf_level (`numeric(1)`) ignored for this method
 #' @noRd
 importance_none = function(scores, aggregator, conf_level) {
-	# The data.table NSE tax
-	importance = NULL
+  # The data.table NSE tax
+  importance = NULL
 
-	agg_importance = scores[,
-		list(importance = aggregator(importance)),
-		by = "feature"
-	]
-	agg_importance
+  agg_importance = scores[,
+    list(importance = aggregator(importance)),
+    by = "feature"
+  ]
+  agg_importance
 }
 
 #' Raw variance estimation without correction
@@ -107,50 +107,50 @@ importance_none = function(scores, aggregator, conf_level) {
 #' @param n_iters number of resampling iterations
 #' @noRd
 importance_raw = function(scores, aggregator, conf_level, alternative, n_iters, p_adjust = "none") {
-	# The data.table NSE tax
-	importance = se = statistic = p.value = NULL
-	agg_importance = scores[,
-		list(importance = aggregator(importance)),
-		by = "feature"
-	]
+  # The data.table NSE tax
+  importance = se = statistic = p.value = NULL
+  agg_importance = scores[,
+    list(importance = aggregator(importance)),
+    by = "feature"
+  ]
 
-	# Aggregate within resamplings first to get one row per resampling iter
-	means_rsmp = scores[,
-		list(importance = mean(importance)),
-		by = c("iter_rsmp", "feature")
-	]
+  # Aggregate within resamplings first to get one row per resampling iter
+  means_rsmp = scores[,
+    list(importance = mean(importance)),
+    by = c("iter_rsmp", "feature")
+  ]
 
-	sds = means_rsmp[,
-		list(se = sqrt(stats::var(importance) / n_iters)),
-		by = "feature"
-	]
+  sds = means_rsmp[,
+    list(se = sqrt(stats::var(importance) / n_iters)),
+    by = "feature"
+  ]
 
-	agg_importance = agg_importance[sds, on = "feature"]
+  agg_importance = agg_importance[sds, on = "feature"]
 
-	# t-test: H0: importance = 0
-	df = n_iters - 1
-	agg_importance[, statistic := importance / se]
+  # t-test: H0: importance = 0
+  df = n_iters - 1
+  agg_importance[, statistic := importance / se]
 
-	k = nrow(agg_importance)
-	ci_alpha = adjust_ci_alpha(1 - conf_level, p_adjust, k)
+  k = nrow(agg_importance)
+  ci_alpha = adjust_ci_alpha(1 - conf_level, p_adjust, k)
 
-	if (alternative == "greater") {
-		agg_importance[, p.value := stats::pt(statistic, df = df, lower.tail = FALSE)]
-		quant = stats::qt(1 - ci_alpha, df = df)
-		agg_importance[, let(
-			conf_lower = importance - quant * se,
-			conf_upper = Inf
-		)]
-	} else {
-		agg_importance[, p.value := 2 * stats::pt(abs(statistic), df = df, lower.tail = FALSE)]
-		quant = stats::qt(1 - ci_alpha / 2, df = df)
-		agg_importance[, let(
-			conf_lower = importance - quant * se,
-			conf_upper = importance + quant * se
-		)]
-	}
+  if (alternative == "greater") {
+    agg_importance[, p.value := stats::pt(statistic, df = df, lower.tail = FALSE)]
+    quant = stats::qt(1 - ci_alpha, df = df)
+    agg_importance[, let(
+      conf_lower = importance - quant * se,
+      conf_upper = Inf
+    )]
+  } else {
+    agg_importance[, p.value := 2 * stats::pt(abs(statistic), df = df, lower.tail = FALSE)]
+    quant = stats::qt(1 - ci_alpha / 2, df = df)
+    agg_importance[, let(
+      conf_lower = importance - quant * se,
+      conf_upper = importance + quant * se
+    )]
+  }
 
-	adjust_pvalues(agg_importance, p_adjust)
+  adjust_pvalues(agg_importance, p_adjust)
 }
 
 #' Nadeau & Bengio (2003) corrected variance estimation
@@ -166,84 +166,84 @@ importance_raw = function(scores, aggregator, conf_level, alternative, n_iters, 
 #' @param n_iters number of resampling iterations
 #' @noRd
 importance_nadeau_bengio = function(
-	scores,
-	aggregator,
-	conf_level,
-	alternative,
-	resampling,
-	n_iters,
-	p_adjust = "none"
+  scores,
+  aggregator,
+  conf_level,
+  alternative,
+  resampling,
+  n_iters,
+  p_adjust = "none"
 ) {
-	# The data.table NSE tax
-	importance = se = statistic = p.value = NULL
+  # The data.table NSE tax
+  importance = se = statistic = p.value = NULL
 
-	# Validate resampling type
-	if (!(resampling$id %in% c("bootstrap", "subsampling")) | resampling$iters < 10) {
-		cli::cli_warn(c(
-			"{.cls Resampling} is of type {.val {resampling$id}} with {.val {resampling$iters}} iterations.",
-			i = "The Nadeau & Bengio corrected t-test is recommended for resampling types {.val {c('bootstrap', 'subsampling')}} with >= 10 iterations for valid inference"
-		))
-	}
+  # Validate resampling type
+  if (!(resampling$id %in% c("bootstrap", "subsampling")) | resampling$iters < 10) {
+    cli::cli_warn(c(
+      "{.cls Resampling} is of type {.val {resampling$id}} with {.val {resampling$iters}} iterations.",
+      i = "The Nadeau & Bengio corrected t-test is recommended for resampling types {.val {c('bootstrap', 'subsampling')}} with >= 10 iterations for valid inference"
+    ))
+  }
 
-	if (resampling$id == "bootstrap") {
-		test_train_ratio = 0.632
-	} else {
-		# Average test/train ration over iterations for simplicity as it works for any resampling strategy
-		test_train_ratios = vapply(
-			seq_len(resampling$iters),
-			\(idx) {
-				length(resampling$test_set(idx)) / length(resampling$train_set(idx))
-			},
-			FUN.VALUE = numeric(1)
-		)
-		test_train_ratio = mean(test_train_ratios)
-	}
+  if (resampling$id == "bootstrap") {
+    test_train_ratio = 0.632
+  } else {
+    # Average test/train ration over iterations for simplicity as it works for any resampling strategy
+    test_train_ratios = vapply(
+      seq_len(resampling$iters),
+      \(idx) {
+        length(resampling$test_set(idx)) / length(resampling$train_set(idx))
+      },
+      FUN.VALUE = numeric(1)
+    )
+    test_train_ratio = mean(test_train_ratios)
+  }
 
-	agg_importance = scores[,
-		list(importance = aggregator(importance)),
-		by = "feature"
-	]
+  agg_importance = scores[,
+    list(importance = aggregator(importance)),
+    by = "feature"
+  ]
 
-	# Aggregate within resamplings first
-	means_rsmp = scores[,
-		list(importance = aggregator(importance)),
-		by = c("iter_rsmp", "feature")
-	]
+  # Aggregate within resamplings first
+  means_rsmp = scores[,
+    list(importance = aggregator(importance)),
+    by = c("iter_rsmp", "feature")
+  ]
 
-	# Nadeau & Bengio adjustment factor ((1 / m) + c in Molnar et al.)
-	adjustment_factor = 1 / n_iters + test_train_ratio
+  # Nadeau & Bengio adjustment factor ((1 / m) + c in Molnar et al.)
+  adjustment_factor = 1 / n_iters + test_train_ratio
 
-	sds = means_rsmp[,
-		list(se = sqrt(adjustment_factor * stats::var(importance))),
-		by = "feature"
-	]
+  sds = means_rsmp[,
+    list(se = sqrt(adjustment_factor * stats::var(importance))),
+    by = "feature"
+  ]
 
-	agg_importance = agg_importance[sds, on = "feature"]
+  agg_importance = agg_importance[sds, on = "feature"]
 
-	# t-test: H0: importance = 0, se is corrected by Nadeau & Bengio factor
-	df = n_iters - 1
-	agg_importance[, statistic := importance / se]
+  # t-test: H0: importance = 0, se is corrected by Nadeau & Bengio factor
+  df = n_iters - 1
+  agg_importance[, statistic := importance / se]
 
-	# Bonferroni uses alpha / k, k = n_iters
-	ci_alpha = adjust_ci_alpha(1 - conf_level, p_adjust, k = n_iters)
+  # Bonferroni uses alpha / k, k = n_iters
+  ci_alpha = adjust_ci_alpha(1 - conf_level, p_adjust, k = n_iters)
 
-	if (alternative == "greater") {
-		agg_importance[, p.value := stats::pt(statistic, df = df, lower.tail = FALSE)]
-		quant = stats::qt(1 - ci_alpha, df = df)
-		agg_importance[, let(
-			conf_lower = importance - quant * se,
-			conf_upper = Inf
-		)]
-	} else {
-		agg_importance[, p.value := 2 * stats::pt(abs(statistic), df = df, lower.tail = FALSE)]
-		quant = stats::qt(1 - ci_alpha / 2, df = df)
-		agg_importance[, let(
-			conf_lower = importance - quant * se,
-			conf_upper = importance + quant * se
-		)]
-	}
+  if (alternative == "greater") {
+    agg_importance[, p.value := stats::pt(statistic, df = df, lower.tail = FALSE)]
+    quant = stats::qt(1 - ci_alpha, df = df)
+    agg_importance[, let(
+      conf_lower = importance - quant * se,
+      conf_upper = Inf
+    )]
+  } else {
+    agg_importance[, p.value := 2 * stats::pt(abs(statistic), df = df, lower.tail = FALSE)]
+    quant = stats::qt(1 - ci_alpha / 2, df = df)
+    agg_importance[, let(
+      conf_lower = importance - quant * se,
+      conf_upper = importance + quant * se
+    )]
+  }
 
-	adjust_pvalues(agg_importance, p_adjust)
+  adjust_pvalues(agg_importance, p_adjust)
 }
 
 #' Empirical quantile-based confidence intervals
@@ -258,44 +258,44 @@ importance_nadeau_bengio = function(
 #' @param alternative "greater" (one-sided) or "two.sided"
 #' @noRd
 importance_quantile = function(scores, aggregator, conf_level, alternative) {
-	# The data.table NSE tax
-	importance = feature = NULL
+  # The data.table NSE tax
+  importance = feature = NULL
 
-	# Aggregate within resamplings first to get one value per resampling iteration
-	means_rsmp = scores[,
-		list(importance = aggregator(importance)),
-		by = c("iter_rsmp", "feature")
-	]
+  # Aggregate within resamplings first to get one value per resampling iteration
+  means_rsmp = scores[,
+    list(importance = aggregator(importance)),
+    by = c("iter_rsmp", "feature")
+  ]
 
-	# For each feature, compute quantiles
-	result_list = lapply(unique(means_rsmp$feature), function(feat) {
-		feat_scores = means_rsmp[feature == feat, importance]
+  # For each feature, compute quantiles
+  result_list = lapply(unique(means_rsmp$feature), function(feat) {
+    feat_scores = means_rsmp[feature == feat, importance]
 
-		# Point estimate using aggregator
-		point_est = aggregator(feat_scores)
+    # Point estimate using aggregator
+    point_est = aggregator(feat_scores)
 
-		# Compute empirical quantiles for CI
-		alpha = 1 - conf_level
-		if (alternative == "greater") {
-			probs = alpha
-			ci_lower = quantile(feat_scores, probs = probs, na.rm = TRUE)
-			ci_upper = Inf
-		} else {
-			probs = c(alpha / 2, 1 - alpha / 2)
-			ci_vals = quantile(feat_scores, probs = probs, na.rm = TRUE)
-			ci_lower = ci_vals[1]
-			ci_upper = ci_vals[2]
-		}
+    # Compute empirical quantiles for CI
+    alpha = 1 - conf_level
+    if (alternative == "greater") {
+      probs = alpha
+      ci_lower = quantile(feat_scores, probs = probs, na.rm = TRUE)
+      ci_upper = Inf
+    } else {
+      probs = c(alpha / 2, 1 - alpha / 2)
+      ci_vals = quantile(feat_scores, probs = probs, na.rm = TRUE)
+      ci_lower = ci_vals[1]
+      ci_upper = ci_vals[2]
+    }
 
-		data.table(
-			feature = feat,
-			importance = point_est,
-			conf_lower = ci_lower,
-			conf_upper = ci_upper
-		)
-	})
+    data.table(
+      feature = feat,
+      importance = point_est,
+      conf_lower = ci_lower,
+      conf_upper = ci_upper
+    )
+  })
 
-	rbindlist(result_list)
+  rbindlist(result_list)
 }
 
 #' Per-feature hypothesis tests on observation-wise importance scores
@@ -316,96 +316,96 @@ importance_quantile = function(scores, aggregator, conf_level, alternative) {
 #' @return data.table with feature, importance, se, statistic, p.value, conf_lower, conf_upper
 #' @noRd
 test_obs_importance = function(
-	obs_loss_agg,
-	test,
-	alternative,
-	conf_level,
-	p_adjust,
-	aggregator = mean
+  obs_loss_agg,
+  test,
+  alternative,
+  conf_level,
+  p_adjust,
+  aggregator = mean
 ) {
-	# The data.table NSE tax
-	obs_importance = feature = NULL
+  # The data.table NSE tax
+  obs_importance = feature = NULL
 
-	test_function = switch(
-		test,
-		t = stats::t.test,
-		wilcoxon = stats::wilcox.test,
-		fisher = fisher_test,
-		binomial = binom_test
-	)
+  test_function = switch(
+    test,
+    t = stats::t.test,
+    wilcoxon = stats::wilcox.test,
+    fisher = fisher_test,
+    binomial = binom_test
+  )
 
-	features_tested = unique(obs_loss_agg$feature)
-	k = length(features_tested)
-	ci_conf_level = 1 - adjust_ci_alpha(1 - conf_level, p_adjust, k)
+  features_tested = unique(obs_loss_agg$feature)
+  k = length(features_tested)
+  ci_conf_level = 1 - adjust_ci_alpha(1 - conf_level, p_adjust, k)
 
-	# SE is only meaningful for the t-test (sd / sqrt(n)).
-	# For other tests (wilcoxon, fisher, binomial), SE is not well-defined.
-	report_se = test == "t"
+  # SE is only meaningful for the t-test (sd / sqrt(n)).
+  # For other tests (wilcoxon, fisher, binomial), SE is not well-defined.
+  report_se = test == "t"
 
-	result_list = lapply(features_tested, function(feat) {
-		feat_obs = obs_loss_agg[feature == feat, obs_importance]
+  result_list = lapply(features_tested, function(feat) {
+    feat_obs = obs_loss_agg[feature == feat, obs_importance]
 
-		if (mean(feat_obs) == 0) {
-			if (alternative == "greater") {
-				htest_result = list(
-					statistic = 0,
-					p.value = 1,
-					conf.int = c(0, Inf)
-				)
-			} else {
-				htest_result = list(
-					statistic = 0,
-					p.value = 1,
-					conf.int = c(0, 0)
-				)
-			}
-		} else {
-			# R-devel (2026-05) rewrote stats:::wilcox.test internals; the
-			# new asymptotic CI path errors with
-			# "missing value where TRUE/FALSE needed" when the variance
-			# estimator returns NA (many-ties / many-zeros inputs that the
-			# previous implementation tolerated). Defensive fallback returns
-			# a degenerate-shape htest so downstream code keeps going with
-			# NA inference fields. Affects R-release runs only if R-devel
-			# bug ships; safe no-op on stable R versions.
-			htest_result = tryCatch(
-				test_function(
-					feat_obs,
-					alternative = alternative,
-					conf.level = ci_conf_level,
-					conf.int = TRUE
-				),
-				error = function(e) {
-					cli::cli_warn(c(
-						"Hypothesis test failed for feature {.val {feat}}; returning NA inference fields.",
-						"i" = "{conditionMessage(e)}"
-					))
-					list(
-						statistic = NA_real_,
-						p.value = NA_real_,
-						conf.int = if (alternative == "greater") {
-							c(NA_real_, Inf)
-						} else {
-							c(NA_real_, NA_real_)
-						}
-					)
-				}
-			)
-		}
+    if (mean(feat_obs) == 0) {
+      if (alternative == "greater") {
+        htest_result = list(
+          statistic = 0,
+          p.value = 1,
+          conf.int = c(0, Inf)
+        )
+      } else {
+        htest_result = list(
+          statistic = 0,
+          p.value = 1,
+          conf.int = c(0, 0)
+        )
+      }
+    } else {
+      # R-devel (2026-05) rewrote stats:::wilcox.test internals; the
+      # new asymptotic CI path errors with
+      # "missing value where TRUE/FALSE needed" when the variance
+      # estimator returns NA (many-ties / many-zeros inputs that the
+      # previous implementation tolerated). Defensive fallback returns
+      # a degenerate-shape htest so downstream code keeps going with
+      # NA inference fields. Affects R-release runs only if R-devel
+      # bug ships; safe no-op on stable R versions.
+      htest_result = tryCatch(
+        test_function(
+          feat_obs,
+          alternative = alternative,
+          conf.level = ci_conf_level,
+          conf.int = TRUE
+        ),
+        error = function(e) {
+          cli::cli_warn(c(
+            "Hypothesis test failed for feature {.val {feat}}; returning NA inference fields.",
+            "i" = "{conditionMessage(e)}"
+          ))
+          list(
+            statistic = NA_real_,
+            p.value = NA_real_,
+            conf.int = if (alternative == "greater") {
+              c(NA_real_, Inf)
+            } else {
+              c(NA_real_, NA_real_)
+            }
+          )
+        }
+      )
+    }
 
-		data.table(
-			feature = feat,
-			importance = aggregator(feat_obs),
-			se = if (report_se) sd(feat_obs) / sqrt(length(feat_obs)) else NA_real_,
-			statistic = htest_result$statistic,
-			p.value = htest_result$p.value,
-			conf_lower = htest_result$conf.int[1],
-			conf_upper = htest_result$conf.int[2]
-		)
-	})
+    data.table(
+      feature = feat,
+      importance = aggregator(feat_obs),
+      se = if (report_se) sd(feat_obs) / sqrt(length(feat_obs)) else NA_real_,
+      statistic = htest_result$statistic,
+      p.value = htest_result$p.value,
+      conf_lower = htest_result$conf.int[1],
+      conf_upper = htest_result$conf.int[2]
+    )
+  })
 
-	result = rbindlist(result_list, fill = TRUE)
-	adjust_pvalues(result, p_adjust)
+  result = rbindlist(result_list, fill = TRUE)
+  adjust_pvalues(result, p_adjust)
 }
 
 #' Conditional Predictive Impact (CPI) test
@@ -422,43 +422,43 @@ test_obs_importance = function(
 #' @param method_obj importance method object (needs $obs_loss())
 #' @noRd
 importance_cpi = function(
-	conf_level,
-	alternative = c("two.sided", "greater"),
-	test = c("t", "wilcoxon", "fisher", "binomial"),
-	p_adjust = "none",
-	B = 1999,
-	method_obj
+  conf_level,
+  alternative = c("two.sided", "greater"),
+  test = c("t", "wilcoxon", "fisher", "binomial"),
+  p_adjust = "none",
+  B = 1999,
+  method_obj
 ) {
-	# The data.table NSE tax
-	N = obs_importance = feature = NULL
+  # The data.table NSE tax
+  N = obs_importance = feature = NULL
 
-	alternative = match.arg(alternative)
+  alternative = match.arg(alternative)
 
-	check_single_resampling_iter(method_obj$resampling)
+  check_single_resampling_iter(method_obj$resampling)
 
-	# CPI requires observation-wise losses
-	if (is.null(method_obj$obs_loss())) {
-		cli::cli_abort(c(
-			"CPI requires observation-wise losses.",
-			i = "Ensure {.code measure} has an {.fun $obs_loss} method."
-		))
-	}
-	if (class(method_obj)[[1]] != "CFI") {
-		cli::cli_warn(c(
-			"!" = "CPI is only known to yield valid inference for {.cls CFI}.",
-			x = "Inference with {.cls PFI} is known to be invalid and other methods are not studied yet."
-		))
-	}
-	# Get observation-wise importances (already computed as differences)
-	obs_loss_data = method_obj$obs_loss(relation = "difference")
-	# Aggregate over n_repeats to get one value per observation per feature
-	obs_loss_agg = obs_loss_data[,
-		list(obs_importance = mean(obs_importance)),
-		by = c("row_ids", "feature")
-	]
+  # CPI requires observation-wise losses
+  if (is.null(method_obj$obs_loss())) {
+    cli::cli_abort(c(
+      "CPI requires observation-wise losses.",
+      i = "Ensure {.code measure} has an {.fun $obs_loss} method."
+    ))
+  }
+  if (class(method_obj)[[1]] != "CFI") {
+    cli::cli_warn(c(
+      "!" = "CPI is only known to yield valid inference for {.cls CFI}.",
+      x = "Inference with {.cls PFI} is known to be invalid and other methods are not studied yet."
+    ))
+  }
+  # Get observation-wise importances (already computed as differences)
+  obs_loss_data = method_obj$obs_loss(relation = "difference")
+  # Aggregate over n_repeats to get one value per observation per feature
+  obs_loss_agg = obs_loss_data[,
+    list(obs_importance = mean(obs_importance)),
+    by = c("row_ids", "feature")
+  ]
 
-	test = match.arg(test)
-	test_obs_importance(obs_loss_agg, test, alternative, conf_level, p_adjust)
+  test = match.arg(test)
+  test_obs_importance(obs_loss_agg, test, alternative, conf_level, p_adjust)
 }
 
 #' Distribution-free inference for refit-based importance (Lei et al., 2018)
@@ -485,40 +485,40 @@ importance_cpi = function(
 #' @param method_obj importance method object (needs $obs_loss())
 #' @noRd
 importance_loco = function(
-	conf_level,
-	alternative = c("two.sided", "greater"),
-	test = c("wilcoxon", "t", "fisher", "binomial"),
-	aggregator = stats::median,
-	p_adjust = "none",
-	B = 1999,
-	method_obj
+  conf_level,
+  alternative = c("two.sided", "greater"),
+  test = c("wilcoxon", "t", "fisher", "binomial"),
+  aggregator = stats::median,
+  p_adjust = "none",
+  B = 1999,
+  method_obj
 ) {
-	# The data.table NSE tax
-	N = obs_importance = feature = NULL
+  # The data.table NSE tax
+  N = obs_importance = feature = NULL
 
-	alternative = match.arg(alternative)
+  alternative = match.arg(alternative)
 
-	# Lei et al. inference requires observation-wise losses
-	if (is.null(method_obj$obs_loss())) {
-		cli::cli_abort(c(
-			"Lei et al. (2018) inference requires observation-wise losses.",
-			i = "Ensure {.code measure} has an {.fun $obs_loss} method (i.e. is decomposable)."
-		))
-	}
+  # Lei et al. inference requires observation-wise losses
+  if (is.null(method_obj$obs_loss())) {
+    cli::cli_abort(c(
+      "Lei et al. (2018) inference requires observation-wise losses.",
+      i = "Ensure {.code measure} has an {.fun $obs_loss} method (i.e. is decomposable)."
+    ))
+  }
 
-	# Get observation-wise importances (already computed as differences)
-	obs_loss_data = method_obj$obs_loss(relation = "difference")
+  # Get observation-wise importances (already computed as differences)
+  obs_loss_data = method_obj$obs_loss(relation = "difference")
 
-	check_unique_test_obs(obs_loss_data)
+  check_unique_test_obs(obs_loss_data)
 
-	# Aggregate over n_repeats (iter_repeat) to get one value per observation per feature
-	obs_loss_agg = obs_loss_data[,
-		list(obs_importance = mean(obs_importance)),
-		by = c("row_ids", "feature")
-	]
+  # Aggregate over n_repeats (iter_repeat) to get one value per observation per feature
+  obs_loss_agg = obs_loss_data[,
+    list(obs_importance = mean(obs_importance)),
+    by = c("row_ids", "feature")
+  ]
 
-	test = match.arg(test)
-	test_obs_importance(obs_loss_agg, test, alternative, conf_level, p_adjust, aggregator)
+  test = match.arg(test)
+  test_obs_importance(obs_loss_agg, test, alternative, conf_level, p_adjust, aggregator)
 }
 
 # Score Relation Helpers ----
@@ -542,15 +542,15 @@ importance_loco = function(
 #' @keywords internal
 #' @noRd
 safe_ratio = function(numerator, denominator) {
-	out = numerator / denominator
-	zero_denom = denominator == 0
-	if (any(zero_denom, na.rm = TRUE)) {
-		n_bad = sum(zero_denom, na.rm = TRUE)
-		cli::cli_warn(c(
-			"!" = "{.val ratio} relation undefined for {n_bad} score{?s} with a zero baseline.",
-			"i" = "Setting {n_bad} result{?s} to {.val NA}; affected feature{?s} aggregate to {.val NA}."
-		))
-		out[which(zero_denom)] = NA_real_
-	}
-	out
+  out = numerator / denominator
+  zero_denom = denominator == 0
+  if (any(zero_denom, na.rm = TRUE)) {
+    n_bad = sum(zero_denom, na.rm = TRUE)
+    cli::cli_warn(c(
+      "!" = "{.val ratio} relation undefined for {n_bad} score{?s} with a zero baseline.",
+      "i" = "Setting {n_bad} result{?s} to {.val NA}; affected feature{?s} aggregate to {.val NA}."
+    ))
+    out[which(zero_denom)] = NA_real_
+  }
+  out
 }

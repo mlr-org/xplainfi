@@ -7,26 +7,26 @@
 # -----------------------------------------------------------------------------
 
 test_that("PFI default behavior with minimal parameters", {
-	test_default_behavior(PFI, task_type = "regr", n_repeats = 1L)
+  test_default_behavior(PFI, task_type = "regr", n_repeats = 1L)
 })
 
 test_that("PFI basic workflow with classification", {
-	task = tgen("2dnormals")$generate(n = 100)
+  task = tgen("2dnormals")$generate(n = 100)
 
-	pfi = PFI$new(
-		task = task,
-		learner = lrn("classif.rpart", predict_type = "prob"),
-		measure = msr("classif.ce"),
-		n_repeats = 1L
-	)
-	checkmate::expect_r6(pfi, c("FeatureImportanceMethod", "PFI"))
+  pfi = PFI$new(
+    task = task,
+    learner = lrn("classif.rpart", predict_type = "prob"),
+    measure = msr("classif.ce"),
+    n_repeats = 1L
+  )
+  checkmate::expect_r6(pfi, c("FeatureImportanceMethod", "PFI"))
 
-	pfi$compute()
-	expect_method_output(pfi)
+  pfi$compute()
+  expect_method_output(pfi)
 })
 
 test_that("PFI featureless learner produces zero importance", {
-	test_featureless_zero_importance(PFI, task_type = "classif", n_repeats = 1L)
+  test_featureless_zero_importance(PFI, task_type = "classif", n_repeats = 1L)
 })
 
 # -----------------------------------------------------------------------------
@@ -34,28 +34,28 @@ test_that("PFI featureless learner produces zero importance", {
 # -----------------------------------------------------------------------------
 
 test_that("PFI multiple repeats and scores structure", {
-	task = tgen("friedman1")$generate(n = 200)
+  task = tgen("friedman1")$generate(n = 200)
 
-	test_n_repeats_and_scores(
-		PFI,
-		task = task,
-		learner = lrn("regr.rpart"),
-		measure = msr("regr.mse"),
-		n_repeats = 2L
-	)
+  test_n_repeats_and_scores(
+    PFI,
+    task = task,
+    learner = lrn("regr.rpart"),
+    measure = msr("regr.mse"),
+    n_repeats = 2L
+  )
 })
 
 test_that("PFI single feature", {
-	task = tgen("friedman1")$generate(n = 200)
+  task = tgen("friedman1")$generate(n = 200)
 
-	test_single_feature(
-		PFI,
-		task = task,
-		learner = lrn("regr.rpart"),
-		measure = msr("regr.mse"),
-		feature = "important4",
-		n_repeats = 2L
-	)
+  test_single_feature(
+    PFI,
+    task = task,
+    learner = lrn("regr.rpart"),
+    measure = msr("regr.mse"),
+    feature = "important4",
+    n_repeats = 2L
+  )
 })
 
 # -----------------------------------------------------------------------------
@@ -63,15 +63,15 @@ test_that("PFI single feature", {
 # -----------------------------------------------------------------------------
 
 test_that("PFI difference vs ratio relations", {
-	task = tgen("2dnormals")$generate(n = 100)
+  task = tgen("2dnormals")$generate(n = 100)
 
-	test_relation_parameter(
-		PFI,
-		task = task,
-		learner = lrn("classif.rpart", predict_type = "prob"),
-		measure = msr("classif.ce"),
-		n_repeats = 1L
-	)
+  test_relation_parameter(
+    PFI,
+    task = task,
+    learner = lrn("classif.rpart", predict_type = "prob"),
+    measure = msr("classif.ce"),
+    n_repeats = 1L
+  )
 })
 
 # -----------------------------------------------------------------------------
@@ -79,7 +79,7 @@ test_that("PFI difference vs ratio relations", {
 # -----------------------------------------------------------------------------
 
 test_that("PFI friedman1 produces sensible ranking", {
-	test_friedman1_sensible_ranking(PFI, n_repeats = 5L)
+  test_friedman1_sensible_ranking(PFI, n_repeats = 5L)
 })
 
 # -----------------------------------------------------------------------------
@@ -87,22 +87,22 @@ test_that("PFI friedman1 produces sensible ranking", {
 # -----------------------------------------------------------------------------
 
 test_that("PFI with feature groups", {
-	task = tgen("friedman1")$generate(n = 200)
+  task = tgen("friedman1")$generate(n = 200)
 
-	groups = list(
-		important_group = c("important1", "important2", "important3"),
-		unimportant_group = c("unimportant1", "unimportant2")
-	)
+  groups = list(
+    important_group = c("important1", "important2", "important3"),
+    unimportant_group = c("unimportant1", "unimportant2")
+  )
 
-	test_grouped_importance(
-		PFI,
-		task = task,
-		learner = lrn("regr.rpart"),
-		measure = msr("regr.mse"),
-		groups = groups,
-		expected_classes = c("FeatureImportanceMethod", "PFI"),
-		n_repeats = 1L
-	)
+  test_grouped_importance(
+    PFI,
+    task = task,
+    learner = lrn("regr.rpart"),
+    measure = msr("regr.mse"),
+    groups = groups,
+    expected_classes = c("FeatureImportanceMethod", "PFI"),
+    n_repeats = 1L
+  )
 })
 
 # -----------------------------------------------------------------------------
@@ -110,67 +110,67 @@ test_that("PFI with feature groups", {
 # -----------------------------------------------------------------------------
 
 test_that("PFI scores and obs_losses agree", {
-	task = tgen("friedman1")$generate(n = 200)
+  task = tgen("friedman1")$generate(n = 200)
 
-	pfi = PFI$new(
-		task = task,
-		learner = lrn("regr.rpart"),
-		measure = msr("regr.mse"),
-		resampling = rsmp("cv", folds = 3),
-		n_repeats = 2
-	)
+  pfi = PFI$new(
+    task = task,
+    learner = lrn("regr.rpart"),
+    measure = msr("regr.mse"),
+    resampling = rsmp("cv", folds = 3),
+    n_repeats = 2
+  )
 
-	pfi$compute()
+  pfi$compute()
 
-	importance_agg = pfi$importance()
-	importance_scores = pfi$scores()[, .(iter_rsmp, iter_repeat, feature, importance)][
-		order(iter_rsmp, iter_repeat, feature)
-	]
-	importance_obs_loss = pfi$obs_loss()
+  importance_agg = pfi$importance()
+  importance_scores = pfi$scores()[, .(iter_rsmp, iter_repeat, feature, importance)][
+    order(iter_rsmp, iter_repeat, feature)
+  ]
+  importance_obs_loss = pfi$obs_loss()
 
-	expect_equal(
-		importance_agg,
-		importance_scores[, list(importance = mean(importance)), by = "feature"],
-		ignore_attr = TRUE
-	)
+  expect_equal(
+    importance_agg,
+    importance_scores[, list(importance = mean(importance)), by = "feature"],
+    ignore_attr = TRUE
+  )
 
-	# Aggregate squared errors to get mse per iteration
-	obs_agg = importance_obs_loss[,
-		list(importance = mean(obs_importance)),
-		by = c("iter_rsmp", "iter_repeat", "feature")
-	][order(iter_rsmp, iter_repeat, feature)]
+  # Aggregate squared errors to get mse per iteration
+  obs_agg = importance_obs_loss[,
+    list(importance = mean(obs_importance)),
+    by = c("iter_rsmp", "iter_repeat", "feature")
+  ][order(iter_rsmp, iter_repeat, feature)]
 
-	expect_equal(importance_scores, obs_agg, tolerance = sqrt(.Machine$double.eps))
+  expect_equal(importance_scores, obs_agg, tolerance = sqrt(.Machine$double.eps))
 })
 
 test_that("PFI obs_loss uses specified measure, not default", {
-	# Regression test for bug where pred$obs_loss() was called without
-	# passing the measure, causing it to use the default measure (regr.mse)
-	# instead of the user-specified one. With a non-default measure like
-	# regr.mae, this caused obs_loss values to be NULL/wrong.
-	task = mlr3::tsk("mtcars")
+  # Regression test for bug where pred$obs_loss() was called without
+  # passing the measure, causing it to use the default measure (regr.mse)
+  # instead of the user-specified one. With a non-default measure like
+  # regr.mae, this caused obs_loss values to be NULL/wrong.
+  task = mlr3::tsk("mtcars")
 
-	pfi = PFI$new(
-		task = task,
-		learner = lrn("regr.rpart"),
-		measure = msr("regr.mae"),
-		n_repeats = 1L
-	)
+  pfi = PFI$new(
+    task = task,
+    learner = lrn("regr.rpart"),
+    measure = msr("regr.mae"),
+    n_repeats = 1L
+  )
 
-	pfi$compute()
+  pfi$compute()
 
-	obs_losses = pfi$obs_loss()
-	expect_obs_loss_dt(obs_losses, features = task$feature_names)
+  obs_losses = pfi$obs_loss()
+  expect_obs_loss_dt(obs_losses, features = task$feature_names)
 
-	# obs_loss values should be absolute errors (MAE), not squared errors (MSE).
-	# Verify by checking that aggregating obs losses matches the score-level
-	# importance (which correctly uses the specified measure).
-	scores = pfi$scores()[, .(iter_rsmp, feature, importance)][order(iter_rsmp, feature)]
+  # obs_loss values should be absolute errors (MAE), not squared errors (MSE).
+  # Verify by checking that aggregating obs losses matches the score-level
+  # importance (which correctly uses the specified measure).
+  scores = pfi$scores()[, .(iter_rsmp, feature, importance)][order(iter_rsmp, feature)]
 
-	obs_agg = obs_losses[,
-		list(importance = mean(obs_importance)),
-		by = c("iter_rsmp", "feature")
-	][order(iter_rsmp, feature)]
+  obs_agg = obs_losses[,
+    list(importance = mean(obs_importance)),
+    by = c("iter_rsmp", "feature")
+  ][order(iter_rsmp, feature)]
 
-	expect_equal(scores, obs_agg, tolerance = sqrt(.Machine$double.eps))
+  expect_equal(scores, obs_agg, tolerance = sqrt(.Machine$double.eps))
 })
