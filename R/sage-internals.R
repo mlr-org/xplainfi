@@ -187,3 +187,52 @@ sage_marginal_contributions = function(perm_sublist, losses, baseline, feature_n
 
 	list(sv = sv, sv_sq = sv_sq)
 }
+
+#' Shapley-kernel coalition-size distribution
+#'
+#' Probability of drawing a coalition of size `k` under the Shapley kernel,
+#' `P(size = k) proportional to 1 / (k * (m - k))` for `k` in `1..m-1`
+#' (empty and full coalitions are excluded; they enter via the WLS constraints).
+#'
+#' This is the per-SIZE weight. The per-COALITION Shapley weight is
+#' `(m - 1) / (choose(m, k) * k * (m - k))`; the `choose(m, k)` multiplicity
+#' converts one into the other. The two coincide at `m = 3` but diverge for
+#' larger `m`, so using the per-coalition weight here would silently bias the
+#' estimator (Covert & Lee 2021 sample sizes proportional to `1 / (k * (m - k))`).
+#'
+#' @param m (`integer(1)`) Number of features. Must be `>= 2`.
+#' @return `numeric(m - 1)` size probabilities for `k = 1, ..., m - 1`.
+#' @keywords internal
+#' @noRd
+sage_kernel_size_probs = function(m) {
+	k = seq_len(m - 1L)
+	w = 1 / (k * (m - k))
+	w / sum(w)
+}
+
+#' Exact Shapley-kernel design matrix `A = E[z z^T]`
+#'
+#' Closed form of the design matrix under the Shapley-kernel coalition
+#' distribution (Covert & Lee 2021, "unbiased KernelSHAP", their `calculate_A`).
+#' Using the exact `A` rather than a sampled estimate makes the estimator
+#' unbiased and keeps `A` invertible for any coalition budget, so only `b`
+#' needs Monte Carlo estimation.
+#'
+#' By symmetry the diagonal is `E[z_i] = 0.5`; the off-diagonal is the
+#' co-occurrence probability `E[z_i z_j] = sum_k p(k) * k(k-1) / (m(m-1))`
+#' with `p(k)` from `sage_kernel_size_probs()`. Paired sampling leaves `A`
+#' unchanged, so this holds with or without it.
+#'
+#' @param m (`integer(1)`) Number of features. Must be `>= 2`.
+#' @return `matrix` of dimension `m x m`.
+#' @keywords internal
+#' @noRd
+sage_kernel_A = function(m) {
+	k = seq_len(m - 1L)
+	p = sage_kernel_size_probs(m)
+	diag_val = sum(p * k / m) # = 0.5
+	off_val = sum(p * k * (k - 1L) / (m * (m - 1L)))
+	A = matrix(off_val, m, m)
+	diag(A) = diag_val
+	A
+}

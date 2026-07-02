@@ -2,6 +2,7 @@
 
 ## Performance and new features
 
+- `MarginalSAGE` and `ConditionalSAGE` gain an `estimator` argument (default `"permutation"`) selecting the Shapley-value estimator; `estimator = "kernel"` enables the regression-based Kernel SAGE estimator (Covert & Lee, 2021), controlled by a new `n_coalitions` budget argument instead of `n_permutations` (#70).
 - New `samples_per_row` argument on `FeatureSampler$sample()` and `$sample_newdata()` (default `1L`).
   - When `> 1`, samplers return `samples_per_row * length(row_ids)` rows in draw-major order
     (one block of all input rows per draw).
