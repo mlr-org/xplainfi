@@ -214,9 +214,9 @@ sage_kernel_size_probs = function(m) {
 #'
 #' Closed form of the design matrix under the Shapley-kernel coalition
 #' distribution (Covert & Lee 2021, "unbiased KernelSHAP", their `calculate_A`).
-#' Using the exact `A` rather than a sampled estimate makes the estimator
-#' unbiased and keeps `A` invertible for any coalition budget, so only `b`
-#' needs Monte Carlo estimation.
+#' The kernel SAGE estimator uses the *sampled* design matrix by default (original
+#' KernelSHAP, far lower variance); this exact form is used only as a fallback when
+#' the sampled matrix is not yet full rank, since it is invertible for any budget.
 #'
 #' By symmetry the diagonal is `E[z_i] = 0.5`; the off-diagonal is the
 #' co-occurrence probability `E[z_i z_j] = sum_k p(k) * k(k-1) / (m(m-1))`

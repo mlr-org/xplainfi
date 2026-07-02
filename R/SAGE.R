@@ -577,10 +577,15 @@ SAGE = R6Class(
     # value function (`.evaluate_coalitions_batch`) as the permutation estimator,
     # so both MarginalSAGE and ConditionalSAGE inherit it unchanged.
     #
-    # Uses the exact closed-form design matrix A = E[z z^T] ("unbiased KernelSHAP",
-    # their Eq. 9): only b = E[z v(z)] is Monte Carlo estimated, which keeps A
-    # invertible for any budget. Coalitions are drawn with paired sampling
-    # (each draw plus its complement) for variance reduction.
+    # Uses the original KernelSHAP estimator (their Eq. 7): BOTH the design matrix
+    # A = E[z z^T] and b = E[z v(z)] are estimated from the same sampled coalitions.
+    # Sharing the samples couples the errors in A and b, so the ratio A^{-1} b is
+    # far lower variance than plugging in the exact A (the "unbiased" variant),
+    # which converges much more slowly in practice -- Covert & Lee recommend the
+    # original estimator for exactly this reason (their Section 4.1). Coalitions are
+    # drawn with paired sampling (each draw plus its complement) for variance
+    # reduction. The exact closed-form A is kept only as a fallback when the sampled
+    # A is not yet full rank (too few coalitions to identify every feature).
     .compute_sage_scores_kernel = function(
       learner,
       test_dt,
@@ -623,21 +628,31 @@ SAGE = R6Class(
         ))
       }
 
-      # Exact design matrix and the pieces of the sum-to-total constraint that do
-      # not depend on the data, precomputed once.
-      # phi = A^{-1}(b - 1 * (1'A^{-1}b - total) / (1'A^{-1}1))
-      A_inv = solve(sage_kernel_A(m))
+      size_probs = sage_kernel_size_probs(m)
       ones = rep(1, m)
-      A_inv_1 = as.numeric(A_inv %*% ones)
-      denom = sum(A_inv_1)
-      solve_constrained = function(b_hat) {
+
+      # Constrained WLS solve given an inverse design matrix:
+      # phi = A^{-1}(b - 1 * (1'A^{-1}b - total) / (1'A^{-1}1)).
+      constrained = function(A_inv, b_hat) {
         A_inv_b = as.numeric(A_inv %*% b_hat)
-        adjust = (sum(A_inv_b) - total) / denom
-        A_inv_b - A_inv_1 * adjust
+        A_inv_1 = as.numeric(A_inv %*% ones)
+        A_inv_b - A_inv_1 * ((sum(A_inv_b) - total) / sum(A_inv_1))
+      }
+      # Solve from the running sums using the sampled A. Falls back to the exact
+      # (always invertible) A when the sampled A is not yet full rank; returns NA
+      # while unidentified so convergence tracking degrades gracefully.
+      solve_phi = function(require_result = FALSE) {
+        A_inv = tryCatch(solve(A_sum / n_used), error = function(e) NULL)
+        if (is.null(A_inv)) {
+          if (!require_result) {
+            return(rep(NA_real_, m))
+          }
+          A_inv = solve(sage_kernel_A(m))
+        }
+        constrained(A_inv, b_sum / n_used)
       }
 
-      size_probs = sage_kernel_size_probs(m)
-
+      A_sum = matrix(0, m, m) # running sum of z z^T (sampled design matrix)
       b_sum = numeric(m) # running sum of z * V(z) over all evaluated coalitions
       n_used = 0L
       convergence_history = list()
@@ -674,7 +689,9 @@ SAGE = R6Class(
         losses = private$.evaluate_coalitions_batch(learner, test_dt, coalitions, batch_size)
         V = baseline_loss - losses # value function in importance units
 
-        # t(zs) %*% V accumulates sum over coalitions of z * V(z).
+        # crossprod(zs) accumulates sum of z z^T (sampled A); crossprod(zs, V)
+        # accumulates sum of z * V(z) (b). Both share the same coalitions.
+        A_sum = A_sum + crossprod(zs)
         b_sum = b_sum + as.numeric(crossprod(zs, V))
         n_used = n_used + nrow(zs)
         n_completed = n_completed + this_chunk
@@ -685,7 +702,7 @@ SAGE = R6Class(
 
         # Running estimate for convergence tracking / history. Proper SEs would
         # need the covariance of b propagated through A^{-1}; left as NA for now.
-        phi = solve_constrained(b_sum / n_used)
+        phi = solve_phi()
         convergence_history[[length(convergence_history) + 1L]] = data.table(
           n_permutations = n_completed, # coalition draws (shared column name for plotting)
           feature = features,
@@ -698,7 +715,7 @@ SAGE = R6Class(
         cli::cli_progress_done()
       }
 
-      phi = solve_constrained(b_sum / n_used)
+      phi = solve_phi(require_result = TRUE)
       names(phi) = features
 
       list(

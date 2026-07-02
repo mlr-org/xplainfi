@@ -178,7 +178,9 @@ test_that("kernel estimator recovers exact Shapley on a small feature set", {
   # Efficiency constraint holds exactly (same total, same closed-form solve).
   expect_equal(sum(kern_ordered), sum(phi), tolerance = 1e-8)
   # Estimated values converge to exact Shapley within Monte Carlo tolerance.
-  expect_lt(max(abs(kern_ordered - phi)), 0.15)
+  # The original-KernelSHAP (sampled-A) estimator is tight here (~0.005); this
+  # bound also guards against regressing to the much higher-variance exact-A form.
+  expect_lt(max(abs(kern_ordered - phi)), 0.05)
 })
 
 test_that("kernel and permutation estimators agree on important features", {

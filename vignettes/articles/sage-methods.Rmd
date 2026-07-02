@@ -33,10 +33,17 @@ A key property of SAGE is that it provides a complete decomposition: the sum of 
 
 **Note on interpretation**: SAGE's theoretical properties and interpretation differ from perturbation-based methods. While PFI/CFI have clearer interpretations in terms of predictive performance, SAGE's results can be more challenging to interpret, particularly when using conditional sampling. The choice of conditional sampler can significantly affect results, and there is limited empirical guidance on best practices. This vignette focuses on demonstrating the methods rather than making strong interpretive claims.
 
-**The SAGE estimator** implemented here is what is referred to as the "permutation estimator" in other implementations.
-It works by first building up `n_permutations` permutations of the feature vector and then successively evaluating prefixes of the sequence from left to right as coalitions to evaluated. 
+`xplainfi` provides two **estimators** for approximating SAGE values, selected with the `estimator` argument.
+This choice is orthogonal to the marginal-versus-conditional distinction above, so any combination is valid.
+
+**The permutation estimator** (`estimator = "permutation"`, the default) is what is referred to as the "permutation estimator" in other implementations.
+It works by first building up `n_permutations` permutations of the feature vector and then successively evaluating prefixes of the sequence from left to right as coalitions to be evaluated.
 If a task has features `(x1, x2, x3)`, one permutation could be `(x2, x1, x3)`, resulting in these coalitions to be evaluated: `(x2)`, `(x2, x1)`, and `(x2, x1, x3)`.
 The empty coalition will always be evaluated, resulting in a total number of evaluations of `n_permutations * n_features + 1`.
+
+**The kernel estimator** (`estimator = "kernel"`, also called Kernel SAGE) instead estimates all SAGE values jointly by fitting a weighted least-squares regression to the values of randomly sampled coalitions, using the Shapley kernel as the regression weights (Covert & Lee, 2021).
+Its sampling budget is set by `n_coalitions` rather than `n_permutations`.
+The two estimators approximate the same SAGE values but scale differently with the number of features; the [Choosing an estimator](#choosing-an-estimator) section below discusses when to prefer each.
 
 ## Demonstration with Correlated Features
 
@@ -289,6 +296,117 @@ The difference between the two methods:
 
 The interpretation of SAGE values, particularly for ConditionalSAGE, can be affected by the specific conditional sampler used and the nature of feature dependencies in the data.
 The choice of sampler can significantly affect results, and there is currently limited empirical guidance on best practices for different settings.
+
+## Choosing an estimator: permutation vs. kernel {#choosing-an-estimator}
+
+Both estimators approximate the *same* SAGE values; they differ only in how coalitions are sampled and combined.
+Because the estimator axis is orthogonal to how out-of-coalition features are marginalized, `estimator = "kernel"` works with both `MarginalSAGE` and `ConditionalSAGE`.
+
+The practical difference is **how the cost scales with the number of features** $p$:
+
+- **Permutation** evaluates `n_permutations * p + 1` coalitions.
+  Each additional feature adds another evaluation to *every* permutation, so the cost grows linearly with $p$.
+  In return it provides standard-error-based convergence tracking and early stopping (shown above).
+- **Kernel** evaluates `2 * n_coalitions + 2` coalitions (each sampled coalition is paired with its complement for variance reduction), independent of $p$.
+  It fits a regression to these coalition values and is typically more sample-efficient, with the advantage growing as $p$ increases.
+  The current implementation does not yet expose standard errors or early stopping for this estimator.
+
+Let's compute Marginal SAGE both ways on `friedman1`, which has ten features (`important1`--`important5` are informative, the rest are noise):
+
+```{r estimator-setup}
+set.seed(42)
+task_f = tgen("friedman1")$generate(n = 400)
+learner_f = lrn("regr.ranger", num.trees = 50)
+measure_f = msr("regr.mse")
+resampling_f = rsmp("holdout")
+resampling_f$instantiate(task_f)
+
+# Permutation estimator (default): budget set by n_permutations
+sage_perm = MarginalSAGE$new(
+	task = task_f,
+	learner = learner_f,
+	measure = measure_f,
+	resampling = resampling_f,
+	n_permutations = 15L,
+	n_samples = 50L
+)
+
+# Kernel estimator: budget set by n_coalitions instead
+sage_kernel = MarginalSAGE$new(
+	task = task_f,
+	learner = learner_f,
+	measure = measure_f,
+	resampling = resampling_f,
+	estimator = "kernel",
+	n_coalitions = 250L,
+	n_samples = 50L
+)
+
+sage_perm$compute()
+sage_kernel$compute()
+```
+
+The two estimators produce essentially the same importance values:
+
+```{r estimator-agreement}
+#| echo: false
+#| fig.alt: "Grouped bar chart with features on the x-axis and SAGE value on the y-axis, with two bars per feature for the permutation and kernel estimators, showing near-identical heights."
+perm_imp = sage_perm$importance()
+perm_imp$estimator = "Permutation"
+kernel_imp = sage_kernel$importance()
+kernel_imp$estimator = "Kernel"
+
+both = rbind(perm_imp, kernel_imp)
+both$feature = factor(
+	both$feature,
+	levels = perm_imp$feature[order(perm_imp$importance, decreasing = TRUE)]
+)
+
+ggplot(both, aes(x = feature, y = importance, fill = estimator)) +
+	geom_col(position = "dodge", alpha = 0.8) +
+	scale_fill_manual(values = c("Permutation" = "steelblue", "Kernel" = "darkorange")) +
+	labs(
+		title = "Marginal SAGE: permutation vs. kernel estimator",
+		subtitle = "friedman1 (10 features): both estimators approximate the same SAGE values",
+		x = "Feature",
+		y = "SAGE value",
+		fill = "Estimator"
+	) +
+	theme_minimal(base_size = 14) +
+	theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "bottom")
+```
+
+Both also recover nearly the same total, as expected from the SAGE efficiency property (small differences arise from the random reference sample drawn for marginalization):
+
+```{r estimator-totals}
+c(
+	permutation = sum(sage_perm$importance()$importance),
+	kernel = sum(sage_kernel$importance()$importance)
+)
+```
+
+### When does the kernel estimator pay off?
+
+For this ten-feature task the two estimators are comparably cheap, and the permutation estimator additionally gives you convergence diagnostics, so there is little reason to switch.
+The kernel estimator's advantage is a matter of *scaling*: its evaluation budget is fixed by `n_coalitions` and does not grow with the number of features, whereas the permutation estimator evaluates `n_permutations * p + 1` coalitions.
+The following table illustrates the number of model evaluations at fixed budgets (`n_permutations = 15`, `n_coalitions = 250`) as the feature count grows:
+
+```{r estimator-scaling}
+p = c(5L, 10L, 25L, 50L, 100L)
+data.frame(
+	n_features = p,
+	permutation_evals = 15L * p + 1L,
+	kernel_evals = 2L * 250L + 2L
+)
+```
+
+The number of coalitions the kernel estimator needs to converge grows only slowly with $p$, while the permutation estimator's per-iteration cost grows linearly.
+As a rule of thumb:
+
+- For a handful of features, prefer **permutation**: it is simple, cheap, and provides standard errors and early stopping.
+- As the feature count grows into the dozens, prefer **kernel**: it reaches a given accuracy with far fewer model evaluations.
+
+This matches the empirical results in Covert & Lee (2021) and the reference `sage` implementation, where the kernel estimator is noisier than permutation sampling for very few features but converges substantially faster once there are many features.
 
 ## Comparison with PFI and CFI
 
