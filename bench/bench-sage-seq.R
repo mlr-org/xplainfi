@@ -33,9 +33,9 @@
 #   - bench/results/bench-sage-seq-results.csv : appended run log (one row per cell)
 
 suppressPackageStartupMessages({
-	library(mlr3)
-	library(mlr3learners)
-	library(data.table)
+  library(mlr3)
+  library(mlr3learners)
+  library(data.table)
 })
 
 # --------------------------------------------------------------------
@@ -45,11 +45,11 @@ suppressPackageStartupMessages({
 # --------------------------------------------------------------------
 use_installed = nzchar(Sys.getenv("BENCH_USE_INSTALLED"))
 if (!use_installed && requireNamespace("pkgload", quietly = TRUE)) {
-	pkgload::load_all(".", quiet = TRUE)
-	pkg_load_mode = "load_all"
+  pkgload::load_all(".", quiet = TRUE)
+  pkg_load_mode = "load_all"
 } else {
-	library(xplainfi)
-	pkg_load_mode = "installed"
+  library(xplainfi)
+  pkg_load_mode = "installed"
 }
 
 # --------------------------------------------------------------------
@@ -61,33 +61,33 @@ LEARNER_ID = Sys.getenv("BENCH_LEARNER", "regr.ranger")
 CHECK_INTERVAL_RAW = Sys.getenv("BENCH_CHECK_INTERVAL", "1")
 
 ALL_SCALES = list(
-	small = list(n = 300L, p = 6L, n_perm = 10L, n_samples = 30L),
-	medium = list(n = 500L, p = 8L, n_perm = 20L, n_samples = 50L),
-	heavy = list(n = 2000L, p = 20L, n_perm = 50L, n_samples = 100L),
-	# `wide` is tuned to surface the accumulation cost: coalition
-	# bookkeeping scales with (coalitions)^2 while data expansion +
-	# prediction scale with coalitions * n_test * n_samples. Many
-	# features x permutations but FEW test rows and samples makes the
-	# coalition count dominate, so the O(n^2) -> closed-form change is
-	# visible end-to-end (pair it with BENCH_LEARNER=regr.lm and
-	# BENCH_CHECK_INTERVAL=max).
-	wide = list(n = 150L, p = 25L, n_perm = 100L, n_samples = 5L)
+  small = list(n = 300L, p = 6L, n_perm = 10L, n_samples = 30L),
+  medium = list(n = 500L, p = 8L, n_perm = 20L, n_samples = 50L),
+  heavy = list(n = 2000L, p = 20L, n_perm = 50L, n_samples = 100L),
+  # `wide` is tuned to surface the accumulation cost: coalition
+  # bookkeeping scales with (coalitions)^2 while data expansion +
+  # prediction scale with coalitions * n_test * n_samples. Many
+  # features x permutations but FEW test rows and samples makes the
+  # coalition count dominate, so the O(n^2) -> closed-form change is
+  # visible end-to-end (pair it with BENCH_LEARNER=regr.lm and
+  # BENCH_CHECK_INTERVAL=max).
+  wide = list(n = 150L, p = 25L, n_perm = 100L, n_samples = 5L)
 )
 scale_sel = trimws(strsplit(Sys.getenv("BENCH_SCALES", "small,medium"), ",")[[1]])
 SCALES = ALL_SCALES[scale_sel]
 if (anyNA(names(SCALES)) || length(SCALES) == 0) {
-	stop("BENCH_SCALES must be a subset of: ", paste(names(ALL_SCALES), collapse = ", "))
+  stop("BENCH_SCALES must be a subset of: ", paste(names(ALL_SCALES), collapse = ", "))
 }
 
 method_sel = trimws(strsplit(Sys.getenv("BENCH_METHODS", "MarginalSAGE,ConditionalSAGE"), ",")[[1]])
 if (!all(method_sel %in% c("MarginalSAGE", "ConditionalSAGE"))) {
-	stop("BENCH_METHODS must be a subset of: MarginalSAGE, ConditionalSAGE")
+  stop("BENCH_METHODS must be a subset of: MarginalSAGE, ConditionalSAGE")
 }
 
 # Resolve check_interval per scale: "max" means one big checkpoint
 # (all n_perm permutations evaluated together).
 resolve_check_interval = function(n_perm) {
-	if (identical(CHECK_INTERVAL_RAW, "max")) n_perm else as.integer(CHECK_INTERVAL_RAW)
+  if (identical(CHECK_INTERVAL_RAW, "max")) n_perm else as.integer(CHECK_INTERVAL_RAW)
 }
 
 # --------------------------------------------------------------------
@@ -95,31 +95,31 @@ resolve_check_interval = function(n_perm) {
 # CSV log is self-describing and runs stay comparable.
 # --------------------------------------------------------------------
 git = function(args) {
-	out = tryCatch(
-		suppressWarnings(system2("git", args, stdout = TRUE, stderr = FALSE)),
-		error = function(e) NA_character_
-	)
-	if (length(out) == 0) NA_character_ else paste(out, collapse = " ")
+  out = tryCatch(
+    suppressWarnings(system2("git", args, stdout = TRUE, stderr = FALSE)),
+    error = function(e) NA_character_
+  )
+  if (length(out) == 0) NA_character_ else paste(out, collapse = " ")
 }
 git_dirty = {
-	status = git(c("status", "--porcelain", "--untracked-files=no"))
-	!is.na(status) && nzchar(status)
+  status = git(c("status", "--porcelain", "--untracked-files=no"))
+  !is.na(status) && nzchar(status)
 }
 
 run_meta = list(
-	run_id = format(Sys.time(), "%Y%m%dT%H%M%S"),
-	datetime = format(Sys.time(), "%Y-%m-%d %H:%M:%S"),
-	hostname = Sys.info()[["nodename"]],
-	os = paste(Sys.info()[["sysname"]], Sys.info()[["release"]]),
-	r_version = paste(R.version$major, R.version$minor, sep = "."),
-	pkg_version = as.character(utils::packageVersion("xplainfi")),
-	pkg_load = pkg_load_mode,
-	git_branch = git(c("rev-parse", "--abbrev-ref", "HEAD")),
-	git_sha = git(c("rev-parse", "--short", "HEAD")),
-	git_dirty = git_dirty,
-	benchmark = "sage-seq",
-	backend = "sequential",
-	learner = LEARNER_ID
+  run_id = format(Sys.time(), "%Y%m%dT%H%M%S"),
+  datetime = format(Sys.time(), "%Y-%m-%d %H:%M:%S"),
+  hostname = Sys.info()[["nodename"]],
+  os = paste(Sys.info()[["sysname"]], Sys.info()[["release"]]),
+  r_version = paste(R.version$major, R.version$minor, sep = "."),
+  pkg_version = as.character(utils::packageVersion("xplainfi")),
+  pkg_load = pkg_load_mode,
+  git_branch = git(c("rev-parse", "--abbrev-ref", "HEAD")),
+  git_sha = git(c("rev-parse", "--short", "HEAD")),
+  git_dirty = git_dirty,
+  benchmark = "sage-seq",
+  backend = "sequential",
+  learner = LEARNER_ID
 )
 
 # --------------------------------------------------------------------
@@ -129,31 +129,31 @@ run_meta = list(
 # but cheap" learner for the isolation regime.
 # --------------------------------------------------------------------
 make_task = function(n, p, seed) {
-	set.seed(seed)
-	X = matrix(rnorm(n * p), nrow = n, ncol = p)
-	colnames(X) = paste0("x", seq_len(p))
-	beta = sin(seq_len(p))
-	y = as.vector(X %*% beta) + rnorm(n)
-	dt = as.data.table(X)
-	dt$y = y
-	as_task_regr(dt, target = "y", id = sprintf("bench_n%d_p%d", n, p))
+  set.seed(seed)
+  X = matrix(rnorm(n * p), nrow = n, ncol = p)
+  colnames(X) = paste0("x", seq_len(p))
+  beta = sin(seq_len(p))
+  y = as.vector(X %*% beta) + rnorm(n)
+  dt = as.data.table(X)
+  dt$y = y
+  as_task_regr(dt, target = "y", id = sprintf("bench_n%d_p%d", n, p))
 }
 
 # ranger gets a modest tree count; other learners (regr.lm, ...) take
 # their defaults.
 mk_learner = function() {
-	if (grepl("ranger", LEARNER_ID, fixed = TRUE)) {
-		lrn(LEARNER_ID, num.trees = 50L)
-	} else {
-		lrn(LEARNER_ID)
-	}
+  if (grepl("ranger", LEARNER_ID, fixed = TRUE)) {
+    lrn(LEARNER_ID, num.trees = 50L)
+  } else {
+    lrn(LEARNER_ID)
+  }
 }
 
 # Stable per-result fingerprint for eyeballing correctness against a
 # known-good run (same seed + sequential => should match bitwise).
 fingerprint = function(imp_dt) {
-	v = imp_dt[order(feature), importance]
-	paste(format(round(v, 4), nsmall = 4), collapse = ",")
+  v = imp_dt[order(feature), importance]
+  paste(format(round(v, 4), nsmall = 4), collapse = ",")
 }
 
 # --------------------------------------------------------------------
@@ -161,49 +161,49 @@ fingerprint = function(imp_dt) {
 # (n_perm permutations) and timings are directly comparable run to run.
 # --------------------------------------------------------------------
 bench_one = function(method, scale_name) {
-	cfg = SCALES[[scale_name]]
-	ci = resolve_check_interval(cfg$n_perm)
-	task = make_task(cfg$n, cfg$p, SEED)
-	learner = mk_learner()
+  cfg = SCALES[[scale_name]]
+  ci = resolve_check_interval(cfg$n_perm)
+  task = make_task(cfg$n, cfg$p, SEED)
+  learner = mk_learner()
 
-	sage = switch(
-		method,
-		MarginalSAGE = MarginalSAGE$new(
-			task = task,
-			learner = learner,
-			n_permutations = cfg$n_perm,
-			n_samples = cfg$n_samples,
-			early_stopping = FALSE
-		),
-		ConditionalSAGE = ConditionalSAGE$new(
-			task = task,
-			learner = learner,
-			n_permutations = cfg$n_perm,
-			n_samples = cfg$n_samples,
-			early_stopping = FALSE
-		)
-	)
+  sage = switch(
+    method,
+    MarginalSAGE = MarginalSAGE$new(
+      task = task,
+      learner = learner,
+      n_permutations = cfg$n_perm,
+      n_samples = cfg$n_samples,
+      early_stopping = FALSE
+    ),
+    ConditionalSAGE = ConditionalSAGE$new(
+      task = task,
+      learner = learner,
+      n_permutations = cfg$n_perm,
+      n_samples = cfg$n_samples,
+      early_stopping = FALSE
+    )
+  )
 
-	walls = numeric(REPS)
-	fp = NA_character_
-	for (r in seq_len(REPS)) {
-		set.seed(SEED) # seed the caller-side permutation generator each rep
-		walls[r] = system.time(sage$compute(check_interval = ci))[["elapsed"]]
-		if (r == 1L) fp = fingerprint(sage$importance())
-	}
+  walls = numeric(REPS)
+  fp = NA_character_
+  for (r in seq_len(REPS)) {
+    set.seed(SEED) # seed the caller-side permutation generator each rep
+    walls[r] = system.time(sage$compute(check_interval = ci))[["elapsed"]]
+    if (r == 1L) fp = fingerprint(sage$importance())
+  }
 
-	data.table(
-		method = method,
-		scale = scale_name,
-		n = cfg$n,
-		p = cfg$p,
-		n_perm = cfg$n_perm,
-		n_samples = cfg$n_samples,
-		check_interval = ci,
-		reps = REPS,
-		wall_s = min(walls),
-		fingerprint = fp
-	)
+  data.table(
+    method = method,
+    scale = scale_name,
+    n = cfg$n,
+    p = cfg$p,
+    n_perm = cfg$n_perm,
+    n_samples = cfg$n_samples,
+    check_interval = ci,
+    reps = REPS,
+    wall_s = min(walls),
+    fingerprint = fp
+  )
 }
 
 # --------------------------------------------------------------------
@@ -212,37 +212,37 @@ bench_one = function(method, scale_name) {
 xplain_opt(sequential = TRUE)
 
 cat(sprintf(
-	"Host: %s | R %s | xplainfi %s (%s) | git %s@%s%s\n",
-	run_meta$hostname,
-	run_meta$r_version,
-	run_meta$pkg_version,
-	run_meta$pkg_load,
-	run_meta$git_branch,
-	run_meta$git_sha,
-	if (run_meta$git_dirty) " +dirty" else ""
+  "Host: %s | R %s | xplainfi %s (%s) | git %s@%s%s\n",
+  run_meta$hostname,
+  run_meta$r_version,
+  run_meta$pkg_version,
+  run_meta$pkg_load,
+  run_meta$git_branch,
+  run_meta$git_sha,
+  if (run_meta$git_dirty) " +dirty" else ""
 ))
 cat(sprintf(
-	"Learner: %s | check_interval: %s | scales: %s | reps: %d | seed: %d\n\n",
-	LEARNER_ID,
-	CHECK_INTERVAL_RAW,
-	paste(names(SCALES), collapse = ", "),
-	REPS,
-	SEED
+  "Learner: %s | check_interval: %s | scales: %s | reps: %d | seed: %d\n\n",
+  LEARNER_ID,
+  CHECK_INTERVAL_RAW,
+  paste(names(SCALES), collapse = ", "),
+  REPS,
+  SEED
 ))
 
 grid = expand.grid(
-	method = method_sel,
-	scale = names(SCALES),
-	stringsAsFactors = FALSE
+  method = method_sel,
+  scale = names(SCALES),
+  stringsAsFactors = FALSE
 )
 
 rows = vector("list", nrow(grid))
 for (i in seq_len(nrow(grid))) {
-	g = grid[i, ]
-	cat(sprintf("[%d/%d] %-16s | %-6s ... ", i, nrow(grid), g$method, g$scale))
-	flush.console()
-	rows[[i]] = bench_one(g$method, g$scale)
-	cat(sprintf("%8.2fs\n", rows[[i]]$wall_s))
+  g = grid[i, ]
+  cat(sprintf("[%d/%d] %-16s | %-6s ... ", i, nrow(grid), g$method, g$scale))
+  flush.console()
+  rows[[i]] = bench_one(g$method, g$scale)
+  cat(sprintf("%8.2fs\n", rows[[i]]$wall_s))
 }
 
 res = rbindlist(rows)
@@ -251,11 +251,11 @@ res = cbind(as.data.table(run_meta), res)
 
 cat("\n=== Results ===\n")
 print(res[, .(
-	method,
-	scale,
-	check_interval,
-	wall_s = round(wall_s, 2),
-	fingerprint = substr(fingerprint, 1, 24)
+  method,
+  scale,
+  check_interval,
+  wall_s = round(wall_s, 2),
+  fingerprint = substr(fingerprint, 1, 24)
 )])
 
 # --------------------------------------------------------------------
@@ -263,7 +263,7 @@ print(res[, .(
 # --------------------------------------------------------------------
 results_dir = file.path("bench", "results")
 if (!dir.exists(results_dir)) {
-	dir.create(results_dir, recursive = TRUE)
+  dir.create(results_dir, recursive = TRUE)
 }
 log_path = file.path(results_dir, "bench-sage-seq-results.csv")
 fwrite(res, log_path, append = file.exists(log_path))

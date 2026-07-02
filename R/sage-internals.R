@@ -15,61 +15,61 @@
 #'
 #' @keywords internal
 sage_batch_predict = function(learner, combined_data, task, batch_size, task_type) {
-	total_rows = nrow(combined_data)
+  total_rows = nrow(combined_data)
 
-	if (!is.null(batch_size) && total_rows > batch_size) {
-		# Batched prediction
-		n_batches = ceiling(total_rows / batch_size)
-		all_predictions = vector("list", n_batches)
+  if (!is.null(batch_size) && total_rows > batch_size) {
+    # Batched prediction
+    n_batches = ceiling(total_rows / batch_size)
+    all_predictions = vector("list", n_batches)
 
-		for (batch_idx in seq_len(n_batches)) {
-			start_row = (batch_idx - 1) * batch_size + 1
-			end_row = min(batch_idx * batch_size, total_rows)
-			batch_data = combined_data[start_row:end_row]
+    for (batch_idx in seq_len(n_batches)) {
+      start_row = (batch_idx - 1) * batch_size + 1
+      end_row = min(batch_idx * batch_size, total_rows)
+      batch_data = combined_data[start_row:end_row]
 
-			if (xplain_opt("debug")) {
-				cli::cli_inform(
-					"Predicting on {.val {nrow(batch_data)}} instances in batch {.val {batch_idx}/{n_batches}}"
-				)
-			}
+      if (xplain_opt("debug")) {
+        cli::cli_inform(
+          "Predicting on {.val {nrow(batch_data)}} instances in batch {.val {batch_idx}/{n_batches}}"
+        )
+      }
 
-			pred_result = if (is.function(learner$predict_newdata_fast)) {
-				learner$predict_newdata_fast(newdata = batch_data, task = task)
-			} else {
-				learner$predict_newdata(newdata = batch_data, task = task)
-			}
+      pred_result = if (is.function(learner$predict_newdata_fast)) {
+        learner$predict_newdata_fast(newdata = batch_data, task = task)
+      } else {
+        learner$predict_newdata(newdata = batch_data, task = task)
+      }
 
-			all_predictions[[batch_idx]] = if (task_type == "classif") {
-				pred_result$prob
-			} else {
-				pred_result$response
-			}
-		}
+      all_predictions[[batch_idx]] = if (task_type == "classif") {
+        pred_result$prob
+      } else {
+        pred_result$response
+      }
+    }
 
-		# Combine predictions from all batches
-		if (task_type == "classif") {
-			do.call(rbind, all_predictions)
-		} else {
-			do.call(c, all_predictions)
-		}
-	} else {
-		# Single prediction without batching
-		if (xplain_opt("debug")) {
-			cli::cli_inform("Predicting on {.val {nrow(combined_data)}} instances at once")
-		}
+    # Combine predictions from all batches
+    if (task_type == "classif") {
+      do.call(rbind, all_predictions)
+    } else {
+      do.call(c, all_predictions)
+    }
+  } else {
+    # Single prediction without batching
+    if (xplain_opt("debug")) {
+      cli::cli_inform("Predicting on {.val {nrow(combined_data)}} instances at once")
+    }
 
-		pred_result = if (is.function(learner$predict_newdata_fast)) {
-			learner$predict_newdata_fast(newdata = combined_data, task = task)
-		} else {
-			learner$predict_newdata(newdata = combined_data, task = task)
-		}
+    pred_result = if (is.function(learner$predict_newdata_fast)) {
+      learner$predict_newdata_fast(newdata = combined_data, task = task)
+    } else {
+      learner$predict_newdata(newdata = combined_data, task = task)
+    }
 
-		if (task_type == "classif") {
-			pred_result$prob
-		} else {
-			pred_result$response
-		}
-	}
+    if (task_type == "classif") {
+      pred_result$prob
+    } else {
+      pred_result$response
+    }
+  }
 }
 
 #' Aggregate Predictions by Coalition and Test Instance
@@ -93,34 +93,34 @@ sage_batch_predict = function(learner, combined_data, task, batch_size, task_typ
 #'
 #' @keywords internal
 sage_aggregate_predictions = function(combined_data, predictions, task_type, class_names = NULL) {
-	if (task_type == "classif") {
-		# Add prediction columns to combined_data
-		n_classes = ncol(predictions)
-		for (j in seq_len(n_classes)) {
-			combined_data[, paste0(".pred_class_", j) := predictions[, j]]
-		}
+  if (task_type == "classif") {
+    # Add prediction columns to combined_data
+    n_classes = ncol(predictions)
+    for (j in seq_len(n_classes)) {
+      combined_data[, paste0(".pred_class_", j) := predictions[, j]]
+    }
 
-		# Aggregate: calculate mean probability for each class, grouped by coalition and test instance
-		agg_cols = paste0(".pred_class_", seq_len(n_classes))
-		avg_preds = combined_data[,
-			lapply(.SD, function(x) mean(x, na.rm = TRUE)),
-			.SDcols = agg_cols,
-			by = c(".coalition_id", ".test_instance_id")
-		]
+    # Aggregate: calculate mean probability for each class, grouped by coalition and test instance
+    agg_cols = paste0(".pred_class_", seq_len(n_classes))
+    avg_preds = combined_data[,
+      lapply(.SD, function(x) mean(x, na.rm = TRUE)),
+      .SDcols = agg_cols,
+      by = c(".coalition_id", ".test_instance_id")
+    ]
 
-		# Rename aggregated columns to original class names
-		setnames(avg_preds, agg_cols, class_names)
-		avg_preds
-	} else if (task_type == "regr") {
-		# Regression: add predictions and aggregate
-		.prediction = NULL # the data.table NSE NOTE tax
-		combined_data[, .prediction := predictions]
+    # Rename aggregated columns to original class names
+    setnames(avg_preds, agg_cols, class_names)
+    avg_preds
+  } else if (task_type == "regr") {
+    # Regression: add predictions and aggregate
+    .prediction = NULL # the data.table NSE NOTE tax
+    combined_data[, .prediction := predictions]
 
-		combined_data[,
-			list(avg_pred = mean(.prediction, na.rm = TRUE)),
-			by = c(".coalition_id", ".test_instance_id")
-		]
-	}
+    combined_data[,
+      list(avg_pred = mean(.prediction, na.rm = TRUE)),
+      by = c(".coalition_id", ".test_instance_id")
+    ]
+  }
 }
 
 #' Build row-major growing-prefix coalitions for a permutation list
@@ -134,17 +134,17 @@ sage_aggregate_predictions = function(combined_data, predictions, task_type, cla
 #' @keywords internal
 #' @noRd
 sage_growing_coalitions = function(perm_sublist) {
-	# Pre-allocate to the exact coalition count (sum of permutation lengths)
-	coalitions = vector("list", sum(lengths(perm_sublist)))
-	k = 1L
-	for (i in seq_along(perm_sublist)) {
-		perm = perm_sublist[[i]]
-		for (j in seq_along(perm)) {
-			coalitions[[k]] = perm[seq_len(j)]
-			k = k + 1L
-		}
-	}
-	coalitions
+  # Pre-allocate to the exact coalition count (sum of permutation lengths)
+  coalitions = vector("list", sum(lengths(perm_sublist)))
+  k = 1L
+  for (i in seq_along(perm_sublist)) {
+    perm = perm_sublist[[i]]
+    for (j in seq_along(perm)) {
+      coalitions[[k]] = perm[seq_len(j)]
+      k = k + 1L
+    }
+  }
+  coalitions
 }
 
 #' Accumulate SAGE marginal contributions from a loss vector
@@ -166,24 +166,24 @@ sage_growing_coalitions = function(perm_sublist) {
 #' @keywords internal
 #' @noRd
 sage_marginal_contributions = function(perm_sublist, losses, baseline, feature_names, offset = 0L) {
-	sv = numeric(length(feature_names))
-	sv_sq = numeric(length(feature_names))
-	names(sv) = feature_names
-	names(sv_sq) = feature_names
+  sv = numeric(length(feature_names))
+  sv_sq = numeric(length(feature_names))
+  names(sv) = feature_names
+  names(sv_sq) = feature_names
 
-	for (i in seq_along(perm_sublist)) {
-		perm = perm_sublist[[i]]
-		p = length(perm)
-		prev_loss = baseline
-		for (j in seq_len(p)) {
-			feature = perm[j]
-			current_loss = losses[offset + (i - 1L) * p + j]
-			contribution = prev_loss - current_loss
-			sv[feature] = sv[feature] + contribution
-			sv_sq[feature] = sv_sq[feature] + contribution^2
-			prev_loss = current_loss
-		}
-	}
+  for (i in seq_along(perm_sublist)) {
+    perm = perm_sublist[[i]]
+    p = length(perm)
+    prev_loss = baseline
+    for (j in seq_len(p)) {
+      feature = perm[j]
+      current_loss = losses[offset + (i - 1L) * p + j]
+      contribution = prev_loss - current_loss
+      sv[feature] = sv[feature] + contribution
+      sv_sq[feature] = sv_sq[feature] + contribution^2
+      prev_loss = current_loss
+    }
+  }
 
-	list(sv = sv, sv_sq = sv_sq)
+  list(sv = sv, sv_sq = sv_sq)
 }

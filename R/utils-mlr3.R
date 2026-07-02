@@ -4,20 +4,20 @@
 #'
 #' @return logical(1)
 has_obs_loss = function(x) {
-	res = FALSE
-	if (inherits(x, "R6") && inherits(x, "Measure")) {
-		if (utils::packageVersion("mlr3") >= package_version("1.3.0")) {
-			res = "obs_loss" %in% x$properties
-		} else {
-			res = !is.null(x$obs_loss)
-		}
-	} else if (is.character(x)) {
-		if (x %in% mlr3::mlr_measures$keys()) {
-			res = has_obs_loss(mlr3::msr(x))
-		}
-	}
+  res = FALSE
+  if (inherits(x, "R6") && inherits(x, "Measure")) {
+    if (utils::packageVersion("mlr3") >= package_version("1.3.0")) {
+      res = "obs_loss" %in% x$properties
+    } else {
+      res = !is.null(x$obs_loss)
+    }
+  } else if (is.character(x)) {
+    if (x %in% mlr3::mlr_measures$keys()) {
+      res = has_obs_loss(mlr3::msr(x))
+    }
+  }
 
-	isTRUE(res)
+  isTRUE(res)
 }
 
 #' Check if a learner can be considered pretrained
@@ -36,28 +36,28 @@ has_obs_loss = function(x) {
 #' @keywords internal
 #' @noRd
 assert_pretrained = function(learner, task, resampling) {
-	# Untrained learner -> not pretrained, nothing to validate
-	if (is.null(learner$model)) {
-		return(FALSE)
-	}
+  # Untrained learner -> not pretrained, nothing to validate
+  if (is.null(learner$model)) {
+    return(FALSE)
+  }
 
-	# Learner is trained: resampling must have exactly 1 iteration
-	if (resampling$iters != 1L) {
-		cli::cli_abort(c(
-			"Given {.code resampling} is not compatible with using a pre-trained {.cls Learner}",
-			i = "If {.code learner} is pre-trained, {.code resampling} must have exactly 1 iteration (e.g. holdout)"
-		))
-	}
+  # Learner is trained: resampling must have exactly 1 iteration
+  if (resampling$iters != 1L) {
+    cli::cli_abort(c(
+      "Given {.code resampling} is not compatible with using a pre-trained {.cls Learner}",
+      i = "If {.code learner} is pre-trained, {.code resampling} must have exactly 1 iteration (e.g. holdout)"
+    ))
+  }
 
-	# Resampling test row IDs must be a subset of task row IDs
-	if (length(setdiff(resampling$test_set(1), task$row_ids)) > 0) {
-		cli::cli_abort(c(
-			"Provided {.code task} has row_ids not compatible with provided {.code resampling}",
-			i = "Make sure {.code resampling} was instantiated on the correct {.code task}"
-		))
-	}
+  # Resampling test row IDs must be a subset of task row IDs
+  if (length(setdiff(resampling$test_set(1), task$row_ids)) > 0) {
+    cli::cli_abort(c(
+      "Provided {.code task} has row_ids not compatible with provided {.code resampling}",
+      i = "Make sure {.code resampling} was instantiated on the correct {.code task}"
+    ))
+  }
 
-	TRUE
+  TRUE
 }
 
 #' Create ResampleResult object
@@ -71,43 +71,43 @@ assert_pretrained = function(learner, task, resampling) {
 #' @noRd
 #' @keywords internal
 assemble_rr = function(
-	task,
-	learner,
-	resampling,
-	# Models are needed in any case and so are task backends I think
-	store_models = TRUE,
-	store_backends = TRUE
+  task,
+  learner,
+  resampling,
+  # Models are needed in any case and so are task backends I think
+  store_models = TRUE,
+  store_backends = TRUE
 ) {
-	if (assert_pretrained(learner = learner, task = task, resampling = resampling)) {
-		if (xplain_opt("debug")) {
-			cli::cli_alert_info("Using pretrained learner")
-		}
-		pred = learner$predict(task, row_ids = resampling$test_set(1))
+  if (assert_pretrained(learner = learner, task = task, resampling = resampling)) {
+    if (xplain_opt("debug")) {
+      cli::cli_alert_info("Using pretrained learner")
+    }
+    pred = learner$predict(task, row_ids = resampling$test_set(1))
 
-		# Clone learner: as_resample_result() clones internally but resets the model
-		# on the object it receives, which would wipe the user's original via R6 reference
-		# mlr3:::as_resample_result.list
-		rdata = mlr3::as_result_data(
-			task = task,
-			learners = list(learner$clone()),
-			resampling = resampling,
-			iterations = seq_len(resampling$iters),
-			store_backends = store_backends,
-			predictions = list(list(test = pred))
-		)
-		mlr3::ResampleResult$new(rdata)
-	} else {
-		if (xplain_opt("debug")) {
-			cli::cli_alert_info("Using {.fun resample}")
-		}
-		resample(
-			task,
-			learner,
-			resampling,
-			store_models = TRUE,
-			store_backends = store_backends
-		)
-	}
+    # Clone learner: as_resample_result() clones internally but resets the model
+    # on the object it receives, which would wipe the user's original via R6 reference
+    # mlr3:::as_resample_result.list
+    rdata = mlr3::as_result_data(
+      task = task,
+      learners = list(learner$clone()),
+      resampling = resampling,
+      iterations = seq_len(resampling$iters),
+      store_backends = store_backends,
+      predictions = list(list(test = pred))
+    )
+    mlr3::ResampleResult$new(rdata)
+  } else {
+    if (xplain_opt("debug")) {
+      cli::cli_alert_info("Using {.fun resample}")
+    }
+    resample(
+      task,
+      learner,
+      resampling,
+      store_models = TRUE,
+      store_backends = store_backends
+    )
+  }
 }
 
 #' Create a resampling with all data being test data
@@ -128,11 +128,11 @@ assemble_rr = function(
 #' # Create matching Resampling with all-test data
 #' resampling_custom <- rsmp_all_test(custom_task)
 rsmp_all_test = function(task) {
-	mlr3::assert_task(task)
+  mlr3::assert_task(task)
 
-	mlr3::rsmp("custom")$instantiate(
-		task,
-		train_sets = list(integer(0)),
-		test_sets = list(task$row_ids)
-	)
+  mlr3::rsmp("custom")$instantiate(
+    task,
+    train_sets = list(integer(0)),
+    test_sets = list(task$row_ids)
+  )
 }

@@ -9,10 +9,10 @@
 # @return data.table with `nrow(data) * samples_per_row` rows.
 # @noRd
 .replicate_evidence = function(data, samples_per_row) {
-	checkmate::assert_data_table(data)
-	checkmate::assert_count(samples_per_row, positive = TRUE)
-	if (samples_per_row == 1L) {
-		return(data)
-	}
-	data[rep.int(seq_len(.N), times = samples_per_row)]
+  checkmate::assert_data_table(data)
+  checkmate::assert_count(samples_per_row, positive = TRUE)
+  if (samples_per_row == 1L) {
+    return(data)
+  }
+  data[rep.int(seq_len(.N), times = samples_per_row)]
 }
