@@ -21,12 +21,20 @@ These SEs quantify the Monte Carlo sampling error for a fixed trained model
 and are only valid for inference about the importance of features for that
 specific model. They do not capture broader uncertainty from model variability
 across different train/test splits or resampling iterations.
+
+The permutation estimator follows Covert et al. (2020); the kernel estimator
+(\code{estimator = "kernel"}, Kernel SAGE) follows Covert & Lee (2021).
 }
 \references{
 Covert I, Lundberg S, Lee S (2020).
 \dQuote{Understanding Global Feature Contributions With Additive Importance Measures.}
 In \emph{Advances in Neural Information Processing Systems}, volume 33, 17212--17223.
 \url{https://proceedings.neurips.cc/paper/2020/hash/c7bf0b7c1a86d5eb3be2c722cf2cf746-Abstract.html}.
+
+Covert I, Lee S (2021).
+\dQuote{Improving KernelSHAP: Practical Shapley Value Estimation Using Linear Regression.}
+In \emph{Proceedings of the 24th International Conference on Artificial Intelligence and Statistics}, volume 130, 3457--3465.
+\url{https://proceedings.mlr.press/v130/covert21a.html}.
 }
 \seealso{
 \link{MarginalSAGE} \link{ConditionalSAGE}
@@ -37,13 +45,17 @@ In \emph{Advances in Neural Information Processing Systems}, volume 33, 17212--1
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}
   \describe{
-    \item{\code{n_permutations}}{(\code{integer(1)}) Number of permutations to sample.}
+    \item{\code{estimator}}{(\code{character(1)}) Shapley-value estimator, either \code{"permutation"} or \code{"kernel"}.}
+
+    \item{\code{n_permutations}}{(\code{integer(1)} | \code{NULL}) Number of permutations to sample (permutation estimator).}
+
+    \item{\code{n_coalitions}}{(\code{integer(1)} | \code{NULL}) Number of coalitions to sample (kernel estimator).}
 
     \item{\code{convergence_history}}{(\code{\link[data.table:data.table]{data.table}}) History of SAGE values during computation.}
 
     \item{\code{converged}}{(\code{logical(1)}) Whether convergence was detected.}
 
-    \item{\code{n_permutations_used}}{(\code{integer(1)}) Actual number of permutations used.}
+    \item{\code{n_permutations_used}}{(\code{integer(1)}) Actual number of permutations (permutation) or coalitions (kernel) used.}
   }
   \if{html}{\out{</div>}}
 }
@@ -78,7 +90,9 @@ In \emph{Advances in Neural Information Processing Systems}, volume 33, 17212--1
   measure = NULL,
   resampling = NULL,
   features = NULL,
-  n_permutations = 10L,
+  estimator = c("permutation", "kernel"),
+  n_permutations = NULL,
+  n_coalitions = NULL,
   batch_size = 5000L,
   n_samples = 100L,
   early_stopping = TRUE,
@@ -92,8 +106,19 @@ In \emph{Advances in Neural Information Processing Systems}, volume 33, 17212--1
     \if{html}{\out{<div class="arguments">}}
     \describe{
       \item{\code{task, learner, measure, resampling, features}}{Passed to FeatureImportanceMethod.}
+      \item{\code{estimator}}{(\code{character(1)}: \code{"permutation"}) Shapley-value estimator.
+\code{"permutation"} uses the permutation-sampling estimator (Covert et al., 2020);
+\code{"kernel"} uses the regression-based kernel estimator (Kernel SAGE, Covert & Lee, 2021).
+The two estimators approximate the same SAGE values but take different budget arguments:
+\code{"permutation"} uses \code{n_permutations}, \code{"kernel"} uses \code{n_coalitions}.
+Setting the budget argument of the other estimator is an error.}
       \item{\code{n_permutations}}{(\code{integer(1)}: \code{10L}) Number of permutations to sample for SAGE value estimation.
+Only valid for \code{estimator = "permutation"}.
 The total number of evaluated coalitions is \code{1 (empty) + n_permutations * n_features}.}
+      \item{\code{n_coalitions}}{(\code{integer(1)}: \code{512L}) Number of coalitions to sample for the kernel estimator.
+Only valid for \code{estimator = "kernel"}.
+With paired sampling each draw evaluates a coalition and its complement, so the number of
+evaluated coalitions is \code{2 (anchors) + 2 * n_coalitions}.}
       \item{\code{batch_size}}{(\code{integer(1)}: \code{5000L}) Maximum number of observations to process in a single prediction call.}
       \item{\code{n_samples}}{(\code{integer(1)}: \code{100L}) Number of samples to use for marginalizing out-of-coalition features.
 For \link{MarginalSAGE}, this is the number of marginal data samples ("background data" in other implementations).

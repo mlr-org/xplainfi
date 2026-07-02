@@ -58,7 +58,9 @@ sage$compute()
   measure = NULL,
   resampling = NULL,
   features = NULL,
-  n_permutations = 10L,
+  estimator = c("permutation", "kernel"),
+  n_permutations = NULL,
+  n_coalitions = NULL,
   batch_size = 5000L,
   n_samples = 100L,
   early_stopping = FALSE,
@@ -71,7 +73,7 @@ sage$compute()
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{task, learner, measure, resampling, features, n_permutations, batch_size, n_samples, early_stopping, se_threshold, min_permutations, check_interval}}{Passed to \link{SAGE}.}
+      \item{\code{task, learner, measure, resampling, features, estimator, n_permutations, n_coalitions, batch_size, n_samples, early_stopping, se_threshold, min_permutations, check_interval}}{Passed to \link{SAGE}.}
     }
     \if{html}{\out{</div>}}
   }
