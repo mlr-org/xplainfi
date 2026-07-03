@@ -236,3 +236,154 @@ sage_kernel_A = function(m) {
   diag(A) = diag_val
   A
 }
+
+#' Reconstruct the sampled Shapley-kernel design matrix from its off-diagonals
+#'
+#' The sampled `A = E[z z^T]` has an *exactly* constant diagonal of `0.5`: with paired
+#' sampling every feature appears in exactly one of each (coalition, complement) pair, so
+#' each column of the stacked `z` matrix sums to `n` over `2n` rows and its mean is `0.5`.
+#' Only the off-diagonals are random, so the delta-method moment vector carries just those;
+#' this helper rebuilds the symmetric `m x m` matrix (diagonal fixed at `0.5`) from them.
+#'
+#' @param a (`numeric`) Off-diagonal entries in lower-triangular (row > col) order.
+#' @param m (`integer(1)`) Number of features.
+#' @param od (`matrix`) Two-column index matrix of the lower-triangular positions,
+#'   i.e. `which(lower.tri(matrix(0, m, m)), arr.ind = TRUE)`, passed in to avoid recomputing.
+#' @return Symmetric `m x m` matrix with diagonal `0.5`.
+#' @keywords internal
+#' @noRd
+sage_kernel_A_from_offdiag = function(a, m, od) {
+  A = matrix(0, m, m)
+  diag(A) = 0.5
+  A[od] = a
+  A[od[, 2:1, drop = FALSE]] = a # mirror to the upper triangle
+  A
+}
+
+#' Unbiased kernel SAGE estimate and closed-form standard errors
+#'
+#' The "unbiased KernelSHAP" estimator (Covert & Lee 2021, Eq. 9): the design matrix `A` is
+#' the exact closed form and only `b` is estimated from the sampled coalitions. This is the
+#' estimator implemented by the reference Python `sage` package, and it admits the closed-form
+#' covariance of their Eqs. 12-13: `Cov(phi) = C Cov(b_mean) C^T` with
+#' `C = A^-1 - A^-1 1 1^T A^-1 / (1^T A^-1 1)`.
+#' Note the minus sign: the `sage` implementation itself adds this term
+#' (`calculate_result` in `kernel_estimator.py`), which contradicts the paper's Eq. 13 and was
+#' verified by simulation to misstate the variance; the paper's formula is used here.
+#' `total = v(full)` is treated as a fixed constraint (its Monte Carlo error from the anchor
+#' evaluations is ignored, matching `sage`).
+#'
+#' @param b_mean (`numeric(m)`) Running mean of the per-pair `b` vector.
+#' @param cov_mean (`matrix` | `NULL`) Covariance of `b_mean` (per-pair covariance divided by
+#'   the number of pairs). If `NULL`, standard errors are returned as `NA`.
+#' @param m (`integer(1)`) Number of features.
+#' @param total (`numeric(1)`) Value of the grand coalition, `v(full)`, used as the sum constraint.
+#' @return `list(phi, se)`, each a `numeric(m)`.
+#' @keywords internal
+#' @noRd
+sage_kernel_estimate_unbiased = function(b_mean, cov_mean, m, total) {
+  A_inv = solve(sage_kernel_A(m))
+  ones = rep(1, m)
+  A_inv_b = as.numeric(A_inv %*% b_mean)
+  A_inv_1 = as.numeric(A_inv %*% ones)
+  phi = A_inv_b - A_inv_1 * ((sum(A_inv_b) - total) / sum(A_inv_1))
+
+  se = rep(NA_real_, m)
+  if (!is.null(cov_mean)) {
+    C = A_inv - outer(A_inv_1, A_inv_1) / sum(A_inv_1)
+    se = sqrt(pmax(diag(C %*% cov_mean %*% t(C)), 0))
+  }
+  list(phi = phi, se = se)
+}
+
+#' Original kernel SAGE estimate and delta-method standard errors
+#'
+#' The "original KernelSHAP" estimator (Covert & Lee 2021, Eq. 7): both the design matrix `A`
+#' and `b` are estimated from the same sampled coalitions. Sharing the samples couples their
+#' errors, which cancel in the ratio `A^-1 b`, so this estimator converges much faster than the
+#' unbiased variant on (near-)additive games -- the paper's Section 4.1 recommends it in
+#' practice for this reason. It falls back to the exact `A` only when the sampled one is not
+#' yet full rank.
+#'
+#' Given the running mean `w_mean` of the per-pair moment vector `w = (offdiag(A), b)` and
+#' (optionally) the covariance `cov_mean` of that mean, compute the constrained weighted
+#' least-squares Shapley values and their standard errors. Because the estimate
+#' `phi = g(A, b)` is a smooth function of the sample-mean moments, its covariance follows from
+#' the multivariate delta method, `Cov(phi) = J cov_mean J^T`, with `J` the Jacobian of the
+#' constrained solve obtained by central differences. This propagates the sampling variance of
+#' *both* `A` and `b` (and their shared-sample covariance), extending the closed form of the
+#' unbiased variant. `total = v(full)` is treated as a fixed constraint (its Monte Carlo error
+#' from the anchor evaluations is ignored, matching `sage`).
+#'
+#' @param w_mean (`numeric`) Running mean of the moment vector, off-diagonals of `A` first
+#'   (in `od` order) then the `m` entries of `b`.
+#' @param cov_mean (`matrix` | `NULL`) Covariance of `w_mean` (i.e. per-pair covariance divided
+#'   by the number of pairs). If `NULL`, standard errors are returned as `NA`.
+#' @param m (`integer(1)`) Number of features.
+#' @param total (`numeric(1)`) Value of the grand coalition, `v(full)`, used as the sum constraint.
+#' @param od (`matrix`) Lower-triangular index matrix (see `sage_kernel_A_from_offdiag`).
+#' @param noff (`integer(1)`) Number of off-diagonal entries, `m * (m - 1) / 2`.
+#' @param require_result (`logical(1)`) If `TRUE`, fall back to the exact `A` when the sampled
+#'   `A` is singular so a finite point estimate is always returned.
+#' @return `list(phi, se)`, each a `numeric(m)`. `se` is all-`NA` when `cov_mean` is `NULL` or
+#'   the (perturbed) design matrix is not invertible.
+#' @keywords internal
+#' @noRd
+sage_kernel_estimate_original = function(w_mean, cov_mean, m, total, od, noff, require_result = FALSE) {
+  ones = rep(1, m)
+  b = w_mean[noff + seq_len(m)]
+
+  # Constrained WLS solve given an inverse design matrix.
+  solve_constrained = function(A_inv) {
+    A_inv_b = as.numeric(A_inv %*% b)
+    A_inv_1 = as.numeric(A_inv %*% ones)
+    A_inv_b - A_inv_1 * ((sum(A_inv_b) - total) / sum(A_inv_1))
+  }
+
+  A = sage_kernel_A_from_offdiag(w_mean[seq_len(noff)], m, od)
+  A_inv = tryCatch(solve(A), error = function(e) NULL)
+  if (is.null(A_inv)) {
+    # Not yet identifiable from the sampled coalitions. Fall back to the exact A only
+    # when a value is required (final estimate); otherwise degrade to NA gracefully.
+    phi = if (require_result) solve_constrained(solve(sage_kernel_A(m))) else rep(NA_real_, m)
+    return(list(phi = phi, se = rep(NA_real_, m)))
+  }
+  phi = solve_constrained(A_inv)
+
+  se = rep(NA_real_, m)
+  if (!is.null(cov_mean)) {
+    # phi as a function of the full moment vector, for the numerical Jacobian.
+    phi_of_w = function(w) {
+      Aw_inv = tryCatch(solve(sage_kernel_A_from_offdiag(w[seq_len(noff)], m, od)), error = function(e) NULL)
+      if (is.null(Aw_inv)) {
+        return(NULL)
+      }
+      bw = w[noff + seq_len(m)]
+      A_inv_b = as.numeric(Aw_inv %*% bw)
+      A_inv_1 = as.numeric(Aw_inv %*% ones)
+      A_inv_b - A_inv_1 * ((sum(A_inv_b) - total) / sum(A_inv_1))
+    }
+    L = length(w_mean)
+    J = matrix(0, m, L)
+    h = 1e-6
+    ok = TRUE
+    for (j in seq_len(L)) {
+      wp = w_mean
+      wm = w_mean
+      wp[j] = wp[j] + h
+      wm[j] = wm[j] - h
+      up = phi_of_w(wp)
+      dn = phi_of_w(wm)
+      if (is.null(up) || is.null(dn)) {
+        ok = FALSE
+        break
+      }
+      J[, j] = (up - dn) / (2 * h)
+    }
+    if (ok) {
+      phi_cov = J %*% cov_mean %*% t(J)
+      se = sqrt(pmax(diag(phi_cov), 0))
+    }
+  }
+  list(phi = phi, se = se)
+}

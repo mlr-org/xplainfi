@@ -70,13 +70,14 @@ test_that("MarginalSAGE with cross-validation resampling", {
   sage$compute()
 
   expect_importance_dt(sage$importance(), features = sage$features)
+  # Columns: iter_rsmp, feature, importance, se (Monte Carlo standard error).
   checkmate::expect_data_table(
     sage$scores(),
-    types = c("integer", "character", "numeric"),
+    types = c("integer", "character", "numeric", "numeric"),
     nrows = sage$resampling$iters * length(sage$features),
-    ncols = 3,
-    any.missing = FALSE
+    ncols = 4
   )
+  checkmate::expect_names(names(sage$scores()), permutation.of = c("iter_rsmp", "feature", "importance", "se"))
 })
 
 # -----------------------------------------------------------------------------

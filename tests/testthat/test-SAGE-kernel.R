@@ -291,3 +291,174 @@ test_that("kernel estimator rejects invalid n_coalitions and estimator", {
   expect_error(MarginalSAGE$new(task, learner, estimator = "kernel", n_coalitions = -5L))
   expect_error(MarginalSAGE$new(task, learner, estimator = "bogus"))
 })
+
+# -----------------------------------------------------------------------------
+# Monte Carlo confidence intervals (issue #71)
+# -----------------------------------------------------------------------------
+
+test_that("kernel estimator reports Monte Carlo standard errors", {
+  task = sim_dgp_independent(n = 150)
+  sage = MarginalSAGE$new(task, lrn("regr.rpart"), estimator = "kernel", n_coalitions = 120L, n_samples = 20L)
+  sage$compute()
+
+  # SE surfaced on the per-iteration scores and populated (not NA) in the history.
+  scores = sage$scores()
+  checkmate::expect_subset("se", names(scores))
+  checkmate::expect_numeric(scores$se, any.missing = FALSE, lower = 0)
+
+  hist_end = sage$convergence_history[n_permutations == max(n_permutations)]
+  checkmate::expect_numeric(hist_end$se, any.missing = FALSE, lower = 0)
+})
+
+test_that("kernel ci_method = 'montecarlo' returns valid Wald intervals", {
+  task = sim_dgp_independent(n = 200)
+  sage = MarginalSAGE$new(task, lrn("regr.rpart"), estimator = "kernel", n_coalitions = 150L, n_samples = 20L)
+  sage$compute()
+
+  imp = sage$importance(ci_method = "montecarlo")
+  checkmate::expect_subset(c("se", "statistic", "p.value", "conf_lower", "conf_upper"), names(imp))
+  checkmate::expect_numeric(imp$se, any.missing = FALSE, lower = 0)
+  checkmate::expect_numeric(imp$conf_lower, any.missing = FALSE, finite = TRUE)
+  checkmate::expect_numeric(imp$conf_upper, any.missing = FALSE, finite = TRUE)
+  # Point estimate lies inside its own two-sided interval.
+  expect_true(all(imp$conf_lower <= imp$importance & imp$importance <= imp$conf_upper))
+})
+
+test_that("montecarlo CI width shrinks with higher confidence and one-sided is unbounded", {
+  task = sim_dgp_independent(n = 200)
+  sage = MarginalSAGE$new(task, lrn("regr.rpart"), estimator = "kernel", n_coalitions = 150L, n_samples = 20L)
+  sage$compute()
+
+  imp90 = sage$importance(ci_method = "montecarlo", conf_level = 0.90)
+  imp99 = sage$importance(ci_method = "montecarlo", conf_level = 0.99)
+  w90 = imp90$conf_upper - imp90$conf_lower
+  w99 = imp99$conf_upper - imp99$conf_lower
+  # Width is 2 * z * se, so a higher level never narrows the interval and strictly
+  # widens it wherever the SE is positive (features with SE ~ 0 stay degenerate).
+  expect_true(all(w99 >= w90))
+  expect_true(any(w90 > 0) && all(w99[w90 > 0] > w90[w90 > 0]))
+
+  imp_greater = sage$importance(ci_method = "montecarlo", alternative = "greater")
+  expect_true(all(is.infinite(imp_greater$conf_upper)))
+  checkmate::expect_numeric(imp_greater$conf_lower, finite = TRUE)
+})
+
+test_that("permutation estimator also supports montecarlo CIs", {
+  task = sim_dgp_independent(n = 150)
+  sage = MarginalSAGE$new(
+    task,
+    lrn("regr.rpart"),
+    estimator = "permutation",
+    n_permutations = 15L,
+    n_samples = 20L,
+    early_stopping = FALSE
+  )
+  sage$compute()
+
+  checkmate::expect_subset("se", names(sage$scores()))
+  imp = sage$importance(ci_method = "montecarlo")
+  checkmate::expect_numeric(imp$se, any.missing = FALSE, lower = 0)
+  checkmate::expect_subset(c("conf_lower", "conf_upper"), names(imp))
+})
+
+test_that("exact estimator rejects montecarlo CIs", {
+  task = sim_dgp_independent(n = 150)
+  sage = MarginalSAGE$new(task, lrn("regr.rpart"), estimator = "exact", n_samples = 20L)
+  sage$compute()
+
+  checkmate::expect_scalar_na(unique(sage$scores()$se))
+  expect_error(sage$importance(ci_method = "montecarlo"), "Monte Carlo standard errors")
+})
+
+test_that("kernel Monte Carlo SEs are reproducible with the same seed", {
+  task = sim_dgp_independent(n = 150)
+  learner = lrn("regr.rpart")
+
+  set.seed(2718)
+  sage1 = MarginalSAGE$new(task, learner, estimator = "kernel", n_coalitions = 128L, n_samples = 20L)
+  sage1$compute()
+  set.seed(2718)
+  sage2 = MarginalSAGE$new(task, learner, estimator = "kernel", n_coalitions = 128L, n_samples = 20L)
+  sage2$compute()
+
+  expect_equal(
+    sage1$importance(ci_method = "montecarlo")$se,
+    sage2$importance(ci_method = "montecarlo")$se,
+    tolerance = 1e-10
+  )
+})
+
+# -----------------------------------------------------------------------------
+# Unbiased kernel variant (sage package parity)
+# -----------------------------------------------------------------------------
+
+test_that("kernel unbiased variant works and reports montecarlo CIs", {
+  task = sim_dgp_independent(n = 150)
+  sage = MarginalSAGE$new(
+    task,
+    lrn("regr.rpart"),
+    estimator = "kernel",
+    kernel_variant = "unbiased",
+    n_coalitions = 200L,
+    n_samples = 20L
+  )
+  expect_identical(sage$kernel_variant, "unbiased")
+  sage$compute()
+  expect_importance_dt(sage$importance(), features = sage$features)
+
+  imp = sage$importance(ci_method = "montecarlo")
+  checkmate::expect_numeric(imp$se, any.missing = FALSE, lower = 0)
+  checkmate::expect_numeric(imp$conf_lower, any.missing = FALSE, finite = TRUE)
+  checkmate::expect_numeric(imp$conf_upper, any.missing = FALSE, finite = TRUE)
+})
+
+test_that("kernel variants share the efficiency constraint given the same seed", {
+  task = sim_dgp_independent(n = 150)
+  learner = lrn("regr.rpart")
+  resampling = rsmp("holdout")$instantiate(task)
+
+  set.seed(6021)
+  sage_orig = MarginalSAGE$new(
+    task,
+    learner,
+    resampling = resampling,
+    estimator = "kernel",
+    n_coalitions = 200L,
+    n_samples = 20L
+  )
+  sage_orig$compute()
+  set.seed(6021)
+  sage_unb = MarginalSAGE$new(
+    task,
+    learner,
+    resampling = resampling,
+    estimator = "kernel",
+    kernel_variant = "unbiased",
+    n_coalitions = 200L,
+    n_samples = 20L
+  )
+  sage_unb$compute()
+
+  # Both solve the same constrained problem on the same draws, so the
+  # sum-to-total (efficiency) constraint yields identical totals.
+  expect_equal(
+    sum(sage_orig$importance()$importance),
+    sum(sage_unb$importance()$importance),
+    tolerance = 1e-8
+  )
+})
+
+test_that("kernel_variant is gated to the kernel estimator and validated", {
+  task = sim_dgp_independent(n = 60)
+  learner = lrn("regr.rpart")
+
+  expect_error(
+    MarginalSAGE$new(task, learner, estimator = "permutation", kernel_variant = "unbiased"),
+    "kernel_variant"
+  )
+  expect_error(
+    MarginalSAGE$new(task, learner, estimator = "exact", kernel_variant = "unbiased"),
+    "kernel_variant"
+  )
+  expect_error(MarginalSAGE$new(task, learner, estimator = "kernel", kernel_variant = "bogus"))
+})

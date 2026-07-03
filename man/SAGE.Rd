@@ -16,20 +16,46 @@ This is approximated by averaging predictions over a reference dataset.
 
 \strong{Standard Error Calculation}: The standard errors (SE) reported in
 \verb{$convergence_history} reflect the uncertainty in Shapley value estimation
-across different random permutations within a single resampling iteration.
+across the sampled coalitions within a single resampling iteration.
+For the permutation estimator this is the running SE across permutations;
+for the kernel estimator it is obtained by propagating the sampling covariance
+of the regression moments through the constrained least-squares solve via the
+multivariate delta method.
 These SEs quantify the Monte Carlo sampling error for a fixed trained model
 and are only valid for inference about the importance of features for that
 specific model. They do not capture broader uncertainty from model variability
 across different train/test splits or resampling iterations.
+For \link{MarginalSAGE} they are additionally conditional on the fixed reference dataset
+used for marginalization: the variability from having drawn one particular reference
+subsample (\code{n_samples} rows) is shared across all coalitions and is not part of the
+reported SE, mirroring the Python \code{sage} implementation whose intervals are likewise
+conditional on its background data.
+When features strongly affect predictions and \code{n_samples} is small, that unmodeled
+component can exceed the coalition-sampling error, so increase \code{n_samples} when
+precise intervals matter.
+They are available through \verb{$importance(ci_method = "montecarlo")}, which builds
+Wald confidence intervals from them.
+The exact estimator has no coalition-sampling error and therefore reports no SE.
 
 The permutation estimator follows Covert et al. (2020); the kernel estimator
-(\code{estimator = "kernel"}, Kernel SAGE) follows Covert & Lee (2021).
+(\code{estimator = "kernel"}, Kernel SAGE) follows Covert & Lee (2021) and comes in two
+variants selected by \code{kernel_variant}: \code{"original"} (their Eq. 7, the default, recommended
+in their Section 4.1 for practical use) and \code{"unbiased"} (their Eq. 9, the variant
+implemented by the reference Python \code{sage} package, useful for direct comparisons).
+Both variants report standard errors based on the paper's covariance characterization
+(their Eqs. 12-13); note that the Python \code{sage} implementation deviates from the paper's
+Eq. 13 in its uncertainty computation, so its reported standard deviations differ slightly.
 }
 \references{
 Covert I, Lundberg S, Lee S (2020).
 \dQuote{Understanding Global Feature Contributions With Additive Importance Measures.}
 In \emph{Advances in Neural Information Processing Systems}, volume 33, 17212--17223.
 \url{https://proceedings.neurips.cc/paper/2020/hash/c7bf0b7c1a86d5eb3be2c722cf2cf746-Abstract.html}.
+
+Covert I, Lee S (2021).
+\dQuote{Improving KernelSHAP: Practical Shapley Value Estimation Using Linear Regression.}
+In \emph{Proceedings of the 24th International Conference on Artificial Intelligence and Statistics}, volume 130, 3457--3465.
+\url{https://proceedings.mlr.press/v130/covert21a.html}.
 
 Covert I, Lee S (2021).
 \dQuote{Improving KernelSHAP: Practical Shapley Value Estimation Using Linear Regression.}
@@ -51,6 +77,8 @@ In \emph{Proceedings of the 24th International Conference on Artificial Intellig
 
     \item{\code{n_coalitions}}{(\code{integer(1)} | \code{NULL}) Number of coalitions to sample (kernel estimator).}
 
+    \item{\code{kernel_variant}}{(\code{character(1)} | \code{NULL}) Kernel estimator variant, \code{"original"} or \code{"unbiased"}.}
+
     \item{\code{max_features}}{(\code{integer(1)} | \code{NULL}) Feature-count cap for the exact estimator.}
 
     \item{\code{convergence_history}}{(\code{\link[data.table:data.table]{data.table}}) History of SAGE values during computation.}
@@ -65,6 +93,7 @@ In \emph{Proceedings of the 24th International Conference on Artificial Intellig
 \subsection{Public methods}{
   \itemize{
     \item \href{#method-SAGE-initialize}{\code{SAGE$new()}}
+    \item \href{#method-SAGE-importance}{\code{SAGE$importance()}}
     \item \href{#method-SAGE-compute}{\code{SAGE$compute()}}
     \item \href{#method-SAGE-plot_convergence}{\code{SAGE$plot_convergence()}}
     \item \href{#method-SAGE-clone}{\code{SAGE$clone()}}
@@ -72,7 +101,6 @@ In \emph{Proceedings of the 24th International Conference on Artificial Intellig
 }
 \if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="importance"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-importance'><code>FeatureImportanceMethod$importance()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>FeatureImportanceMethod$obs_loss()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>FeatureImportanceMethod$print()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>FeatureImportanceMethod$reset()</code></a></span></li>
@@ -95,6 +123,7 @@ In \emph{Proceedings of the 24th International Conference on Artificial Intellig
   estimator = c("permutation", "kernel", "exact"),
   n_permutations = NULL,
   n_coalitions = NULL,
+  kernel_variant = NULL,
   max_features = 12L,
   batch_size = 5000L,
   n_samples = 100L,
@@ -127,6 +156,17 @@ The total number of evaluated coalitions is \code{1 (empty) + n_permutations * n
 Only valid for \code{estimator = "kernel"}.
 With paired sampling each draw evaluates a coalition and its complement, so the number of
 evaluated coalitions is \code{2 (anchors) + 2 * n_coalitions}.}
+      \item{\code{kernel_variant}}{(\code{character(1)}: \code{"original"}) Variant of the kernel estimator.
+Only valid for \code{estimator = "kernel"}.
+\code{"original"} (default) estimates both the design matrix and its right-hand side from the same
+sampled coalitions (original KernelSHAP, Covert & Lee 2021, Eq. 7).
+Sharing the samples couples their errors, which largely cancel, so this variant converges much
+faster on typical (near-additive) problems and is the paper's practical recommendation (their Section 4.1).
+\code{"unbiased"} uses the exact closed-form design matrix and estimates only the right-hand side
+(unbiased KernelSHAP, Eq. 9).
+This is the estimator implemented in the reference Python \code{sage} package, so use it for direct
+comparisons with \code{sage}; at equal budgets its point estimates are typically substantially noisier,
+which its (wider) confidence intervals reflect.}
       \item{\code{max_features}}{(\code{integer(1)}: \code{12L}) Feature-count cap for \code{estimator = "exact"}.
 The exact estimator evaluates \code{2^n_features} coalitions, so it aborts when the number of
 features exceeds this cap. Increase it to override, keeping the combinatorial cost in mind.
@@ -146,6 +186,56 @@ which requires a sufficiently large number of samples (i.e., evaluated coalition
       \item{\code{check_interval}}{(\code{integer(1)}: \code{1L}) Check convergence every N permutations.}
     }
     \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SAGE-importance"></a>}}
+\if{latex}{\out{\hypertarget{method-SAGE-importance}{}}}
+\subsection{\code{SAGE$importance()}}{
+  Get aggregated importance scores with optional confidence intervals.
+
+Extends the base \link{FeatureImportanceMethod} method with \code{ci_method = "montecarlo"}, which
+builds Wald confidence intervals from the Monte Carlo standard errors of the SAGE estimator
+(the uncertainty of the Shapley estimate for a fixed trained model due to finite coalition
+or permutation sampling).
+This differs from the resampling-based methods (\code{"raw"}, \code{"nadeau_bengio"}, \code{"quantile"}),
+which quantify variability across train/test splits.
+Monte Carlo standard errors are available for \code{estimator = "kernel"} and
+\code{estimator = "permutation"}, but not \code{"exact"} (which has no coalition-sampling error).
+The intervals are conditional on the trained model and the value-function estimates;
+see the class-level details on standard error calculation for what they do and do not cover.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{SAGE$importance(
+  relation = NULL,
+  standardize = FALSE,
+  ci_method = c("none", "raw", "nadeau_bengio", "quantile", "montecarlo"),
+  conf_level = 0.95,
+  alternative = c("two.sided", "greater"),
+  p_adjust = "none",
+  ...
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{relation}}{Ignored for SAGE (importance is not a baseline/post relation).}
+      \item{\code{standardize}}{(\code{logical(1)}: \code{FALSE}) If \code{TRUE}, importances (and their standard errors)
+are standardized by the largest absolute importance.}
+      \item{\code{ci_method}}{(\code{character(1)}: \code{"none"}) Variance estimation method.
+In addition to the base methods (\code{"none"}, \code{"raw"}, \code{"nadeau_bengio"}, \code{"quantile"}),
+SAGE supports \code{"montecarlo"} for coalition-sampling Wald intervals.}
+      \item{\code{conf_level}}{(\code{numeric(1)}: \code{0.95}) Confidence level for confidence intervals when \code{ci_method != "none"}.}
+      \item{\code{alternative}}{(\code{character(1)}: \code{"two.sided"}) Type of alternative hypothesis.}
+      \item{\code{p_adjust}}{(\code{character(1)}: \code{"none"}) Method for p-value adjustment for multiple comparisons.}
+      \item{\code{...}}{Passed to the base method for other CI methods.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    (\link[data.table:data.table]{data.table}) Aggregated importance scores, with CI columns when requested.
   }
 }
 

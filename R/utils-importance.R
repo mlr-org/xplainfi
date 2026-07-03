@@ -521,6 +521,64 @@ importance_loco = function(
   test_obs_importance(obs_loss_agg, test, alternative, conf_level, p_adjust, aggregator)
 }
 
+#' Monte Carlo (coalition-sampling) confidence intervals for SAGE
+#'
+#' Wald intervals from the Monte Carlo standard errors of the SAGE estimator, i.e. the
+#' uncertainty of the Shapley estimate for a *fixed* trained model due to finite coalition /
+#' permutation sampling. This is a different source of uncertainty from the resampling-based
+#' methods (`"raw"`, `"nadeau_bengio"`, `"quantile"`), which quantify variability across
+#' train/test splits; the two are not comparable.
+#'
+#' Each resampling iteration contributes its own point estimate and Monte Carlo SE. The pooled
+#' point estimate is the mean over iterations; treating the iterations' Monte Carlo errors as
+#' independent, the SE of that mean is `sqrt(sum(se^2)) / n_iters`. Standard normal quantiles are
+#' used (the estimator is asymptotically normal in the number of coalitions).
+#'
+#' With more than one resampling iteration this reflects only the Monte Carlo error and *not*
+#' the between-model variability across splits; a single holdout split is the intended use.
+#'
+#' @param scores data.table with columns `iter_rsmp`, `feature`, `importance`, `se`
+#' @param conf_level confidence level for intervals
+#' @param alternative "greater" (one-sided) or "two.sided"
+#' @param p_adjust p-value adjustment method (any of stats::p.adjust.methods)
+#' @noRd
+importance_sage_montecarlo = function(scores, conf_level, alternative, p_adjust = "none") {
+  # The data.table NSE tax
+  importance = se = statistic = p.value = NULL
+
+  agg = scores[,
+    list(
+      importance = mean(importance),
+      # SE of the mean over iterations; NA in any iteration propagates to NA.
+      se = sqrt(sum(se^2)) / .N
+    ),
+    by = "feature"
+  ]
+
+  agg[, statistic := importance / se]
+
+  k = nrow(agg)
+  ci_alpha = adjust_ci_alpha(1 - conf_level, p_adjust, k)
+
+  if (alternative == "greater") {
+    agg[, p.value := stats::pnorm(statistic, lower.tail = FALSE)]
+    quant = stats::qnorm(1 - ci_alpha)
+    agg[, let(
+      conf_lower = importance - quant * se,
+      conf_upper = Inf
+    )]
+  } else {
+    agg[, p.value := 2 * stats::pnorm(abs(statistic), lower.tail = FALSE)]
+    quant = stats::qnorm(1 - ci_alpha / 2)
+    agg[, let(
+      conf_lower = importance - quant * se,
+      conf_upper = importance + quant * se
+    )]
+  }
+
+  adjust_pvalues(agg, p_adjust)
+}
+
 # Score Relation Helpers ----
 
 #' Ratio of two score vectors with a zero-denominator guard

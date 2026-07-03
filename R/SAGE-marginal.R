@@ -23,7 +23,7 @@ MarginalSAGE = R6Class(
   public = list(
     #' @description
     #' Creates a new instance of the MarginalSAGE class.
-    #' @param task,learner,measure,resampling,features,estimator,n_permutations,n_coalitions,max_features,batch_size,n_samples,early_stopping,se_threshold,min_permutations,check_interval Passed to [SAGE].
+    #' @param task,learner,measure,resampling,features,estimator,n_permutations,n_coalitions,kernel_variant,max_features,batch_size,n_samples,early_stopping,se_threshold,min_permutations,check_interval Passed to [SAGE].
     initialize = function(
       task,
       learner,
@@ -33,6 +33,7 @@ MarginalSAGE = R6Class(
       estimator = c("permutation", "kernel", "exact"),
       n_permutations = NULL,
       n_coalitions = NULL,
+      kernel_variant = NULL,
       max_features = 12L,
       batch_size = 5000L,
       n_samples = 100L,
@@ -51,6 +52,7 @@ MarginalSAGE = R6Class(
         estimator = estimator,
         n_permutations = n_permutations,
         n_coalitions = n_coalitions,
+        kernel_variant = kernel_variant,
         max_features = max_features,
         batch_size = batch_size,
         n_samples = n_samples,
