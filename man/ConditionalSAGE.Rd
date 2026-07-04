@@ -7,6 +7,28 @@
 \link{SAGE} with conditional sampling (features are "marginalized" conditionally).
 Uses \link{ConditionalARFSampler} as default \link{ConditionalSampler}.
 }
+\details{
+Conditional SAGE estimates SAGE values as originally defined:
+Covert et al. (2020) define the restricted model via the conditional expectation
+\verb{f_S(x_S) = E[f(X) | X_S = x_S]} (their Eq. 1), i.e. held-out features are marginalized using
+their conditional distribution given the observed features.
+Their sampling algorithm then substitutes the marginal distribution for tractability, noting
+that this "alters some of SAGE's properties"; that approximation is what \link{MarginalSAGE} and the
+reference Python \code{sage} package implement.
+\code{ConditionalSAGE} instead approximates the conditional expectation directly by drawing held-out
+features from a \link{ConditionalSampler} (by default \link{ConditionalARFSampler}), akin to how the
+\code{fippy} Python package implements conditional SAGE.
+The reference \code{sage} package does not sample conditionally, but approximates conditional removal
+by training surrogate models (Covert et al., 2021, "Explaining by Removing"), so results are not
+directly comparable between the two approaches.
+
+See \link{SAGE} for details on the available estimators, standard errors and confidence intervals,
+and how this implementation relates to the reference Python \code{sage} package.
+The kernel estimator combined with conditional sampling has no reference implementation;
+it reuses the identical value function as the permutation estimator and only changes how
+coalitions are sampled and Shapley values are computed from them, and it is verified against
+the enumeration-based \code{estimator = "exact"} in the package tests.
+}
 \examples{
 \dontshow{if (requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE) && requireNamespace("arf", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 library(mlr3)
@@ -39,6 +61,17 @@ sage_custom = ConditionalSAGE$new(
 sage_custom$compute()
 }
 \dontshow{\}) # examplesIf}
+}
+\references{
+Covert I, Lundberg S, Lee S (2020).
+\dQuote{Understanding Global Feature Contributions With Additive Importance Measures.}
+In \emph{Advances in Neural Information Processing Systems}, volume 33, 17212--17223.
+\url{https://proceedings.neurips.cc/paper/2020/hash/c7bf0b7c1a86d5eb3be2c722cf2cf746-Abstract.html}.
+
+Covert I, Lundberg S, Lee S (2021).
+\dQuote{Explaining by Removing: A Unified Framework for Model Explanation.}
+\emph{Journal of Machine Learning Research}, \bold{22}(209), 1--90.
+\url{https://jmlr.org/papers/v22/20-1316.html}.
 }
 \seealso{
 \link{MarginalSAGE}

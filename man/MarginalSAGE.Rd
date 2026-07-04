@@ -7,6 +7,16 @@
 \link{SAGE} with marginal sampling (features are marginalized independently).
 This is the standard SAGE implementation.
 }
+\details{
+Marginal SAGE samples held-out features from their marginal distribution, following the sampling
+algorithm of Covert et al. (2020) and matching the behavior of the reference Python \code{sage} package.
+Note that SAGE's theoretical definition marginalizes held-out features conditionally (their Eq. 1);
+marginal sampling is the tractable approximation, and the two differ when features are dependent.
+See \link{ConditionalSAGE} for the conditional variant.
+
+See \link{SAGE} for details on the available estimators, standard errors and confidence intervals,
+and how this implementation relates to the reference Python \code{sage} package.
+}
 \examples{
 \dontshow{if (requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 library(mlr3)

@@ -3,6 +3,33 @@
 #' @description [SAGE] with conditional sampling (features are "marginalized" conditionally).
 #' Uses [ConditionalARFSampler] as default [ConditionalSampler].
 #'
+#' @details
+#' Conditional SAGE estimates SAGE values as originally defined:
+#' Covert et al. (2020) define the restricted model via the conditional expectation
+#' `f_S(x_S) = E[f(X) | X_S = x_S]` (their Eq. 1), i.e. held-out features are marginalized using
+#' their conditional distribution given the observed features.
+#' Their sampling algorithm then substitutes the marginal distribution for tractability, noting
+#' that this "alters some of SAGE's properties"; that approximation is what [MarginalSAGE] and the
+#' reference Python `sage` package implement.
+#' `ConditionalSAGE` instead approximates the conditional expectation directly by drawing held-out
+#' features from a [ConditionalSampler] (by default [ConditionalARFSampler]), akin to how the
+#' `fippy` Python package implements conditional SAGE.
+#' The reference `sage` package does not sample conditionally, but approximates conditional removal
+#' by training surrogate models (Covert et al., 2021, "Explaining by Removing"), so results are not
+#' directly comparable between the two approaches.
+#'
+#' See [SAGE] for details on the available estimators, standard errors and confidence intervals,
+#' and how this implementation relates to the reference Python `sage` package.
+#' The kernel estimator combined with conditional sampling has no reference implementation;
+#' it reuses the identical value function as the permutation estimator and only changes how
+#' coalitions are sampled and Shapley values are computed from them, and it is verified against
+#' the enumeration-based `estimator = "exact"` in the package tests.
+#'
+#' @references
+#' `r print_bib("lundberg_2020")`
+#'
+#' `r print_bib("covert_2021_jmlr")`
+#'
 #' @seealso [MarginalSAGE]
 #'
 #' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE) && requireNamespace("arf", quietly = TRUE)
