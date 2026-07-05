@@ -48,6 +48,16 @@ It is only feasible for a small number of features (capped by `max_features`) an
 
 The estimators approximate the same SAGE values but scale differently with the number of features; the [Choosing an estimator](#choosing-an-estimator) section below discusses when to prefer each.
 
+In other words, a SAGE variant in `xplainfi` is defined by two orthogonal choices:
+
+| Axis | Question | Options | Selected via |
+|---|---|---|---|
+| Value function | How is `v(S)` estimated, i.e. how are out-of-coalition features removed? | marginal sampling; conditional sampling | class (`MarginalSAGE` / `ConditionalSAGE`) and its `sampler` |
+| Shapley estimator | Which coalitions are evaluated, and how are Shapley values computed from them? | permutation; kernel (weighted least squares); exact enumeration | `estimator` argument |
+
+Any combination is valid, e.g. conditional kernel SAGE reuses the exact same conditional value function as the permutation estimator and only changes how coalitions are sampled.
+A third option on the value-function axis is to *refit* the model on each coalition's features instead of sampling replacement values; combined with the kernel estimator this yields SPVIM ([Williamson & Feng, 2020](https://proceedings.mlr.press/v119/williamson20a.html)), which is closely related to the refit-based `WVIM` methods and not yet implemented as a SAGE variant.
+
 ## Demonstration with Correlated Features
 
 To showcase the difference between Marginal and Conditional SAGE, we'll use the `sim_dgp_correlated()` function which creates a simple linear DGP with two correlated features.
@@ -309,10 +319,10 @@ The practical difference is **how the cost scales with the number of features** 
 
 - **Permutation** evaluates `n_permutations * p + 1` coalitions.
   Each additional feature adds another evaluation to *every* permutation, so the cost grows linearly with $p$.
-  In return it provides standard-error-based convergence tracking and early stopping (shown above).
 - **Kernel** evaluates `2 * n_coalitions + 2` coalitions (each sampled coalition is paired with its complement for variance reduction), independent of $p$.
   It fits a regression to these coalition values and is typically more sample-efficient, with the advantage growing as $p$ increases.
-  The current implementation does not yet expose standard errors or early stopping for this estimator.
+
+Both sampling estimators track per-feature standard errors that quantify the coalition-sampling uncertainty (visible in `$convergence_history` and via `$importance(ci_method = "montecarlo")`, see the [inference article](https://xplainfi.mlr-org.com/articles/inference.html) for interpretation); early stopping based on these is currently available for the permutation estimator only, while the kernel estimator evaluates its full `n_coalitions` budget.
 
 Let's compute Marginal SAGE both ways on `friedman1`, which has ten features (`important1`--`important5` are informative, the rest are noise):
 
@@ -406,7 +416,7 @@ data.frame(
 The number of coalitions the kernel estimator needs to converge grows only slowly with $p$, while the permutation estimator's per-iteration cost grows linearly.
 As a rule of thumb:
 
-- For a handful of features, prefer **permutation**: it is simple, cheap, and provides standard errors and early stopping.
+- For a handful of features, prefer **permutation**: it is simple, cheap, and supports early stopping.
 - As the feature count grows into the dozens, prefer **kernel**: it reaches a given accuracy with far fewer model evaluations.
 
 This matches the empirical results in Covert & Lee (2021) and the reference `sage` implementation, where the kernel estimator is noisier than permutation sampling for very few features but converges substantially faster once there are many features.
@@ -433,7 +443,8 @@ sage_exact$importance()
 ```
 
 This is guarded by `max_features` (default 12), since the number of coalitions grows as `2^p`.
-It carries no coalition-sampling error, so for `MarginalSAGE` it yields the exact SAGE values that the permutation and kernel estimators approximate -- which makes it a convenient ground-truth reference when validating or comparing estimators.
+It carries no coalition-sampling error, so for `MarginalSAGE` it yields the exact SAGE values that the permutation and kernel estimators approximate.
+This makes it a convenient ground-truth reference when validating or comparing estimators.
 (For `ConditionalSAGE` the value function is itself estimated by the sampler, so "exact" removes the coalition-sampling error but not the sampler's Monte Carlo error.)
 
 ## Comparison with PFI and CFI

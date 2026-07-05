@@ -301,7 +301,7 @@ sage_kernel_estimate_unbiased = function(b_mean, cov_mean, m, total) {
 #' The "original KernelSHAP" estimator (Covert & Lee 2021, Eq. 7): both the design matrix `A`
 #' and `b` are estimated from the same sampled coalitions. Sharing the samples couples their
 #' errors, which cancel in the ratio `A^-1 b`, so this estimator converges much faster than the
-#' unbiased variant on (near-)additive games -- the paper's Section 4.1 recommends it in
+#' unbiased variant on (near-)additive games, and the paper's Section 4.1 recommends it in
 #' practice for this reason. It falls back to the exact `A` only when the sampled one is not
 #' yet full rank.
 #'

@@ -24,10 +24,10 @@ directly comparable between the two approaches.
 
 See \link{SAGE} for details on the available estimators, standard errors and confidence intervals,
 and how this implementation relates to the reference Python \code{sage} package.
-The kernel estimator combined with conditional sampling has no reference implementation;
-it reuses the identical value function as the permutation estimator and only changes how
-coalitions are sampled and Shapley values are computed from them, and it is verified against
-the enumeration-based \code{estimator = "exact"} in the package tests.
+The kernel estimator combined with conditional sampling has no reference implementation.
+It reuses the exact same value function as the permutation estimator and only changes how
+coalitions are sampled.
+Results can be verified against \code{estimator = "exact"} on small feature sets.
 }
 \examples{
 \dontshow{if (requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE) && requireNamespace("arf", quietly = TRUE)) withAutoprint(\{ # examplesIf}

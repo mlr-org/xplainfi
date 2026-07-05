@@ -316,12 +316,16 @@ test_that("kernel ci_method = 'montecarlo' returns valid Wald intervals", {
   sage$compute()
 
   imp = sage$importance(ci_method = "montecarlo")
-  checkmate::expect_subset(c("se", "statistic", "p.value", "conf_lower", "conf_upper"), names(imp))
+  checkmate::expect_subset(c("se", "conf_lower", "conf_upper"), names(imp))
+  # Convergence intervals carry no hypothesis test (see docs): no statistic or p.value.
+  checkmate::expect_disjunct(c("statistic", "p.value"), names(imp))
   checkmate::expect_numeric(imp$se, any.missing = FALSE, lower = 0)
   checkmate::expect_numeric(imp$conf_lower, any.missing = FALSE, finite = TRUE)
   checkmate::expect_numeric(imp$conf_upper, any.missing = FALSE, finite = TRUE)
   # Point estimate lies inside its own two-sided interval.
   expect_true(all(imp$conf_lower <= imp$importance & imp$importance <= imp$conf_upper))
+  # p_adjust has no p-values to act on and is rejected.
+  expect_error(sage$importance(ci_method = "montecarlo", p_adjust = "holm"), "p_adjust")
 })
 
 test_that("montecarlo CI width shrinks with higher confidence and one-sided is unbounded", {

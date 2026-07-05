@@ -14,44 +14,36 @@ performance among all features. Unlike perturbation-based methods,
 SAGE marginalizes features by integrating over their distribution.
 This is approximated by averaging predictions over a reference dataset.
 
-\strong{Standard Error Calculation}: The standard errors (SE) reported in
-\verb{$convergence_history} reflect the uncertainty in Shapley value estimation
-across the sampled coalitions within a single resampling iteration.
-For the permutation estimator this is the running SE across permutations;
-for the kernel estimator it is obtained by propagating the sampling covariance
-of the regression moments through the constrained least-squares solve via the
-multivariate delta method.
-For \code{kernel_variant = "unbiased"} this reduces to the closed-form covariance of
-Covert & Lee (2021, Eqs. 12-13); for \code{kernel_variant = "original"} (whose variance the
-paper does not characterize) it is an xplainfi-specific extension of the same delta-method
-argument that additionally accounts for the sampled design matrix,
-validated against simulation ground truth in the package development.
-These SEs quantify the Monte Carlo sampling error for a fixed trained model
-and are only valid for inference about the importance of features for that
-specific model. They do not capture broader uncertainty from model variability
-across different train/test splits or resampling iterations.
-For \link{MarginalSAGE} they are additionally conditional on the fixed reference dataset
-used for marginalization: the variability from having drawn one particular reference
-subsample (\code{n_samples} rows) is shared across all coalitions and is not part of the
-reported SE, mirroring the Python \code{sage} implementation whose intervals are likewise
-conditional on its background data.
-When features strongly affect predictions and \code{n_samples} is small, that unmodeled
-component can exceed the coalition-sampling error, so increase \code{n_samples} when
-precise intervals matter.
-They are available through \verb{$importance(ci_method = "montecarlo")}, which builds
-Wald confidence intervals from them.
-The exact estimator has no coalition-sampling error and therefore reports no SE.
-
 The permutation estimator follows Covert et al. (2020); the kernel estimator
 (\code{estimator = "kernel"}, Kernel SAGE) follows Covert & Lee (2021) and comes in two
 variants selected by \code{kernel_variant}: \code{"original"} (their Eq. 7, the default, recommended
 in their Section 4.1 for practical use) and \code{"unbiased"} (their Eq. 9, the variant
 implemented by the reference Python \code{sage} package, useful for direct comparisons).
 
+\strong{Standard errors}: The SEs reported in \verb{$convergence_history} and used by
+\verb{$importance(ci_method = "montecarlo")} quantify the Monte Carlo error of the Shapley
+estimates for a fixed trained model: how much the estimates would still move if more
+permutations or coalitions were sampled.
+They are convergence diagnostics, not importance inference (see \verb{$importance()} for how
+to read them), and do not capture variability across train/test splits or model refits.
+For \link{MarginalSAGE} they are additionally conditional on the fixed reference dataset used
+for marginalization: the variability from having drawn one particular reference subsample
+(\code{n_samples} rows) is shared across all coalitions and is not part of the reported SE,
+mirroring the Python \code{sage} implementation.
+When features strongly affect predictions and \code{n_samples} is small, that unmodeled
+component can exceed the coalition-sampling error.
+Increase \code{n_samples} when the values themselves need to be precise, as the intervals will
+not reflect this component.
+The exact estimator has no coalition-sampling error and reports no SE.
+
+Computationally, the permutation estimator uses the running SE across permutations, while
+the kernel estimator propagates the coalition-sampling covariance through the constrained
+least-squares solve (the delta method), which for \code{kernel_variant = "unbiased"} reduces to
+the closed-form covariance of Covert & Lee (2021, Eqs. 12-13).
+
 \strong{Relation to the reference implementation (Python \code{sage})}:
 Both implementations follow Covert & Lee (2021), but they estimate the value function in
 different regimes, and several defaults differ as a consequence.
-Users expecting output identical to the \code{sage} package should read this section.
 \itemize{
 \item \emph{Value function estimation}: \code{sage} estimates the stochastic cooperative game directly,
 evaluating each sampled coalition on a single randomly drawn observation, so individual
@@ -59,27 +51,24 @@ evaluations are cheap but very noisy.
 xplainfi evaluates every coalition's loss on the complete test set, averaging predictions
 over \code{n_samples} reference draws, so a single evaluation is more expensive but nearly
 deterministic.
-\item \emph{Default kernel variant}: this regime difference drives the different defaults.
-In the noisy per-observation regime of \code{sage}, the two kernel variants converge similarly
-and the closed-form variance of the unbiased variant powers the package's convergence
-detection, which is why \code{sage} uses it.
-In the batch-averaged regime of xplainfi, the original variant is far more
-sample-efficient at equal coalition budgets (often by orders of magnitude, because the
-coupled sampling errors of its design matrix and right-hand side largely cancel), which
-matches the paper's own practical recommendation (Section 4.1) and is why it is the
-default here.
+\item \emph{Default kernel variant}: in the noisy per-observation regime of \code{sage}, the two variants
+converge similarly, and the unbiased variant's closed-form variance powers the package's
+convergence detection.
+In xplainfi's batch-averaged regime, the original variant is far more sample-efficient at
+equal budgets (the coupled sampling errors of its design matrix and right-hand side
+largely cancel), matching the paper's own recommendation in Section 4.1.
 \item \emph{Comparing point estimates}: for direct numerical comparisons with \code{sage}, use
-\code{kernel_variant = "unbiased"}; the two implementations then compute the same estimator
-and agree up to Monte Carlo error (coalition sampling, reference/background data, and the
-test observations still differ between implementations).
+\code{kernel_variant = "unbiased"}.
+The two implementations then compute the same estimator and agree up to Monte Carlo error
+(coalition sampling, reference data, and test observations still differ between them).
 \item \emph{Comparing uncertainties}: reported uncertainties are not directly comparable.
 The standard deviations in \code{sage} include the observation-sampling noise described above,
 whereas xplainfi conditions on the test set and quantifies coalition-sampling error only
 (test-set and model variability are instead addressed by the resampling-based
 \code{ci_method}s).
 In addition, \code{sage}'s uncertainty computation deviates from the paper's Eq. 13 (the
-constraint-adjustment term of the covariance propagation enters with a flipped sign);
-xplainfi implements Eqs. 12-13 as published.
+constraint-adjustment term of the covariance propagation enters with a flipped sign),
+while xplainfi implements Eqs. 12-13 as published.
 \item \emph{Convergence}: \code{sage} runs until its convergence criterion is met by default, while the
 kernel estimator in xplainfi evaluates a fixed budget of \code{n_coalitions} (early stopping
 applies to the permutation estimator only).
@@ -204,8 +193,9 @@ faster on typical (near-additive) problems and is the paper's practical recommen
 \code{"unbiased"} uses the exact closed-form design matrix and estimates only the right-hand side
 (unbiased KernelSHAP, Eq. 9).
 This is the estimator implemented in the reference Python \code{sage} package, so use it for direct
-comparisons with \code{sage}; at equal budgets its point estimates are typically substantially noisier,
-which its (wider) confidence intervals reflect.}
+comparisons with \code{sage}.
+At equal budgets its point estimates are substantially noisier, which its wider confidence
+intervals reflect.}
       \item{\code{max_features}}{(\code{integer(1)}: \code{12L}) Feature-count cap for \code{estimator = "exact"}.
 The exact estimator evaluates \code{2^n_features} coalitions, so it aborts when the number of
 features exceeds this cap. Increase it to override, keeping the combinatorial cost in mind.
@@ -235,15 +225,29 @@ which requires a sufficiently large number of samples (i.e., evaluated coalition
   Get aggregated importance scores with optional confidence intervals.
 
 Extends the base \link{FeatureImportanceMethod} method with \code{ci_method = "montecarlo"}, which
-builds Wald confidence intervals from the Monte Carlo standard errors of the SAGE estimator
+builds Wald intervals from the Monte Carlo standard errors of the SAGE estimator
 (the uncertainty of the Shapley estimate for a fixed trained model due to finite coalition
 or permutation sampling).
 This differs from the resampling-based methods (\code{"raw"}, \code{"nadeau_bengio"}, \code{"quantile"}),
 which quantify variability across train/test splits.
 Monte Carlo standard errors are available for \code{estimator = "kernel"} and
 \code{estimator = "permutation"}, but not \code{"exact"} (which has no coalition-sampling error).
-The intervals are conditional on the trained model and the value-function estimates;
-see the class-level details on standard error calculation for what they do and do not cover.
+
+\strong{Interpreting \code{"montecarlo"} intervals}: they are convergence diagnostics, not importance
+inference.
+An importance of 1.5 with interval \verb{[1.2, 1.8]} means: had all coalitions been enumerated
+for this fitted model on this test data (and, for \link{MarginalSAGE}, this reference data),
+the result would lie in \verb{[1.2, 1.8]}.
+The sampling budget has pinned the computation down to about \verb{+/- 0.3}.
+It does \emph{not} mean the feature's importance is nonzero in any generalizable sense: the
+interval excludes test-set, reference-data, and model-refit variability entirely.
+Because the estimation target is a fixed, generally nonzero number, a test against zero
+would reject for every feature given enough coalitions, so no \code{statistic} or \code{p.value} is
+reported and \code{p_adjust} is not accepted.
+Legitimate uses are checking whether the sampling budget suffices (small \code{se} relative to
+the importance range) and whether two features' estimates are distinguishable at the
+current budget (non-overlapping intervals).
+For inference about feature importance, use the resampling-based methods.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{SAGE$importance(
@@ -265,10 +269,12 @@ see the class-level details on standard error calculation for what they do and d
 are standardized by the largest absolute importance.}
       \item{\code{ci_method}}{(\code{character(1)}: \code{"none"}) Variance estimation method.
 In addition to the base methods (\code{"none"}, \code{"raw"}, \code{"nadeau_bengio"}, \code{"quantile"}),
-SAGE supports \code{"montecarlo"} for coalition-sampling Wald intervals.}
+SAGE supports \code{"montecarlo"} for coalition-sampling convergence intervals (see above).}
       \item{\code{conf_level}}{(\code{numeric(1)}: \code{0.95}) Confidence level for confidence intervals when \code{ci_method != "none"}.}
-      \item{\code{alternative}}{(\code{character(1)}: \code{"two.sided"}) Type of alternative hypothesis.}
-      \item{\code{p_adjust}}{(\code{character(1)}: \code{"none"}) Method for p-value adjustment for multiple comparisons.}
+      \item{\code{alternative}}{(\code{character(1)}: \code{"two.sided"}) Type of alternative hypothesis.
+For \code{"montecarlo"} this only selects between two-sided and lower-bounded intervals.}
+      \item{\code{p_adjust}}{(\code{character(1)}: \code{"none"}) Method for p-value adjustment for multiple comparisons.
+Not accepted for \code{ci_method = "montecarlo"}, which performs no hypothesis test.}
       \item{\code{...}}{Passed to the base method for other CI methods.}
     }
     \if{html}{\out{</div>}}

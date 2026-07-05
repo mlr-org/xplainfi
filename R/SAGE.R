@@ -10,44 +10,36 @@
 #' SAGE marginalizes features by integrating over their distribution.
 #' This is approximated by averaging predictions over a reference dataset.
 #'
-#' **Standard Error Calculation**: The standard errors (SE) reported in
-#' `$convergence_history` reflect the uncertainty in Shapley value estimation
-#' across the sampled coalitions within a single resampling iteration.
-#' For the permutation estimator this is the running SE across permutations;
-#' for the kernel estimator it is obtained by propagating the sampling covariance
-#' of the regression moments through the constrained least-squares solve via the
-#' multivariate delta method.
-#' For `kernel_variant = "unbiased"` this reduces to the closed-form covariance of
-#' Covert & Lee (2021, Eqs. 12-13); for `kernel_variant = "original"` (whose variance the
-#' paper does not characterize) it is an xplainfi-specific extension of the same delta-method
-#' argument that additionally accounts for the sampled design matrix,
-#' validated against simulation ground truth in the package development.
-#' These SEs quantify the Monte Carlo sampling error for a fixed trained model
-#' and are only valid for inference about the importance of features for that
-#' specific model. They do not capture broader uncertainty from model variability
-#' across different train/test splits or resampling iterations.
-#' For [MarginalSAGE] they are additionally conditional on the fixed reference dataset
-#' used for marginalization: the variability from having drawn one particular reference
-#' subsample (`n_samples` rows) is shared across all coalitions and is not part of the
-#' reported SE, mirroring the Python `sage` implementation whose intervals are likewise
-#' conditional on its background data.
-#' When features strongly affect predictions and `n_samples` is small, that unmodeled
-#' component can exceed the coalition-sampling error, so increase `n_samples` when
-#' precise intervals matter.
-#' They are available through `$importance(ci_method = "montecarlo")`, which builds
-#' Wald confidence intervals from them.
-#' The exact estimator has no coalition-sampling error and therefore reports no SE.
-#'
 #' The permutation estimator follows Covert et al. (2020); the kernel estimator
 #' (`estimator = "kernel"`, Kernel SAGE) follows Covert & Lee (2021) and comes in two
 #' variants selected by `kernel_variant`: `"original"` (their Eq. 7, the default, recommended
 #' in their Section 4.1 for practical use) and `"unbiased"` (their Eq. 9, the variant
 #' implemented by the reference Python `sage` package, useful for direct comparisons).
 #'
+#' **Standard errors**: The SEs reported in `$convergence_history` and used by
+#' `$importance(ci_method = "montecarlo")` quantify the Monte Carlo error of the Shapley
+#' estimates for a fixed trained model: how much the estimates would still move if more
+#' permutations or coalitions were sampled.
+#' They are convergence diagnostics, not importance inference (see `$importance()` for how
+#' to read them), and do not capture variability across train/test splits or model refits.
+#' For [MarginalSAGE] they are additionally conditional on the fixed reference dataset used
+#' for marginalization: the variability from having drawn one particular reference subsample
+#' (`n_samples` rows) is shared across all coalitions and is not part of the reported SE,
+#' mirroring the Python `sage` implementation.
+#' When features strongly affect predictions and `n_samples` is small, that unmodeled
+#' component can exceed the coalition-sampling error.
+#' Increase `n_samples` when the values themselves need to be precise, as the intervals will
+#' not reflect this component.
+#' The exact estimator has no coalition-sampling error and reports no SE.
+#'
+#' Computationally, the permutation estimator uses the running SE across permutations, while
+#' the kernel estimator propagates the coalition-sampling covariance through the constrained
+#' least-squares solve (the delta method), which for `kernel_variant = "unbiased"` reduces to
+#' the closed-form covariance of Covert & Lee (2021, Eqs. 12-13).
+#'
 #' **Relation to the reference implementation (Python `sage`)**:
 #' Both implementations follow Covert & Lee (2021), but they estimate the value function in
 #' different regimes, and several defaults differ as a consequence.
-#' Users expecting output identical to the `sage` package should read this section.
 #'
 #' * *Value function estimation*: `sage` estimates the stochastic cooperative game directly,
 #'   evaluating each sampled coalition on a single randomly drawn observation, so individual
@@ -55,27 +47,24 @@
 #'   xplainfi evaluates every coalition's loss on the complete test set, averaging predictions
 #'   over `n_samples` reference draws, so a single evaluation is more expensive but nearly
 #'   deterministic.
-#' * *Default kernel variant*: this regime difference drives the different defaults.
-#'   In the noisy per-observation regime of `sage`, the two kernel variants converge similarly
-#'   and the closed-form variance of the unbiased variant powers the package's convergence
-#'   detection, which is why `sage` uses it.
-#'   In the batch-averaged regime of xplainfi, the original variant is far more
-#'   sample-efficient at equal coalition budgets (often by orders of magnitude, because the
-#'   coupled sampling errors of its design matrix and right-hand side largely cancel), which
-#'   matches the paper's own practical recommendation (Section 4.1) and is why it is the
-#'   default here.
+#' * *Default kernel variant*: in the noisy per-observation regime of `sage`, the two variants
+#'   converge similarly, and the unbiased variant's closed-form variance powers the package's
+#'   convergence detection.
+#'   In xplainfi's batch-averaged regime, the original variant is far more sample-efficient at
+#'   equal budgets (the coupled sampling errors of its design matrix and right-hand side
+#'   largely cancel), matching the paper's own recommendation in Section 4.1.
 #' * *Comparing point estimates*: for direct numerical comparisons with `sage`, use
-#'   `kernel_variant = "unbiased"`; the two implementations then compute the same estimator
-#'   and agree up to Monte Carlo error (coalition sampling, reference/background data, and the
-#'   test observations still differ between implementations).
+#'   `kernel_variant = "unbiased"`.
+#'   The two implementations then compute the same estimator and agree up to Monte Carlo error
+#'   (coalition sampling, reference data, and test observations still differ between them).
 #' * *Comparing uncertainties*: reported uncertainties are not directly comparable.
 #'   The standard deviations in `sage` include the observation-sampling noise described above,
 #'   whereas xplainfi conditions on the test set and quantifies coalition-sampling error only
 #'   (test-set and model variability are instead addressed by the resampling-based
 #'   `ci_method`s).
 #'   In addition, `sage`'s uncertainty computation deviates from the paper's Eq. 13 (the
-#'   constraint-adjustment term of the covariance propagation enters with a flipped sign);
-#'   xplainfi implements Eqs. 12-13 as published.
+#'   constraint-adjustment term of the covariance propagation enters with a flipped sign),
+#'   while xplainfi implements Eqs. 12-13 as published.
 #' * *Convergence*: `sage` runs until its convergence criterion is met by default, while the
 #'   kernel estimator in xplainfi evaluates a fixed budget of `n_coalitions` (early stopping
 #'   applies to the permutation estimator only).
@@ -139,8 +128,9 @@ SAGE = R6Class(
     #'   `"unbiased"` uses the exact closed-form design matrix and estimates only the right-hand side
     #'   (unbiased KernelSHAP, Eq. 9).
     #'   This is the estimator implemented in the reference Python `sage` package, so use it for direct
-    #'   comparisons with `sage`; at equal budgets its point estimates are typically substantially noisier,
-    #'   which its (wider) confidence intervals reflect.
+    #'   comparisons with `sage`.
+    #'   At equal budgets its point estimates are substantially noisier, which its wider confidence
+    #'   intervals reflect.
     #' @param max_features (`integer(1)`: `12L`) Feature-count cap for `estimator = "exact"`.
     #'   The exact estimator evaluates `2^n_features` coalitions, so it aborts when the number of
     #'   features exceeds this cap. Increase it to override, keeping the combinatorial cost in mind.
@@ -283,25 +273,41 @@ SAGE = R6Class(
     #' Get aggregated importance scores with optional confidence intervals.
     #'
     #' Extends the base [FeatureImportanceMethod] method with `ci_method = "montecarlo"`, which
-    #' builds Wald confidence intervals from the Monte Carlo standard errors of the SAGE estimator
+    #' builds Wald intervals from the Monte Carlo standard errors of the SAGE estimator
     #' (the uncertainty of the Shapley estimate for a fixed trained model due to finite coalition
     #' or permutation sampling).
     #' This differs from the resampling-based methods (`"raw"`, `"nadeau_bengio"`, `"quantile"`),
     #' which quantify variability across train/test splits.
     #' Monte Carlo standard errors are available for `estimator = "kernel"` and
     #' `estimator = "permutation"`, but not `"exact"` (which has no coalition-sampling error).
-    #' The intervals are conditional on the trained model and the value-function estimates;
-    #' see the class-level details on standard error calculation for what they do and do not cover.
+    #'
+    #' **Interpreting `"montecarlo"` intervals**: they are convergence diagnostics, not importance
+    #' inference.
+    #' An importance of 1.5 with interval `[1.2, 1.8]` means: had all coalitions been enumerated
+    #' for this fitted model on this test data (and, for [MarginalSAGE], this reference data),
+    #' the result would lie in `[1.2, 1.8]`.
+    #' The sampling budget has pinned the computation down to about `+/- 0.3`.
+    #' It does *not* mean the feature's importance is nonzero in any generalizable sense: the
+    #' interval excludes test-set, reference-data, and model-refit variability entirely.
+    #' Because the estimation target is a fixed, generally nonzero number, a test against zero
+    #' would reject for every feature given enough coalitions, so no `statistic` or `p.value` is
+    #' reported and `p_adjust` is not accepted.
+    #' Legitimate uses are checking whether the sampling budget suffices (small `se` relative to
+    #' the importance range) and whether two features' estimates are distinguishable at the
+    #' current budget (non-overlapping intervals).
+    #' For inference about feature importance, use the resampling-based methods.
     #'
     #' @param relation Ignored for SAGE (importance is not a baseline/post relation).
     #' @param standardize (`logical(1)`: `FALSE`) If `TRUE`, importances (and their standard errors)
     #'   are standardized by the largest absolute importance.
     #' @param ci_method (`character(1)`: `"none"`) Variance estimation method.
     #'   In addition to the base methods (`"none"`, `"raw"`, `"nadeau_bengio"`, `"quantile"`),
-    #'   SAGE supports `"montecarlo"` for coalition-sampling Wald intervals.
+    #'   SAGE supports `"montecarlo"` for coalition-sampling convergence intervals (see above).
     #' @param conf_level (`numeric(1)`: `0.95`) Confidence level for confidence intervals when `ci_method != "none"`.
     #' @param alternative (`character(1)`: `"two.sided"`) Type of alternative hypothesis.
+    #'   For `"montecarlo"` this only selects between two-sided and lower-bounded intervals.
     #' @param p_adjust (`character(1)`: `"none"`) Method for p-value adjustment for multiple comparisons.
+    #'   Not accepted for `ci_method = "montecarlo"`, which performs no hypothesis test.
     #' @param ... Passed to the base method for other CI methods.
     #' @return ([data.table][data.table::data.table]) Aggregated importance scores, with CI columns when requested.
     #'
@@ -326,7 +332,15 @@ SAGE = R6Class(
           return(invisible(NULL))
         }
         checkmate::assert_number(conf_level, lower = 0, upper = 1)
-        checkmate::assert_choice(p_adjust, choices = stats::p.adjust.methods)
+        # No hypothesis test is performed (see docs), so there are no p-values to adjust.
+        if (!identical(p_adjust, "none")) {
+          cli::cli_abort(c(
+            "{.arg p_adjust} does not apply to {.code ci_method = \"montecarlo\"}.",
+            "i" = "This method reports convergence intervals without test statistics or p-values.",
+            "i" = "For importance inference with multiplicity adjustment, use a resampling-based method
+                   such as {.code ci_method = \"nadeau_bengio\"}."
+          ))
+        }
         alternative = match.arg(alternative)
 
         scores = self$scores()
@@ -345,7 +359,7 @@ SAGE = R6Class(
           scores[, c("importance", "se") := list(importance / scale_factor, se / scale_factor)]
         }
 
-        agg = importance_sage_montecarlo(scores, conf_level, alternative, p_adjust)
+        agg = importance_sage_montecarlo(scores, conf_level, alternative)
         setkeyv(agg, "feature")
         return(agg[])
       }

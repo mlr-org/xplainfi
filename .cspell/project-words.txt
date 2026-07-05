@@ -7,3 +7,11 @@ offdiag
 unmodeled
 estimand
 estimands
+Bengio
+Nadeau
+WVIM
+subsampling
+xplainfi
+Feng
+SPVIM
+vimp

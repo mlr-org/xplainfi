@@ -40,6 +40,40 @@ The approaches fall into three broad categories:
 
 Note that these categories target *different estimands*: the first speaks to variability across model refits, while the latter two are conditional on a fixed fitted model.
 
+## Overview: which method answers which question?
+
+The default `ci_method = "none"` reports only point estimates.
+The remaining methods differ in which importance methods they attach to, which estimand they target, and which conditions they need to be valid:
+
+| `ci_method` | Available for | Estimand | Valid when | Reports |
+|---|---|---|---|---|
+| `"quantile"` | any method with resampling | none (descriptive spread across refits) | always, but describes rather than tests | bounds only |
+| `"raw"` | any method with resampling | learner importance | never (known too narrow); shown for illustration | `se`, `statistic`, `p.value`, bounds |
+| `"nadeau_bengio"` | any method with resampling | learner importance | subsampling with 10-15+ iterations | `se`, `statistic`, `p.value`, bounds |
+| `"cpi"` | CFI (knockoff or ARF sampler) | model importance | single holdout split, i.i.d. test observations | `se` (t-test), `statistic`, `p.value`, bounds |
+| `"lei"` | LOCO / WVIM | model importance | single holdout split, i.i.d. test observations | `statistic`, `p.value`, bounds |
+| `"montecarlo"` | SAGE (kernel or permutation estimator) | none (convergence of the coalition-sampling computation) | fixed fitted model; see below | `se`, bounds; deliberately no test |
+
+Here *model importance* means importance of features for one fixed fitted model (inference is conditional on the training data),
+while *learner importance* means importance for the learner as a procedure, averaging over the variability of model refits on different training samples.
+The two answer different questions, and a method that is valid for one is not automatically valid for the other.
+
+Some notes on what each method is valid for versus what it can be stretched to:
+
+- **`"nadeau_bengio"` is the most broadly applicable**, since it only needs one importance estimate per resampling iteration, which every importance method in xplainfi produces.
+  It targets only the learner-importance question, however.
+  The correction was proposed by [Nadeau & Bengio (2003)](https://doi.org/10.1023/A:1024068626366) for performance estimates, and [Molnar et al. (2023)](https://doi.org/10.1007/s10618-023-00925-z) validated it for PFI, recommending around 15 subsampling iterations.
+  Its use with other importance methods follows the same logic but has not been formally studied.
+  Bootstrap resampling can leak observations into both train and test sets for learners that resample internally (such as random forests), so subsampling is preferred.
+- **`"cpi"` ([Watson & Wright, 2021](https://doi.org/10.1007/s10994-021-06030-6)) is only valid for model importance** with a single train/test split.
+  Running it with cross-validation keeps test observations unique but mixes models fit on overlapping training data.
+  See the [CPI section](#conditional-predictive-impact-cpi) for why coverage is then unclear.
+- **`"lei"` ([Lei et al., 2018](https://doi.org/10.1080/01621459.2017.1307116)) has the same structure and the same caveat.**
+  In addition, the original guarantees were derived for absolute-error loss with the median as point estimate, so xplainfi's generalizations (other losses, tests, and aggregators) weaken the theoretical footing.
+- **`"montecarlo"` is not an importance-inference method at all** and is listed here to make that distinction visible.
+  Its intervals quantify how well the coalition-sampling computation has converged for a fixed fitted model, not whether a feature matters.
+  See the [dedicated section below](#monte-carlo-confidence-intervals-for-sage) for interpretation guidance.
+
 ## Setup
 
 We use a simple linear DGP for demonstration purposes where
@@ -201,7 +235,7 @@ For sequential or adaptive procedures such as Holm (FWER) or Benjamini-Hochberg 
 pfi$importance(ci_method = "nadeau_bengio", alternative = "two.sided", p_adjust = "BH")
 ```
 
-This applies to all `ci_method`s that produce p-values (`"raw"`, `"nadeau_bengio"`, `"cpi"`, `"lei"`, `"montecarlo"`).
+This applies to all `ci_method`s that produce p-values (`"raw"`, `"nadeau_bengio"`, `"cpi"`, `"lei"`).
 
 
 ## Observation-wise inference on test data
@@ -487,11 +521,10 @@ These are parametric Wald intervals, not empirical quantiles:
 the standard errors derive from a central limit theorem on the sampled-coalition moments ([Covert & Lee, 2021](https://proceedings.mlr.press/v130/covert21a.html), Eqs. 12-13, extended by the delta method for the default kernel variant), so coverage is asymptotic in the number of sampled coalitions.
 In simulations against the exact estimator, empirical coverage of the 95% intervals matched the nominal level for both kernel variants.
 
-**What the intervals cover --- and what they do not.**
+**What the intervals do and do not cover.**
 The estimand is the SAGE value of the *fixed fitted model*, as defined by the empirical value function on the test data and, for `MarginalSAGE`, the fixed reference dataset used for marginalization.
-The intervals therefore do *not* account for model refitting variability, test-set sampling, or the draw of the reference subsample:
-they answer "how precisely has coalition sampling pinned down this model's SAGE values", not "how important is this feature under the data-generating process".
-For learner-level questions, the resampling-based methods above are the relevant (if imperfect) tools.
+The intervals therefore do *not* account for model refitting variability, test-set sampling, or the draw of the reference subsample.
+For those learner-level questions, use the resampling-based methods above.
 Because the reference subsample is part of the estimand's definition, increase `n_samples` when the values themselves need to be precise, not just their intervals.
 
 ```{r sage-montecarlo}
@@ -512,11 +545,18 @@ sage$compute()
 sage$importance(ci_method = "montecarlo")
 ```
 
-As with the other parametric methods, `alternative` and `p_adjust` are supported, and `"bonferroni"` also adjusts the confidence intervals.
+Unlike the other parametric methods, no test statistic or p-value is reported, and `p_adjust` is not accepted.
+The reason is the estimand:
+the exhaustive-enumeration SAGE value of a fixed fitted model is a fixed and generally nonzero number, so a test against zero would reject for *every* feature once enough coalitions are sampled.
+"Significance" would then measure the compute budget rather than the feature.
+Read the intervals as convergence diagnostics:
+an importance of 1.5 with interval [1.2, 1.8] means the coalition budget has pinned the computation down to about $\pm 0.3$, not that the feature's importance is distinguishable from zero in any generalizable sense.
+Two uses are supported by this estimand: checking that the sampling budget suffices (intervals narrow relative to the spread of importance values), and checking whether two features' estimates are distinguishable at the current budget (non-overlapping intervals).
+`alternative = "greater"` is still available to obtain lower-bounded one-sided intervals.
 
 The kernel estimator comes in two variants (see `?SAGE`):
 the default `"original"` follows the estimator Covert & Lee (2021) recommend for practical use (their Section 4.1), while `"unbiased"` matches the estimator implemented in the reference Python [sage](https://github.com/iancovert/sage) package and is mainly useful for direct comparisons with it.
-Both provide calibrated intervals, but at equal coalition budgets the unbiased variant's point estimates are substantially noisier, which its wider intervals honestly reflect:
+Both provide calibrated intervals, but at equal coalition budgets the unbiased variant's point estimates are substantially noisier, which its wider intervals reflect:
 
 ```{r sage-montecarlo-unbiased}
 #| fig.alt: "Point-and-whisker plot with features on y-axis and SAGE values on x-axis. Two colored series for the original and unbiased kernel variants; the unbiased variant shows markedly wider horizontal error bars at the same coalition budget."
