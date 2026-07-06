@@ -260,6 +260,26 @@ sage_kernel_A_from_offdiag = function(a, m, od) {
   A
 }
 
+#' Constrained weighted least-squares Shapley solve
+#'
+#' The efficiency-constrained WLS solution shared by both kernel variants and the
+#' delta-method Jacobian:
+#' `phi = A^-1 b - A^-1 1 (1^T A^-1 b - total) / (1^T A^-1 1)`.
+#' Kept as the single implementation so the point estimate and the function being
+#' differentiated for its standard errors can never drift apart.
+#'
+#' @param A_inv (`matrix`) Inverse of the (sampled or exact) design matrix.
+#' @param b (`numeric(m)`) Right-hand side.
+#' @param total (`numeric(1)`) Value of the grand coalition, the sum constraint.
+#' @return `numeric(m)` constrained Shapley estimate.
+#' @keywords internal
+#' @noRd
+sage_kernel_solve_constrained = function(A_inv, b, total) {
+  A_inv_b = as.numeric(A_inv %*% b)
+  A_inv_1 = as.numeric(A_inv %*% rep(1, nrow(A_inv)))
+  A_inv_b - A_inv_1 * ((sum(A_inv_b) - total) / sum(A_inv_1))
+}
+
 #' Unbiased kernel SAGE estimate and closed-form standard errors
 #'
 #' The "unbiased KernelSHAP" estimator (Covert & Lee 2021, Eq. 9): the design matrix `A` is
@@ -278,18 +298,18 @@ sage_kernel_A_from_offdiag = function(a, m, od) {
 #'   the number of pairs). If `NULL`, standard errors are returned as `NA`.
 #' @param m (`integer(1)`) Number of features.
 #' @param total (`numeric(1)`) Value of the grand coalition, `v(full)`, used as the sum constraint.
+#' @param A_inv (`matrix` | `NULL`) Precomputed `solve(sage_kernel_A(m))`; it depends only on
+#'   `m`, so callers evaluating repeatedly (convergence checkpoints) should pass it once.
 #' @return `list(phi, se)`, each a `numeric(m)`.
 #' @keywords internal
 #' @noRd
-sage_kernel_estimate_unbiased = function(b_mean, cov_mean, m, total) {
-  A_inv = solve(sage_kernel_A(m))
-  ones = rep(1, m)
-  A_inv_b = as.numeric(A_inv %*% b_mean)
-  A_inv_1 = as.numeric(A_inv %*% ones)
-  phi = A_inv_b - A_inv_1 * ((sum(A_inv_b) - total) / sum(A_inv_1))
+sage_kernel_estimate_unbiased = function(b_mean, cov_mean, m, total, A_inv = NULL) {
+  A_inv = A_inv %??% solve(sage_kernel_A(m))
+  phi = sage_kernel_solve_constrained(A_inv, b_mean, total)
 
   se = rep(NA_real_, m)
   if (!is.null(cov_mean)) {
+    A_inv_1 = as.numeric(A_inv %*% rep(1, m))
     C = A_inv - outer(A_inv_1, A_inv_1) / sum(A_inv_1)
     se = sqrt(pmax(diag(C %*% cov_mean %*% t(C)), 0))
   }
@@ -310,10 +330,12 @@ sage_kernel_estimate_unbiased = function(b_mean, cov_mean, m, total) {
 #' least-squares Shapley values and their standard errors. Because the estimate
 #' `phi = g(A, b)` is a smooth function of the sample-mean moments, its covariance follows from
 #' the multivariate delta method, `Cov(phi) = J cov_mean J^T`, with `J` the Jacobian of the
-#' constrained solve obtained by central differences. This propagates the sampling variance of
-#' *both* `A` and `b` (and their shared-sample covariance), extending the closed form of the
-#' unbiased variant. `total = v(full)` is treated as a fixed constraint (its Monte Carlo error
-#' from the anchor evaluations is ignored, matching `sage`).
+#' constrained solve. For fixed `A` the solve is affine in `b`, so the `b` block of `J` is
+#' exactly the projection matrix `C` of the unbiased variant; only the `A` off-diagonal block
+#' needs central differences. This propagates the sampling variance of *both* `A` and `b`
+#' (and their shared-sample covariance), extending the closed form of the unbiased variant.
+#' `total = v(full)` is treated as a fixed constraint (its Monte Carlo error from the anchor
+#' evaluations is ignored, matching `sage`).
 #'
 #' @param w_mean (`numeric`) Running mean of the moment vector, off-diagonals of `A` first
 #'   (in `od` order) then the `m` entries of `b`.
@@ -330,50 +352,52 @@ sage_kernel_estimate_unbiased = function(b_mean, cov_mean, m, total) {
 #' @keywords internal
 #' @noRd
 sage_kernel_estimate_original = function(w_mean, cov_mean, m, total, od, noff, require_result = FALSE) {
-  ones = rep(1, m)
   b = w_mean[noff + seq_len(m)]
-
-  # Constrained WLS solve given an inverse design matrix.
-  solve_constrained = function(A_inv) {
-    A_inv_b = as.numeric(A_inv %*% b)
-    A_inv_1 = as.numeric(A_inv %*% ones)
-    A_inv_b - A_inv_1 * ((sum(A_inv_b) - total) / sum(A_inv_1))
-  }
 
   A = sage_kernel_A_from_offdiag(w_mean[seq_len(noff)], m, od)
   A_inv = tryCatch(solve(A), error = function(e) NULL)
   if (is.null(A_inv)) {
     # Not yet identifiable from the sampled coalitions. Fall back to the exact A only
     # when a value is required (final estimate); otherwise degrade to NA gracefully.
-    phi = if (require_result) solve_constrained(solve(sage_kernel_A(m))) else rep(NA_real_, m)
+    phi = if (require_result) {
+      sage_kernel_solve_constrained(solve(sage_kernel_A(m)), b, total)
+    } else {
+      rep(NA_real_, m)
+    }
     return(list(phi = phi, se = rep(NA_real_, m)))
   }
-  phi = solve_constrained(A_inv)
+  phi = sage_kernel_solve_constrained(A_inv, b, total)
 
   se = rep(NA_real_, m)
   if (!is.null(cov_mean)) {
-    # phi as a function of the full moment vector, for the numerical Jacobian.
-    phi_of_w = function(w) {
-      Aw_inv = tryCatch(solve(sage_kernel_A_from_offdiag(w[seq_len(noff)], m, od)), error = function(e) NULL)
+    # b block of the Jacobian: the solve is affine in b for fixed A, so
+    # dphi/db is exactly the projection matrix C (no differencing needed).
+    A_inv_1 = as.numeric(A_inv %*% rep(1, m))
+    C = A_inv - outer(A_inv_1, A_inv_1) / sum(A_inv_1)
+
+    # A block: phi as a function of the off-diagonals, for central differences.
+    phi_of_a = function(a) {
+      Aw_inv = tryCatch(
+        solve(sage_kernel_A_from_offdiag(a, m, od)),
+        error = function(e) NULL
+      )
       if (is.null(Aw_inv)) {
         return(NULL)
       }
-      bw = w[noff + seq_len(m)]
-      A_inv_b = as.numeric(Aw_inv %*% bw)
-      A_inv_1 = as.numeric(Aw_inv %*% ones)
-      A_inv_b - A_inv_1 * ((sum(A_inv_b) - total) / sum(A_inv_1))
+      sage_kernel_solve_constrained(Aw_inv, b, total)
     }
-    L = length(w_mean)
-    J = matrix(0, m, L)
+    J = matrix(0, m, noff + m)
+    J[, noff + seq_len(m)] = C
+    a_mean = w_mean[seq_len(noff)]
     h = 1e-6
     ok = TRUE
-    for (j in seq_len(L)) {
-      wp = w_mean
-      wm = w_mean
-      wp[j] = wp[j] + h
-      wm[j] = wm[j] - h
-      up = phi_of_w(wp)
-      dn = phi_of_w(wm)
+    for (j in seq_len(noff)) {
+      ap = a_mean
+      am = a_mean
+      ap[j] = ap[j] + h
+      am[j] = am[j] - h
+      up = phi_of_a(ap)
+      dn = phi_of_a(am)
       if (is.null(up) || is.null(dn)) {
         ok = FALSE
         break

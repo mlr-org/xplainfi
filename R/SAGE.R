@@ -81,21 +81,14 @@ SAGE = R6Class(
   "SAGE",
   inherit = FeatureImportanceMethod,
   public = list(
-    #' @field estimator (`character(1)`) Shapley-value estimator, one of `"permutation"`, `"kernel"`, or `"exact"`.
-    estimator = NULL,
-    #' @field n_permutations (`integer(1)` | `NULL`) Number of permutations to sample (permutation estimator).
-    n_permutations = NULL,
-    #' @field n_coalitions (`integer(1)` | `NULL`) Number of coalitions to sample (kernel estimator).
-    n_coalitions = NULL,
-    #' @field kernel_variant (`character(1)` | `NULL`) Kernel estimator variant, `"original"` or `"unbiased"`.
-    kernel_variant = NULL,
-    #' @field max_features (`integer(1)` | `NULL`) Feature-count cap for the exact estimator.
-    max_features = NULL,
     #' @field convergence_history ([`data.table`][data.table::data.table]) History of SAGE values during computation.
     convergence_history = NULL,
-    #' @field converged (`logical(1)`) Whether convergence was detected.
+    #' @field converged (`logical(1)`) Whether convergence was detected (permutation estimator with early stopping).
+    #'   The exact estimator sets `TRUE` trivially since it enumerates all coalitions; the kernel estimator never stops early and reports `FALSE`.
     converged = FALSE,
-    #' @field n_permutations_used (`integer(1)`) Actual number of permutations (permutation) or coalitions (kernel) used.
+    #' @field n_permutations_used (`integer(1)`) Sampling effort actually spent, in estimator-specific units:
+    #'   permutations (permutation estimator), paired coalition draws (kernel; each draw evaluates 2 coalitions),
+    #'   or enumerated coalitions (exact).
     n_permutations_used = NULL,
 
     #' @description
@@ -133,21 +126,28 @@ SAGE = R6Class(
     #'   intervals reflect.
     #' @param max_features (`integer(1)`: `12L`) Feature-count cap for `estimator = "exact"`.
     #'   The exact estimator evaluates `2^n_features` coalitions, so it aborts when the number of
-    #'   features exceeds this cap. Increase it to override, keeping the combinatorial cost in mind.
-    #'   Ignored by the other estimators.
+    #'   features exceeds this cap.
+    #'   Increase it to override, keeping the combinatorial cost in mind.
+    #'   Setting it for the other estimators is a warning, as they ignore it.
     #' @param batch_size (`integer(1)`: `5000L`) Maximum number of observations to process in a single prediction call.
     #' @param n_samples (`integer(1)`: `100L`) Number of samples to use for marginalizing out-of-coalition features.
     #'   For [MarginalSAGE], this is the number of marginal data samples ("background data" in other implementations).
     #'   For [ConditionalSAGE], this is the number of conditional samples per test instance retrieved from `sampler`.
-    #' @param early_stopping (`logical(1)`: `TRUE`) Whether to enable early stopping based on convergence detection.
+    #' @param early_stopping (`logical(1)`: `FALSE`) Whether to enable early stopping based on convergence detection.
+    #'   Only used by the permutation estimator.
     #' @param se_threshold (`numeric(1)`: `0.01`) Convergence threshold for relative standard error.
     #'   Convergence is detected when the maximum relative SE across all features falls below this threshold.
     #'   Relative SE is calculated as SE divided by the range of importance values (max - min),
     #'   making it scale-invariant across different loss metrics.
     #'   Default of `0.01` means convergence when relative SE is below 1% of the importance range.
-    #' @param min_permutations (`integer(1)`: `10L`) Minimum permutations before checking for convergence. Convergence is judged based on the standard errors of the estimated SAGE values,
-    #' which requires a sufficiently large number of samples (i.e., evaluated coalitions).
+    #'   Only used by the permutation estimator; setting a non-default value for another estimator is a warning.
+    #' @param min_permutations (`integer(1)`: `10L`) Minimum permutations before checking for convergence.
+    #'   Convergence is judged based on the standard errors of the estimated SAGE values,
+    #'   which requires a sufficiently large number of samples (i.e., evaluated coalitions).
+    #'   Only used by the permutation estimator; setting a non-default value for another estimator is a warning.
     #' @param check_interval (`integer(1)`: `1L`) Check convergence every N permutations.
+    #'   Only used by the permutation estimator; setting a non-default value for another estimator is a warning.
+    #'   The kernel estimator manages its own checkpointing for prediction batching and convergence history.
     initialize = function(
       task,
       learner,
@@ -161,7 +161,7 @@ SAGE = R6Class(
       max_features = 12L,
       batch_size = 5000L,
       n_samples = 100L,
-      early_stopping = TRUE,
+      early_stopping = FALSE,
       se_threshold = 0.01,
       min_permutations = 10L,
       check_interval = 1L
@@ -176,7 +176,6 @@ SAGE = R6Class(
       )
 
       estimator = match.arg(estimator)
-      self$estimator = estimator
 
       # Each estimator takes a different budget argument; setting another
       # estimator's budget is a hard error rather than a silently ignored value.
@@ -194,7 +193,7 @@ SAGE = R6Class(
             "i" = "The permutation estimator is controlled by {.arg n_permutations}."
           ))
         }
-        self$n_permutations = checkmate::assert_int(n_permutations %??% 10L, lower = 1L)
+        n_permutations = checkmate::assert_int(n_permutations %??% 10L, lower = 1L)
       } else if (estimator == "kernel") {
         if (!is.null(n_permutations)) {
           cli::cli_abort(c(
@@ -202,8 +201,8 @@ SAGE = R6Class(
             "i" = "The kernel estimator is controlled by {.arg n_coalitions}."
           ))
         }
-        self$n_coalitions = checkmate::assert_int(n_coalitions %??% 512L, lower = 1L)
-        self$kernel_variant = checkmate::assert_choice(
+        n_coalitions = checkmate::assert_int(n_coalitions %??% 512L, lower = 1L)
+        kernel_variant = checkmate::assert_choice(
           kernel_variant %??% "original",
           choices = c("original", "unbiased")
         )
@@ -215,13 +214,32 @@ SAGE = R6Class(
             "i" = "Do not set {.arg n_permutations} or {.arg n_coalitions} with {.code estimator = \"exact\"}."
           ))
         }
-        self$max_features = checkmate::assert_int(max_features, lower = 1L)
-        n_features = length(self$features)
-        if (n_features > self$max_features) {
-          cli::cli_abort(c(
-            "The exact estimator would enumerate {.val {2^n_features}} coalitions of {n_features} features.",
-            "i" = "This exceeds the {.arg max_features} cap ({self$max_features}); the cost grows as 2^n_features.",
-            "i" = "Increase {.arg max_features} to override, or use {.code estimator = \"kernel\"} instead."
+      }
+
+      # Estimator-specific tuning arguments are always validated; unlike the budgets
+      # above, a value set for an estimator that ignores it is a warning, not an
+      # error, since it does not change what is estimated.
+      checkmate::assert_int(max_features, lower = 1L)
+      checkmate::assert_flag(early_stopping)
+      checkmate::assert_number(se_threshold, lower = 0, upper = 1)
+      checkmate::assert_int(min_permutations, lower = 1L)
+      checkmate::assert_int(check_interval, lower = 1L)
+      if (estimator != "exact" && !identical(as.integer(max_features), 12L)) {
+        cli::cli_warn(c(
+          "{.arg max_features} only applies to {.code estimator = \"exact\"}.",
+          "i" = "Ignored for the {.val {estimator}} estimator."
+        ))
+      }
+      if (estimator != "permutation") {
+        non_default = c(
+          se_threshold = !identical(se_threshold, 0.01),
+          min_permutations = !identical(as.integer(min_permutations), 10L),
+          check_interval = !identical(as.integer(check_interval), 1L)
+        )
+        if (any(non_default)) {
+          cli::cli_warn(c(
+            "{.arg {names(non_default)[non_default]}} {?is/are} only used by {.code estimator = \"permutation\"}.",
+            "i" = "Ignored for the {.val {estimator}} estimator."
           ))
         }
       }
@@ -236,7 +254,8 @@ SAGE = R6Class(
         }
       }
 
-      # Set parameters
+      # Set parameters. The param_set is the single source of truth for the
+      # estimator configuration; read and edit it via $param_set$values.
       ps = ps(
         estimator = paradox::p_fct(c("permutation", "kernel", "exact"), default = "permutation"),
         n_permutations = paradox::p_int(lower = 1L, default = 10L),
@@ -245,24 +264,33 @@ SAGE = R6Class(
         max_features = paradox::p_int(lower = 1L, default = 12L),
         batch_size = paradox::p_int(lower = 1L, default = 5000L),
         n_samples = paradox::p_int(lower = 1L, default = 100L),
-        early_stopping = paradox::p_lgl(default = TRUE),
+        early_stopping = paradox::p_lgl(default = FALSE),
         se_threshold = paradox::p_dbl(lower = 0, upper = 1, default = 0.01),
-        min_permutations = paradox::p_int(lower = 1L, default = 3L),
+        min_permutations = paradox::p_int(lower = 1L, default = 10L),
         check_interval = paradox::p_int(lower = 1L, default = 1L)
       )
       ps$values$estimator = estimator
-      # Only one budget applies per estimator; the others stay unset (NULL).
-      ps$values$n_permutations = self$n_permutations
-      ps$values$n_coalitions = self$n_coalitions
-      ps$values$kernel_variant = self$kernel_variant
-      ps$values$max_features = self$max_features
+      # Only the active estimator's arguments are stored; the others stay unset
+      # (NULL) so the param_set reflects what actually drives the computation.
+      if (estimator == "permutation") {
+        ps$values$n_permutations = n_permutations
+        ps$values$early_stopping = early_stopping
+        ps$values$se_threshold = se_threshold
+        ps$values$min_permutations = min_permutations
+        ps$values$check_interval = check_interval
+      } else if (estimator == "kernel") {
+        ps$values$n_coalitions = n_coalitions
+        ps$values$kernel_variant = kernel_variant
+      } else {
+        ps$values$max_features = max_features
+      }
       ps$values$batch_size = batch_size
       ps$values$n_samples = n_samples
-      ps$values$early_stopping = early_stopping
-      ps$values$se_threshold = se_threshold
-      ps$values$min_permutations = min_permutations
-      ps$values$check_interval = check_interval
       self$param_set = ps
+
+      if (estimator == "exact") {
+        private$.assert_exact_budget()
+      }
 
       # SAGE reports Monte Carlo (coalition-sampling) standard errors, so it offers an
       # additional CI method on top of the resampling-based ones from the base class.
@@ -297,7 +325,7 @@ SAGE = R6Class(
     #' current budget (non-overlapping intervals).
     #' For inference about feature importance, use the resampling-based methods.
     #'
-    #' @param relation Ignored for SAGE (importance is not a baseline/post relation).
+    #' @param relation (`character(1)` | `NULL`: `NULL`) Ignored for SAGE (importance is not a baseline/post relation).
     #' @param standardize (`logical(1)`: `FALSE`) If `TRUE`, importances (and their standard errors)
     #'   are standardized by the largest absolute importance.
     #' @param ci_method (`character(1)`: `"none"`) Variance estimation method.
@@ -327,6 +355,15 @@ SAGE = R6Class(
       }
 
       if (identical(ci_method, "montecarlo")) {
+        # Mirror the base method's unknown-argument guard, which this early return bypasses:
+        # a typo'd argument must error, not silently produce default intervals.
+        if (...length() > 0) {
+          dots = list(...)
+          cli::cli_abort(c(
+            "Unknown argument{?s}: {.arg {names(dots)}}.",
+            i = "These arguments are not used by {.fun $importance} with {.code ci_method = \"montecarlo\"}."
+          ))
+        }
         if (is.null(private$.scores)) {
           cli::cli_inform(c(x = "No importances computed yet!"))
           return(invisible(NULL))
@@ -346,15 +383,40 @@ SAGE = R6Class(
         scores = self$scores()
         if (!("se" %in% names(scores)) || all(is.na(scores$se))) {
           cli::cli_abort(c(
-            "{.code ci_method = \"montecarlo\"} requires Monte Carlo standard errors.",
-            "i" = "These are available for {.code estimator = \"kernel\"} and {.code estimator = \"permutation\"}.",
-            "i" = "The {.code \"exact\"} estimator has no coalition-sampling error, so it has no Monte Carlo CIs."
+            "{.code ci_method = \"montecarlo\"} requires Monte Carlo standard errors, but none are available.",
+            "i" = "The exact estimator has no coalition-sampling error, so it reports no SEs.",
+            "i" = "SEs are also unavailable with a single feature of interest, with {.code n_permutations = 1},
+                   or when the kernel sampling budget is too small to identify all features."
+          ))
+        }
+        if (anyNA(scores$se)) {
+          n_na = length(unique(scores$iter_rsmp[is.na(scores$se)]))
+          cli::cli_warn(c(
+            "Monte Carlo standard errors are missing for {n_na} resampling iteration{?s}.",
+            "i" = "Affected features aggregate to {.val NA} intervals."
+          ))
+        }
+        # The intervals quantify each iteration's coalition-sampling error only; pooling
+        # across refitted models must not be mistaken for between-model uncertainty.
+        if (self$resampling$iters > 1L) {
+          cli::cli_warn(c(
+            "Monte Carlo intervals are pooled across {self$resampling$iters} resampling iterations.",
+            "i" = "They reflect only the coalition-sampling error of each iteration's computation,
+                   not the variability between the refitted models.",
+            "i" = "A single holdout split is the intended use for this {.arg ci_method}."
+          ))
+        }
+        aggregator = self$measure$aggregator
+        if (!is.null(aggregator) && !identical(aggregator, mean)) {
+          cli::cli_warn(c(
+            "{.code ci_method = \"montecarlo\"} always uses the mean across iterations as point estimate.",
+            "i" = "The aggregator of measure {.val {self$measure$id}} is ignored here,
+                   so point estimates can differ from other {.arg ci_method}s."
           ))
         }
 
         if (standardize) {
           importance = se = NULL # data.table NSE tax
-          scores = data.table::copy(scores)
           scale_factor = max(abs(scores$importance), na.rm = TRUE)
           scores[, c("importance", "se") := list(importance / scale_factor, se / scale_factor)]
         }
@@ -379,12 +441,16 @@ SAGE = R6Class(
     #' Compute SAGE values.
     #' @param store_backends (`logical(1)`) Whether to store data backends.
     #' @param batch_size (`integer(1)`: `5000L`) Maximum number of observations to process in a single prediction call.
-    #' @param early_stopping (`logical(1)`: `TRUE`) Whether to check for convergence and stop early.
+    #' @param early_stopping (`logical(1)`: `FALSE`) Whether to check for convergence and stop early.
+    #'   Only used by the permutation estimator; passing it for another estimator is a warning.
     #' @param se_threshold (`numeric(1)`: `0.01`) Convergence threshold for relative standard error.
     #'   SE is normalized by the range of importance values (max - min) to make convergence
     #'   detection scale-invariant. Default `0.01` means convergence when relative SE < 1%.
+    #'   Only used by the permutation estimator; passing it for another estimator is a warning.
     #' @param min_permutations (`integer(1)`: `10L`) Minimum permutations before checking convergence.
+    #'   Only used by the permutation estimator; passing it for another estimator is a warning.
     #' @param check_interval (`integer(1)`: `1L`) Check convergence every N permutations.
+    #'   Only used by the permutation estimator; passing it for another estimator is a warning.
     compute = function(
       store_backends = TRUE,
       batch_size = NULL,
@@ -398,12 +464,36 @@ SAGE = R6Class(
       self$converged = FALSE
       self$n_permutations_used = NULL
 
+      # The estimator configuration is read from the param_set (the public fields are
+      # views of it), so post-construction edits via $param_set$values take effect here.
+      estimator = self$param_set$values$estimator %??% "permutation"
+      if (estimator == "exact") {
+        private$.assert_exact_budget()
+      }
+
+      # Permutation-only convergence controls passed explicitly to $compute() are
+      # ignored by the other estimators; warn instead of silently dropping them.
+      if (estimator != "permutation") {
+        passed = c(
+          early_stopping = !is.null(early_stopping),
+          se_threshold = !is.null(se_threshold),
+          min_permutations = !is.null(min_permutations),
+          check_interval = !is.null(check_interval)
+        )
+        if (any(passed)) {
+          cli::cli_warn(c(
+            "{.arg {names(passed)[passed]}} {?is/are} only used by {.code estimator = \"permutation\"}.",
+            "i" = "Ignored for the {.val {estimator}} estimator."
+          ))
+        }
+      }
+
       # Resolve parameters using hierarchical resolution
       batch_size = resolve_param(batch_size, self$param_set$values$batch_size, 5000L)
       early_stopping = resolve_param(
         early_stopping,
         self$param_set$values$early_stopping,
-        TRUE
+        FALSE
       )
       se_threshold = resolve_param(
         se_threshold,
@@ -413,7 +503,7 @@ SAGE = R6Class(
       min_permutations = resolve_param(
         min_permutations,
         self$param_set$values$min_permutations,
-        3L
+        10L
       )
       check_interval = resolve_param(check_interval, self$param_set$values$check_interval, 1L)
 
@@ -437,13 +527,13 @@ SAGE = R6Class(
       # below is estimator-agnostic. The kernel and exact estimators ignore the
       # permutation-only convergence controls (early stopping etc.).
       score_iter = function(learner, test_dt, track_convergence) {
-        if (self$estimator == "exact") {
+        if (estimator == "exact") {
           private$.compute_sage_scores_exact(
             learner = learner,
             test_dt = test_dt,
             batch_size = batch_size
           )
-        } else if (self$estimator == "kernel") {
+        } else if (estimator == "kernel") {
           # `check_interval` is a permutation-convergence knob (default 1); using it
           # here would batch coalition evaluations one draw at a time. The kernel path
           # only uses its chunk size for prediction batching and history granularity,
@@ -451,8 +541,9 @@ SAGE = R6Class(
           private$.compute_sage_scores_kernel(
             learner = learner,
             test_dt = test_dt,
-            n_coalitions = self$n_coalitions,
-            batch_size = batch_size
+            n_coalitions = self$param_set$values$n_coalitions %??% 512L,
+            batch_size = batch_size,
+            track_convergence = track_convergence
           )
         } else {
           private$.compute_sage_scores(
@@ -462,9 +553,9 @@ SAGE = R6Class(
             # or a smaller value if early_stopping = TRUE and it stopped early.
             # Remaining iterations reuse the first iteration's stopped count.
             n_permutations = if (track_convergence) {
-              self$n_permutations
+              self$param_set$values$n_permutations %??% 10L
             } else {
-              self$n_permutations_used %||% self$n_permutations
+              self$n_permutations_used %||% self$param_set$values$n_permutations %??% 10L
             },
             batch_size = batch_size,
             # Only track convergence etc. for the first iteration
@@ -519,7 +610,8 @@ SAGE = R6Class(
     plot_convergence = function(features = NULL) {
       require_package("ggplot2")
 
-      if (identical(self$estimator, "exact")) {
+      estimator = self$param_set$values$estimator %??% "permutation"
+      if (identical(estimator, "exact")) {
         cli::cli_abort(c(
           "Convergence tracking is not applicable to the exact estimator.",
           "i" = "The exact estimator enumerates all coalitions, so there is no iterative convergence to plot."
@@ -539,10 +631,10 @@ SAGE = R6Class(
       # The kernel estimator tracks coalition draws rather than permutations; adapt
       # the axis labels accordingly. Both estimators populate SEs, so the ribbon is
       # drawn whenever they are available (skipped only if entirely missing).
-      is_kernel = identical(self$estimator, "kernel")
-      unit = if (is_kernel) "coalitions" else "permutations"
-      budget = if (is_kernel) self$n_coalitions else self$n_permutations
-      x_label = if (is_kernel) "Number of Coalitions" else "Number of Permutations"
+      is_kernel = identical(estimator, "kernel")
+      unit = if (is_kernel) "coalition draws" else "permutations"
+      budget = if (is_kernel) self$param_set$values$n_coalitions else self$param_set$values$n_permutations
+      x_label = if (is_kernel) "Number of Coalition Draws (2 evaluations each)" else "Number of Permutations"
       has_se = "se" %in% names(plot_data) && !all(is.na(plot_data$se))
 
       p = ggplot2::ggplot(
@@ -593,6 +685,21 @@ SAGE = R6Class(
   ),
 
   private = list(
+    # The exact estimator's cost grows as 2^n_features, so it is capped. Checked at
+    # construction and again in $compute(), since the estimator or cap may have been
+    # changed via $param_set$values in between.
+    .assert_exact_budget = function() {
+      max_features = self$param_set$values$max_features %??% 12L
+      n_features = length(self$features)
+      if (n_features > max_features) {
+        cli::cli_abort(c(
+          "The exact estimator would enumerate {.val {2^n_features}} coalitions of {n_features} features.",
+          "i" = "This exceeds the {.arg max_features} cap ({max_features}); the cost grows as 2^n_features.",
+          "i" = "Increase {.arg max_features} to override, or use {.code estimator = \"kernel\"} instead."
+        ))
+      }
+    },
+
     # This function computes the SAGE values for a single resampling iteration.
     # It iterates through permutations of features, evaluates coalitions, and calculates marginal contributions.
     .compute_sage_scores = function(
@@ -709,12 +816,18 @@ SAGE = R6Class(
         # Calculate the current average SAGE values and standard errors based on completed permutations.
         current_avg = sage_values / n_completed
 
-        # Calculate running variance and standard errors for each feature
-        # Variance = E[X^2] - E[X]^2, SE = sqrt(Var / n)
-        current_variance = (sage_values_sq / n_completed) - (current_avg^2)
-        # Ensure variance is non-negative (numerical precision issues)
-        current_variance[current_variance < 0] = 0
-        current_se = sqrt(current_variance / n_completed)
+        # Sample variance (Bessel-corrected) of the per-permutation marginal
+        # contributions, SE = sqrt(Var / n). A single permutation carries no
+        # variance information, so the SE is NA rather than a misleading 0.
+        if (n_completed > 1L) {
+          current_variance = (sage_values_sq - n_completed * current_avg^2) / (n_completed - 1L)
+          # Ensure variance is non-negative (numerical precision issues)
+          current_variance[current_variance < 0] = 0
+          current_se = sqrt(current_variance / n_completed)
+        } else {
+          current_se = rep(NA_real_, length(current_avg))
+          names(current_se) = names(current_avg)
+        }
 
         if (xplain_opt("debug")) {
           cli::cli_alert_info("SAGE values after {.val {n_completed}} permutations")
@@ -735,8 +848,9 @@ SAGE = R6Class(
         )
         convergence_history[[length(convergence_history) + 1]] = checkpoint_history
 
-        # Check for convergence if early stopping is enabled and enough permutations have been processed.
-        if (early_stopping && n_completed >= min_permutations && length(convergence_history) > 1) {
+        # Check for convergence if early stopping is enabled and enough permutations have
+        # been processed (at least 2, since a single permutation has no SE).
+        if (early_stopping && n_completed >= max(min_permutations, 2L) && length(convergence_history) > 1) {
           # Get SAGE values from the current checkpoint.
           curr_checkpoint = convergence_history[[length(convergence_history)]]
 
@@ -834,6 +948,7 @@ SAGE = R6Class(
       test_dt,
       n_coalitions,
       batch_size = NULL,
+      track_convergence = TRUE,
       check_interval = 64L
     ) {
       features = self$features
@@ -872,7 +987,10 @@ SAGE = R6Class(
       }
 
       size_probs = sage_kernel_size_probs(m)
-      unbiased = identical(self$kernel_variant, "unbiased")
+      unbiased = identical(self$param_set$values$kernel_variant %??% "original", "unbiased")
+      # The exact design matrix depends only on m; invert it once per iteration
+      # rather than at every checkpoint estimate.
+      A_inv_exact = if (unbiased) solve(sage_kernel_A(m)) else NULL
 
       # Moment vector layout. For "unbiased" only b is estimated (A is exact), so the
       # per-pair moment is just b. For "original" the sampled A has an exactly
@@ -892,7 +1010,7 @@ SAGE = R6Class(
       estimate = function(require_result = FALSE) {
         cov_mean = if (n_pairs > 1L) w_M2 / (n_pairs * (n_pairs - 1L)) else NULL
         if (unbiased) {
-          sage_kernel_estimate_unbiased(w_mean, cov_mean, m, total)
+          sage_kernel_estimate_unbiased(w_mean, cov_mean, m, total, A_inv = A_inv_exact)
         } else {
           sage_kernel_estimate_original(w_mean, cov_mean, m, total, od, noff, require_result)
         }
@@ -932,40 +1050,53 @@ SAGE = R6Class(
         losses = private$.evaluate_coalitions_batch(learner, test_dt, coalitions, batch_size)
         V = baseline_loss - losses # value function in importance units
 
-        # Fold each (coalition, complement) pair into the running moment statistics.
-        # Per pair: A_i = 0.5 (z z^T + comp comp^T), b_i = 0.5 (z V(z) + comp V(comp));
-        # w_mean is their mean, i.e. b_hat (both variants) plus the sampled A
-        # off-diagonals ("original" only).
-        for (i in seq_len(this_chunk)) {
-          za = zs[2L * i - 1L, ]
-          zb = zs[2L * i, ]
-          b_i = 0.5 * (za * V[2L * i - 1L] + zb * V[2L * i])
-          w_i = if (unbiased) {
-            b_i
-          } else {
-            A_i = 0.5 * (outer(za, za) + outer(zb, zb))
-            c(A_i[od], b_i)
-          }
-
-          n_pairs = n_pairs + 1L
-          delta = w_i - w_mean
-          w_mean = w_mean + delta / n_pairs
-          w_M2 = w_M2 + outer(delta, w_i - w_mean)
+        # Chunk moment matrix W, one row per (coalition, complement) pair:
+        # b_i = 0.5 (z V(z) + comp V(comp)) for both variants, prefixed by the
+        # sampled-A off-diagonals 0.5 (z_k z_l + comp_k comp_l) for "original".
+        # Matrix-times-vector recycles column-wise, i.e. scales row i by V[i].
+        odd = seq(1L, 2L * this_chunk, by = 2L)
+        za = zs[odd, , drop = FALSE]
+        zb = zs[odd + 1L, , drop = FALSE]
+        b_block = 0.5 * (za * V[odd] + zb * V[odd + 1L])
+        W = if (unbiased) {
+          b_block
+        } else {
+          a_block = 0.5 *
+            (za[, od[, 1L], drop = FALSE] *
+              za[, od[, 2L], drop = FALSE] +
+              zb[, od[, 1L], drop = FALSE] * zb[, od[, 2L], drop = FALSE])
+          cbind(a_block, b_block)
         }
+
+        # Merge the chunk into the running moments with Chan's parallel Welford
+        # update: one crossprod per chunk instead of a per-pair R-level loop with
+        # O(len_w^2) allocations, same statistics.
+        n_new = nrow(W)
+        mean_new = colMeans(W)
+        centered = sweep(W, 2L, mean_new)
+        n_total = n_pairs + n_new
+        delta = mean_new - w_mean
+        w_M2 = w_M2 + crossprod(centered) + outer(delta, delta) * (n_pairs * n_new / n_total)
+        w_mean = w_mean + delta * (n_new / n_total)
+        n_pairs = n_total
         n_completed = n_completed + this_chunk
 
         if (xplain_opt("progress")) {
           cli::cli_progress_update(inc = 1)
         }
 
-        # Running estimate + SEs for convergence tracking / history.
-        est = estimate()
-        convergence_history[[length(convergence_history) + 1L]] = data.table(
-          n_permutations = n_completed, # coalition draws (shared column name for plotting)
-          feature = features,
-          importance = est$phi,
-          se = est$se
-        )
+        # Running estimate + SEs for convergence tracking / history. Skipped when
+        # the caller discards the history (resampling iterations after the first),
+        # since the per-checkpoint delta-method SE is the expensive part.
+        if (track_convergence) {
+          est = estimate()
+          convergence_history[[length(convergence_history) + 1L]] = data.table(
+            n_permutations = n_completed, # coalition draws (shared column name for plotting)
+            feature = features,
+            importance = est$phi,
+            se = est$se
+          )
+        }
       }
 
       if (xplain_opt("progress")) {
@@ -983,7 +1114,11 @@ SAGE = R6Class(
           se = as.numeric(est$se)
         ),
         convergence_data = list(
-          convergence_history = rbindlist(convergence_history),
+          convergence_history = if (length(convergence_history) > 0) {
+            rbindlist(convergence_history)
+          } else {
+            NULL
+          },
           converged = FALSE,
           n_permutations_used = n_completed
         )
@@ -1010,8 +1145,10 @@ SAGE = R6Class(
       masks = 0:(n_coal - 1L)
       coalitions = lapply(masks, function(mask) features[bitwAnd(mask, bit) > 0L])
 
-      # Evaluate all coalitions in memory-bounded chunks (each expands to
-      # n_test * n_samples rows); input order is preserved, so losses align with masks.
+      # Evaluate all coalitions in chunks; input order is preserved, so losses align
+      # with masks. The chunk size bounds the materialized expansion (each coalition
+      # expands to n_test * n_samples rows before prediction), while `batch_size`
+      # separately bounds the rows per prediction call within a chunk.
       chunk = 256L
       losses = numeric(n_coal)
       start = 1L
@@ -1026,7 +1163,7 @@ SAGE = R6Class(
 
       # Exact Shapley from the enumerated value function:
       # phi_i = sum_{S not containing i} (v(S+i) - v(S)) / (p * C(p-1, |S|)).
-      size = vapply(masks, function(mask) sum(bitwAnd(mask, bit) > 0L), integer(1L)) # |S| per coalition
+      size = lengths(coalitions) # |S| per coalition (list position k holds mask k-1)
       weight = 1 / (p * choose(p - 1L, size)) # by coalition, via its size |S|
       phi = numeric(p)
       for (i in seq_len(p)) {

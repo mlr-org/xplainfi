@@ -13,6 +13,7 @@
 # -----------------------------------------------------------------------------
 
 test_that("MarginalSAGE kernel estimator works across task types", {
+  set.seed(1723)
   # Regression
   task_regr = sim_dgp_independent(n = 150)
   sage_regr = MarginalSAGE$new(
@@ -23,9 +24,9 @@ test_that("MarginalSAGE kernel estimator works across task types", {
     n_samples = 20L
   )
   checkmate::expect_r6(sage_regr, c("FeatureImportanceMethod", "SAGE", "MarginalSAGE"))
-  expect_identical(sage_regr$estimator, "kernel")
-  expect_null(sage_regr$n_permutations)
-  expect_identical(sage_regr$n_coalitions, 100L)
+  expect_identical(sage_regr$param_set$values$estimator, "kernel")
+  expect_null(sage_regr$param_set$values$n_permutations)
+  expect_identical(sage_regr$param_set$values$n_coalitions, 100L)
   sage_regr$compute()
   expect_importance_dt(sage_regr$importance(), features = sage_regr$features)
 
@@ -56,6 +57,7 @@ test_that("MarginalSAGE kernel estimator works across task types", {
 })
 
 test_that("ConditionalSAGE kernel estimator works with Gaussian sampler", {
+  set.seed(3881)
   task = sim_dgp_correlated(n = 120)
   sage = ConditionalSAGE$new(
     task = task,
@@ -66,12 +68,13 @@ test_that("ConditionalSAGE kernel estimator works with Gaussian sampler", {
     n_samples = 20L
   )
   checkmate::expect_r6(sage, c("FeatureImportanceMethod", "SAGE", "ConditionalSAGE"))
-  expect_identical(sage$estimator, "kernel")
+  expect_identical(sage$param_set$values$estimator, "kernel")
   sage$compute()
   expect_importance_dt(sage$importance(), features = sage$features)
 })
 
 test_that("MarginalSAGE kernel featureless learner produces zero importance", {
+  set.seed(947)
   test_featureless_zero_importance(
     MarginalSAGE,
     task_type = "regr",
@@ -82,6 +85,7 @@ test_that("MarginalSAGE kernel featureless learner produces zero importance", {
 })
 
 test_that("MarginalSAGE kernel with a single feature returns the total", {
+  set.seed(4271)
   task = tgen("friedman1")$generate(n = 120)
   sage = MarginalSAGE$new(
     task = task,
@@ -126,53 +130,10 @@ test_that("kernel estimator recovers exact Shapley on a small feature set", {
   sage$compute()
   kern = sage$importance()
 
-  # Reconstruct exact Shapley from the SAME value function the estimator uses.
+  # Reconstruct exact Shapley from the SAME value function the estimator uses
+  # (shared brute-force reference in helper-importance.R).
+  phi = brute_force_shapley(sage, task)
   feats = sage$features
-  m = length(feats)
-  priv = sage$.__enclos_env__$private
-  rr = sage$resample_result
-  learner_fitted = rr$learners[[1]]
-  test_dt = task$data(rows = rr$resampling$test_set(1))
-
-  subsets = unlist(lapply(0:m, function(k) combn(m, k, simplify = FALSE)), recursive = FALSE)
-  coals = lapply(subsets, function(idx) feats[idx])
-  losses = priv$.evaluate_coalitions_batch(learner_fitted, test_dt, coals, NULL)
-
-  key = function(idx) if (length(idx) == 0L) "E" else paste(sort(idx), collapse = ",")
-  vmap = new.env()
-  for (i in seq_along(subsets)) {
-    assign(key(subsets[[i]]), losses[i], envir = vmap)
-  }
-  baseline = get("E", envir = vmap)
-  vfun = function(idx) baseline - get(key(idx), envir = vmap)
-
-  # Exact Shapley by averaging marginal contributions over all m! orderings.
-  gen_perms = function(x) {
-    if (length(x) == 1L) {
-      return(list(x))
-    }
-    out = list()
-    for (i in seq_along(x)) {
-      for (p in gen_perms(x[-i])) {
-        out[[length(out) + 1L]] = c(x[i], p)
-      }
-    }
-    out
-  }
-  perms = gen_perms(seq_len(m))
-  phi = numeric(m)
-  for (p in perms) {
-    prev = vfun(integer(0))
-    S = integer(0)
-    for (j in p) {
-      S = c(S, j)
-      cur = vfun(S)
-      phi[j] = phi[j] + (cur - prev)
-      prev = cur
-    }
-  }
-  phi = phi / length(perms)
-  names(phi) = feats
 
   kern_ordered = kern[match(feats, feature), importance]
   # Efficiency constraint holds exactly (same total, same closed-form solve).
@@ -297,6 +258,7 @@ test_that("kernel estimator rejects invalid n_coalitions and estimator", {
 # -----------------------------------------------------------------------------
 
 test_that("kernel estimator reports Monte Carlo standard errors", {
+  set.seed(613)
   task = sim_dgp_independent(n = 150)
   sage = MarginalSAGE$new(task, lrn("regr.rpart"), estimator = "kernel", n_coalitions = 120L, n_samples = 20L)
   sage$compute()
@@ -311,6 +273,7 @@ test_that("kernel estimator reports Monte Carlo standard errors", {
 })
 
 test_that("kernel ci_method = 'montecarlo' returns valid Wald intervals", {
+  set.seed(7411)
   task = sim_dgp_independent(n = 200)
   sage = MarginalSAGE$new(task, lrn("regr.rpart"), estimator = "kernel", n_coalitions = 150L, n_samples = 20L)
   sage$compute()
@@ -329,6 +292,7 @@ test_that("kernel ci_method = 'montecarlo' returns valid Wald intervals", {
 })
 
 test_that("montecarlo CI width shrinks with higher confidence and one-sided is unbounded", {
+  set.seed(2953)
   task = sim_dgp_independent(n = 200)
   sage = MarginalSAGE$new(task, lrn("regr.rpart"), estimator = "kernel", n_coalitions = 150L, n_samples = 20L)
   sage$compute()
@@ -348,6 +312,7 @@ test_that("montecarlo CI width shrinks with higher confidence and one-sided is u
 })
 
 test_that("permutation estimator also supports montecarlo CIs", {
+  set.seed(8161)
   task = sim_dgp_independent(n = 150)
   sage = MarginalSAGE$new(
     task,
@@ -397,6 +362,7 @@ test_that("kernel Monte Carlo SEs are reproducible with the same seed", {
 # -----------------------------------------------------------------------------
 
 test_that("kernel unbiased variant works and reports montecarlo CIs", {
+  set.seed(5309)
   task = sim_dgp_independent(n = 150)
   sage = MarginalSAGE$new(
     task,
@@ -406,7 +372,7 @@ test_that("kernel unbiased variant works and reports montecarlo CIs", {
     n_coalitions = 200L,
     n_samples = 20L
   )
-  expect_identical(sage$kernel_variant, "unbiased")
+  expect_identical(sage$param_set$values$kernel_variant, "unbiased")
   sage$compute()
   expect_importance_dt(sage$importance(), features = sage$features)
 
@@ -465,4 +431,79 @@ test_that("kernel_variant is gated to the kernel estimator and validated", {
     "kernel_variant"
   )
   expect_error(MarginalSAGE$new(task, learner, estimator = "kernel", kernel_variant = "bogus"))
+})
+
+# -----------------------------------------------------------------------------
+# Regression tests for review findings (2026-07)
+# -----------------------------------------------------------------------------
+
+test_that("standardize = TRUE does not mutate stored scores", {
+  set.seed(6389)
+  task = sim_dgp_independent(n = 150)
+  sage = MarginalSAGE$new(task, lrn("regr.rpart"), estimator = "kernel", n_coalitions = 64L, n_samples = 20L)
+  sage$compute()
+  before = data.table::copy(sage$scores())
+  sage$importance(standardize = TRUE)
+  sage$importance(standardize = TRUE, ci_method = "montecarlo")
+  expect_equal(sage$scores(), before)
+})
+
+test_that("montecarlo rejects unknown arguments", {
+  set.seed(911)
+  task = sim_dgp_independent(n = 120)
+  sage = MarginalSAGE$new(task, lrn("regr.rpart"), estimator = "kernel", n_coalitions = 48L, n_samples = 15L)
+  sage$compute()
+  # Non-prefix typo: prefix typos like `conf_leve` partial-match the formal and
+  # are caught by R itself, so only arguments landing in `...` need the guard.
+  expect_error(sage$importance(ci_method = "montecarlo", alterantive = "greater"), "Unknown argument")
+})
+
+test_that("montecarlo aborts when SEs are unavailable (single permutation)", {
+  set.seed(1051)
+  task = sim_dgp_independent(n = 120)
+  sage = MarginalSAGE$new(task, lrn("regr.rpart"), n_permutations = 1L, n_samples = 15L)
+  sage$compute()
+  checkmate::expect_scalar_na(unique(sage$scores()$se))
+  expect_error(sage$importance(ci_method = "montecarlo"), "none are available")
+})
+
+test_that("montecarlo warns when pooling across resampling iterations", {
+  set.seed(733)
+  task = sim_dgp_independent(n = 150)
+  sage = MarginalSAGE$new(
+    task,
+    lrn("regr.rpart"),
+    resampling = rsmp("subsampling", repeats = 2),
+    estimator = "kernel",
+    n_coalitions = 48L,
+    n_samples = 15L
+  )
+  sage$compute()
+  expect_warning(sage$importance(ci_method = "montecarlo"), "pooled across")
+})
+
+test_that("estimator configuration lives in the param_set", {
+  set.seed(6007)
+  task = sim_dgp_independent(n = 120)
+  sage = MarginalSAGE$new(task, lrn("regr.rpart"), estimator = "kernel", n_coalitions = 64L, n_samples = 15L)
+  expect_identical(sage$param_set$values$n_coalitions, 64L)
+  sage$param_set$values$n_coalitions = 32L
+  sage$compute()
+  expect_identical(sage$n_permutations_used, 32L)
+})
+
+test_that("permutation-only controls warn for other estimators", {
+  task = sim_dgp_independent(n = 100)
+  learner = lrn("regr.rpart")
+  expect_warning(
+    MarginalSAGE$new(task, learner, estimator = "kernel", se_threshold = 0.5, n_samples = 15L),
+    "only used by"
+  )
+  expect_warning(
+    MarginalSAGE$new(task, learner, estimator = "kernel", max_features = 5L, n_samples = 15L),
+    "max_features"
+  )
+  set.seed(5527)
+  sage = MarginalSAGE$new(task, learner, estimator = "kernel", n_coalitions = 16L, n_samples = 10L)
+  expect_warning(sage$compute(early_stopping = TRUE), "only used by")
 })

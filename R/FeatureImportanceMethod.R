@@ -255,9 +255,16 @@ FeatureImportanceMethod = R6Class(
       aggregator = self$measure$aggregator %||% mean
       scores = self$scores(relation = relation)
 
-      # Standardize first so variance calculations use standardized values
+      # Standardize first so variance calculations use standardized values.
+      # Scale any standard-error column by the same factor so location and
+      # spread stay on the same scale (relevant for SAGE's Monte Carlo SEs).
       if (standardize) {
-        scores[, importance := importance / max(abs(importance), na.rm = TRUE)]
+        se = NULL # data.table NSE NOTE tax
+        scale_factor = max(abs(scores$importance), na.rm = TRUE)
+        scores[, importance := importance / scale_factor]
+        if ("se" %in% names(scores)) {
+          scores[, se := se / scale_factor]
+        }
       }
 
       # Dispatch to appropriate aggregation function
@@ -434,8 +441,10 @@ FeatureImportanceMethod = R6Class(
       if ("importance" %in% colnames(private$.scores)) {
         # If there is already an importance variable in the stored scores like in SAGE,
         # we can't calculate pre/post scores like in PFI, LOCO etc,
-        # individual "scores" would have different meaning there
-        return(private$.scores)
+        # individual "scores" would have different meaning there.
+        # Return a copy so callers (e.g. standardization in $importance()) cannot
+        # mutate the stored scores by reference.
+        return(data.table::copy(private$.scores))
       }
 
       relation = resolve_param(relation, self$param_set$values$relation, "difference")

@@ -99,21 +99,14 @@ In \emph{Proceedings of the 24th International Conference on Artificial Intellig
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}
   \describe{
-    \item{\code{estimator}}{(\code{character(1)}) Shapley-value estimator, one of \code{"permutation"}, \code{"kernel"}, or \code{"exact"}.}
-
-    \item{\code{n_permutations}}{(\code{integer(1)} | \code{NULL}) Number of permutations to sample (permutation estimator).}
-
-    \item{\code{n_coalitions}}{(\code{integer(1)} | \code{NULL}) Number of coalitions to sample (kernel estimator).}
-
-    \item{\code{kernel_variant}}{(\code{character(1)} | \code{NULL}) Kernel estimator variant, \code{"original"} or \code{"unbiased"}.}
-
-    \item{\code{max_features}}{(\code{integer(1)} | \code{NULL}) Feature-count cap for the exact estimator.}
-
     \item{\code{convergence_history}}{(\code{\link[data.table:data.table]{data.table}}) History of SAGE values during computation.}
 
-    \item{\code{converged}}{(\code{logical(1)}) Whether convergence was detected.}
+    \item{\code{converged}}{(\code{logical(1)}) Whether convergence was detected (permutation estimator with early stopping).
+The exact estimator sets \code{TRUE} trivially since it enumerates all coalitions; the kernel estimator never stops early and reports \code{FALSE}.}
 
-    \item{\code{n_permutations_used}}{(\code{integer(1)}) Actual number of permutations (permutation) or coalitions (kernel) used.}
+    \item{\code{n_permutations_used}}{(\code{integer(1)}) Sampling effort actually spent, in estimator-specific units:
+permutations (permutation estimator), paired coalition draws (kernel; each draw evaluates 2 coalitions),
+or enumerated coalitions (exact).}
   }
   \if{html}{\out{</div>}}
 }
@@ -155,7 +148,7 @@ In \emph{Proceedings of the 24th International Conference on Artificial Intellig
   max_features = 12L,
   batch_size = 5000L,
   n_samples = 100L,
-  early_stopping = TRUE,
+  early_stopping = FALSE,
   se_threshold = 0.01,
   min_permutations = 10L,
   check_interval = 1L
@@ -198,21 +191,28 @@ At equal budgets its point estimates are substantially noisier, which its wider 
 intervals reflect.}
       \item{\code{max_features}}{(\code{integer(1)}: \code{12L}) Feature-count cap for \code{estimator = "exact"}.
 The exact estimator evaluates \code{2^n_features} coalitions, so it aborts when the number of
-features exceeds this cap. Increase it to override, keeping the combinatorial cost in mind.
-Ignored by the other estimators.}
+features exceeds this cap.
+Increase it to override, keeping the combinatorial cost in mind.
+Setting it for the other estimators is a warning, as they ignore it.}
       \item{\code{batch_size}}{(\code{integer(1)}: \code{5000L}) Maximum number of observations to process in a single prediction call.}
       \item{\code{n_samples}}{(\code{integer(1)}: \code{100L}) Number of samples to use for marginalizing out-of-coalition features.
 For \link{MarginalSAGE}, this is the number of marginal data samples ("background data" in other implementations).
 For \link{ConditionalSAGE}, this is the number of conditional samples per test instance retrieved from \code{sampler}.}
-      \item{\code{early_stopping}}{(\code{logical(1)}: \code{TRUE}) Whether to enable early stopping based on convergence detection.}
+      \item{\code{early_stopping}}{(\code{logical(1)}: \code{FALSE}) Whether to enable early stopping based on convergence detection.
+Only used by the permutation estimator.}
       \item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.01}) Convergence threshold for relative standard error.
 Convergence is detected when the maximum relative SE across all features falls below this threshold.
 Relative SE is calculated as SE divided by the range of importance values (max - min),
 making it scale-invariant across different loss metrics.
-Default of \code{0.01} means convergence when relative SE is below 1\% of the importance range.}
-      \item{\code{min_permutations}}{(\code{integer(1)}: \code{10L}) Minimum permutations before checking for convergence. Convergence is judged based on the standard errors of the estimated SAGE values,
-which requires a sufficiently large number of samples (i.e., evaluated coalitions).}
-      \item{\code{check_interval}}{(\code{integer(1)}: \code{1L}) Check convergence every N permutations.}
+Default of \code{0.01} means convergence when relative SE is below 1\% of the importance range.
+Only used by the permutation estimator; setting a non-default value for another estimator is a warning.}
+      \item{\code{min_permutations}}{(\code{integer(1)}: \code{10L}) Minimum permutations before checking for convergence.
+Convergence is judged based on the standard errors of the estimated SAGE values,
+which requires a sufficiently large number of samples (i.e., evaluated coalitions).
+Only used by the permutation estimator; setting a non-default value for another estimator is a warning.}
+      \item{\code{check_interval}}{(\code{integer(1)}: \code{1L}) Check convergence every N permutations.
+Only used by the permutation estimator; setting a non-default value for another estimator is a warning.
+The kernel estimator manages its own checkpointing for prediction batching and convergence history.}
     }
     \if{html}{\out{</div>}}
   }
@@ -264,7 +264,7 @@ For inference about feature importance, use the resampling-based methods.
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{relation}}{Ignored for SAGE (importance is not a baseline/post relation).}
+      \item{\code{relation}}{(\code{character(1)} | \code{NULL}: \code{NULL}) Ignored for SAGE (importance is not a baseline/post relation).}
       \item{\code{standardize}}{(\code{logical(1)}: \code{FALSE}) If \code{TRUE}, importances (and their standard errors)
 are standardized by the largest absolute importance.}
       \item{\code{ci_method}}{(\code{character(1)}: \code{"none"}) Variance estimation method.
@@ -306,12 +306,16 @@ Not accepted for \code{ci_method = "montecarlo"}, which performs no hypothesis t
     \describe{
       \item{\code{store_backends}}{(\code{logical(1)}) Whether to store data backends.}
       \item{\code{batch_size}}{(\code{integer(1)}: \code{5000L}) Maximum number of observations to process in a single prediction call.}
-      \item{\code{early_stopping}}{(\code{logical(1)}: \code{TRUE}) Whether to check for convergence and stop early.}
+      \item{\code{early_stopping}}{(\code{logical(1)}: \code{FALSE}) Whether to check for convergence and stop early.
+Only used by the permutation estimator; passing it for another estimator is a warning.}
       \item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.01}) Convergence threshold for relative standard error.
 SE is normalized by the range of importance values (max - min) to make convergence
-detection scale-invariant. Default \code{0.01} means convergence when relative SE < 1\%.}
-      \item{\code{min_permutations}}{(\code{integer(1)}: \code{10L}) Minimum permutations before checking convergence.}
-      \item{\code{check_interval}}{(\code{integer(1)}: \code{1L}) Check convergence every N permutations.}
+detection scale-invariant. Default \code{0.01} means convergence when relative SE < 1\%.
+Only used by the permutation estimator; passing it for another estimator is a warning.}
+      \item{\code{min_permutations}}{(\code{integer(1)}: \code{10L}) Minimum permutations before checking convergence.
+Only used by the permutation estimator; passing it for another estimator is a warning.}
+      \item{\code{check_interval}}{(\code{integer(1)}: \code{1L}) Check convergence every N permutations.
+Only used by the permutation estimator; passing it for another estimator is a warning.}
     }
     \if{html}{\out{</div>}}
   }

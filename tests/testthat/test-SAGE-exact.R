@@ -19,9 +19,9 @@ test_that("MarginalSAGE exact estimator works for regression and classification"
     estimator = "exact",
     n_samples = 20L
   )
-  expect_identical(sage_regr$estimator, "exact")
+  expect_identical(sage_regr$param_set$values$estimator, "exact")
   expect_null(sage_regr$n_permutations)
-  expect_null(sage_regr$n_coalitions)
+  expect_null(sage_regr$param_set$values$n_coalitions)
   sage_regr$compute()
   expect_importance_dt(sage_regr$importance(), features = sage_regr$features)
   # No coalition-sampling error, so recomputation is deterministic.
@@ -49,7 +49,7 @@ test_that("ConditionalSAGE exact estimator works with Gaussian sampler", {
     estimator = "exact",
     n_samples = 20L
   )
-  expect_identical(sage$estimator, "exact")
+  expect_identical(sage$param_set$values$estimator, "exact")
   sage$compute()
   expect_importance_dt(sage$importance(), features = sage$features)
 })
@@ -89,50 +89,9 @@ test_that("exact estimator matches an independent brute-force Shapley computatio
   sage$compute()
   exact_est = sage$importance()
 
-  # Independent reference: enumerate the value function and average marginal
-  # contributions over all feature orderings.
+  # Independent reference: shared brute-force enumeration (helper-importance.R).
+  phi = brute_force_shapley(sage, task)
   feats = sage$features
-  m = length(feats)
-  priv = sage$.__enclos_env__$private
-  rr = sage$resample_result
-  learner_fitted = rr$learners[[1]]
-  test_dt = task$data(rows = rr$resampling$test_set(1))
-
-  subsets = unlist(lapply(0:m, function(k) combn(m, k, simplify = FALSE)), recursive = FALSE)
-  losses = priv$.evaluate_coalitions_batch(learner_fitted, test_dt, lapply(subsets, function(ix) feats[ix]), NULL)
-  key = function(ix) if (length(ix) == 0L) "E" else paste(sort(ix), collapse = ",")
-  vmap = new.env()
-  for (i in seq_along(subsets)) {
-    assign(key(subsets[[i]]), losses[i], envir = vmap)
-  }
-  baseline = get("E", envir = vmap)
-  vfun = function(ix) baseline - get(key(ix), envir = vmap)
-
-  gen_perms = function(x) {
-    if (length(x) == 1L) {
-      return(list(x))
-    }
-    out = list()
-    for (i in seq_along(x)) {
-      for (p in gen_perms(x[-i])) {
-        out[[length(out) + 1L]] = c(x[i], p)
-      }
-    }
-    out
-  }
-  phi = numeric(m)
-  for (p in gen_perms(seq_len(m))) {
-    prev = vfun(integer(0))
-    S = integer(0)
-    for (j in p) {
-      S = c(S, j)
-      cur = vfun(S)
-      phi[j] = phi[j] + (cur - prev)
-      prev = cur
-    }
-  }
-  phi = phi / length(gen_perms(seq_len(m)))
-  names(phi) = feats
 
   est = exact_est[match(feats, feature), importance]
   # Both compute the exact Shapley values of the same value function.
@@ -207,6 +166,6 @@ test_that("plot_convergence errors informatively for the exact estimator", {
   task = sim_dgp_independent(n = 80)
   sage = MarginalSAGE$new(task, lrn("regr.rpart"), estimator = "exact", n_samples = 20L)
   sage$compute()
-  expect_true(is.null(sage$convergence_history))
+  expect_null(sage$convergence_history)
   expect_error(sage$plot_convergence(), "not applicable to the exact estimator")
 })
