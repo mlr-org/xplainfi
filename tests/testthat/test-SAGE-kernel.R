@@ -293,7 +293,9 @@ test_that("kernel ci_method = 'montecarlo' returns valid Wald intervals", {
 
 test_that("montecarlo CI width shrinks with higher confidence and one-sided is unbounded", {
   set.seed(2953)
-  task = sim_dgp_independent(n = 200)
+  # Needs a non-additive game: the default kernel variant is exact on additive games,
+  # so an additive DGP drives all SEs to machine noise (exactly 0 on some platforms).
+  task = sim_dgp_interactions(n = 200)
   sage = MarginalSAGE$new(task, lrn("regr.rpart"), estimator = "kernel", n_coalitions = 150L, n_samples = 20L)
   sage$compute()
 
@@ -301,10 +303,10 @@ test_that("montecarlo CI width shrinks with higher confidence and one-sided is u
   imp99 = sage$importance(ci_method = "montecarlo", conf_level = 0.99)
   w90 = imp90$conf_upper - imp90$conf_lower
   w99 = imp99$conf_upper - imp99$conf_lower
-  # Width is 2 * z * se, so a higher level never narrows the interval and strictly
-  # widens it wherever the SE is positive (features with SE ~ 0 stay degenerate).
-  expect_true(all(w99 >= w90))
-  expect_true(any(w90 > 0) && all(w99[w90 > 0] > w90[w90 > 0]))
+  # Width is 2 * z * se, so a higher level strictly widens the interval
+  # wherever the SE is positive.
+  checkmate::expect_numeric(w90, lower = 1e-8, any.missing = FALSE)
+  expect_true(all(w99 > w90))
 
   imp_greater = sage$importance(ci_method = "montecarlo", alternative = "greater")
   expect_true(all(is.infinite(imp_greater$conf_upper)))
