@@ -163,6 +163,8 @@ $RECYCLE.BIN/
 # R
 .Rprofile
 README.html
+tests/testthat/_problems/
+tests/testthat/testthat-problems.rds
 src/*.o
 src/*.so
 src/*.dll
