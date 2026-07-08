@@ -159,8 +159,8 @@ pfi_ci_raw
 ```
 
 The parametric CI methods (`"raw"` and `"nadeau_bengio"`) return `se`, `statistic`, `p.value`, `conf_lower`, and `conf_upper`.
-The `alternative` parameter controls whether a one-sided test (`"greater"`, the default, testing H0: importance <= 0) or two-sided test (`"two.sided"`) is performed.
-Here we use `alternative = "two.sided"` for visualization purposes so that `conf_upper` is finite.
+The `alternative` parameter controls whether a two-sided test (`"two.sided"`, the default) or a one-sided test (`"greater"`, testing H0: importance <= 0) is performed.
+With `"greater"` the intervals are lower-bounded and `conf_upper` is infinite, so we use two-sided intervals here for visualization.
 
 ### Corrected t-test (Nadeau & Bengio)
 
@@ -519,7 +519,7 @@ It is available for `estimator = "kernel"` and `estimator = "permutation"`; the 
 
 These are parametric Wald intervals, not empirical quantiles:
 the standard errors derive from a central limit theorem on the sampled-coalition moments ([Covert & Lee, 2021](https://proceedings.mlr.press/v130/covert21a.html), Eqs. 12-13, extended by the delta method for the default kernel variant), so coverage is asymptotic in the number of sampled coalitions.
-In simulations against the exact estimator, empirical coverage of the 95% intervals matched the nominal level for both kernel variants.
+In our internal simulations against the exact estimator, empirical coverage of the 95% intervals was close to the nominal level for both kernel variants.
 
 **What the intervals do and do not cover.**
 The estimand is the SAGE value of the *fixed fitted model*, as defined by the empirical value function on the test data and, for `MarginalSAGE`, the fixed reference dataset used for marginalization.
@@ -530,17 +530,22 @@ Because the reference subsample is part of the estimand's definition, increase `
 ```{r sage-montecarlo}
 task_sage = sim_dgp_correlated(n = 600, r = 0.7)
 learner_sage = lrn("regr.ranger", num.trees = 100)
+# Instantiate the split once so later comparisons target the same fitted model
+resampling_sage = rsmp("holdout")
+resampling_sage$instantiate(task_sage)
 
+set.seed(1) # fixes the reference subsample drawn at construction
 sage = MarginalSAGE$new(
 	task = task_sage,
 	learner = learner_sage,
 	measure = measure,
-	resampling = rsmp("holdout"),
+	resampling = resampling_sage,
 	estimator = "kernel",
 	n_coalitions = 256,
 	n_samples = 50
 )
 
+set.seed(2)
 sage$compute()
 sage$importance(ci_method = "montecarlo")
 ```
@@ -556,21 +561,24 @@ Two uses are supported by this estimand: checking that the sampling budget suffi
 
 The kernel estimator comes in two variants (see `?SAGE`):
 the default `"original"` follows the estimator Covert & Lee (2021) recommend for practical use (their Section 4.1), while `"unbiased"` matches the estimator implemented in the reference Python [sage](https://github.com/iancovert/sage) package and is mainly useful for direct comparisons with it.
-Both provide calibrated intervals, but at equal coalition budgets the unbiased variant's point estimates are substantially noisier, which its wider intervals reflect:
+Both provide calibrated intervals, but at equal coalition budgets the unbiased variant's point estimates are substantially noisier, which its wider intervals reflect.
+To isolate the effect of the variant, both computations share the instantiated holdout split and, via the seeds, the same reference subsample, fitted model, and coalition draws:
 
 ```{r sage-montecarlo-unbiased}
 #| fig.alt: "Point-and-whisker plot with features on y-axis and SAGE values on x-axis. Two colored series for the original and unbiased kernel variants; the unbiased variant shows markedly wider horizontal error bars at the same coalition budget."
+set.seed(1)
 sage_unbiased = MarginalSAGE$new(
 	task = task_sage,
 	learner = learner_sage,
 	measure = measure,
-	resampling = rsmp("holdout"),
+	resampling = resampling_sage,
 	estimator = "kernel",
 	kernel_variant = "unbiased",
 	n_coalitions = 256,
 	n_samples = 50
 )
 
+set.seed(2)
 sage_unbiased$compute()
 
 sage_cis = rbindlist(list(

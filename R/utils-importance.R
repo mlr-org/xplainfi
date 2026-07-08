@@ -59,8 +59,8 @@ check_single_resampling_iter = function(resampling) {
 #' Warn if any test observation appears in more than one resampling test set
 #'
 #' Lei et al. inference assumes unique test observations.
-#' The iter_repeat dimension (refit/sampling repeats) is averaged over and
-#' irrelevant here --- what matters is whether a row_id appears in multiple
+#' The iter_repeat dimension (refit/sampling repeats) is averaged over and irrelevant here;
+#' what matters is whether a row_id appears in multiple
 #' resampling iterations (iter_rsmp), e.g. with subsampling.
 #'
 #' @param obs_loss_data data.table with columns row_ids, iter_rsmp

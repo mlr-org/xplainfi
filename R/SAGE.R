@@ -36,6 +36,10 @@
 #' the kernel estimator propagates the coalition-sampling covariance through the constrained
 #' least-squares solve (the delta method), which for `kernel_variant = "unbiased"` reduces to
 #' the closed-form covariance of Covert & Lee (2021, Eqs. 12-13).
+#' For `kernel_variant = "original"` this bookkeeping maintains a covariance matrix over all
+#' pairwise feature co-occurrences, whose memory use grows with the fourth power of the number
+#' of features (roughly 200 MB at 100 features), so with hundreds of features expect the SE
+#' machinery rather than the model evaluations to become the bottleneck.
 #'
 #' **Relation to the reference implementation (Python `sage`)**:
 #' Both implementations follow Covert & Lee (2021), but they estimate the value function in
@@ -62,9 +66,10 @@
 #'   whereas xplainfi conditions on the test set and quantifies coalition-sampling error only
 #'   (test-set and model variability are instead addressed by the resampling-based
 #'   `ci_method`s).
-#'   In addition, `sage`'s uncertainty computation deviates from the paper's Eq. 13 (the
-#'   constraint-adjustment term of the covariance propagation enters with a flipped sign),
-#'   while xplainfi implements Eqs. 12-13 as published.
+#'   In addition, `sage`'s uncertainty computation appears to deviate from the paper's Eq. 13
+#'   in the sign of the covariance propagation's constraint-adjustment term.
+#'   xplainfi implements Eqs. 12-13 as published, which matched the empirical variance in our
+#'   simulations.
 #' * *Convergence*: `sage` runs until its convergence criterion is met by default, while the
 #'   kernel estimator in xplainfi evaluates a fixed budget of `n_coalitions` (early stopping
 #'   applies to the permutation estimator only).
@@ -132,6 +137,8 @@ SAGE = R6Class(
     #' @param batch_size (`integer(1)`: `5000L`) Maximum number of observations to process in a single prediction call.
     #' @param n_samples (`integer(1)`: `100L`) Number of samples to use for marginalizing out-of-coalition features.
     #'   For [MarginalSAGE], this is the number of marginal data samples ("background data" in other implementations).
+    #'   Note that [MarginalSAGE] draws its reference subsample once at construction,
+    #'   so changing `$param_set$values$n_samples` afterwards does not redraw it.
     #'   For [ConditionalSAGE], this is the number of conditional samples per test instance retrieved from `sampler`.
     #' @param early_stopping (`logical(1)`: `FALSE`) Whether to enable early stopping based on convergence detection.
     #'   Only used by the permutation estimator.
@@ -684,6 +691,35 @@ SAGE = R6Class(
     }
   ),
 
+  active = list(
+    #' @field n_permutations (`integer(1)`) Deprecated.
+    #'   The permutation budget lives in the param_set; use `$param_set$values$n_permutations` instead.
+    #'   This alias is kept for backward compatibility with the field of the same name in
+    #'   earlier releases and warns on access.
+    n_permutations = function(rhs) {
+      if (missing(rhs)) {
+        cli::cli_warn(
+          c(
+            "The {.field n_permutations} field is deprecated.",
+            "i" = "Read it via {.code $param_set$values$n_permutations} instead."
+          ),
+          .frequency = "once",
+          .frequency_id = "xplainfi_sage_n_permutations_get"
+        )
+        return(self$param_set$values$n_permutations)
+      }
+      cli::cli_warn(
+        c(
+          "The {.field n_permutations} field is deprecated.",
+          "i" = "Set it via {.code $param_set$values$n_permutations} instead."
+        ),
+        .frequency = "once",
+        .frequency_id = "xplainfi_sage_n_permutations_set"
+      )
+      self$param_set$values$n_permutations = checkmate::assert_int(rhs, lower = 1L)
+    }
+  ),
+
   private = list(
     # The exact estimator's cost grows as 2^n_features, so it is capped. Checked at
     # construction and again in $compute(), since the estimator or cap may have been
@@ -929,7 +965,7 @@ SAGE = R6Class(
     # "original" (default, their Eq. 7) estimates BOTH the design matrix A = E[z z^T]
     # and b = E[z v(z)] from the same sampled coalitions. Sharing the samples couples
     # the errors in A and b, so the ratio A^{-1} b is far lower variance than plugging
-    # in the exact A -- Covert & Lee recommend it in practice for exactly this reason
+    # in the exact A; Covert & Lee recommend it in practice for exactly this reason
     # (their Section 4.1). "unbiased" (their Eq. 9, the variant the Python `sage`
     # package implements) uses the exact closed-form A and estimates only b.
     # Coalitions are drawn with paired sampling (each draw plus its complement) for

@@ -355,7 +355,9 @@ sage_kernel_estimate_original = function(w_mean, cov_mean, m, total, od, noff, r
   b = w_mean[noff + seq_len(m)]
 
   A = sage_kernel_A_from_offdiag(w_mean[seq_len(noff)], m, od)
-  A_inv = tryCatch(solve(A), error = function(e) NULL)
+  # Near-singular sampled A (early checkpoints at tiny budgets) is treated like a
+  # hard singularity, so the convergence history reports NA instead of wild values.
+  A_inv = if (rcond(A) > 1e-10) tryCatch(solve(A), error = function(e) NULL) else NULL
   if (is.null(A_inv)) {
     # Not yet identifiable from the sampled coalitions. Fall back to the exact A only
     # when a value is required (final estimate); otherwise degrade to NA gracefully.
@@ -377,10 +379,11 @@ sage_kernel_estimate_original = function(w_mean, cov_mean, m, total, od, noff, r
 
     # A block: phi as a function of the off-diagonals, for central differences.
     phi_of_a = function(a) {
-      Aw_inv = tryCatch(
-        solve(sage_kernel_A_from_offdiag(a, m, od)),
-        error = function(e) NULL
-      )
+      Aw = sage_kernel_A_from_offdiag(a, m, od)
+      if (rcond(Aw) <= 1e-10) {
+        return(NULL)
+      }
+      Aw_inv = tryCatch(solve(Aw), error = function(e) NULL)
       if (is.null(Aw_inv)) {
         return(NULL)
       }

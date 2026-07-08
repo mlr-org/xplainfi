@@ -71,7 +71,9 @@ MarginalSAGE = R6Class(
         min_permutations = min_permutations,
         check_interval = check_interval
       )
-      # Use training data as reference for later marginalization
+      # Use the task's data as reference for later marginalization. The subsample is
+      # drawn once here, so post-construction edits of $param_set$values$n_samples do
+      # not redraw it (documented in the n_samples param docs).
       private$reference_data = self$task$data(cols = self$task$feature_names)
 
       # Subsample reference data if it's too large for efficiency

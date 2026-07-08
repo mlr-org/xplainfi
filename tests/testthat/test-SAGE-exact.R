@@ -12,6 +12,7 @@
 # -----------------------------------------------------------------------------
 
 test_that("MarginalSAGE exact estimator works for regression and classification", {
+  set.seed(3163)
   task_regr = sim_dgp_independent(n = 150)
   sage_regr = MarginalSAGE$new(
     task = task_regr,
@@ -20,7 +21,7 @@ test_that("MarginalSAGE exact estimator works for regression and classification"
     n_samples = 20L
   )
   expect_identical(sage_regr$param_set$values$estimator, "exact")
-  expect_null(sage_regr$n_permutations)
+  expect_null(sage_regr$param_set$values$n_permutations)
   expect_null(sage_regr$param_set$values$n_coalitions)
   sage_regr$compute()
   expect_importance_dt(sage_regr$importance(), features = sage_regr$features)
@@ -38,9 +39,21 @@ test_that("MarginalSAGE exact estimator works for regression and classification"
   )
   sage_binary$compute()
   expect_importance_dt(sage_binary$importance(), features = sage_binary$features)
+
+  task_multi = tgen("cassini")$generate(n = 100)
+  sage_multi = MarginalSAGE$new(
+    task = task_multi,
+    learner = lrn("classif.rpart", predict_type = "prob"),
+    estimator = "exact",
+    n_samples = 20L
+  )
+  sage_multi$compute()
+  expect_importance_dt(sage_multi$importance(), features = sage_multi$features)
+  expect_length(task_multi$class_names, 3L)
 })
 
 test_that("ConditionalSAGE exact estimator works with Gaussian sampler", {
+  set.seed(5417)
   task = sim_dgp_correlated(n = 120)
   sage = ConditionalSAGE$new(
     task = task,

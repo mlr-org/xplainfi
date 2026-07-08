@@ -40,6 +40,10 @@ Computationally, the permutation estimator uses the running SE across permutatio
 the kernel estimator propagates the coalition-sampling covariance through the constrained
 least-squares solve (the delta method), which for \code{kernel_variant = "unbiased"} reduces to
 the closed-form covariance of Covert & Lee (2021, Eqs. 12-13).
+For \code{kernel_variant = "original"} this bookkeeping maintains a covariance matrix over all
+pairwise feature co-occurrences, whose memory use grows with the fourth power of the number
+of features (roughly 200 MB at 100 features), so with hundreds of features expect the SE
+machinery rather than the model evaluations to become the bottleneck.
 
 \strong{Relation to the reference implementation (Python \code{sage})}:
 Both implementations follow Covert & Lee (2021), but they estimate the value function in
@@ -66,9 +70,10 @@ The standard deviations in \code{sage} include the observation-sampling noise de
 whereas xplainfi conditions on the test set and quantifies coalition-sampling error only
 (test-set and model variability are instead addressed by the resampling-based
 \code{ci_method}s).
-In addition, \code{sage}'s uncertainty computation deviates from the paper's Eq. 13 (the
-constraint-adjustment term of the covariance propagation enters with a flipped sign),
-while xplainfi implements Eqs. 12-13 as published.
+In addition, \code{sage}'s uncertainty computation appears to deviate from the paper's Eq. 13
+in the sign of the covariance propagation's constraint-adjustment term.
+xplainfi implements Eqs. 12-13 as published, which matched the empirical variance in our
+simulations.
 \item \emph{Convergence}: \code{sage} runs until its convergence criterion is met by default, while the
 kernel estimator in xplainfi evaluates a fixed budget of \code{n_coalitions} (early stopping
 applies to the permutation estimator only).
@@ -107,6 +112,16 @@ The exact estimator sets \code{TRUE} trivially since it enumerates all coalition
     \item{\code{n_permutations_used}}{(\code{integer(1)}) Sampling effort actually spent, in estimator-specific units:
 permutations (permutation estimator), paired coalition draws (kernel; each draw evaluates 2 coalitions),
 or enumerated coalitions (exact).}
+  }
+  \if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{n_permutations}}{(\code{integer(1)}) Deprecated.
+The permutation budget lives in the param_set; use \verb{$param_set$values$n_permutations} instead.
+This alias is kept for backward compatibility with the field of the same name in
+earlier releases and warns on access.}
   }
   \if{html}{\out{</div>}}
 }
@@ -197,6 +212,8 @@ Setting it for the other estimators is a warning, as they ignore it.}
       \item{\code{batch_size}}{(\code{integer(1)}: \code{5000L}) Maximum number of observations to process in a single prediction call.}
       \item{\code{n_samples}}{(\code{integer(1)}: \code{100L}) Number of samples to use for marginalizing out-of-coalition features.
 For \link{MarginalSAGE}, this is the number of marginal data samples ("background data" in other implementations).
+Note that \link{MarginalSAGE} draws its reference subsample once at construction,
+so changing \verb{$param_set$values$n_samples} afterwards does not redraw it.
 For \link{ConditionalSAGE}, this is the number of conditional samples per test instance retrieved from \code{sampler}.}
       \item{\code{early_stopping}}{(\code{logical(1)}: \code{FALSE}) Whether to enable early stopping based on convergence detection.
 Only used by the permutation estimator.}

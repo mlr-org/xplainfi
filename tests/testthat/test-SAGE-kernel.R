@@ -87,10 +87,16 @@ test_that("MarginalSAGE kernel featureless learner produces zero importance", {
 test_that("MarginalSAGE kernel with a single feature returns the total", {
   set.seed(4271)
   task = tgen("friedman1")$generate(n = 120)
+  resampling = rsmp("holdout")$instantiate(task)
+
+  # The m = 1 branch short-circuits to phi = v(full); with a shared split and
+  # reference subsample it must match the exact estimator to machine precision.
+  set.seed(4271)
   sage = MarginalSAGE$new(
     task = task,
     learner = lrn("regr.rpart"),
     features = "important4",
+    resampling = resampling,
     estimator = "kernel",
     n_coalitions = 32L,
     n_samples = 20L
@@ -100,6 +106,22 @@ test_that("MarginalSAGE kernel with a single feature returns the total", {
   expect_importance_dt(imp, features = "important4")
   expect_equal(nrow(imp), 1L)
   checkmate::expect_number(imp$importance, finite = TRUE)
+
+  set.seed(4271)
+  exact = MarginalSAGE$new(
+    task = task,
+    learner = lrn("regr.rpart"),
+    features = "important4",
+    resampling = resampling,
+    estimator = "exact",
+    n_samples = 20L
+  )
+  exact$compute()
+  expect_equal(imp$importance, exact$importance()$importance, tolerance = 1e-10)
+
+  # A single feature has no coalition-sampling error, so no SE and no montecarlo CIs.
+  checkmate::expect_scalar_na(unique(sage$scores()$se))
+  expect_error(sage$importance(ci_method = "montecarlo"), "none are available")
 })
 
 # -----------------------------------------------------------------------------
@@ -107,17 +129,21 @@ test_that("MarginalSAGE kernel with a single feature returns the total", {
 # -----------------------------------------------------------------------------
 
 test_that("kernel estimator recovers exact Shapley on a small feature set", {
+  skip_if_not_installed("ranger")
   # With few features the value function can be fully enumerated and exact
   # Shapley values computed by brute force. The regression estimator must
   # converge to these (up to Monte Carlo error) and satisfy the efficiency /
   # sum-to-total constraint exactly.
+  #
+  # The anchor deliberately uses m = 5 features and a learned game with real
+  # interactions: at m = 3 the per-size and per-coalition Shapley kernel weights
+  # coincide, and on (near-)additive games any full-support weighting recovers
+  # the Shapley values, so either setting would mask a wrong size distribution
+  # (see sage_kernel_size_probs). Calibrated separation here: correct weights
+  # ~0.001 max abs error, per-coalition weights ~0.008.
   set.seed(0xC0FFEE)
-  # Three features keep the 2^m enumeration cheap and let the estimator converge
-  # tightly at a modest budget. n_samples only shapes the (self-consistent) value
-  # function, so it does not affect the kernel-vs-exact gap.
-  task = tgen("friedman1")$generate(n = 150)
-  task$select(c("important1", "important2", "important4"))
-  learner = lrn("regr.rpart")
+  task = sim_dgp_interactions(n = 200)
+  learner = lrn("regr.ranger", num.trees = 25)
 
   sage = MarginalSAGE$new(
     task = task,
@@ -138,10 +164,46 @@ test_that("kernel estimator recovers exact Shapley on a small feature set", {
   kern_ordered = kern[match(feats, feature), importance]
   # Efficiency constraint holds exactly (same total, same closed-form solve).
   expect_equal(sum(kern_ordered), sum(phi), tolerance = 1e-8)
-  # Estimated values converge to exact Shapley within Monte Carlo tolerance.
-  # The original-KernelSHAP (sampled-A) estimator is tight here (~0.005); this
-  # bound also guards against regressing to the much higher-variance exact-A form.
-  expect_lt(max(abs(kern_ordered - phi)), 0.05)
+  # Tight enough to reject both a wrong coalition-size distribution (~0.008)
+  # and a regression to the much higher-variance exact-A estimator.
+  expect_lt(max(abs(kern_ordered - phi)), 0.004)
+})
+
+test_that("ConditionalSAGE kernel agrees with the exact estimator", {
+  set.seed(9241)
+  task = sim_dgp_correlated(n = 200)
+  learner = lrn("regr.rpart")
+  resampling = rsmp("holdout")$instantiate(task)
+  sampler = ConditionalGaussianSampler$new(task)
+
+  # The conditional value function is itself stochastic (the sampler redraws per
+  # coalition), so both estimates carry sampler noise on top of the kernel
+  # estimator's coalition-sampling error; the tolerance reflects that.
+  set.seed(11)
+  exact = ConditionalSAGE$new(
+    task,
+    learner,
+    resampling = resampling,
+    sampler = sampler,
+    estimator = "exact",
+    n_samples = 30L
+  )
+  exact$compute()
+  set.seed(11)
+  kern = ConditionalSAGE$new(
+    task,
+    learner,
+    resampling = resampling,
+    sampler = sampler,
+    estimator = "kernel",
+    n_coalitions = 400L,
+    n_samples = 30L
+  )
+  kern$compute()
+
+  cmp = merge(exact$importance(), kern$importance(), by = "feature")
+  expect_gt(cor(cmp$importance.x, cmp$importance.y), 0.98)
+  expect_lt(max(abs(cmp$importance.x - cmp$importance.y)), 0.15)
 })
 
 test_that("kernel and permutation estimators agree on important features", {
@@ -286,12 +348,13 @@ test_that("kernel ci_method = 'montecarlo' returns valid Wald intervals", {
   checkmate::expect_numeric(imp$conf_lower, any.missing = FALSE, finite = TRUE)
   checkmate::expect_numeric(imp$conf_upper, any.missing = FALSE, finite = TRUE)
   # Point estimate lies inside its own two-sided interval.
-  expect_true(all(imp$conf_lower <= imp$importance & imp$importance <= imp$conf_upper))
+  checkmate::expect_numeric(imp$importance - imp$conf_lower, lower = 0, any.missing = FALSE)
+  checkmate::expect_numeric(imp$conf_upper - imp$importance, lower = 0, any.missing = FALSE)
   # p_adjust has no p-values to act on and is rejected.
   expect_error(sage$importance(ci_method = "montecarlo", p_adjust = "holm"), "p_adjust")
 })
 
-test_that("montecarlo CI width shrinks with higher confidence and one-sided is unbounded", {
+test_that("montecarlo CI width widens with higher confidence and one-sided is unbounded", {
   set.seed(2953)
   # Needs a non-additive game: the default kernel variant is exact on additive games,
   # so an additive DGP drives all SEs to machine noise (exactly 0 on some platforms).
@@ -306,10 +369,10 @@ test_that("montecarlo CI width shrinks with higher confidence and one-sided is u
   # Width is 2 * z * se, so a higher level strictly widens the interval
   # wherever the SE is positive.
   checkmate::expect_numeric(w90, lower = 1e-8, any.missing = FALSE)
-  expect_true(all(w99 > w90))
+  expect_gt(min(w99 - w90), 0)
 
   imp_greater = sage$importance(ci_method = "montecarlo", alternative = "greater")
-  expect_true(all(is.infinite(imp_greater$conf_upper)))
+  expect_identical(unique(imp_greater$conf_upper), Inf)
   checkmate::expect_numeric(imp_greater$conf_lower, finite = TRUE)
 })
 
@@ -339,6 +402,57 @@ test_that("exact estimator rejects montecarlo CIs", {
 
   checkmate::expect_scalar_na(unique(sage$scores()$se))
   expect_error(sage$importance(ci_method = "montecarlo"), "Monte Carlo standard errors")
+})
+
+test_that("kernel Monte Carlo SEs are calibrated against replicate variability", {
+  # The delta-method SEs must match the actual run-to-run spread of the point
+  # estimates when only the coalition draws vary: fixed split, fixed reference
+  # subsample (seed before the constructor), deterministic rpart fit, and a
+  # non-additive learned game (on additive games the original variant is exact
+  # per draw and both spread and SE collapse to numerical noise).
+  # This is the failure mode a structural check cannot catch: an SE off by a
+  # constant factor passes non-negativity, reproducibility, and ordering tests.
+  set.seed(881)
+  task = tgen("friedman1")$generate(n = 150)
+  task$select(c("important1", "important2", "important3", "important4"))
+  learner = lrn("regr.rpart")
+  measure = msr("regr.mse")
+  resampling = rsmp("holdout")$instantiate(task)
+
+  run_variant = function(variant, reps = 15L) {
+    ests = list()
+    ses = list()
+    for (i in seq_len(reps)) {
+      set.seed(505)
+      s = MarginalSAGE$new(
+        task,
+        learner,
+        measure,
+        resampling = resampling,
+        estimator = "kernel",
+        kernel_variant = variant,
+        n_coalitions = 64L,
+        n_samples = 20L
+      )
+      set.seed(7000 + i)
+      s$compute()
+      sc = s$scores()
+      setorder(sc, feature)
+      ests[[i]] = sc$importance
+      ses[[i]] = sc$se
+    }
+    list(
+      emp = apply(do.call(rbind, ests), 2, sd),
+      se = colMeans(do.call(rbind, ses))
+    )
+  }
+
+  for (variant in c("original", "unbiased")) {
+    r = run_variant(variant)
+    # Calibrated ratios (observed 0.95-1.6 over 15 replicates); a factor-of-two
+    # miscalibration in either direction fails.
+    checkmate::expect_numeric(r$se / r$emp, lower = 0.5, upper = 2, any.missing = FALSE)
+  }
 })
 
 test_that("kernel Monte Carlo SEs are reproducible with the same seed", {
@@ -382,6 +496,31 @@ test_that("kernel unbiased variant works and reports montecarlo CIs", {
   checkmate::expect_numeric(imp$se, any.missing = FALSE, lower = 0)
   checkmate::expect_numeric(imp$conf_lower, any.missing = FALSE, finite = TRUE)
   checkmate::expect_numeric(imp$conf_upper, any.missing = FALSE, finite = TRUE)
+})
+
+test_that("unbiased variant converges to exact Shapley of the value function", {
+  set.seed(0xBEEF)
+  task = tgen("friedman1")$generate(n = 150)
+  task$select(c("important1", "important2", "important4"))
+
+  sage = MarginalSAGE$new(
+    task = task,
+    learner = lrn("regr.rpart"),
+    measure = msr("regr.mse"),
+    estimator = "kernel",
+    kernel_variant = "unbiased",
+    n_coalitions = 2000L,
+    n_samples = 20L
+  )
+  sage$compute()
+  est = sage$importance()[match(sage$features, feature), importance]
+  phi = brute_force_shapley(sage, task)
+
+  expect_equal(sum(est), sum(phi), tolerance = 1e-8)
+  # The unbiased (exact-A) estimator is far noisier than the original variant at
+  # equal budgets, so the bound is looser than the original-variant anchor; a bias
+  # in the b-only moment path would still miss by a multiple of this.
+  expect_lt(max(abs(est - phi)), 0.5)
 })
 
 test_that("kernel variants share the efficiency constraint given the same seed", {
@@ -467,6 +606,48 @@ test_that("montecarlo aborts when SEs are unavailable (single permutation)", {
   sage$compute()
   checkmate::expect_scalar_na(unique(sage$scores()$se))
   expect_error(sage$importance(ci_method = "montecarlo"), "none are available")
+})
+
+test_that("kernel falls back to the exact design matrix when the sampled one is singular", {
+  set.seed(6151)
+  task = tgen("friedman1")$generate(n = 100) # 10 features
+  sage = MarginalSAGE$new(
+    task,
+    lrn("regr.rpart"),
+    estimator = "kernel",
+    # A single paired draw cannot identify a 10x10 design matrix.
+    n_coalitions = 1L,
+    n_samples = 10L
+  )
+  sage$compute()
+
+  # The final point estimate exists via the exact-A fallback ...
+  checkmate::expect_numeric(sage$scores()$importance, any.missing = FALSE, finite = TRUE)
+  # ... but the running history reports NA rather than wild values, SEs are
+  # unavailable, and montecarlo CIs abort accordingly.
+  checkmate::expect_scalar_na(unique(sage$convergence_history$importance))
+  checkmate::expect_scalar_na(unique(sage$scores()$se))
+  expect_error(sage$importance(ci_method = "montecarlo"), "none are available")
+})
+
+test_that("montecarlo warns when SEs are missing for some resampling iterations", {
+  set.seed(4643)
+  task = sim_dgp_independent(n = 150)
+  sage = MarginalSAGE$new(
+    task,
+    lrn("regr.rpart"),
+    resampling = rsmp("subsampling", repeats = 2),
+    estimator = "kernel",
+    n_coalitions = 48L,
+    n_samples = 15L
+  )
+  sage$compute()
+  # Simulate one iteration failing to produce SEs (e.g. an under-identified budget).
+  sage$.__enclos_env__$private$.scores[iter_rsmp == 1L, se := NA_real_]
+  expect_warning(
+    expect_warning(sage$importance(ci_method = "montecarlo"), "missing for 1 resampling iteration"),
+    "pooled across"
+  )
 })
 
 test_that("montecarlo warns when pooling across resampling iterations", {

@@ -364,3 +364,12 @@ test_that("coalition-loss direct measure$fun path matches per-coalition $score()
 
   expect_equal(fast, slow)
 })
+
+test_that("deprecated n_permutations field aliases the param_set", {
+  task = sim_dgp_independent(n = 60)
+  sage = MarginalSAGE$new(task, lrn("regr.rpart"), n_permutations = 5L)
+  # cli warns once per session, so only the alias semantics are asserted here.
+  expect_identical(suppressWarnings(sage$n_permutations), 5L)
+  suppressWarnings(sage$n_permutations <- 7L)
+  expect_identical(sage$param_set$values$n_permutations, 7L)
+})
