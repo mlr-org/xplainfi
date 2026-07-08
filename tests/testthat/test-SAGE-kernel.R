@@ -129,6 +129,9 @@ test_that("MarginalSAGE kernel with a single feature returns the total", {
 # -----------------------------------------------------------------------------
 
 test_that("kernel estimator recovers exact Shapley on a small feature set", {
+  # skip_if_not_installed() also loads the mlr3learners namespace, which is what
+  # registers "regr.ranger" in the learner dictionary (setup.R only loads mlr3).
+  skip_if_not_installed("mlr3learners")
   skip_if_not_installed("ranger")
   # With few features the value function can be fully enumerated and exact
   # Shapley values computed by brute force. The regression estimator must
