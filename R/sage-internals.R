@@ -304,7 +304,7 @@ sage_kernel_solve_constrained = function(A_inv, b, total) {
 #' @keywords internal
 #' @noRd
 sage_kernel_estimate_unbiased = function(b_mean, cov_mean, m, total, A_inv = NULL) {
-  A_inv = A_inv %??% solve(sage_kernel_A(m))
+  A_inv = A_inv %||% solve(sage_kernel_A(m))
   phi = sage_kernel_solve_constrained(A_inv, b_mean, total)
 
   se = rep(NA_real_, m)
@@ -345,8 +345,8 @@ sage_kernel_estimate_unbiased = function(b_mean, cov_mean, m, total, A_inv = NUL
 #' @param total (`numeric(1)`) Value of the grand coalition, `v(full)`, used as the sum constraint.
 #' @param od (`matrix`) Lower-triangular index matrix (see `sage_kernel_A_from_offdiag`).
 #' @param noff (`integer(1)`) Number of off-diagonal entries, `m * (m - 1) / 2`.
-#' @param require_result (`logical(1)`) If `TRUE`, fall back to the exact `A` when the sampled
-#'   `A` is singular so a finite point estimate is always returned.
+#' @param require_result (`logical(1)`) If `TRUE`, fall back to the exact `A` (with a warning)
+#'   when the sampled `A` is singular so a finite point estimate is always returned.
 #' @return `list(phi, se)`, each a `numeric(m)`. `se` is all-`NA` when `cov_mean` is `NULL` or
 #'   the (perturbed) design matrix is not invertible.
 #' @keywords internal
@@ -362,6 +362,12 @@ sage_kernel_estimate_original = function(w_mean, cov_mean, m, total, od, noff, r
     # Not yet identifiable from the sampled coalitions. Fall back to the exact A only
     # when a value is required (final estimate); otherwise degrade to NA gracefully.
     phi = if (require_result) {
+      cli::cli_warn(c(
+        "The sampled kernel design matrix is singular at the end of the coalition budget.",
+        "i" = "Falling back to the exact design matrix for the point estimate,
+               which is the {.val unbiased} kernel variant.",
+        "i" = "Standard errors are unavailable; increase {.arg n_coalitions}."
+      ))
       sage_kernel_solve_constrained(solve(sage_kernel_A(m)), b, total)
     } else {
       rep(NA_real_, m)

@@ -89,11 +89,6 @@ Covert I, Lee S (2021).
 \dQuote{Improving KernelSHAP: Practical Shapley Value Estimation Using Linear Regression.}
 In \emph{Proceedings of the 24th International Conference on Artificial Intelligence and Statistics}, volume 130, 3457--3465.
 \url{https://proceedings.mlr.press/v130/covert21a.html}.
-
-Covert I, Lee S (2021).
-\dQuote{Improving KernelSHAP: Practical Shapley Value Estimation Using Linear Regression.}
-In \emph{Proceedings of the 24th International Conference on Artificial Intelligence and Statistics}, volume 130, 3457--3465.
-\url{https://proceedings.mlr.press/v130/covert21a.html}.
 }
 \seealso{
 \link{MarginalSAGE} \link{ConditionalSAGE}

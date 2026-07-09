@@ -1,18 +1,50 @@
 # xplainfi 1.1.0.9000 (development version)
 
-## Performance and new features
+## New features
 
-- `ConditionalSAGE` and `MarginalSAGE` gain an `estimator` argument (default `"permutation"`) selecting the Shapley-value estimator; `estimator = "kernel"` enables the regression-based Kernel SAGE estimator (Covert & Lee, 2021), controlled by a new `n_coalitions` budget argument instead of `n_permutations`, and `estimator = "exact"` enumerates all coalitions to compute exact SAGE values on small feature sets (capped by `max_features`), useful as a ground-truth reference (#70). The estimator configuration lives in `$param_set` and can be edited via `$param_set$values`. Setting a tuning argument for an estimator that ignores it (e.g. `check_interval` with the kernel estimator) is a warning.
-- `ConditionalSAGE` now passes `samples_per_row = n_samples` to the sampler on unique
-  test rows, instead of replicating test rows externally before calling the sampler.
-  - For `ConditionalARFSampler` this triggers the same `arf::forge(n_synth = n_samples)`
-    speedup as `PerturbationImportance`, on `n_test` unique evidence rows rather than
-    `n_samples * n_test` replicated rows.
-  - Marginal SAGE (`MarginalSAGE`) does not use a `FeatureSampler` and is unaffected.
+### SAGE estimators and Monte Carlo confidence intervals
+
+- `MarginalSAGE` and `ConditionalSAGE` gain an `estimator` argument selecting the
+  Shapley-value estimator (#70).
+  - `"permutation"` (the default) is the previous behavior, controlled by `n_permutations`.
+  - `"kernel"` enables the regression-based Kernel SAGE estimator (Covert & Lee, 2021),
+    controlled by a new `n_coalitions` budget argument.
+  - `"exact"` enumerates all coalitions on small feature sets (capped by `max_features`)
+    and computes SAGE values without coalition-sampling error, useful as a ground-truth
+    reference for the sampling estimators.
+  - Setting the budget argument of a different estimator is an error; setting a tuning
+    argument for an estimator that ignores it (e.g. `check_interval` with the kernel
+    estimator) is a warning.
+- `SAGE` kernel estimator gains a `kernel_variant` argument (#70, #71).
+  - `"original"` (the default) is Covert & Lee's Eq. 7, recommended by the paper for
+    practical use and substantially more accurate at equal budgets in our setting.
+  - `"unbiased"` is their Eq. 9, the variant implemented by the reference Python `sage`
+    package, mainly useful for direct cross-checks against it.
+  - When `n_coalitions` is too small to identify the sampled design matrix of the
+    `"original"` variant, the final point estimate now falls back to the exact design
+    matrix with a warning (previously silent).
+- `SAGE$importance()` gains `ci_method = "montecarlo"`, which builds Wald intervals from
+  the Monte Carlo (coalition-sampling) standard errors of the SAGE estimator (#71).
+  - Kernel SAGE now reports these standard errors via a multivariate delta method (they
+    were previously unavailable); for `kernel_variant = "unbiased"` this reduces to the
+    paper's closed-form covariance (Eqs. 12-13). The permutation estimator surfaces its
+    running standard error the same way; the exact estimator has no coalition-sampling
+    error and does not support this method.
+  - These intervals are convergence diagnostics for the sampling budget, not importance
+    inference, so unlike the resampling-based methods they report no `statistic` or
+    `p.value` and reject `p_adjust`; see the method documentation for interpretation
+    guidance.
+- The estimator configuration lives in `$param_set` and can be edited via
+  `$param_set$values`. Accordingly, `SAGE`'s public `$n_permutations` field is deprecated
+  in favor of `$param_set$values$n_permutations`; it remains readable and writable as an
+  alias but warns once per session on access.
+
+### Faster sampling via `samples_per_row`
+
 - `FeatureSampler$sample()` and `$sample_newdata()` gain a `samples_per_row` argument (default `1L`).
   - When `> 1`, samplers return `samples_per_row * length(row_ids)` rows in draw-major order
     (one block of all input rows per draw).
-  - Default behaviour is unchanged.
+  - Default behavior is unchanged.
 - `PerturbationImportance` (`PFI`/`CFI`/`RFI`) now passes `samples_per_row = n_repeats` to the
   sampler on unique test row IDs, instead of replicating row IDs externally.
   - For `ConditionalARFSampler` this means `arf::forge(n_synth = n_repeats)` on `n_test`
@@ -20,6 +52,12 @@
   - Dramatically faster at scale and dodges an int32 overflow inside `arf::forge` for large
     `n_test * n_repeats`.
   - All other in-package samplers implement `samples_per_row` natively as well.
+- `ConditionalSAGE` now passes `samples_per_row = n_samples` to the sampler on unique
+  test rows, instead of replicating test rows externally before calling the sampler.
+  - For `ConditionalARFSampler` this triggers the same `arf::forge(n_synth = n_samples)`
+    speedup as `PerturbationImportance`, on `n_test` unique evidence rows rather than
+    `n_samples * n_test` replicated rows.
+  - Marginal SAGE (`MarginalSAGE`) does not use a `FeatureSampler` and is unaffected.
 - `PerturbationImportance` (PFI/CFI/RFI) now registers a `doParallel` backend inside each
   mirai daemon when the sampler is configured with `parallel = TRUE`.
   - This lets `ConditionalARFSampler` use parallel `arf::forge()` from within mirai workers,
@@ -27,13 +65,13 @@
   - Worker count per daemon is controlled by the new `arf_workers` option (default `2L`);
     see `?xplain_opt`.
   - Requires the `doParallel` package (now in Suggests).
-- `SAGE$importance()` gains `ci_method = "montecarlo"`, which builds Wald intervals from the Monte Carlo (coalition-sampling) standard errors of the SAGE estimator (#71). Kernel SAGE now reports these standard errors via a multivariate delta method (they were previously unavailable), and the permutation estimator surfaces its running standard error the same way; the exact estimator has no coalition-sampling error and does not support this method. These intervals are convergence diagnostics for the sampling budget, not importance inference, so unlike the resampling-based methods they report no `statistic` or `p.value` and reject `p_adjust`; see the method documentation for interpretation guidance.
-- `SAGE` kernel estimator gains a `kernel_variant` argument selecting between `"original"` (default, Covert & Lee 2021, Eq. 7, recommended by the paper for practical use) and `"unbiased"` (Eq. 9, the variant implemented by the reference Python `sage` package, useful for direct cross-checks); standard errors for `"unbiased"` use the paper's closed-form covariance (Eqs. 12-13) (#70, #71).
-- `SAGE`'s public `$n_permutations` field is deprecated in favor of `$param_set$values$n_permutations`; it remains readable and writable as an alias but warns once per session on access.
+
+### Other improvements
+
 - `WVIM` and `LOCO` gain a `batch_size` constructor argument (default `NULL`).
   - Controls how many refits (`design_points`) are dispatched per internal `mlr3::benchmark()`
     call by the `mlr3fselect::fs("design_points")` fselector.
-  - `NULL` keeps the prior behaviour (bbotk default of one design point per call, i.e.
+  - `NULL` keeps the prior behavior (bbotk default of one design point per call, i.e.
     sequential single-refit evaluation).
   - Set a positive integer (e.g. the number of `future`/`mirai` workers) to batch refits so
     mlr3's parallelization can spread them across workers; previously refits were dispatched
@@ -45,7 +83,9 @@
 
 - `relation = "ratio"` importances now return `NA` (with a warning) instead of
   `Inf`/`NaN` for features whose baseline score is `0`.
-- `FeatureImportanceMethod$importance(standardize = TRUE)` no longer permanently modifies the stored scores of SAGE methods by reference; repeated calls previously compounded the standardization, and any standard errors are now scaled together with the importances.
+- `FeatureImportanceMethod$importance(standardize = TRUE)` no longer permanently modifies
+  the stored scores of SAGE methods by reference; repeated calls previously compounded the
+  standardization. Any standard errors are now scaled together with the importances.
 - Fix `$obs_loss()` being erroneously called without `measure` in `PerturbationImportance`,
   resulting in an error when `measures` was not the task-default.
 - `ConditionalARFSampler$sample()` now errors when `parallel = TRUE` but no parallel backend
@@ -66,9 +106,9 @@
 
 ## Internal changes
 
-- The `KnockoffSampler` `n_repeats > iters` cap-and-warn behaviour moved from
+- The `KnockoffSampler` `n_repeats > iters` cap-and-warn behavior moved from
   `PerturbationImportance$initialize()` into `KnockoffSampler$sample()` itself;
-  behaviour is unchanged.
+  behavior is unchanged.
 
 # xplainfi 1.1.0
 

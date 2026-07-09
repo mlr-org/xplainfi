@@ -622,7 +622,7 @@ test_that("kernel falls back to the exact design matrix when the sampled one is 
     n_coalitions = 1L,
     n_samples = 10L
   )
-  sage$compute()
+  expect_warning(sage$compute(), "singular at the end of the coalition budget")
 
   # The final point estimate exists via the exact-A fallback ...
   checkmate::expect_numeric(sage$scores()$importance, any.missing = FALSE, finite = TRUE)

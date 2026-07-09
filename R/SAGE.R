@@ -200,7 +200,7 @@ SAGE = R6Class(
             "i" = "The permutation estimator is controlled by {.arg n_permutations}."
           ))
         }
-        n_permutations = checkmate::assert_int(n_permutations %??% 10L, lower = 1L)
+        n_permutations = checkmate::assert_int(n_permutations %||% 10L, lower = 1L)
       } else if (estimator == "kernel") {
         if (!is.null(n_permutations)) {
           cli::cli_abort(c(
@@ -208,9 +208,9 @@ SAGE = R6Class(
             "i" = "The kernel estimator is controlled by {.arg n_coalitions}."
           ))
         }
-        n_coalitions = checkmate::assert_int(n_coalitions %??% 512L, lower = 1L)
+        n_coalitions = checkmate::assert_int(n_coalitions %||% 512L, lower = 1L)
         kernel_variant = checkmate::assert_choice(
-          kernel_variant %??% "original",
+          kernel_variant %||% "original",
           choices = c("original", "unbiased")
         )
       } else {
@@ -345,9 +345,6 @@ SAGE = R6Class(
     #'   Not accepted for `ci_method = "montecarlo"`, which performs no hypothesis test.
     #' @param ... Passed to the base method for other CI methods.
     #' @return ([data.table][data.table::data.table]) Aggregated importance scores, with CI columns when requested.
-    #'
-    #' @references
-    #' `r print_bib("covert_2021")`
     importance = function(
       relation = NULL,
       standardize = FALSE,
@@ -473,7 +470,7 @@ SAGE = R6Class(
 
       # The estimator configuration is read from the param_set (the public fields are
       # views of it), so post-construction edits via $param_set$values take effect here.
-      estimator = self$param_set$values$estimator %??% "permutation"
+      estimator = self$param_set$values$estimator %||% "permutation"
       if (estimator == "exact") {
         private$.assert_exact_budget()
       }
@@ -548,7 +545,7 @@ SAGE = R6Class(
           private$.compute_sage_scores_kernel(
             learner = learner,
             test_dt = test_dt,
-            n_coalitions = self$param_set$values$n_coalitions %??% 512L,
+            n_coalitions = self$param_set$values$n_coalitions %||% 512L,
             batch_size = batch_size,
             track_convergence = track_convergence
           )
@@ -560,9 +557,9 @@ SAGE = R6Class(
             # or a smaller value if early_stopping = TRUE and it stopped early.
             # Remaining iterations reuse the first iteration's stopped count.
             n_permutations = if (track_convergence) {
-              self$param_set$values$n_permutations %??% 10L
+              self$param_set$values$n_permutations %||% 10L
             } else {
-              self$n_permutations_used %||% self$param_set$values$n_permutations %??% 10L
+              self$n_permutations_used %||% self$param_set$values$n_permutations %||% 10L
             },
             batch_size = batch_size,
             # Only track convergence etc. for the first iteration
@@ -617,7 +614,7 @@ SAGE = R6Class(
     plot_convergence = function(features = NULL) {
       require_package("ggplot2")
 
-      estimator = self$param_set$values$estimator %??% "permutation"
+      estimator = self$param_set$values$estimator %||% "permutation"
       if (identical(estimator, "exact")) {
         cli::cli_abort(c(
           "Convergence tracking is not applicable to the exact estimator.",
@@ -725,7 +722,7 @@ SAGE = R6Class(
     # construction and again in $compute(), since the estimator or cap may have been
     # changed via $param_set$values in between.
     .assert_exact_budget = function() {
-      max_features = self$param_set$values$max_features %??% 12L
+      max_features = self$param_set$values$max_features %||% 12L
       n_features = length(self$features)
       if (n_features > max_features) {
         cli::cli_abort(c(
@@ -984,11 +981,14 @@ SAGE = R6Class(
       test_dt,
       n_coalitions,
       batch_size = NULL,
-      track_convergence = TRUE,
-      check_interval = 64L
+      track_convergence = TRUE
     ) {
       features = self$features
       m = length(features)
+      # Draws per checkpoint: bounds the rows materialized per prediction batch and
+      # sets the granularity of the convergence history. Not user-facing (the
+      # permutation estimator's check_interval knob deliberately does not map here).
+      check_interval = 64L
 
       # Value-function anchors. V(S) = baseline_loss - loss(S), evaluated with the
       # same machinery the permutation estimator uses, so V(empty) = 0 and
@@ -1023,7 +1023,7 @@ SAGE = R6Class(
       }
 
       size_probs = sage_kernel_size_probs(m)
-      unbiased = identical(self$param_set$values$kernel_variant %??% "original", "unbiased")
+      unbiased = identical(self$param_set$values$kernel_variant %||% "original", "unbiased")
       # The exact design matrix depends only on m; invert it once per iteration
       # rather than at every checkpoint estimate.
       A_inv_exact = if (unbiased) solve(sage_kernel_A(m)) else NULL
