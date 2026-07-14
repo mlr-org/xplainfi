@@ -100,9 +100,10 @@ feature is permuted. Higher values indicate more important features.
 
 For more stable estimates, we can use multiple permutation iterations
 per resampling fold with `n_repeats`, which is set to `30` by default
-for all methods. Note that in this case “more is more”, and while there
-is no clear “good enough” value, setting `n_repeats` to a small value
-like 1 will most definitely yield unreliable results.
+for all perturbation-based methods. Note that in this case “more is
+more”, and while there is no clear “good enough” value, setting
+`n_repeats` to a small value like 1 will most definitely yield
+unreliable results.
 
 ``` r
 
@@ -187,12 +188,11 @@ of each feature when all other features are present.
 
 ``` r
 
-loco <- LOCO$new(
-    task = task,
-    learner = learner,
-    measure = measure,
-    resampling = resampling,
-    n_repeats = 10
+loco = LOCO$new(
+  task = task,
+  learner = learner,
+  measure = measure,
+  resampling = resampling
 )
 
 loco$compute()
@@ -200,16 +200,16 @@ loco$importance()
 #> Key: <feature>
 #>          feature importance
 #>           <char>      <num>
-#>  1:   important1  3.3430096
-#>  2:   important2  4.7465412
-#>  3:   important3  0.6079202
-#>  4:   important4  7.2998327
-#>  5:   important5  0.5541375
-#>  6: unimportant1 -0.5955017
-#>  7: unimportant2 -0.6082412
-#>  8: unimportant3 -0.4519835
-#>  9: unimportant4 -0.4972118
-#> 10: unimportant5 -0.4346899
+#>  1:   important1  3.3277467
+#>  2:   important2  4.8226736
+#>  3:   important3  0.5247519
+#>  4:   important4  7.4481311
+#>  5:   important5  0.4634194
+#>  6: unimportant1 -0.6486797
+#>  7: unimportant2 -0.5794802
+#>  8: unimportant3 -0.5290812
+#>  9: unimportant4 -0.6091103
+#> 10: unimportant5 -0.5793558
 ```
 
 LOCO is computationally expensive as it requires retraining for each
@@ -265,11 +265,11 @@ sample_data[, .(important1, important2, important3)]
 sampled_conditional[, .(important1, important2, important3)]
 #>    important1  important2 important3
 #>         <num>       <num>      <num>
-#> 1:  0.8502091 0.784575267  0.2372297
-#> 2: -0.1656936 0.009429905  0.6864904
-#> 3:  0.3339015 0.779065883  0.2258184
-#> 4:  0.7164983 0.729390652  0.3184946
-#> 5:  0.6126986 0.630131853  0.1739838
+#> 1:  0.1500857 0.784575267  0.2372297
+#> 2:  0.7310749 0.009429905  0.6864904
+#> 3:  0.4675678 0.779065883  0.2258184
+#> 4:  0.7968214 0.729390652  0.3184946
+#> 5:  0.3964914 0.630131853  0.1739838
 ```
 
 This conditional sampling is essential for methods like CFI and RFI that
@@ -463,18 +463,18 @@ pfi_pretrained <- PFI$new(
 pfi_pretrained$compute()
 pfi_pretrained$importance()
 #> Key: <feature>
-#>          feature   importance
-#>           <char>        <num>
-#>  1:   important1  6.728510965
-#>  2:   important2  8.838636697
-#>  3:   important3  1.205915997
-#>  4:   important4 13.031767131
-#>  5:   important5  1.690985717
-#>  6: unimportant1 -0.015699992
-#>  7: unimportant2 -0.024724978
-#>  8: unimportant3  0.004969437
-#>  9: unimportant4  0.077583896
-#> 10: unimportant5 -0.041979763
+#>          feature  importance
+#>           <char>       <num>
+#>  1:   important1  4.65775940
+#>  2:   important2  9.16522999
+#>  3:   important3  1.98984383
+#>  4:   important4 11.30276005
+#>  5:   important5  2.08254299
+#>  6: unimportant1  0.12291376
+#>  7: unimportant2  0.10982259
+#>  8: unimportant3  0.02783459
+#>  9: unimportant4  0.18166426
+#> 10: unimportant5 -0.03914506
 ```
 
 A common real-world scenario is that the learner was trained on some
@@ -511,18 +511,18 @@ pfi_newdata <- PFI$new(
 pfi_newdata$compute()
 pfi_newdata$importance()
 #> Key: <feature>
-#>          feature    importance
-#>           <char>         <num>
-#>  1:   important1  6.7759279691
-#>  2:   important2  8.2868297756
-#>  3:   important3  0.6668026485
-#>  4:   important4 11.8804933067
-#>  5:   important5  1.5529025512
-#>  6: unimportant1 -0.0251120766
-#>  7: unimportant2  0.0402123498
-#>  8: unimportant3  0.0002462674
-#>  9: unimportant4  0.0554416808
-#> 10: unimportant5 -0.0473285402
+#>          feature  importance
+#>           <char>       <num>
+#>  1:   important1  6.92970106
+#>  2:   important2  9.51855511
+#>  3:   important3  1.29706868
+#>  4:   important4 14.48356935
+#>  5:   important5  1.85280715
+#>  6: unimportant1 -0.16640455
+#>  7: unimportant2  0.10854465
+#>  8: unimportant3  0.01341206
+#>  9: unimportant4 -0.07050057
+#> 10: unimportant5 -0.13928772
 ```
 
 If you pass a trained learner with a multi-fold or non-instantiated

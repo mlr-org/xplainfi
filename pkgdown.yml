@@ -1,5 +1,5 @@
 pandoc: 3.8.3
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   feature-samplers: feature-samplers.html
@@ -9,7 +9,7 @@ articles:
   articles/sage-methods: sage-methods.html
   simulation-settings: simulation-settings.html
   xplainfi: xplainfi.html
-last_built: 2026-07-02T17:43Z
+last_built: 2026-07-14T14:31Z
 urls:
   reference: https://mlr-org.github.io/xplainfi/reference
   article: https://mlr-org.github.io/xplainfi/articles

@@ -771,12 +771,12 @@ inference</li>
 <span>    aggregator <span class="op">=</span> <span class="va">median</span> <span class="co"># default spelled out explicitly</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
-<span><span class="co">#&gt;    feature importance    se statistic      p.value conf_lower conf_upper</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt; &lt;num&gt;     &lt;num&gt;        &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1 0.78001060    NA    216103 0.000000e+00 0.82337718  1.0131531</span></span>
-<span><span class="co">#&gt; 2:      x2 0.01658437    NA    134020 2.189333e-05 0.01012887  0.0352678</span></span>
-<span><span class="co">#&gt; 3:      x3 0.53870890    NA    212805 0.000000e+00 0.53374763  0.6537748</span></span>
-<span><span class="co">#&gt; 4:      x4 0.03210217    NA    163495 0.000000e+00 0.03226547  0.0531605</span></span></code></pre></div>
+<span><span class="co">#&gt;    feature importance    se statistic      p.value  conf_lower conf_upper</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt; &lt;num&gt;     &lt;num&gt;        &lt;num&gt;       &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1 0.81225612    NA    215871 0.0000000000 0.820348863 1.01307429</span></span>
+<span><span class="co">#&gt; 2:      x2 0.01520154    NA    131881 0.0001541243 0.008028028 0.03348111</span></span>
+<span><span class="co">#&gt; 3:      x3 0.54781092    NA    212234 0.0000000000 0.530080929 0.64984624</span></span>
+<span><span class="co">#&gt; 4:      x4 0.03491820    NA    161711 0.0000000000 0.032776320 0.05476547</span></span></code></pre></div>
 <p>The <code>ci_method = "lei"</code> method works on observation-wise
 loss differences internally, using the median as the default point
 estimate and the Wilcoxon signed-rank test for confidence intervals and
@@ -816,10 +816,10 @@ for CI construction.</li>
 <span><span class="co">#&gt; Key: &lt;feature&gt;</span></span>
 <span><span class="co">#&gt;    feature importance          se statistic       p.value conf_lower conf_upper</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;       &lt;num&gt;     &lt;num&gt;         &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      x1 0.98892424 0.035456738 27.891010 2.070435e-113 0.91930379 1.05854469</span></span>
-<span><span class="co">#&gt; 2:      x2 0.03331979 0.006929113  4.808666  1.880031e-06 0.01971425 0.04692533</span></span>
-<span><span class="co">#&gt; 3:      x3 0.62348162 0.022478700 27.736552 1.136010e-112 0.57934397 0.66761928</span></span>
-<span><span class="co">#&gt; 4:      x4 0.05637134 0.004996358 11.282485  7.767841e-27 0.04656083 0.06618185</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:      x1 0.98739703 0.035505917 27.809365 5.927253e-113 0.91768001 1.05711405</span></span>
+<span><span class="co">#&gt; 2:      x2 0.03090397 0.006890632  4.484926  8.589484e-06 0.01737399 0.04443395</span></span>
+<span><span class="co">#&gt; 3:      x3 0.62008650 0.022543449 27.506283 2.210494e-111 0.57582171 0.66435129</span></span>
+<span><span class="co">#&gt; 4:      x4 0.05813815 0.005337653 10.892082  3.089219e-25 0.04765749 0.06861880</span></span></code></pre></div>
 <!--
 ### Why `ci_method = "lei"` and not just MAE + median?
 
@@ -852,7 +852,7 @@ The `ci_method = "lei"` implementation handles this correctly by operating on ob
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

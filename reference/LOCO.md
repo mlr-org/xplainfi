@@ -57,7 +57,7 @@ Creates a new instance of this
       measure = NULL,
       resampling = NULL,
       features = NULL,
-      n_repeats = 30L,
+      n_repeats = 1L,
       batch_size = NULL
     )
 
@@ -91,8 +91,10 @@ Creates a new instance of this
 
 - `n_repeats`:
 
-  (`integer(1)`: `30L`) Number of refit iterations per resampling
-  iteration.
+  (`integer(1)`: `1L`) Number of refit iterations per resampling
+  iteration. This may be useful for some stochastic learners, but in
+  general it is advisable to increase resampling iterations instead of
+  repeatedly refitting on the same data.
 
 - `batch_size`:
 
@@ -148,8 +150,7 @@ task <- sim_dgp_correlated(n = 500)
 loco <- LOCO$new(
   task = task,
   learner = lrn("regr.rpart"),
-  measure = msr("regr.mse"),
-  n_repeats = 5
+  measure = msr("regr.mse")
 )
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
 #>   (test set size: 167)

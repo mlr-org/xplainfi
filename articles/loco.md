@@ -69,11 +69,11 @@ loco$importance()
 #> Key: <feature>
 #>    feature importance
 #>     <char>      <num>
-#> 1:  noise1 -0.7663935
-#> 2:  noise2 -0.5653578
-#> 3:      x1  2.8024966
-#> 4:      x2  2.8173232
-#> 5:      x3  0.7637862
+#> 1:  noise1 -1.1374749
+#> 2:  noise2  0.7842797
+#> 3:      x1  2.7728001
+#> 4:      x2  2.7157750
+#> 5:      x3 -0.1077573
 ```
 
 The `$importance()` method returns a `data.table` with aggregated
@@ -98,7 +98,7 @@ resampling iteration, and refit:
 ``` r
 
 loco$scores() |>
-    knitr::kable(digits = 4, caption = "LOCO scores with baseline and post-refit score")
+  knitr::kable(digits = 4, caption = "LOCO scores with baseline and post-refit score")
 ```
 
 | feature | iter_rsmp | iter_repeat | regr.mse_baseline | regr.mse_post | importance |
@@ -108,206 +108,8 @@ loco$scores() |>
 | x1      |         1 |           1 |            1.6412 |        4.4140 |     2.7728 |
 | x2      |         1 |           1 |            1.6412 |        4.3570 |     2.7158 |
 | x3      |         1 |           1 |            1.6412 |        1.5334 |    -0.1078 |
-| noise1  |         1 |           2 |            1.6412 |        0.3395 |    -1.3017 |
-| noise2  |         1 |           2 |            1.6412 |        0.6961 |    -0.9451 |
-| x1      |         1 |           2 |            1.6412 |        4.3600 |     2.7188 |
-| x2      |         1 |           2 |            1.6412 |        4.3539 |     2.7127 |
-| x3      |         1 |           2 |            1.6412 |        1.5806 |    -0.0606 |
-| noise1  |         1 |           3 |            1.6412 |        0.5525 |    -1.0887 |
-| noise2  |         1 |           3 |            1.6412 |        0.4151 |    -1.2261 |
-| x1      |         1 |           3 |            1.6412 |        4.3785 |     2.7373 |
-| x2      |         1 |           3 |            1.6412 |        4.5405 |     2.8993 |
-| x3      |         1 |           3 |            1.6412 |        2.0501 |     0.4090 |
-| noise1  |         1 |           4 |            1.6412 |        0.4572 |    -1.1840 |
-| noise2  |         1 |           4 |            1.6412 |        0.4825 |    -1.1587 |
-| x1      |         1 |           4 |            1.6412 |        4.4059 |     2.7647 |
-| x2      |         1 |           4 |            1.6412 |        4.5385 |     2.8973 |
-| x3      |         1 |           4 |            1.6412 |        1.5518 |    -0.0894 |
-| noise1  |         1 |           5 |            1.6412 |        2.1520 |     0.5108 |
-| noise2  |         1 |           5 |            1.6412 |        2.1923 |     0.5511 |
-| x1      |         1 |           5 |            1.6412 |        4.4073 |     2.7661 |
-| x2      |         1 |           5 |            1.6412 |        4.4150 |     2.7738 |
-| x3      |         1 |           5 |            1.6412 |        3.4026 |     1.7614 |
-| noise1  |         1 |           6 |            1.6412 |        0.3191 |    -1.3221 |
-| noise2  |         1 |           6 |            1.6412 |        0.6673 |    -0.9739 |
-| x1      |         1 |           6 |            1.6412 |        4.3718 |     2.7306 |
-| x2      |         1 |           6 |            1.6412 |        4.4436 |     2.8024 |
-| x3      |         1 |           6 |            1.6412 |        3.1771 |     1.5359 |
-| noise1  |         1 |           7 |            1.6412 |        0.3678 |    -1.2734 |
-| noise2  |         1 |           7 |            1.6412 |        2.1868 |     0.5456 |
-| x1      |         1 |           7 |            1.6412 |        4.3799 |     2.7387 |
-| x2      |         1 |           7 |            1.6412 |        4.5199 |     2.8787 |
-| x3      |         1 |           7 |            1.6412 |        3.4146 |     1.7734 |
-| noise1  |         1 |           8 |            1.6412 |        0.3781 |    -1.2631 |
-| noise2  |         1 |           8 |            1.6412 |        0.6634 |    -0.9778 |
-| x1      |         1 |           8 |            1.6412 |        4.4323 |     2.7911 |
-| x2      |         1 |           8 |            1.6412 |        4.4617 |     2.8206 |
-| x3      |         1 |           8 |            1.6412 |        3.0936 |     1.4524 |
-| noise1  |         1 |           9 |            1.6412 |        0.4903 |    -1.1509 |
-| noise2  |         1 |           9 |            1.6412 |        0.4487 |    -1.1924 |
-| x1      |         1 |           9 |            1.6412 |        4.9077 |     3.2665 |
-| x2      |         1 |           9 |            1.6412 |        4.4057 |     2.7645 |
-| x3      |         1 |           9 |            1.6412 |        2.0469 |     0.4057 |
-| noise1  |         1 |          10 |            1.6412 |        2.2065 |     0.5653 |
-| noise2  |         1 |          10 |            1.6412 |        2.4424 |     0.8012 |
-| x1      |         1 |          10 |            1.6412 |        4.4225 |     2.7813 |
-| x2      |         1 |          10 |            1.6412 |        4.5354 |     2.8942 |
-| x3      |         1 |          10 |            1.6412 |        3.1510 |     1.5098 |
-| noise1  |         1 |          11 |            1.6412 |        0.4136 |    -1.2276 |
-| noise2  |         1 |          11 |            1.6412 |        0.4517 |    -1.1895 |
-| x1      |         1 |          11 |            1.6412 |        4.3770 |     2.7358 |
-| x2      |         1 |          11 |            1.6412 |        4.4683 |     2.8271 |
-| x3      |         1 |          11 |            1.6412 |        3.4263 |     1.7851 |
-| noise1  |         1 |          12 |            1.6412 |        0.7947 |    -0.8465 |
-| noise2  |         1 |          12 |            1.6412 |        0.4695 |    -1.1717 |
-| x1      |         1 |          12 |            1.6412 |        4.3769 |     2.7357 |
-| x2      |         1 |          12 |            1.6412 |        4.4106 |     2.7694 |
-| x3      |         1 |          12 |            1.6412 |        1.2868 |    -0.3544 |
-| noise1  |         1 |          13 |            1.6412 |        0.5204 |    -1.1208 |
-| noise2  |         1 |          13 |            1.6412 |        0.3796 |    -1.2615 |
-| x1      |         1 |          13 |            1.6412 |        4.3671 |     2.7259 |
-| x2      |         1 |          13 |            1.6412 |        4.3307 |     2.6895 |
-| x3      |         1 |          13 |            1.6412 |        1.4689 |    -0.1723 |
-| noise1  |         1 |          14 |            1.6412 |        0.3273 |    -1.3139 |
-| noise2  |         1 |          14 |            1.6412 |        0.3281 |    -1.3131 |
-| x1      |         1 |          14 |            1.6412 |        4.6119 |     2.9708 |
-| x2      |         1 |          14 |            1.6412 |        4.5548 |     2.9136 |
-| x3      |         1 |          14 |            1.6412 |        2.1357 |     0.4945 |
-| noise1  |         1 |          15 |            1.6412 |        2.4582 |     0.8170 |
-| noise2  |         1 |          15 |            1.6412 |        2.1874 |     0.5463 |
-| x1      |         1 |          15 |            1.6412 |        4.4017 |     2.7605 |
-| x2      |         1 |          15 |            1.6412 |        4.4171 |     2.7759 |
-| x3      |         1 |          15 |            1.6412 |        2.0632 |     0.4221 |
-| noise1  |         1 |          16 |            1.6412 |        0.3843 |    -1.2569 |
-| noise2  |         1 |          16 |            1.6412 |        2.0078 |     0.3666 |
-| x1      |         1 |          16 |            1.6412 |        4.5522 |     2.9110 |
-| x2      |         1 |          16 |            1.6412 |        4.4199 |     2.7788 |
-| x3      |         1 |          16 |            1.6412 |        3.4535 |     1.8123 |
-| noise1  |         1 |          17 |            1.6412 |        2.3772 |     0.7360 |
-| noise2  |         1 |          17 |            1.6412 |        0.3810 |    -1.2602 |
-| x1      |         1 |          17 |            1.6412 |        4.3415 |     2.7003 |
-| x2      |         1 |          17 |            1.6412 |        4.4422 |     2.8010 |
-| x3      |         1 |          17 |            1.6412 |        3.3226 |     1.6814 |
-| noise1  |         1 |          18 |            1.6412 |        0.3992 |    -1.2420 |
-| noise2  |         1 |          18 |            1.6412 |        1.5704 |    -0.0708 |
-| x1      |         1 |          18 |            1.6412 |        4.5080 |     2.8668 |
-| x2      |         1 |          18 |            1.6412 |        4.3562 |     2.7150 |
-| x3      |         1 |          18 |            1.6412 |        1.3775 |    -0.2636 |
-| noise1  |         1 |          19 |            1.6412 |        0.4326 |    -1.2086 |
-| noise2  |         1 |          19 |            1.6412 |        0.8192 |    -0.8220 |
-| x1      |         1 |          19 |            1.6412 |        4.4174 |     2.7762 |
-| x2      |         1 |          19 |            1.6412 |        4.6142 |     2.9731 |
-| x3      |         1 |          19 |            1.6412 |        2.6475 |     1.0063 |
-| noise1  |         1 |          20 |            1.6412 |        0.4000 |    -1.2411 |
-| noise2  |         1 |          20 |            1.6412 |        0.4064 |    -1.2348 |
-| x1      |         1 |          20 |            1.6412 |        4.3610 |     2.7198 |
-| x2      |         1 |          20 |            1.6412 |        4.3750 |     2.7338 |
-| x3      |         1 |          20 |            1.6412 |        3.4978 |     1.8566 |
-| noise1  |         1 |          21 |            1.6412 |        2.1700 |     0.5288 |
-| noise2  |         1 |          21 |            1.6412 |        0.3211 |    -1.3201 |
-| x1      |         1 |          21 |            1.6412 |        4.3831 |     2.7420 |
-| x2      |         1 |          21 |            1.6412 |        4.4739 |     2.8327 |
-| x3      |         1 |          21 |            1.6412 |        3.1603 |     1.5191 |
-| noise1  |         1 |          22 |            1.6412 |        0.4562 |    -1.1850 |
-| noise2  |         1 |          22 |            1.6412 |        0.5797 |    -1.0614 |
-| x1      |         1 |          22 |            1.6412 |        4.3896 |     2.7484 |
-| x2      |         1 |          22 |            1.6412 |        4.3513 |     2.7101 |
-| x3      |         1 |          22 |            1.6412 |        1.7523 |     0.1111 |
-| noise1  |         1 |          23 |            1.6412 |        0.3755 |    -1.2656 |
-| noise2  |         1 |          23 |            1.6412 |        2.2953 |     0.6542 |
-| x1      |         1 |          23 |            1.6412 |        4.3746 |     2.7334 |
-| x2      |         1 |          23 |            1.6412 |        4.5952 |     2.9540 |
-| x3      |         1 |          23 |            1.6412 |        1.7771 |     0.1360 |
-| noise1  |         1 |          24 |            1.6412 |        0.5510 |    -1.0902 |
-| noise2  |         1 |          24 |            1.6412 |        0.4084 |    -1.2328 |
-| x1      |         1 |          24 |            1.6412 |        4.5573 |     2.9161 |
-| x2      |         1 |          24 |            1.6412 |        4.4462 |     2.8050 |
-| x3      |         1 |          24 |            1.6412 |        3.1122 |     1.4711 |
-| noise1  |         1 |          25 |            1.6412 |        0.9175 |    -0.7236 |
-| noise2  |         1 |          25 |            1.6412 |        0.5273 |    -1.1139 |
-| x1      |         1 |          25 |            1.6412 |        4.3814 |     2.7402 |
-| x2      |         1 |          25 |            1.6412 |        4.5403 |     2.8992 |
-| x3      |         1 |          25 |            1.6412 |        3.4504 |     1.8092 |
-| noise1  |         1 |          26 |            1.6412 |        0.7085 |    -0.9327 |
-| noise2  |         1 |          26 |            1.6412 |        1.1625 |    -0.4787 |
-| x1      |         1 |          26 |            1.6412 |        4.3979 |     2.7567 |
-| x2      |         1 |          26 |            1.6412 |        4.3710 |     2.7298 |
-| x3      |         1 |          26 |            1.6412 |        1.5139 |    -0.1273 |
-| noise1  |         1 |          27 |            1.6412 |        0.6355 |    -1.0057 |
-| noise2  |         1 |          27 |            1.6412 |        2.4203 |     0.7791 |
-| x1      |         1 |          27 |            1.6412 |        4.5544 |     2.9132 |
-| x2      |         1 |          27 |            1.6412 |        4.5420 |     2.9008 |
-| x3      |         1 |          27 |            1.6412 |        1.4426 |    -0.1985 |
-| noise1  |         1 |          28 |            1.6412 |        1.2738 |    -0.3674 |
-| noise2  |         1 |          28 |            1.6412 |        1.2608 |    -0.3804 |
-| x1      |         1 |          28 |            1.6412 |        4.5174 |     2.8763 |
-| x2      |         1 |          28 |            1.6412 |        4.5452 |     2.9040 |
-| x3      |         1 |          28 |            1.6412 |        1.2841 |    -0.3571 |
-| noise1  |         1 |          29 |            1.6412 |        0.7091 |    -0.9321 |
-| noise2  |         1 |          29 |            1.6412 |        0.3951 |    -1.2461 |
-| x1      |         1 |          29 |            1.6412 |        4.5503 |     2.9091 |
-| x2      |         1 |          29 |            1.6412 |        4.3965 |     2.7553 |
-| x3      |         1 |          29 |            1.6412 |        1.6742 |     0.0330 |
-| noise1  |         1 |          30 |            1.6412 |        2.1727 |     0.5315 |
-| noise2  |         1 |          30 |            1.6412 |        1.2831 |    -0.3581 |
-| x1      |         1 |          30 |            1.6412 |        4.4099 |     2.7687 |
-| x2      |         1 |          30 |            1.6412 |        4.5334 |     2.8922 |
-| x3      |         1 |          30 |            1.6412 |        3.3006 |     1.6594 |
 
 LOCO scores with baseline and post-refit score {.table}
-
-## Multiple Refits
-
-LOCO also supports `n_repeats` for multiple refits within each
-resampling iteration, which improves stability:
-
-``` r
-
-loco_multi = LOCO$new(
-    task = task,
-    learner = learner,
-    measure = measure,
-    resampling = rsmp("cv", folds = 3),
-    n_repeats = 10
-)
-
-loco_multi$compute()
-loco_multi$importance()
-#> Key: <feature>
-#>    feature importance
-#>     <char>      <num>
-#> 1:  noise1  0.2379570
-#> 2:  noise2  0.3506664
-#> 3:      x1  4.0299444
-#> 4:      x2  3.9218550
-#> 5:      x3  1.3056282
-
-# Check individual scores with multiple refits
-loco_multi$scores() |>
-    head(10) |>
-    knitr::kable(digits = 4, caption = "First 10 LOCO scores per refit and resampling fold")
-```
-
-| feature | iter_rsmp | iter_repeat | regr.mse_baseline | regr.mse_post | importance |
-|:--------|----------:|------------:|------------------:|--------------:|-----------:|
-| noise1  |         1 |           1 |            0.3493 |        0.4164 |     0.0671 |
-| noise2  |         1 |           1 |            0.3493 |        0.3919 |     0.0426 |
-| x1      |         1 |           1 |            0.3493 |        4.2540 |     3.9047 |
-| x2      |         1 |           1 |            0.3493 |        4.0460 |     3.6967 |
-| x3      |         1 |           1 |            0.3493 |        2.0329 |     1.6836 |
-| noise1  |         1 |           2 |            0.3493 |        1.1548 |     0.8055 |
-| noise2  |         1 |           2 |            0.3493 |        0.5136 |     0.1643 |
-| x1      |         1 |           2 |            0.3493 |        4.1198 |     3.7705 |
-| x2      |         1 |           2 |            0.3493 |        4.0961 |     3.7467 |
-| x3      |         1 |           2 |            0.3493 |        1.3335 |     0.9842 |
-
-First 10 LOCO scores per refit and resampling fold {.table}
-
-Since each refit requires to retrain the provided learner, this of
-course increases the computational load. Suitable values depend on the
-resources available, but when in doubt it is usually better to overshoot
-and encounter diminishing returns rather than undershooting and getting
-unreliable results.
 
 ## Using Different Measures
 
@@ -349,11 +151,11 @@ comparison
 #> Key: <feature>
 #>    feature       loco          pfi
 #>     <char>      <num>        <num>
-#> 1:  noise1 -0.7663935 -0.003606058
-#> 2:  noise2 -0.5653578  0.003187806
-#> 3:      x1  2.8024966  6.493881124
-#> 4:      x2  2.8173232  6.752315063
-#> 5:      x3  0.7637862  1.789657989
+#> 1:  noise1 -1.1374749 -0.001732861
+#> 2:  noise2  0.7842797  0.002731586
+#> 3:      x1  2.7728001  6.421719679
+#> 4:      x2  2.7157750  6.670343838
+#> 5:      x3 -0.1077573  1.871563010
 ```
 
 **Note:** Using the same instantiated resampling ensures we evaluate
@@ -403,13 +205,13 @@ comparison_wvim <- merge(
 
 comparison_wvim
 #> Key: <feature>
-#>    feature       loco      wvim
-#>     <char>      <num>     <num>
-#> 1:  noise1 -0.7663935 0.5251158
-#> 2:  noise2 -0.5653578 0.6938759
-#> 3:      x1  2.8024966 3.9790219
-#> 4:      x2  2.8173232 3.9849221
-#> 5:      x3  0.7637862 1.8003850
+#>    feature       loco       wvim
+#>     <char>      <num>      <num>
+#> 1:  noise1 -1.1374749 -1.8650898
+#> 2:  noise2  0.7842797  0.6493886
+#> 3:      x1  2.7728001  2.3182541
+#> 4:      x2  2.7157750  2.2363167
+#> 5:      x3 -0.1077573 -0.7132293
 ```
 
 **Note:** To get comparable results between methods, we must use the
@@ -432,26 +234,25 @@ compute if desired:
 ``` r
 
 # LOCI: train with only one feature at a time
-wvim_loci <- WVIM$new(
-    task = task,
-    learner = learner,
-    measure = measure,
-    features = task$feature_names,
-    direction = "leave-in",
-    resampling = rsmp("cv", folds = 3),
-    n_repeats = 10
+wvim_loci = WVIM$new(
+  task = task,
+  learner = learner,
+  measure = measure,
+  features = task$feature_names,
+  direction = "leave-in",
+  resampling = rsmp("cv", folds = 3)
 )
 
 wvim_loci$compute()
 wvim_loci$importance()
 #> Key: <feature>
-#>    feature  importance
-#>     <char>       <num>
-#> 1:  noise1 -0.02262651
-#> 2:  noise2 -0.02966216
-#> 3:      x1 -0.19811082
-#> 4:      x2 -0.12966511
-#> 5:      x3  1.00387975
+#>    feature   importance
+#>     <char>        <num>
+#> 1:  noise1 -0.002700266
+#> 2:  noise2 -0.014361517
+#> 3:      x1 -0.255500903
+#> 4:      x2 -0.051111853
+#> 5:      x3  0.989881434
 ```
 
 LOCI interprets importance differently from LOCO:
@@ -525,14 +326,13 @@ This compares the model without the group to the full model.
 
 ``` r
 
-wvim_groups_out <- WVIM$new(
-    task = task,
-    learner = learner,
-    measure = measure,
-    groups = groups,
-    direction = "leave-out",
-    resampling = rsmp("cv", folds = 3),
-    n_repeats = 10
+wvim_groups_out = WVIM$new(
+  task = task,
+  learner = learner,
+  measure = measure,
+  groups = groups,
+  direction = "leave-out",
+  resampling = rsmp("cv", folds = 3)
 )
 
 wvim_groups_out$compute()
@@ -540,9 +340,9 @@ wvim_groups_out$importance()
 #> Key: <feature>
 #>             feature importance
 #>              <char>      <num>
-#> 1: interaction_pair  3.2318575
-#> 2:      main_effect  0.9127828
-#> 3:   noise_features -0.5017692
+#> 1: interaction_pair   3.088075
+#> 2:      main_effect   1.196578
+#> 3:   noise_features  -0.338532
 ```
 
 **Interpretation:**
@@ -577,11 +377,11 @@ wvim_groups_in <- WVIM$new(
 wvim_groups_in$compute()
 wvim_groups_in$importance()
 #> Key: <feature>
-#>             feature importance
-#>              <char>      <num>
-#> 1: interaction_pair  3.3878173
-#> 2:      main_effect  0.9983443
-#> 3:   noise_features -1.0814479
+#>             feature  importance
+#>              <char>       <num>
+#> 1: interaction_pair  3.64325162
+#> 2:      main_effect  1.00272706
+#> 3:   noise_features -0.06585889
 ```
 
 ### Comparing Leave-Out vs Leave-In for Groups
@@ -606,11 +406,11 @@ comparison_directions <- merge(
 
 comparison_directions
 #> Key: <feature>
-#>             feature  leave_out   leave_in
-#>              <char>      <num>      <num>
-#> 1: interaction_pair  3.2318575  3.3878173
-#> 2:      main_effect  0.9127828  0.9983443
-#> 3:   noise_features -0.5017692 -1.0814479
+#>             feature leave_out    leave_in
+#>              <char>     <num>       <num>
+#> 1: interaction_pair  3.088075  3.64325162
+#> 2:      main_effect  1.196578  1.00272706
+#> 3:   noise_features -0.338532 -0.06585889
 ```
 
 For our interaction data where \\y = 2 \cdot x_1 \cdot x_2 + x_3 +
@@ -642,5 +442,3 @@ don’t work well alone).
   fold
 - With groups, this is more efficient than analyzing features
   individually
-- Use `n_repeats` parameter to control the number of refits per fold for
-  variance estimation

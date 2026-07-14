@@ -107,7 +107,7 @@ feature's importance. Higher values indicate more important features.</p>
 <span>  measure <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  resampling <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  features <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  n_repeats <span class="op">=</span> <span class="fl">30L</span>,</span>
+<span>  n_repeats <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  batch_size <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
@@ -129,7 +129,9 @@ feature's importance. Higher values indicate more important features.</p>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>) Features to compute importance for. Defaults to all features.</p></dd>
 
       <dt><code>n_repeats</code></dt>
-<dd><p>(<code>integer(1)</code>: <code>30L</code>) Number of refit iterations per resampling iteration.</p></dd>
+<dd><p>(<code>integer(1)</code>: <code>1L</code>) Number of refit iterations per resampling iteration.
+This may be useful for some stochastic learners, but in general it is advisable to increase resampling iterations instead of
+repeatedly refitting on the same data.</p></dd>
 
       <dt><code>batch_size</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>NULL</code>) Number of refits dispatched per internal
@@ -187,8 +189,7 @@ positive integer (e.g. the number of <code>future</code>/<code>mirai</code> work
 <span class="r-in"><span><span class="va">loco</span> <span class="op">&lt;-</span> <span class="va">LOCO</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  task <span class="op">=</span> <span class="va">task</span>,</span></span>
 <span class="r-in"><span>  learner <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.rpart"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  measure <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  n_repeats <span class="op">=</span> <span class="fl">5</span></span></span>
+<span class="r-in"><span>  measure <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> No <span style="color: #0000BB;">&lt;Resampling&gt;</span> provided, using `resampling = rsmp("holdout", ratio = 2/3)`</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   (test set size: <span style="color: #0000BB;">167</span>)</span>
@@ -212,7 +213,7 @@ positive integer (e.g. the number of <code>future</code>/<code>mirai</code> work
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

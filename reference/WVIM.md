@@ -1,8 +1,8 @@
 # Williamson's Variable Importance Measure (WVIM)
 
 Base class generalizing refit-based variable importance measures.
-Default corresponds to leaving out each feature `n_repeats` times, which
-corresponds to LOCO (Leave One Covariate Out).
+Default corresponds to leaving out each feature `n_repeats = 1` times,
+which corresponds to LOCO (Leave One Covariate Out).
 
 ## References
 
@@ -76,7 +76,7 @@ Creates a new instance of this
       groups = NULL,
       direction = c("leave-out", "leave-in"),
       label = "Williamson's Variable Importance Measure (WVIM)",
-      n_repeats = 30L,
+      n_repeats = 1L,
       batch_size = NULL
     )
 
@@ -96,8 +96,10 @@ Creates a new instance of this
 
 - `n_repeats`:
 
-  (`integer(1)`: `30L`) Number of refit iterations per resampling
-  iteration.
+  (`integer(1)`: `1L`) Number of refit iterations per resampling
+  iteration. This may be useful for some stochastic learners, but in
+  general it is advisable to increase resampling iterations instead of
+  repeatedly refitting on the same data.
 
 - `batch_size`:
 
@@ -283,8 +285,7 @@ groups <- list(
 wvim <- WVIM$new(
   task = task,
   learner = lrn("regr.ranger", num.trees = 10),
-  groups = groups,
-  n_repeats = 1
+  groups = groups
 )
 #> ℹ No <Measure> provided, using `measure = msr("regr.mse")`
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`

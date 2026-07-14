@@ -94,6 +94,13 @@
 </ul></li>
 </ul></div>
 <div class="section level3">
+<h3 id="other-user-facing-changes-1-1-0-9000">Other user-facing changes<a class="anchor" aria-label="anchor" href="#other-user-facing-changes-1-1-0-9000"></a></h3>
+<ul><li>
+<code>WVIM</code> and <code>LOCO</code> now default to <code>n_repeats = 1</code>, and the argument may be removed for these refit methods in the future.
+<ul><li>Reasoning: For refit-based methods, it is much more useful to increase the the number of resampling iterations to increase stability of the resulting FI estimate rather than trying to stabilize stochastic learners by repeatedly refitting within the same resampling iteration. If computation budget is spent on refits, it should be spent there.</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
 <h3 id="bug-fixes-1-1-0-9000">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-0-9000"></a></h3>
 <ul><li>
 <code>relation = "ratio"</code> importances now return <code>NA</code> (with a warning) instead of <code>Inf</code>/<code>NaN</code> for features whose baseline score is <code>0</code>.</li>
@@ -353,7 +360,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>
