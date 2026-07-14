@@ -5,7 +5,7 @@
 \title{Williamson's Variable Importance Measure (WVIM)}
 \description{
 Base class generalizing refit-based variable importance measures.
-Default corresponds to leaving out each feature \code{n_repeats} times, which
+Default corresponds to leaving out each feature \code{n_repeats = 1} times, which
 corresponds to LOCO (Leave One Covariate Out).
 }
 \examples{
@@ -24,8 +24,7 @@ groups <- list(
 wvim <- WVIM$new(
   task = task,
   learner = lrn("regr.ranger", num.trees = 10),
-  groups = groups,
-  n_repeats = 1
+  groups = groups
 )
 wvim$compute()
 wvim$importance()
@@ -88,7 +87,7 @@ also the archive of all evaluations, possible useful for future use. Only stored
   groups = NULL,
   direction = c("leave-out", "leave-in"),
   label = "Williamson's Variable Importance Measure (WVIM)",
-  n_repeats = 30L,
+  n_repeats = 1L,
   batch_size = NULL
 )}
     \if{html}{\out{</div>}}
@@ -99,7 +98,9 @@ also the archive of all evaluations, possible useful for future use. Only stored
       \item{\code{task, learner, measure, resampling, features, groups}}{Passed to \code{FeatureImportanceMethod} for construction.}
       \item{\code{direction}}{(\code{character(1)}) Either "leave-out" or "leave-in".}
       \item{\code{label}}{(\code{character(1)}) Method label.}
-      \item{\code{n_repeats}}{(\code{integer(1)}: \code{30L}) Number of refit iterations per resampling iteration.}
+      \item{\code{n_repeats}}{(\code{integer(1)}: \code{1L}) Number of refit iterations per resampling iteration.
+This may be useful for some stochastic learners, but in general it is advisable to increase resampling iterations instead of
+repeatedly refitting on the same data.}
       \item{\code{batch_size}}{(\code{integer(1)}: \code{NULL}) Number of design points (refits) dispatched per internal
 \code{mlr3::benchmark()} call by the \code{mlr3fselect::fs("design_points")} fselector. \code{NULL} (default) keeps
 the bbotk default of one design point per call, i.e. sequential single-refit evaluation. Set to a

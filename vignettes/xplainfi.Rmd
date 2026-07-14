@@ -79,7 +79,7 @@ pfi$importance()
 
 The `importance` column shows the performance difference when each feature is permuted. Higher values indicate more important features.
 
-For more stable estimates, we can use multiple permutation iterations per resampling fold with `n_repeats`, which is set to `30` by default for all methods.
+For more stable estimates, we can use multiple permutation iterations per resampling fold with `n_repeats`, which is set to `30` by default for all perturbation-based methods.
 Note that in this case "more is more", and while there is no clear "good enough" value, setting `n_repeats` to a small value like 1 will most definitely yield unreliable results.
 
 
@@ -130,12 +130,11 @@ LOCO measures importance by retraining the model without each feature and compar
 This shows the contribution of each feature when all other features are present.
 
 ```{r loco-basic}
-loco <- LOCO$new(
-	task = task,
-	learner = learner,
-	measure = measure,
-	resampling = resampling,
-	n_repeats = 10
+loco = LOCO$new(
+  task = task,
+  learner = learner,
+  measure = measure,
+  resampling = resampling
 )
 
 loco$compute()

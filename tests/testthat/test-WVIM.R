@@ -273,7 +273,7 @@ test_that("LOCO with cross-validation", {
 test_that("LOCO friedman1 produces sensible ranking", {
   test_friedman1_sensible_ranking(
     LOCO,
-    n_repeats = 5L
+    n_repeats = 1L
   )
 })
 

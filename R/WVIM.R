@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Base class generalizing refit-based variable importance measures.
-#' Default corresponds to leaving out each feature `n_repeats` times, which
+#' Default corresponds to leaving out each feature `n_repeats = 1` times, which
 #' corresponds to LOCO (Leave One Covariate Out).
 #'
 #' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE)
@@ -20,8 +20,7 @@
 #' wvim <- WVIM$new(
 #'   task = task,
 #'   learner = lrn("regr.ranger", num.trees = 10),
-#'   groups = groups,
-#'   n_repeats = 1
+#'   groups = groups
 #' )
 #' wvim$compute()
 #' wvim$importance()
@@ -46,7 +45,9 @@ WVIM = R6Class(
     #' @param task,learner,measure,resampling,features,groups Passed to `FeatureImportanceMethod` for construction.
     #' @param direction (`character(1)`) Either "leave-out" or "leave-in".
     #' @param label (`character(1)`) Method label.
-    #' @param n_repeats (`integer(1)`: `30L`) Number of refit iterations per resampling iteration.
+    #' @param n_repeats (`integer(1)`: `1L`) Number of refit iterations per resampling iteration.
+    #'   This may be useful for some stochastic learners, but in general it is advisable to increase resampling iterations instead of
+    #'   repeatedly refitting on the same data.
     #' @param batch_size (`integer(1)`: `NULL`) Number of design points (refits) dispatched per internal
     #'   `mlr3::benchmark()` call by the `mlr3fselect::fs("design_points")` fselector. `NULL` (default) keeps
     #'   the bbotk default of one design point per call, i.e. sequential single-refit evaluation. Set to a
@@ -61,7 +62,7 @@ WVIM = R6Class(
       groups = NULL,
       direction = c("leave-out", "leave-in"),
       label = "Williamson's Variable Importance Measure (WVIM)",
-      n_repeats = 30L,
+      n_repeats = 1L,
       batch_size = NULL
     ) {
       # Should this go in the param_set?
@@ -421,8 +422,7 @@ WVIM = R6Class(
 #' loco <- LOCO$new(
 #'   task = task,
 #'   learner = lrn("regr.rpart"),
-#'   measure = msr("regr.mse"),
-#'   n_repeats = 5
+#'   measure = msr("regr.mse")
 #' )
 #' loco$compute()
 #' loco$importance()
@@ -441,7 +441,9 @@ LOCO = R6Class(
     #'   `classif.ce` for classification and `regr.mse` for regression.
     #' @param resampling ([mlr3::Resampling]) Resampling strategy. Defaults to holdout.
     #' @param features (`character()`) Features to compute importance for. Defaults to all features.
-    #' @param n_repeats (`integer(1)`: `30L`) Number of refit iterations per resampling iteration.
+    #' @param n_repeats (`integer(1)`: `1L`) Number of refit iterations per resampling iteration.
+    #'   This may be useful for some stochastic learners, but in general it is advisable to increase resampling iterations instead of
+    #'   repeatedly refitting on the same data.
     #' @param batch_size (`integer(1)`: `NULL`) Number of refits dispatched per internal
     #'   `mlr3::benchmark()` call. `NULL` (default) keeps sequential single-refit evaluation; set to a
     #'   positive integer (e.g. the number of `future`/`mirai` workers) to enable parallel refits.
@@ -451,7 +453,7 @@ LOCO = R6Class(
       measure = NULL,
       resampling = NULL,
       features = NULL,
-      n_repeats = 30L,
+      n_repeats = 1L,
       batch_size = NULL
     ) {
       if (!is.null(features)) {
