@@ -87,34 +87,8 @@ The `$scores()` method provides detailed information for each feature, resamplin
 
 ```{r detailed-scores}
 loco$scores() |>
-	knitr::kable(digits = 4, caption = "LOCO scores with baseline and post-refit score")
+  knitr::kable(digits = 4, caption = "LOCO scores with baseline and post-refit score")
 ```
-
-## Multiple Refits
-
-LOCO also supports `n_repeats` for multiple refits within each resampling iteration, which improves stability:
-
-```{r multiple-refits}
-loco_multi = LOCO$new(
-	task = task,
-	learner = learner,
-	measure = measure,
-	resampling = rsmp("cv", folds = 3),
-	n_repeats = 10
-)
-
-loco_multi$compute()
-loco_multi$importance()
-
-# Check individual scores with multiple refits
-loco_multi$scores() |>
-	head(10) |>
-	knitr::kable(digits = 4, caption = "First 10 LOCO scores per refit and resampling fold")
-```
-
-Since each refit requires to retrain the provided learner, this of course increases the computational load.
-Suitable values depend on the resources available, but when in doubt it is usually better to overshoot and encounter diminishing returns rather than undershooting and getting unreliable results.
-
 ## Using Different Measures
 
 LOCO also works with any mlr3 measure. Different measures can highlight different aspects of feature importance:
@@ -198,14 +172,13 @@ However, WVIM makes it trivial to compute if desired:
 
 ```{r wvim-loci}
 # LOCI: train with only one feature at a time
-wvim_loci <- WVIM$new(
-	task = task,
-	learner = learner,
-	measure = measure,
-	features = task$feature_names,
-	direction = "leave-in",
-	resampling = rsmp("cv", folds = 3),
-	n_repeats = 10
+wvim_loci = WVIM$new(
+  task = task,
+  learner = learner,
+  measure = measure,
+  features = task$feature_names,
+  direction = "leave-in",
+  resampling = rsmp("cv", folds = 3)
 )
 
 wvim_loci$compute()
@@ -261,14 +234,13 @@ $$\text{WVIM}_{\text{group}} = \mathbb{E}(L(Y, f_{-\text{group}}(X_{-\text{group
 This compares the model without the group to the full model.
 
 ```{r wvim-groups-leaveout}
-wvim_groups_out <- WVIM$new(
-	task = task,
-	learner = learner,
-	measure = measure,
-	groups = groups,
-	direction = "leave-out",
-	resampling = rsmp("cv", folds = 3),
-	n_repeats = 10
+wvim_groups_out = WVIM$new(
+  task = task,
+  learner = learner,
+  measure = measure,
+  groups = groups,
+  direction = "leave-out",
+  resampling = rsmp("cv", folds = 3)
 )
 
 wvim_groups_out$compute()
@@ -344,4 +316,3 @@ Features that interact strongly may show high importance in leave-out (they matt
 
 - WVIM requires retraining the model for each group in each resampling fold
 - With groups, this is more efficient than analyzing features individually
-- Use `n_repeats` parameter to control the number of refits per fold for variance estimation

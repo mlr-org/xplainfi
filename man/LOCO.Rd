@@ -21,8 +21,7 @@ task <- sim_dgp_correlated(n = 500)
 loco <- LOCO$new(
   task = task,
   learner = lrn("regr.rpart"),
-  measure = msr("regr.mse"),
-  n_repeats = 5
+  measure = msr("regr.mse")
 )
 loco$compute()
 loco$importance()
@@ -66,7 +65,7 @@ Lei J, G'Sell M, Rinaldo A, Tibshirani R, Wasserman L (2018).
   measure = NULL,
   resampling = NULL,
   features = NULL,
-  n_repeats = 30L,
+  n_repeats = 1L,
   batch_size = NULL
 )}
     \if{html}{\out{</div>}}
@@ -80,7 +79,9 @@ Lei J, G'Sell M, Rinaldo A, Tibshirani R, Wasserman L (2018).
 \code{classif.ce} for classification and \code{regr.mse} for regression.}
       \item{\code{resampling}}{(\link[mlr3:Resampling]{mlr3::Resampling}) Resampling strategy. Defaults to holdout.}
       \item{\code{features}}{(\code{character()}) Features to compute importance for. Defaults to all features.}
-      \item{\code{n_repeats}}{(\code{integer(1)}: \code{30L}) Number of refit iterations per resampling iteration.}
+      \item{\code{n_repeats}}{(\code{integer(1)}: \code{1L}) Number of refit iterations per resampling iteration.
+This may be useful for some stochastic learners, but in general it is advisable to increase resampling iterations instead of
+repeatedly refitting on the same data.}
       \item{\code{batch_size}}{(\code{integer(1)}: \code{NULL}) Number of refits dispatched per internal
 \code{mlr3::benchmark()} call. \code{NULL} (default) keeps sequential single-refit evaluation; set to a
 positive integer (e.g. the number of \code{future}/\code{mirai} workers) to enable parallel refits.}

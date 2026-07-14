@@ -79,6 +79,11 @@
   - Post-benchmark aggregation keys on the per-design-point resample-result `uhash`, so
     scores/obs-losses are attributed correctly for any `batch_size`.
 
+## Other user-facing changes
+
+- `WVIM` and `LOCO` now default to `n_repeats = 1`, and the argument may be removed for these refit methods in the future.
+  - Reasoning: For refit-based methods, it is much more useful to increase the the number of resampling iterations to increase stability of the resulting FI estimate rather than trying to stabilize stochastic learners by repeatedly refitting within the same resampling iteration. If computation budget is spent on refits, it should be spent there.
+
 ## Bug fixes
 
 - `relation = "ratio"` importances now return `NA` (with a warning) instead of
