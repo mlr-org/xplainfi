@@ -440,6 +440,12 @@ Two anchors make the choice manageable in practice:
 
 On (near-)additive value functions, the kernel estimator's default `"original"` variant converges at strikingly small budgets, so budgets tuned on interaction-heavy problems can be generous elsewhere.
 
+**Don't forget the marginalization budget.**
+`n_samples` is a second, independent budget that affects *all* estimators, including the exact one: it controls how well the expectation over out-of-coalition features is approximated, and its error shrinks roughly with $1/\sqrt{\texttt{n\_samples}}$.
+For `MarginalSAGE` this error stems from the single reference subsample drawn at construction; it is shared across all coalitions and therefore *invisible* to the Monte Carlo standard errors.
+In our experiments its magnitude at the default `n_samples = 100` was comparable to or larger than the coalition-sampling error at default budgets, so when the values themselves need to be precise, increase `n_samples` first; recomputing with a different seed before construction (which redraws the reference subsample) shows how much this component moves the values.
+For `ConditionalSAGE` the sampler redraws at every evaluation, so this noise is largely included in the reported standard errors and shrinks with larger coalition budgets as well.
+
 ### Exact SAGE for verification
 
 When the number of features is small, you can sidestep sampling entirely and compute the SAGE values *exactly* with `estimator = "exact"`, which enumerates all `2^p` coalitions:
@@ -462,8 +468,9 @@ sage_exact$importance()
 ```
 
 This is guarded by `max_features` (default 12), since the number of coalitions grows as `2^p`.
-It carries no coalition-sampling error, so for `MarginalSAGE` it yields the exact SAGE values that the permutation and kernel estimators approximate.
+It carries no coalition-sampling error, so for `MarginalSAGE` it yields the exact Shapley values of the value function that the permutation and kernel estimators approximate.
 This makes it a convenient ground-truth reference when validating or comparing estimators.
+Note that "exact" refers to coalition sampling only: the marginalization error controlled by `n_samples` remains (see [Choosing a sampling budget](#choosing-a-budget)), and for `ConditionalSAGE` the conditional sampler's noise likewise persists, with one draw per coalition and nothing to average it away.
 (For `ConditionalSAGE` the value function is itself estimated by the sampler, so "exact" removes the coalition-sampling error but not the sampler's Monte Carlo error.)
 
 ## Comparison with PFI and CFI

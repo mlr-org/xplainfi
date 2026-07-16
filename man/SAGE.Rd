@@ -34,6 +34,8 @@ When features strongly affect predictions and \code{n_samples} is small, that un
 component can exceed the coalition-sampling error.
 Increase \code{n_samples} when the values themselves need to be precise, as the intervals will
 not reflect this component.
+For \link{ConditionalSAGE}, by contrast, the sampler redraws at every evaluation, so its noise
+enters the variation across permutations and is largely reflected in the reported SEs.
 The exact estimator has no coalition-sampling error and reports no SE.
 
 Computationally, the permutation estimator uses the running SE across permutations, while
@@ -179,7 +181,9 @@ Setting the budget argument of a different estimator is an error.
 The exact estimator has no coalition-sampling error, so it is primarily useful as a ground-truth
 reference for verifying the sampling estimators on small feature sets.
 Note that it is exact only with respect to coalition sampling: for \link{ConditionalSAGE} the value
-function itself is still a Monte Carlo estimate (the sampler redraws per coalition).
+function itself is still a Monte Carlo estimate (the sampler redraws per coalition), and for
+\link{MarginalSAGE} the value function is defined by the fixed reference subsample, so the
+marginalization error of that draw remains (see \code{n_samples}).
 The estimators' costs are comparable via their total number of evaluated coalitions:
 \code{1 + n_permutations * n_features} (permutation), \code{2 + 2 * n_coalitions} (kernel), and
 \code{2^n_features} (exact).
@@ -238,7 +242,18 @@ Setting it for the other estimators is a warning, as they ignore it.}
 For \link{MarginalSAGE}, this is the number of marginal data samples ("background data" in other implementations).
 Note that \link{MarginalSAGE} draws its reference subsample once at construction,
 so changing \verb{$param_set$values$n_samples} afterwards does not redraw it.
-For \link{ConditionalSAGE}, this is the number of conditional samples per test instance retrieved from \code{sampler}.}
+For \link{ConditionalSAGE}, this is the number of conditional samples per test instance retrieved from \code{sampler}.
+This is a second sampling budget on top of the coalition budget, and it affects \emph{all} estimators:
+even \code{estimator = "exact"} is exact only with respect to coalition sampling, while the
+marginalization error from \code{n_samples} remains and shrinks roughly with \code{1 / sqrt(n_samples)}.
+For \link{MarginalSAGE} this error stems from the single reference draw, is shared across all
+coalitions, and is invisible to the Monte Carlo standard errors; in internal experiments its
+magnitude at the default \code{n_samples} was comparable to or larger than the coalition-sampling
+error at default budgets, so increase \code{n_samples} first when the values themselves need to be
+precise, and gauge this component by recomputing with a different seed before construction.
+For \link{ConditionalSAGE} the sampler redraws at every evaluation, so this noise is largely
+included in the reported standard errors and is additionally averaged down by larger
+coalition budgets.}
       \item{\code{early_stopping}}{(\code{logical(1)}: \code{FALSE}) Whether to enable early stopping based on convergence detection.
 Only used by the permutation estimator.}
       \item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.01}) Convergence threshold for relative standard error.
