@@ -188,6 +188,92 @@ sage_marginal_contributions = function(perm_sublist, losses, baseline, feature_n
   list(sv = sv, sv_sq = sv_sq)
 }
 
+#' Adaptive default sampling budgets for the SAGE estimators
+#'
+#' Free functions rather than private methods to keep the R6 objects lean
+#' (closures on R6 objects are serialized with them). The defaults adapt to the
+#' feature count so the default cost never exceeds half of exact enumeration
+#' (`2^m` coalition evaluations). The kernel default of `5 * m` draws targets
+#' the same evaluation budget as the permutation default (`2 + 10m` vs
+#' `1 + 10m` evaluations); being the more sample-efficient estimator, it
+#' typically comes out more accurate at that shared cost. Documented in the
+#' `n_permutations` / `n_coalitions` param docs of [SAGE].
+#'
+#' @param m (`integer(1)`) Number of features.
+#' @return `integer(1)` default budget.
+#' @keywords internal
+#' @noRd
+sage_default_n_permutations = function(m) {
+  if (m >= 8L) 10L else max(2L, as.integer((2^m - 1L) %/% (2L * m)))
+}
+
+#' @rdname sage_default_n_permutations
+#' @noRd
+sage_default_n_coalitions = function(m) {
+  half_enum = if (m <= 30L) as.integer(2^(m - 2L)) else 512L # binds only for small m
+  max(2L, min(512L, half_enum, 5L * m))
+}
+
+#' Point out when a sampling budget reaches exact-enumeration cost
+#'
+#' Emits a message when the resolved sampling budget costs at least as many
+#' coalition evaluations as exact enumeration, which removes the
+#' coalition-sampling error at the same or lower cost. A message rather than a
+#' warning: oversampling can be deliberate (e.g. ConditionalSAGE, where
+#' repeated evaluations average the conditional sampler's noise). Gated to
+#' `m >= 3`, where the adaptive defaults stay below enumeration and the
+#' absolute waste can be nontrivial.
+#'
+#' @param estimator (`character(1)`) `"permutation"` or `"kernel"`.
+#' @param m (`integer(1)`) Number of features.
+#' @param budget (`integer(1)`) Resolved `n_permutations` or `n_coalitions`.
+#' @return `NULL`, invisibly.
+#' @keywords internal
+#' @noRd
+sage_inform_budget_vs_exact = function(estimator, m, budget) {
+  if (!xplain_opt("verbose") || m < 3L || m > 30L) {
+    return(invisible(NULL))
+  }
+  n_exact = 2^m
+  evals = if (estimator == "permutation") 1 + budget * m else 2 + 2 * budget
+  if (evals >= n_exact) {
+    cli::cli_inform(
+      c(
+        "i" = "The {.val {estimator}} estimator will evaluate {evals} coalitions,
+               at least as many as enumerating all {n_exact} (2^{m}) coalitions.",
+        "i" = "{.code estimator = \"exact\"} computes SAGE values without coalition-sampling
+               error at the same or lower cost (for {.cls ConditionalSAGE}, oversampling can
+               still be deliberate; see the {.arg estimator} docs)."
+      ),
+      .frequency = "once",
+      .frequency_id = paste0("xplainfi_sage_budget_", estimator)
+    )
+  }
+  invisible(NULL)
+}
+
+#' Abort when the exact estimator's enumeration exceeds the feature cap
+#'
+#' The exact estimator's cost grows as `2^m`, so it is capped. Checked at
+#' construction and again in `$compute()`, since the estimator or cap may have
+#' been changed via `$param_set$values` in between.
+#'
+#' @param m (`integer(1)`) Number of features.
+#' @param max_features (`integer(1)`) Feature-count cap.
+#' @return `NULL`, invisibly.
+#' @keywords internal
+#' @noRd
+sage_assert_exact_budget = function(m, max_features) {
+  if (m > max_features) {
+    cli::cli_abort(c(
+      "The exact estimator would enumerate {.val {2^m}} coalitions of {m} features.",
+      "i" = "This exceeds the {.arg max_features} cap ({max_features}); the cost grows as 2^n_features.",
+      "i" = "Increase {.arg max_features} to override, or use {.code estimator = \"kernel\"} instead."
+    ))
+  }
+  invisible(NULL)
+}
+
 #' Shapley-kernel coalition-size distribution
 #'
 #' Probability of drawing a coalition of size `k` under the Shapley kernel,
