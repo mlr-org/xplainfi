@@ -104,6 +104,7 @@ resampling$instantiate(task)
 
 Marginal SAGE marginalizes features independently by averaging predictions over a reference subsample of `n_samples` observations drawn once from the task's data at construction.
 We use 15 permutations of the feature vector to build coalitions, resulting in 61 evaluated coalitions (`15 * 4 + 1`).
+As `$compute()` points out in a message, this exceeds the $2^4 = 16$ coalitions that `estimator = "exact"` would enumerate error-free on this small demonstration task; we sample anyway to illustrate the estimator and its convergence behavior (see [Choosing a sampling budget](#choosing-a-budget)).
 
 ```{r marginal-sage}
 # Create Marginal SAGE instance
@@ -420,6 +421,24 @@ As a rule of thumb:
 - As the feature count grows into the dozens, prefer **kernel**: it reaches a given accuracy with far fewer model evaluations.
 
 This matches the empirical results in Covert & Lee (2021) and the reference `sage` implementation, where the kernel estimator is noisier than permutation sampling for very few features but converges substantially faster once there are many features.
+
+### Choosing a sampling budget {#choosing-a-budget}
+
+There is no universally reasonable value for `n_permutations` or `n_coalitions`; the required budget depends on the task, the learner, and how non-additive the resulting value function is.
+Two anchors make the choice manageable in practice:
+
+1. **Compare against exact enumeration.**
+   The three estimators' costs are directly comparable via their total number of evaluated coalitions: `n_permutations * p + 1` (permutation), `2 * n_coalitions + 2` (kernel), and `2^p` (exact).
+   A sampling budget approaching `2^p` buys enumeration at sampling prices: for the ten-feature `friedman1` task, `n_coalitions = 500` costs 1002 evaluations while `estimator = "exact"` computes error-free SAGE values for 1024.
+   When a budget meets or exceeds the exact cost, `$compute()` points this out in a message (once per session).
+   The defaults are chosen accordingly: if unset, `n_permutations` defaults to `10` and `n_coalitions` to `5 * p` draws, which matches the permutation default's evaluation budget; since the kernel estimator is more sample-efficient, it typically comes out more accurate at that shared cost.
+   Both defaults are reduced on small feature sets so they stay at or below half the cost of exact enumeration (`n_coalitions` is additionally capped at `512`).
+2. **Check the Monte Carlo standard errors after computing.**
+   Both sampling estimators report per-feature standard errors for their coalition-sampling error, available via `$importance(ci_method = "montecarlo")` and `$plot_convergence()` (see the [inference article](https://xplainfi.mlr-org.com/articles/inference.html) for interpretation).
+   If the intervals are wide relative to the spread of the importance values, increase the budget (a maximum SE below about 1% of the importance range is the same criterion the permutation estimator's early stopping uses by default).
+   Since a budget is cheap to check and extend, guessing low and doubling until the intervals are narrow enough is a perfectly good strategy.
+
+On (near-)additive value functions, the kernel estimator's default `"original"` variant converges at strikingly small budgets, so budgets tuned on interaction-heavy problems can be generous elsewhere.
 
 ### Exact SAGE for verification
 

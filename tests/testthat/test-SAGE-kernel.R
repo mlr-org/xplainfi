@@ -275,6 +275,77 @@ test_that("MarginalSAGE kernel is reproducible with the same seed", {
 })
 
 # -----------------------------------------------------------------------------
+# Sampling-budget defaults and guidance
+# -----------------------------------------------------------------------------
+
+test_that("budget defaults adapt to the feature count", {
+  task5 = sim_dgp_independent(n = 60) # 5 features
+  task10 = mlr3::tgen("friedman1")$generate(n = 60) # 10 features
+  learner = lrn("regr.rpart")
+
+  # Permutation: capped at 10, reduced to keep 1 + n_permutations * m at or below 2^(m-1).
+  expect_identical(MarginalSAGE$new(task10, learner)$param_set$values$n_permutations, 10L)
+  expect_identical(MarginalSAGE$new(task5, learner)$param_set$values$n_permutations, 3L)
+
+  # Kernel: 5 * m draws (matching the permutation default's evaluation budget),
+  # capped at 512 and at 2^(m-2) (half the enumeration cost) on small feature sets.
+  expect_identical(
+    MarginalSAGE$new(task10, learner, estimator = "kernel")$param_set$values$n_coalitions,
+    50L
+  )
+  expect_identical(
+    MarginalSAGE$new(task5, learner, estimator = "kernel")$param_set$values$n_coalitions,
+    8L
+  )
+})
+
+test_that("compute points to the exact estimator when the budget reaches enumeration cost", {
+  set.seed(409)
+  task = sim_dgp_independent(n = 60) # 5 features, 2^5 = 32 coalitions
+  learner = lrn("regr.rpart")
+  measure = msr("regr.mse")
+  resampling = rsmp("holdout")
+
+  old = xplain_opt(verbose = TRUE)
+  withr::defer(xplain_opt(verbose = old$verbose))
+
+  # The message fires once per session and estimator; reset so reruns stay deterministic.
+  rlang::reset_message_verbosity("xplainfi_sage_budget_permutation")
+  sage_perm = MarginalSAGE$new(task, learner, measure, resampling, n_permutations = 10L, n_samples = 10L)
+  expect_message(sage_perm$compute(), "exact") # 1 + 10 * 5 = 51 >= 32
+
+  rlang::reset_message_verbosity("xplainfi_sage_budget_kernel")
+  sage_kern = MarginalSAGE$new(
+    task,
+    learner,
+    measure,
+    resampling,
+    estimator = "kernel",
+    n_coalitions = 20L,
+    n_samples = 10L
+  )
+  expect_message(sage_kern$compute(), "exact") # 2 + 2 * 20 = 42 >= 32
+
+  # Adaptive defaults stay below enumeration and compute silently.
+  rlang::reset_message_verbosity("xplainfi_sage_budget_permutation")
+  sage_def = MarginalSAGE$new(task, learner, measure, resampling, n_samples = 10L)
+  expect_no_message(sage_def$compute(), message = "exact")
+
+  # Gated below 3 features, where any usable budget exceeds the 2^m = 4 coalitions.
+  rlang::reset_message_verbosity("xplainfi_sage_budget_kernel")
+  task2 = mlr3::tgen("2dnormals")$generate(n = 60)
+  sage2 = MarginalSAGE$new(
+    task2,
+    lrn("classif.rpart", predict_type = "prob"),
+    msr("classif.ce"),
+    rsmp("holdout"),
+    estimator = "kernel",
+    n_samples = 10L
+  )
+  expect_no_message(sage2$compute(), message = "exact")
+})
+
+# -----------------------------------------------------------------------------
 # Cross-estimator argument misuse
 # -----------------------------------------------------------------------------
 

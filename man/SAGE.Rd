@@ -179,14 +179,42 @@ Setting the budget argument of a different estimator is an error.
 The exact estimator has no coalition-sampling error, so it is primarily useful as a ground-truth
 reference for verifying the sampling estimators on small feature sets.
 Note that it is exact only with respect to coalition sampling: for \link{ConditionalSAGE} the value
-function itself is still a Monte Carlo estimate (the sampler redraws per coalition).}
-      \item{\code{n_permutations}}{(\code{integer(1)}: \code{10L}) Number of permutations to sample for SAGE value estimation.
+function itself is still a Monte Carlo estimate (the sampler redraws per coalition).
+The estimators' costs are comparable via their total number of evaluated coalitions:
+\code{1 + n_permutations * n_features} (permutation), \code{2 + 2 * n_coalitions} (kernel), and
+\code{2^n_features} (exact).
+When a sampling budget meets or exceeds the exact estimator's cost, \verb{$compute()} points this out
+in a message (once per session, if \code{xplain_opt("verbose")}), since exact enumeration then removes
+the coalition-sampling error at no extra cost.
+For \link{ConditionalSAGE} such oversampling can still be deliberate: repeated coalition evaluations
+average out the conditional sampler's noise, which exact enumeration (one evaluation per
+coalition) does not.}
+      \item{\code{n_permutations}}{(\code{integer(1)}: \code{NULL}) Number of permutations to sample for SAGE value estimation.
 Only valid for \code{estimator = "permutation"}.
-The total number of evaluated coalitions is \code{1 (empty) + n_permutations * n_features}.}
-      \item{\code{n_coalitions}}{(\code{integer(1)}: \code{512L}) Number of coalitions to sample for the kernel estimator.
+Note that each permutation evaluates one coalition per feature, so the total number of evaluated
+coalitions (the actual computational cost) is \code{1 (empty) + n_permutations * n_features},
+not \code{n_permutations}.
+If unset, defaults to \code{10L}, reduced on small feature sets so the default budget stays at or below
+half the cost of enumerating all \code{2^n_features} coalitions, where \code{estimator = "exact"} becomes
+the better tool (see \code{estimator}).
+To check whether a budget suffices, use \verb{$importance(ci_method = "montecarlo")} or
+\verb{$plot_convergence()} after computation and increase the budget until the intervals are narrow
+relative to the spread of the importance values.}
+      \item{\code{n_coalitions}}{(\code{integer(1)}: \code{NULL}) Number of paired coalition draws for the kernel estimator.
 Only valid for \code{estimator = "kernel"}.
-With paired sampling each draw evaluates a coalition and its complement, so the number of
-evaluated coalitions is \code{2 (anchors) + 2 * n_coalitions}.}
+Note that with paired sampling each draw evaluates a coalition and its complement, so the total
+number of evaluated coalitions (the actual computational cost) is \code{2 (anchors) + 2 * n_coalitions},
+not \code{n_coalitions}.
+If unset, defaults to \code{5 * n_features} draws, matching the evaluation budget of the permutation
+estimator's default (\code{2 + 10 * n_features} vs \code{1 + 10 * n_features} evaluated coalitions); since
+the kernel estimator is typically more sample-efficient, the default usually yields more accurate
+values than the permutation default at the same cost.
+The default is capped at \code{512L} and, on small feature sets, at \code{2^(n_features - 2)} so it stays
+at or below half the cost of enumerating all \code{2^n_features} coalitions, where
+\code{estimator = "exact"} becomes the better tool (see \code{estimator}).
+To check whether a budget suffices, use \verb{$importance(ci_method = "montecarlo")} or
+\verb{$plot_convergence()} after computation and increase the budget until the intervals are narrow
+relative to the spread of the importance values.}
       \item{\code{kernel_variant}}{(\code{character(1)}: \code{"original"}) Variant of the kernel estimator.
 Only valid for \code{estimator = "kernel"}.
 \code{"original"} (default) estimates both the design matrix and its right-hand side from the same
@@ -198,7 +226,8 @@ faster on typical (near-additive) problems and is the paper's practical recommen
 This is the estimator implemented in the reference Python \code{sage} package, so use it for direct
 comparisons with \code{sage}.
 At equal budgets its point estimates are substantially noisier, which its wider confidence
-intervals reflect.}
+intervals reflect, so set \code{n_coalitions} well above the default (which is tuned for
+\code{"original"}) when using it.}
       \item{\code{max_features}}{(\code{integer(1)}: \code{12L}) Feature-count cap for \code{estimator = "exact"}.
 The exact estimator evaluates \code{2^n_features} coalitions, so it aborts when the number of
 features exceeds this cap.

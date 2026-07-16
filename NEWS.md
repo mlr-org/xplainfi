@@ -15,6 +15,15 @@
   - Setting the budget argument of a different estimator is an error; setting a tuning
     argument for an estimator that ignores it (e.g. `check_interval` with the kernel
     estimator) is a warning.
+  - If unset, `n_permutations` defaults to `10L` and `n_coalitions` to `5 * n_features`
+    draws, which matches the permutation default's evaluation budget (the kernel
+    estimator, being more sample-efficient, typically comes out more accurate at that
+    shared cost). Both defaults are reduced on small feature sets so they stay at or
+    below half the cost of exact enumeration (`2^n_features` coalition evaluations);
+    `n_coalitions` is additionally capped at `512L`.
+  - `$compute()` points out (once per session, if `xplain_opt("verbose")`) when a sampling
+    budget meets or exceeds the cost of exact enumeration, where `estimator = "exact"`
+    removes the coalition-sampling error at the same or lower cost.
 - `SAGE` kernel estimator gains a `kernel_variant` argument (#70, #71).
   - `"original"` (the default) is Covert & Lee's Eq. 7, recommended by the paper for
     practical use and substantially more accurate at equal budgets in our setting.

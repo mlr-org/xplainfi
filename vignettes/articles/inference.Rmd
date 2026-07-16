@@ -550,6 +550,10 @@ sage$compute()
 sage$importance(ci_method = "montecarlo")
 ```
 
+Note the message emitted by `$compute()`:
+on this four-feature demo task, 256 coalition draws cost more than enumerating all $2^4 = 16$ coalitions, so `estimator = "exact"` would compute the same target without any sampling error.
+We keep the sampling estimator here precisely because the Monte Carlo intervals are the subject of this section; see the [budget guidance](https://xplainfi.mlr-org.com/articles/sage-methods.html#choosing-a-budget) in the SAGE article for how to size these budgets in practice.
+
 Unlike the other parametric methods, no test statistic or p-value is reported, and `p_adjust` is not accepted.
 The reason is the estimand:
 the exhaustive-enumeration SAGE value of a fixed fitted model is a fixed and generally nonzero number, so a test against zero would reject for *every* feature once enough coalitions are sampled.

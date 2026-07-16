@@ -110,13 +110,41 @@ SAGE = R6Class(
     #'   reference for verifying the sampling estimators on small feature sets.
     #'   Note that it is exact only with respect to coalition sampling: for [ConditionalSAGE] the value
     #'   function itself is still a Monte Carlo estimate (the sampler redraws per coalition).
-    #' @param n_permutations (`integer(1)`: `10L`) Number of permutations to sample for SAGE value estimation.
+    #'   The estimators' costs are comparable via their total number of evaluated coalitions:
+    #'   `1 + n_permutations * n_features` (permutation), `2 + 2 * n_coalitions` (kernel), and
+    #'   `2^n_features` (exact).
+    #'   When a sampling budget meets or exceeds the exact estimator's cost, `$compute()` points this out
+    #'   in a message (once per session, if `xplain_opt("verbose")`), since exact enumeration then removes
+    #'   the coalition-sampling error at no extra cost.
+    #'   For [ConditionalSAGE] such oversampling can still be deliberate: repeated coalition evaluations
+    #'   average out the conditional sampler's noise, which exact enumeration (one evaluation per
+    #'   coalition) does not.
+    #' @param n_permutations (`integer(1)`: `NULL`) Number of permutations to sample for SAGE value estimation.
     #'   Only valid for `estimator = "permutation"`.
-    #'   The total number of evaluated coalitions is `1 (empty) + n_permutations * n_features`.
-    #' @param n_coalitions (`integer(1)`: `512L`) Number of coalitions to sample for the kernel estimator.
+    #'   Note that each permutation evaluates one coalition per feature, so the total number of evaluated
+    #'   coalitions (the actual computational cost) is `1 (empty) + n_permutations * n_features`,
+    #'   not `n_permutations`.
+    #'   If unset, defaults to `10L`, reduced on small feature sets so the default budget stays at or below
+    #'   half the cost of enumerating all `2^n_features` coalitions, where `estimator = "exact"` becomes
+    #'   the better tool (see `estimator`).
+    #'   To check whether a budget suffices, use `$importance(ci_method = "montecarlo")` or
+    #'   `$plot_convergence()` after computation and increase the budget until the intervals are narrow
+    #'   relative to the spread of the importance values.
+    #' @param n_coalitions (`integer(1)`: `NULL`) Number of paired coalition draws for the kernel estimator.
     #'   Only valid for `estimator = "kernel"`.
-    #'   With paired sampling each draw evaluates a coalition and its complement, so the number of
-    #'   evaluated coalitions is `2 (anchors) + 2 * n_coalitions`.
+    #'   Note that with paired sampling each draw evaluates a coalition and its complement, so the total
+    #'   number of evaluated coalitions (the actual computational cost) is `2 (anchors) + 2 * n_coalitions`,
+    #'   not `n_coalitions`.
+    #'   If unset, defaults to `5 * n_features` draws, matching the evaluation budget of the permutation
+    #'   estimator's default (`2 + 10 * n_features` vs `1 + 10 * n_features` evaluated coalitions); since
+    #'   the kernel estimator is typically more sample-efficient, the default usually yields more accurate
+    #'   values than the permutation default at the same cost.
+    #'   The default is capped at `512L` and, on small feature sets, at `2^(n_features - 2)` so it stays
+    #'   at or below half the cost of enumerating all `2^n_features` coalitions, where
+    #'   `estimator = "exact"` becomes the better tool (see `estimator`).
+    #'   To check whether a budget suffices, use `$importance(ci_method = "montecarlo")` or
+    #'   `$plot_convergence()` after computation and increase the budget until the intervals are narrow
+    #'   relative to the spread of the importance values.
     #' @param kernel_variant (`character(1)`: `"original"`) Variant of the kernel estimator.
     #'   Only valid for `estimator = "kernel"`.
     #'   `"original"` (default) estimates both the design matrix and its right-hand side from the same
@@ -128,7 +156,8 @@ SAGE = R6Class(
     #'   This is the estimator implemented in the reference Python `sage` package, so use it for direct
     #'   comparisons with `sage`.
     #'   At equal budgets its point estimates are substantially noisier, which its wider confidence
-    #'   intervals reflect.
+    #'   intervals reflect, so set `n_coalitions` well above the default (which is tuned for
+    #'   `"original"`) when using it.
     #' @param max_features (`integer(1)`: `12L`) Feature-count cap for `estimator = "exact"`.
     #'   The exact estimator evaluates `2^n_features` coalitions, so it aborts when the number of
     #'   features exceeds this cap.
@@ -200,7 +229,10 @@ SAGE = R6Class(
             "i" = "The permutation estimator is controlled by {.arg n_permutations}."
           ))
         }
-        n_permutations = checkmate::assert_int(n_permutations %||% 10L, lower = 1L)
+        n_permutations = checkmate::assert_int(
+          n_permutations %||% private$.default_n_permutations(),
+          lower = 1L
+        )
       } else if (estimator == "kernel") {
         if (!is.null(n_permutations)) {
           cli::cli_abort(c(
@@ -208,7 +240,10 @@ SAGE = R6Class(
             "i" = "The kernel estimator is controlled by {.arg n_coalitions}."
           ))
         }
-        n_coalitions = checkmate::assert_int(n_coalitions %||% 512L, lower = 1L)
+        n_coalitions = checkmate::assert_int(
+          n_coalitions %||% private$.default_n_coalitions(),
+          lower = 1L
+        )
         kernel_variant = checkmate::assert_choice(
           kernel_variant %||% "original",
           choices = c("original", "unbiased")
@@ -473,6 +508,8 @@ SAGE = R6Class(
       estimator = self$param_set$values$estimator %||% "permutation"
       if (estimator == "exact") {
         private$.assert_exact_budget()
+      } else {
+        private$.inform_budget_vs_exact(estimator)
       }
 
       # Permutation-only convergence controls passed explicitly to $compute() are
@@ -545,7 +582,7 @@ SAGE = R6Class(
           private$.compute_sage_scores_kernel(
             learner = learner,
             test_dt = test_dt,
-            n_coalitions = self$param_set$values$n_coalitions %||% 512L,
+            n_coalitions = self$param_set$values$n_coalitions %||% private$.default_n_coalitions(),
             batch_size = batch_size,
             track_convergence = track_convergence
           )
@@ -557,9 +594,11 @@ SAGE = R6Class(
             # or a smaller value if early_stopping = TRUE and it stopped early.
             # Remaining iterations reuse the first iteration's stopped count.
             n_permutations = if (track_convergence) {
-              self$param_set$values$n_permutations %||% 10L
+              self$param_set$values$n_permutations %||% private$.default_n_permutations()
             } else {
-              self$n_permutations_used %||% self$param_set$values$n_permutations %||% 10L
+              self$n_permutations_used %||%
+                self$param_set$values$n_permutations %||%
+                private$.default_n_permutations()
             },
             batch_size = batch_size,
             # Only track convergence etc. for the first iteration
@@ -718,6 +757,56 @@ SAGE = R6Class(
   ),
 
   private = list(
+    # Sampling-budget defaults adapt to the feature count so the default cost never
+    # exceeds half of exact enumeration (2^n_features coalition evaluations). The
+    # kernel default of 5 * m draws targets the same evaluation budget as the
+    # permutation default (2 + 10m vs 1 + 10m evaluations); being the more
+    # sample-efficient estimator, it typically comes out more accurate at that
+    # shared cost. Documented in the n_permutations / n_coalitions param docs.
+    .default_n_permutations = function() {
+      m = length(self$features)
+      if (m >= 8L) 10L else max(2L, as.integer((2^m - 1L) %/% (2L * m)))
+    },
+    .default_n_coalitions = function() {
+      m = length(self$features)
+      half_enum = if (m <= 30L) as.integer(2^(m - 2L)) else 512L # binds only for small m
+      max(2L, min(512L, half_enum, 5L * m))
+    },
+
+    # Point out when the resolved sampling budget costs at least as many coalition
+    # evaluations as exact enumeration, which removes the coalition-sampling error
+    # at the same or lower cost. A message rather than a warning: oversampling can
+    # be deliberate (e.g. ConditionalSAGE, where repeated evaluations average the
+    # conditional sampler's noise). Gated to m >= 3, where the adaptive defaults
+    # stay below enumeration and the absolute waste can be nontrivial.
+    .inform_budget_vs_exact = function(estimator) {
+      m = length(self$features)
+      if (!xplain_opt("verbose") || m < 3L || m > 30L) {
+        return(invisible(NULL))
+      }
+      n_exact = 2^m
+      evals = if (estimator == "permutation") {
+        budget = self$param_set$values$n_permutations %||% private$.default_n_permutations()
+        1 + budget * m
+      } else {
+        budget = self$param_set$values$n_coalitions %||% private$.default_n_coalitions()
+        2 + 2 * budget
+      }
+      if (evals >= n_exact) {
+        cli::cli_inform(
+          c(
+            "i" = "The {.val {estimator}} estimator will evaluate {evals} coalitions,
+                   at least as many as enumerating all {n_exact} (2^{m}) coalitions.",
+            "i" = "{.code estimator = \"exact\"} computes SAGE values without coalition-sampling
+                   error at the same or lower cost (for {.cls ConditionalSAGE}, oversampling can
+                   still be deliberate; see the {.arg estimator} docs)."
+          ),
+          .frequency = "once",
+          .frequency_id = paste0("xplainfi_sage_budget_", estimator)
+        )
+      }
+    },
+
     # The exact estimator's cost grows as 2^n_features, so it is capped. Checked at
     # construction and again in $compute(), since the estimator or cap may have been
     # changed via $param_set$values in between.
