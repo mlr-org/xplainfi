@@ -30,10 +30,11 @@ For \link{MarginalSAGE} they are additionally conditional on the fixed reference
 for marginalization: the variability from having drawn one particular reference subsample
 (\code{n_samples} rows) is shared across all coalitions and is not part of the reported SE,
 mirroring the Python \code{sage} implementation.
-When features strongly affect predictions and \code{n_samples} is small, that unmodeled
-component can exceed the coalition-sampling error.
-Increase \code{n_samples} when the values themselves need to be precise, as the intervals will
-not reflect this component.
+In simulations, the magnitude of this unmodeled component at the default \code{n_samples} was
+comparable to or larger than the coalition-sampling error at default budgets.
+Increase \code{n_samples} first when the values themselves need to be precise, as the intervals
+will not reflect this component; gauge it by recomputing with a different seed before
+construction, which redraws the reference subsample.
 For \link{ConditionalSAGE}, by contrast, the sampler redraws at every evaluation, so its noise
 enters the variation across permutations and is largely reflected in the reported SEs.
 The exact estimator has no coalition-sampling error and reports no SE.
@@ -216,9 +217,8 @@ values than the permutation default at the same cost.
 The default is capped at \code{512L} and, on small feature sets, at \code{2^(n_features - 2)} so it stays
 at or below half the cost of enumerating all \code{2^n_features} coalitions, where
 \code{estimator = "exact"} becomes the better tool (see \code{estimator}).
-To check whether a budget suffices, use \verb{$importance(ci_method = "montecarlo")} or
-\verb{$plot_convergence()} after computation and increase the budget until the intervals are narrow
-relative to the spread of the importance values.}
+Check whether the budget suffices the same way as for \code{n_permutations},
+via \verb{$importance(ci_method = "montecarlo")} or \verb{$plot_convergence()}.}
       \item{\code{kernel_variant}}{(\code{character(1)}: \code{"original"}) Variant of the kernel estimator.
 Only valid for \code{estimator = "kernel"}.
 \code{"original"} (default) estimates both the design matrix and its right-hand side from the same
@@ -246,14 +246,8 @@ For \link{ConditionalSAGE}, this is the number of conditional samples per test i
 This is a second sampling budget on top of the coalition budget, and it affects \emph{all} estimators:
 even \code{estimator = "exact"} is exact only with respect to coalition sampling, while the
 marginalization error from \code{n_samples} remains and shrinks roughly with \code{1 / sqrt(n_samples)}.
-For \link{MarginalSAGE} this error stems from the single reference draw, is shared across all
-coalitions, and is invisible to the Monte Carlo standard errors; in internal experiments its
-magnitude at the default \code{n_samples} was comparable to or larger than the coalition-sampling
-error at default budgets, so increase \code{n_samples} first when the values themselves need to be
-precise, and gauge this component by recomputing with a different seed before construction.
-For \link{ConditionalSAGE} the sampler redraws at every evaluation, so this noise is largely
-included in the reported standard errors and is additionally averaged down by larger
-coalition budgets.}
+See the \emph{Standard errors} section in Details for how this component relates to the reported
+standard errors and when to increase \code{n_samples}.}
       \item{\code{early_stopping}}{(\code{logical(1)}: \code{FALSE}) Whether to enable early stopping based on convergence detection.
 Only used by the permutation estimator.}
       \item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.01}) Convergence threshold for relative standard error.
@@ -291,8 +285,9 @@ Monte Carlo standard errors are available for \code{estimator = "kernel"} and
 
 \strong{Interpreting \code{"montecarlo"} intervals}: they are convergence diagnostics, not importance
 inference.
-An importance of 1.5 with interval \verb{[1.2, 1.8]} means: had all coalitions been enumerated
-for this fitted model on this test data (and, for \link{MarginalSAGE}, this reference data),
+An importance of 1.5 with interval \verb{[1.2, 1.8]} means: had the sampling been exhaustive
+for this fitted model on this test data (all coalitions for \link{MarginalSAGE} with its fixed
+reference data; all coalitions and unlimited sampler draws for \link{ConditionalSAGE}),
 the result would lie in \verb{[1.2, 1.8]}.
 The sampling budget has pinned the computation down to about \verb{+/- 0.3}.
 It does \emph{not} mean the feature's importance is nonzero in any generalizable sense: the

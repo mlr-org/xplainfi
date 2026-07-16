@@ -37,7 +37,7 @@ A key property of SAGE is that it provides a complete decomposition: the sum of 
 This choice is orthogonal to the marginal-versus-conditional distinction above, so any combination is valid.
 
 **The permutation estimator** (`estimator = "permutation"`, the default) is the sampling algorithm of Covert et al. (2020), which other implementations also call the permutation estimator.
-It works by first building up `n_permutations` permutations of the feature vector and then successively evaluating prefixes of the sequence from left to right as coalitions to be evaluated.
+It works by first building up `n_permutations` permutations of the feature vector and then evaluating the growing prefixes of each permutation, from left to right, as coalitions.
 If a task has features `(x1, x2, x3)`, one permutation could be `(x2, x1, x3)`, resulting in these coalitions to be evaluated: `(x2)`, `(x2, x1)`, and `(x2, x1, x3)`.
 The empty coalition will always be evaluated, resulting in a total number of evaluations of `n_permutations * n_features + 1`.
 
@@ -429,7 +429,7 @@ Two anchors make the choice manageable in practice:
 
 1. **Compare against exact enumeration.**
    The three estimators' costs are directly comparable via their total number of evaluated coalitions: `n_permutations * p + 1` (permutation), `2 * n_coalitions + 2` (kernel), and `2^p` (exact).
-   A sampling budget approaching `2^p` buys enumeration at sampling prices: for the ten-feature `friedman1` task, `n_coalitions = 500` costs 1002 evaluations while `estimator = "exact"` computes error-free SAGE values for 1024.
+   A sampling budget approaching `2^p` buys enumeration at sampling prices: for the ten-feature `friedman1` task, `n_coalitions = 500` costs 1002 evaluations while `estimator = "exact"` removes the coalition-sampling error entirely for 1024.
    When a budget meets or exceeds the exact cost, `$compute()` points this out in a message (once per session).
    The defaults are chosen accordingly: if unset, `n_permutations` defaults to `10` and `n_coalitions` to `5 * p` draws, which matches the permutation default's evaluation budget; since the kernel estimator is more sample-efficient, it typically comes out more accurate at that shared cost.
    Both defaults are reduced on small feature sets so they stay at or below half the cost of exact enumeration (`n_coalitions` is additionally capped at `512`).

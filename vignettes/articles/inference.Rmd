@@ -519,7 +519,7 @@ It is available for `estimator = "kernel"` and `estimator = "permutation"`; the 
 
 These are parametric Wald intervals, not empirical quantiles:
 the standard errors derive from a central limit theorem on the sampled-coalition moments ([Covert & Lee, 2021](https://proceedings.mlr.press/v130/covert21a.html), Eqs. 12-13, extended by the delta method for the default kernel variant), so coverage is asymptotic in the number of sampled coalitions.
-In our internal simulations against the exact estimator, empirical coverage of the 95% intervals was close to the nominal level for both kernel variants.
+The package's test suite checks the standard errors against the actual run-to-run variability of the estimates, but no systematic coverage study exists yet, so treat the intervals as approximate.
 
 **What the intervals do and do not cover.**
 The estimand is the SAGE value of the *fixed fitted model*, as defined by the empirical value function on the test data and, for `MarginalSAGE`, the fixed reference dataset used for marginalization.

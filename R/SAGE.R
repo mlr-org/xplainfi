@@ -26,10 +26,11 @@
 #' for marginalization: the variability from having drawn one particular reference subsample
 #' (`n_samples` rows) is shared across all coalitions and is not part of the reported SE,
 #' mirroring the Python `sage` implementation.
-#' When features strongly affect predictions and `n_samples` is small, that unmodeled
-#' component can exceed the coalition-sampling error.
-#' Increase `n_samples` when the values themselves need to be precise, as the intervals will
-#' not reflect this component.
+#' In simulations, the magnitude of this unmodeled component at the default `n_samples` was
+#' comparable to or larger than the coalition-sampling error at default budgets.
+#' Increase `n_samples` first when the values themselves need to be precise, as the intervals
+#' will not reflect this component; gauge it by recomputing with a different seed before
+#' construction, which redraws the reference subsample.
 #' For [ConditionalSAGE], by contrast, the sampler redraws at every evaluation, so its noise
 #' enters the variation across permutations and is largely reflected in the reported SEs.
 #' The exact estimator has no coalition-sampling error and reports no SE.
@@ -146,9 +147,8 @@ SAGE = R6Class(
     #'   The default is capped at `512L` and, on small feature sets, at `2^(n_features - 2)` so it stays
     #'   at or below half the cost of enumerating all `2^n_features` coalitions, where
     #'   `estimator = "exact"` becomes the better tool (see `estimator`).
-    #'   To check whether a budget suffices, use `$importance(ci_method = "montecarlo")` or
-    #'   `$plot_convergence()` after computation and increase the budget until the intervals are narrow
-    #'   relative to the spread of the importance values.
+    #'   Check whether the budget suffices the same way as for `n_permutations`,
+    #'   via `$importance(ci_method = "montecarlo")` or `$plot_convergence()`.
     #' @param kernel_variant (`character(1)`: `"original"`) Variant of the kernel estimator.
     #'   Only valid for `estimator = "kernel"`.
     #'   `"original"` (default) estimates both the design matrix and its right-hand side from the same
@@ -176,14 +176,8 @@ SAGE = R6Class(
     #'   This is a second sampling budget on top of the coalition budget, and it affects *all* estimators:
     #'   even `estimator = "exact"` is exact only with respect to coalition sampling, while the
     #'   marginalization error from `n_samples` remains and shrinks roughly with `1 / sqrt(n_samples)`.
-    #'   For [MarginalSAGE] this error stems from the single reference draw, is shared across all
-    #'   coalitions, and is invisible to the Monte Carlo standard errors; in internal experiments its
-    #'   magnitude at the default `n_samples` was comparable to or larger than the coalition-sampling
-    #'   error at default budgets, so increase `n_samples` first when the values themselves need to be
-    #'   precise, and gauge this component by recomputing with a different seed before construction.
-    #'   For [ConditionalSAGE] the sampler redraws at every evaluation, so this noise is largely
-    #'   included in the reported standard errors and is additionally averaged down by larger
-    #'   coalition budgets.
+    #'   See the *Standard errors* section in Details for how this component relates to the reported
+    #'   standard errors and when to increase `n_samples`.
     #' @param early_stopping (`logical(1)`: `FALSE`) Whether to enable early stopping based on convergence detection.
     #'   Only used by the permutation estimator.
     #' @param se_threshold (`numeric(1)`: `0.01`) Convergence threshold for relative standard error.
@@ -368,8 +362,9 @@ SAGE = R6Class(
     #'
     #' **Interpreting `"montecarlo"` intervals**: they are convergence diagnostics, not importance
     #' inference.
-    #' An importance of 1.5 with interval `[1.2, 1.8]` means: had all coalitions been enumerated
-    #' for this fitted model on this test data (and, for [MarginalSAGE], this reference data),
+    #' An importance of 1.5 with interval `[1.2, 1.8]` means: had the sampling been exhaustive
+    #' for this fitted model on this test data (all coalitions for [MarginalSAGE] with its fixed
+    #' reference data; all coalitions and unlimited sampler draws for [ConditionalSAGE]),
     #' the result would lie in `[1.2, 1.8]`.
     #' The sampling budget has pinned the computation down to about `+/- 0.3`.
     #' It does *not* mean the feature's importance is nonzero in any generalizable sense: the
