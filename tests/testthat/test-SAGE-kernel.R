@@ -300,6 +300,7 @@ test_that("budget defaults adapt to the feature count", {
 })
 
 test_that("compute points to the exact estimator when the budget reaches enumeration cost", {
+  skip_if_not_installed("rlang") # reset_message_verbosity() for the once-per-session message
   set.seed(409)
   task = sim_dgp_independent(n = 60) # 5 features, 2^5 = 32 coalitions
   learner = lrn("regr.rpart")
