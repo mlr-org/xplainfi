@@ -448,7 +448,7 @@ Two anchors make the choice manageable in practice:
    If the intervals are wide relative to the spread of the importance values, increase the budget (a maximum SE below about 1% of the importance range is the same criterion early stopping uses by default).
    Since a budget is cheap to check and extend, guessing low and doubling until the intervals are narrow enough is a perfectly good strategy.
 
-On (near-)additive value functions, the kernel estimator's default `"original"` variant converges at strikingly small budgets, so budgets tuned on interaction-heavy problems can be generous elsewhere.
+How large a budget the kernel estimator needs depends on the value function, and the `"original"` and `"unbiased"` variants can differ substantially, so a budget tuned on one task does not transfer automatically to another.
 
 **Don't forget the marginalization budget.**
 `n_samples` is a second, independent budget that affects *all* estimators, including the exact one: it controls how well the expectation over out-of-coalition features is approximated, and its error shrinks roughly with $1/\sqrt{\texttt{n\_samples}}$.
@@ -522,9 +522,8 @@ With a noisy value function, the noise in `sage`'s coalition values swamps the d
 That makes the unbiased variant the natural choice there: its closed-form variance is what powers `sage`'s convergence detection.
 
 With a near-deterministic value function, coalition sampling is the *only* remaining source of Monte Carlo error, and the original variant's design matrix and right-hand side, estimated from the same draws, can have their errors cancel.
-How much they cancel depends on the value function.
-The closer it is to additive, the closer each individual draw is to exact, and on such games the original variant converges at strikingly small budgets.
-On strongly non-additive games the advantage shrinks and can reverse.
+How much they cancel depends on the value function: on an exactly additive game the cancellation is complete, and the variant returns that game's Shapley values at any budget.
+Away from that case the two variants can need very different budgets to reach the same accuracy.
 
 So xplainfi ships both, with `"original"` as the default because it suits the learned value functions the package is typically applied to, and `"unbiased"` available for direct comparison with `sage`.
 Neither is universally better, and a budget tuned for one should not be assumed to suffice for the other.

@@ -99,8 +99,8 @@
 #' it is applied to differ in provenance: a running variance across permutations, the published
 #' closed form for `kernel_variant = "unbiased"`, and a delta-method extension of it for
 #' `kernel_variant = "original"`.
-#' The two kernel variants in particular can require very different budgets for the same threshold,
-#' in either direction depending on the value function; see `kernel_variant`.
+#' The two kernel variants in particular can require very different budgets for the same threshold;
+#' see `kernel_variant`.
 #' Where `"original"` stops early, this reflects genuinely settled coalition sampling rather than a
 #' premature stop, since its standard errors are estimated the same way throughout.
 #' Comparing a budget against a `sage` run additionally requires `kernel_variant = "unbiased"`,
@@ -197,16 +197,16 @@ SAGE = R6Class(
     #'   `"original"` (default) estimates both the design matrix and its right-hand side from the same
     #'   sampled coalitions (original KernelSHAP, Covert & Lee 2021, Eq. 7).
     #'   Sharing the samples couples their errors, and the extent to which those errors cancel depends on
-    #'   the value function: the closer it is to additive, the closer each draw is to exact, and on such
-    #'   games this variant converges at strikingly small budgets.
+    #'   the value function: on an exactly additive game the cancellation is complete, so the variant
+    #'   returns that game's Shapley values at any budget.
     #'   It is the paper's practical recommendation (their Section 4.1) and the default here.
     #'   `"unbiased"` uses the exact closed-form design matrix and estimates only the right-hand side
     #'   (unbiased KernelSHAP, Eq. 9).
     #'   This is the estimator implemented in the reference Python `sage` package, so use it for direct
     #'   comparisons with `sage`.
     #'   Which variant needs fewer coalitions is therefore a property of the problem rather than a fixed
-    #'   ranking, and it can go either way; the default is chosen for the learned value functions this
-    #'   package is typically applied to, not proven superior in general.
+    #'   ranking; the default is chosen for the learned value functions this package is typically applied
+    #'   to, not proven superior in general.
     #'   Since the default `n_coalitions` is tuned for `"original"`, budget `"unbiased"` separately and
     #'   check the standard errors rather than assuming the default suffices.
     #'   `vignette("sage-methods", package = "xplainfi")` explains why the two variants behave so
