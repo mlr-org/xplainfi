@@ -52,18 +52,26 @@ machinery rather than the model evaluations to become the bottleneck.
 Both implementations follow Covert & Lee (2021), but they estimate the value function in
 different regimes, and several defaults differ as a consequence.
 \itemize{
-\item \emph{Value function estimation}: \code{sage} estimates the stochastic cooperative game directly,
-evaluating each sampled coalition on a single randomly drawn observation, so individual
-evaluations are cheap but very noisy.
+\item \emph{Value function estimation}: \code{sage} pairs each coalition draw with a single randomly drawn
+test observation (averaging predictions over its full background sample), so an individual
+evaluation is cheap but noisy, and the noise is averaged away across many draws.
 xplainfi evaluates every coalition's loss on the complete test set, averaging predictions
 over \code{n_samples} reference draws, so a single evaluation is more expensive but nearly
 deterministic.
+This follows from the surrounding architecture rather than from the estimator.
+An mlr3 \link[mlr3:Measure]{Measure} scores a whole prediction set and need not decompose into
+per-observation losses; \link{ConditionalSAGE}'s sampler makes each evaluation expensive enough to
+be worth reusing; \code{estimator = "exact"} needs a value function that does not move between
+evaluations; and batching rows into few prediction calls amortizes per-call overhead.
+\code{vignette("sage-methods", package = "xplainfi")} discusses this trade-off and what it means
+for comparing the two packages.
 \item \emph{Default kernel variant}: in the noisy per-observation regime of \code{sage}, the two variants
 converge similarly, and the unbiased variant's closed-form variance powers the package's
 convergence detection.
-In xplainfi's batch-averaged regime, the original variant is far more sample-efficient at
-equal budgets (the coupled sampling errors of its design matrix and right-hand side
-largely cancel), matching the paper's own recommendation in Section 4.1.
+In xplainfi's near-deterministic regime, coalition sampling is the only remaining noise, which
+is the regime in which the original variant's coupled sampling errors can cancel; how much
+they do depends on the value function (see \code{kernel_variant}).
+The default follows the paper's own practical recommendation in their Section 4.1.
 \item \emph{Comparing point estimates}: for direct numerical comparisons with \code{sage}, use
 \code{kernel_variant = "unbiased"}.
 The two implementations then compute the same estimator and agree up to Monte Carlo error
@@ -96,14 +104,13 @@ The threshold is not portable across estimators or kernel variants, because the 
 it is applied to differ in provenance: a running variance across permutations, the published
 closed form for \code{kernel_variant = "unbiased"}, and a delta-method extension of it for
 \code{kernel_variant = "original"}.
-The original variant in particular reaches any given threshold much earlier: on \code{friedman1}
-with a \code{rpart} learner its relative standard error after 400 coalition draws was about a tenth
-of the unbiased variant's, which translates into a far larger factor in budget, and on
-additive games it can converge within the first few dozen draws.
-That is a real property of the estimator rather than a premature stop: its coupled sampling
-errors cancel, and the closer the game is to additive, the closer each individual draw is to
-exact, so the coalition-sampling error genuinely is negligible at that point.
-It does mean that reproducing a \code{sage} run's budget requires \code{kernel_variant = "unbiased"}.
+The two kernel variants in particular can require very different budgets for the same threshold,
+in either direction depending on the value function; see \code{kernel_variant}.
+Where \code{"original"} stops early, this reflects genuinely settled coalition sampling rather than a
+premature stop, since its standard errors are estimated the same way throughout.
+Comparing a budget against a \code{sage} run additionally requires \code{kernel_variant = "unbiased"},
+and even then the budgets are not comparable, because the standard errors include different
+noise sources.
 
 With early stopping the budget argument becomes an upper bound rather than a planned cost;
 see \code{n_coalitions} for how an unset kernel budget resolves to a safety ceiling.
@@ -276,15 +283,21 @@ The ceiling is resolved at construction, so enabling early stopping afterwards (
 Only valid for \code{estimator = "kernel"}.
 \code{"original"} (default) estimates both the design matrix and its right-hand side from the same
 sampled coalitions (original KernelSHAP, Covert & Lee 2021, Eq. 7).
-Sharing the samples couples their errors, which largely cancel, so this variant converges much
-faster on typical (near-additive) problems and is the paper's practical recommendation (their Section 4.1).
+Sharing the samples couples their errors, and the extent to which those errors cancel depends on
+the value function: the closer it is to additive, the closer each draw is to exact, and on such
+games this variant converges at strikingly small budgets.
+It is the paper's practical recommendation (their Section 4.1) and the default here.
 \code{"unbiased"} uses the exact closed-form design matrix and estimates only the right-hand side
 (unbiased KernelSHAP, Eq. 9).
 This is the estimator implemented in the reference Python \code{sage} package, so use it for direct
 comparisons with \code{sage}.
-At equal budgets its point estimates are substantially noisier, which its wider confidence
-intervals reflect, so set \code{n_coalitions} well above the default (which is tuned for
-\code{"original"}) when using it.}
+Which variant needs fewer coalitions is therefore a property of the problem rather than a fixed
+ranking, and it can go either way; the default is chosen for the learned value functions this
+package is typically applied to, not proven superior in general.
+Since the default \code{n_coalitions} is tuned for \code{"original"}, budget \code{"unbiased"} separately and
+check the standard errors rather than assuming the default suffices.
+\code{vignette("sage-methods", package = "xplainfi")} explains why the two variants behave so
+differently here and why \code{sage} ships only the unbiased one.}
       \item{\code{max_features}}{(\code{integer(1)}: \code{12L}) Feature-count cap for \code{estimator = "exact"}.
 The exact estimator evaluates \code{2^n_features} coalitions, so it aborts when the number of
 features exceeds this cap.

@@ -48,18 +48,26 @@
 #' Both implementations follow Covert & Lee (2021), but they estimate the value function in
 #' different regimes, and several defaults differ as a consequence.
 #'
-#' * *Value function estimation*: `sage` estimates the stochastic cooperative game directly,
-#'   evaluating each sampled coalition on a single randomly drawn observation, so individual
-#'   evaluations are cheap but very noisy.
+#' * *Value function estimation*: `sage` pairs each coalition draw with a single randomly drawn
+#'   test observation (averaging predictions over its full background sample), so an individual
+#'   evaluation is cheap but noisy, and the noise is averaged away across many draws.
 #'   xplainfi evaluates every coalition's loss on the complete test set, averaging predictions
 #'   over `n_samples` reference draws, so a single evaluation is more expensive but nearly
 #'   deterministic.
+#'   This follows from the surrounding architecture rather than from the estimator.
+#'   An mlr3 [Measure][mlr3::Measure] scores a whole prediction set and need not decompose into
+#'   per-observation losses; [ConditionalSAGE]'s sampler makes each evaluation expensive enough to
+#'   be worth reusing; `estimator = "exact"` needs a value function that does not move between
+#'   evaluations; and batching rows into few prediction calls amortizes per-call overhead.
+#'   `vignette("sage-methods", package = "xplainfi")` discusses this trade-off and what it means
+#'   for comparing the two packages.
 #' * *Default kernel variant*: in the noisy per-observation regime of `sage`, the two variants
 #'   converge similarly, and the unbiased variant's closed-form variance powers the package's
 #'   convergence detection.
-#'   In xplainfi's batch-averaged regime, the original variant is far more sample-efficient at
-#'   equal budgets (the coupled sampling errors of its design matrix and right-hand side
-#'   largely cancel), matching the paper's own recommendation in Section 4.1.
+#'   In xplainfi's near-deterministic regime, coalition sampling is the only remaining noise, which
+#'   is the regime in which the original variant's coupled sampling errors can cancel; how much
+#'   they do depends on the value function (see `kernel_variant`).
+#'   The default follows the paper's own practical recommendation in their Section 4.1.
 #' * *Comparing point estimates*: for direct numerical comparisons with `sage`, use
 #'   `kernel_variant = "unbiased"`.
 #'   The two implementations then compute the same estimator and agree up to Monte Carlo error
@@ -91,14 +99,13 @@
 #' it is applied to differ in provenance: a running variance across permutations, the published
 #' closed form for `kernel_variant = "unbiased"`, and a delta-method extension of it for
 #' `kernel_variant = "original"`.
-#' The original variant in particular reaches any given threshold much earlier: on `friedman1`
-#' with a `rpart` learner its relative standard error after 400 coalition draws was about a tenth
-#' of the unbiased variant's, which translates into a far larger factor in budget, and on
-#' additive games it can converge within the first few dozen draws.
-#' That is a real property of the estimator rather than a premature stop: its coupled sampling
-#' errors cancel, and the closer the game is to additive, the closer each individual draw is to
-#' exact, so the coalition-sampling error genuinely is negligible at that point.
-#' It does mean that reproducing a `sage` run's budget requires `kernel_variant = "unbiased"`.
+#' The two kernel variants in particular can require very different budgets for the same threshold,
+#' in either direction depending on the value function; see `kernel_variant`.
+#' Where `"original"` stops early, this reflects genuinely settled coalition sampling rather than a
+#' premature stop, since its standard errors are estimated the same way throughout.
+#' Comparing a budget against a `sage` run additionally requires `kernel_variant = "unbiased"`,
+#' and even then the budgets are not comparable, because the standard errors include different
+#' noise sources.
 #'
 #' With early stopping the budget argument becomes an upper bound rather than a planned cost;
 #' see `n_coalitions` for how an unset kernel budget resolves to a safety ceiling.
@@ -189,15 +196,21 @@ SAGE = R6Class(
     #'   Only valid for `estimator = "kernel"`.
     #'   `"original"` (default) estimates both the design matrix and its right-hand side from the same
     #'   sampled coalitions (original KernelSHAP, Covert & Lee 2021, Eq. 7).
-    #'   Sharing the samples couples their errors, which largely cancel, so this variant converges much
-    #'   faster on typical (near-additive) problems and is the paper's practical recommendation (their Section 4.1).
+    #'   Sharing the samples couples their errors, and the extent to which those errors cancel depends on
+    #'   the value function: the closer it is to additive, the closer each draw is to exact, and on such
+    #'   games this variant converges at strikingly small budgets.
+    #'   It is the paper's practical recommendation (their Section 4.1) and the default here.
     #'   `"unbiased"` uses the exact closed-form design matrix and estimates only the right-hand side
     #'   (unbiased KernelSHAP, Eq. 9).
     #'   This is the estimator implemented in the reference Python `sage` package, so use it for direct
     #'   comparisons with `sage`.
-    #'   At equal budgets its point estimates are substantially noisier, which its wider confidence
-    #'   intervals reflect, so set `n_coalitions` well above the default (which is tuned for
-    #'   `"original"`) when using it.
+    #'   Which variant needs fewer coalitions is therefore a property of the problem rather than a fixed
+    #'   ranking, and it can go either way; the default is chosen for the learned value functions this
+    #'   package is typically applied to, not proven superior in general.
+    #'   Since the default `n_coalitions` is tuned for `"original"`, budget `"unbiased"` separately and
+    #'   check the standard errors rather than assuming the default suffices.
+    #'   `vignette("sage-methods", package = "xplainfi")` explains why the two variants behave so
+    #'   differently here and why `sage` ships only the unbiased one.
     #' @param max_features (`integer(1)`: `12L`) Feature-count cap for `estimator = "exact"`.
     #'   The exact estimator evaluates `2^n_features` coalitions, so it aborts when the number of
     #'   features exceeds this cap.
