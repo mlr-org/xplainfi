@@ -214,6 +214,92 @@ sage_default_n_coalitions = function(m) {
   max(2L, min(512L, half_enum, 5L * m))
 }
 
+#' Safety ceiling for the kernel estimator's convergence-driven budget
+#'
+#' With `early_stopping = TRUE` the criterion decides how many draws are needed, so the
+#' budget argument degenerates into an upper bound guarding against a criterion that never
+#' trips. Two bounds apply: enumerating all `2^m` coalitions costs `2^(m - 1)` paired draws,
+#' beyond which `estimator = "exact"` is strictly better; and an absolute ceiling for feature
+#' counts where enumeration is out of reach anyway. Deliberately not a user-facing argument:
+#' `n_coalitions` already *is* the user's upper bound, so a second one would be a synonym.
+#'
+#' @param m (`integer(1)`) Number of features.
+#' @return `integer(1)` ceiling in paired coalition draws.
+#' @keywords internal
+#' @noRd
+sage_max_n_coalitions = function(m) {
+  # 2^(m - 1) exceeds the absolute ceiling from m = 15 on, so it only binds below that.
+  half_enum = if (m <= 14L) as.integer(2^(m - 1L)) else 8192L
+  max(2L, min(8192L, half_enum))
+}
+
+#' Coalition evaluations implied by a sampling budget
+#'
+#' The estimators take budgets in different units (permutations, paired coalition draws,
+#' enumerated coalitions), which makes them incomparable at face value. Coalition evaluations
+#' are the shared currency: they are what the value function is actually called for, and the
+#' cost the user pays. Reported by `$budget` and used to compare a sampling budget against
+#' exact enumeration.
+#'
+#' @param estimator (`character(1)`) `"permutation"`, `"kernel"`, or `"exact"`.
+#' @param m (`integer(1)`) Number of features.
+#' @param budget (`integer(1)` | `NULL`) Budget in the estimator's own units; ignored for
+#'   `"exact"`, which enumerates `2^m` coalitions regardless.
+#' @return `numeric(1)` number of evaluated coalitions, or `NA_real_` for an unknown budget.
+#' @keywords internal
+#' @noRd
+sage_n_evals = function(estimator, m, budget) {
+  if (identical(estimator, "exact")) {
+    return(2^m)
+  }
+  if (is.null(budget) || is.na(budget)) {
+    return(NA_real_)
+  }
+  # One empty-coalition baseline plus m growing prefixes per permutation; two anchors
+  # (empty and full) plus a coalition and its complement per paired kernel draw.
+  if (identical(estimator, "permutation")) 1 + budget * m else 2 + 2 * budget
+}
+
+#' Unit a sampling budget is counted in
+#'
+#' Used for labelling `$budget`, convergence plots, and stopping messages.
+#'
+#' @param estimator (`character(1)`) `"permutation"`, `"kernel"`, or `"exact"`.
+#' @return `character(1)`.
+#' @keywords internal
+#' @noRd
+sage_budget_unit = function(estimator) {
+  switch(estimator, permutation = "permutations", kernel = "coalition draws", exact = "coalitions")
+}
+
+#' Convergence ratio of a Monte Carlo Shapley estimate
+#'
+#' The stopping criterion of the reference Python `sage` package (`detect_convergence`):
+#' the largest standard error relative to the spread of the importance values, which makes it
+#' invariant to the scale of the loss. Convergence is declared when the ratio falls below the
+#' threshold. Shared by both sampling estimators, but note that the standard errors feeding it
+#' differ in provenance (running variance across permutations, delta method across coalitions),
+#' so the same threshold does not buy the same budget across estimators or kernel variants.
+#'
+#' Missing standard errors yield `NA` rather than being dropped: for the kernel estimator they
+#' signal a design matrix that is not yet identifiable, which must not read as convergence.
+#'
+#' @param importance (`numeric`) Current importance estimates.
+#' @param se (`numeric`) Their standard errors.
+#' @return `numeric(1)` ratio, or `NA_real_` when it cannot be computed.
+#' @keywords internal
+#' @noRd
+sage_convergence_ratio = function(importance, se) {
+  if (anyNA(importance) || anyNA(se)) {
+    return(NA_real_)
+  }
+  spread = max(importance) - min(importance)
+  # A degenerate spread (single feature, or all features equal) leaves nothing to normalize
+  # by, so the absolute standard error is used instead.
+  ratio = if (spread > 0 && is.finite(spread)) max(se) / spread else max(se)
+  if (is.finite(ratio)) ratio else NA_real_
+}
+
 #' Point out when a sampling budget reaches exact-enumeration cost
 #'
 #' Emits a message when the resolved sampling budget costs at least as many
@@ -227,15 +313,19 @@ sage_default_n_coalitions = function(m) {
 #' @param estimator (`character(1)`) `"permutation"` or `"kernel"`.
 #' @param m (`integer(1)`) Number of features.
 #' @param budget (`integer(1)`) Resolved `n_permutations` or `n_coalitions`.
+#' @param early_stopping (`logical(1)`) Whether the budget is a convergence-driven upper bound
+#'   rather than a planned cost. Reaching enumeration cost is then a guard the computation is
+#'   not expected to hit, so the message is suppressed; the exhaustion warning covers the case
+#'   where it *is* hit.
 #' @return `NULL`, invisibly.
 #' @keywords internal
 #' @noRd
-sage_inform_budget_vs_exact = function(estimator, m, budget) {
-  if (!xplain_opt("verbose") || m < 3L || m > 30L) {
+sage_inform_budget_vs_exact = function(estimator, m, budget, early_stopping = FALSE) {
+  if (!xplain_opt("verbose") || early_stopping || m < 3L || m > 30L) {
     return(invisible(NULL))
   }
   n_exact = 2^m
-  evals = if (estimator == "permutation") 1 + budget * m else 2 + 2 * budget
+  evals = sage_n_evals(estimator, m, budget)
   if (evals >= n_exact) {
     cli::cli_inform(
       c(

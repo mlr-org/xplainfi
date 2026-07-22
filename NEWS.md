@@ -47,6 +47,32 @@
   `$param_set$values`. Accordingly, `SAGE`'s public `$n_permutations` field is deprecated
   in favor of `$param_set$values$n_permutations`; it remains readable and writable as an
   alias but warns once per session on access.
+- `SAGE$early_stopping` now applies to the kernel estimator as well, not just the
+  permutation estimator (#70).
+  - It stops as soon as the largest standard error, relative to the spread of the
+    importance values, falls below `se_threshold`, the criterion of the reference Python
+    `sage` package. `se_threshold` is accordingly no longer permutation-only.
+  - The threshold does not translate across estimators or kernel variants, since the
+    standard errors it is compared against are constructed differently;
+    `kernel_variant = "original"` in particular converges at far smaller budgets than
+    `"unbiased"`, which reflects its faster convergence rather than a premature stop. See
+    the *Convergence and early stopping* section of `?SAGE`.
+  - With early stopping the budget becomes an upper bound. An unset `n_coalitions` is
+    therefore raised from the planned default to a safety ceiling (`2^(n_features - 1)`
+    draws, capped at `8192L`), and exhausting the budget without meeting the criterion
+    warns.
+- `SAGE$budget` is a new read-only accessor reporting the estimator, its budget unit, the
+  requested and actually used effort, the resulting number of coalition evaluations, and
+  whether the run converged.
+  - `n_evals` makes budgets comparable across estimators, whose own units are not
+    (a permutation costs one evaluation per feature, a coalition draw costs two).
+  - It replaces the `$n_permutations_used` field, which counted estimator-specific units
+    under a permutation-specific name and is now deprecated; it remains readable but warns
+    once per session on access.
+  - Accordingly, `$convergence_history` now has `budget` and `n_evals` columns in place of
+    `n_permutations`.
+  - `SAGE$reset()` now also clears `$convergence_history`, `$converged`, and `$budget`,
+    which previously survived a reset.
 
 ### Faster sampling via `samples_per_row`
 

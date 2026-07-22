@@ -97,11 +97,11 @@ Covert I, Lundberg S, Lee S (2021).
 <ul>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>FeatureImportanceMethod$obs_loss()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>FeatureImportanceMethod$print()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>FeatureImportanceMethod$reset()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>FeatureImportanceMethod$scores()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="SAGE" data-id="compute"><a href='../../xplainfi/html/SAGE.html#method-SAGE-compute'><code>SAGE$compute()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="SAGE" data-id="importance"><a href='../../xplainfi/html/SAGE.html#method-SAGE-importance'><code>SAGE$importance()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="SAGE" data-id="plot_convergence"><a href='../../xplainfi/html/SAGE.html#method-SAGE-plot_convergence'><code>SAGE$plot_convergence()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="SAGE" data-id="reset"><a href='../../xplainfi/html/SAGE.html#method-SAGE-reset'><code>SAGE$reset()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}

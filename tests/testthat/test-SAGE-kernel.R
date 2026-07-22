@@ -405,7 +405,7 @@ test_that("kernel estimator reports Monte Carlo standard errors", {
   checkmate::expect_subset("se", names(scores))
   checkmate::expect_numeric(scores$se, any.missing = FALSE, lower = 0)
 
-  hist_end = sage$convergence_history[n_permutations == max(n_permutations)]
+  hist_end = sage$convergence_history[budget == max(budget)]
   checkmate::expect_numeric(hist_end$se, any.missing = FALSE, lower = 0)
 })
 
@@ -747,21 +747,168 @@ test_that("estimator configuration lives in the param_set", {
   expect_identical(sage$param_set$values$n_coalitions, 64L)
   sage$param_set$values$n_coalitions = 32L
   sage$compute()
-  expect_identical(sage$n_permutations_used, 32L)
+  expect_identical(sage$budget$used, 32)
 })
 
-test_that("permutation-only controls warn for other estimators", {
+test_that("estimator-specific controls warn for the estimators that ignore them", {
   task = sim_dgp_independent(n = 100)
   learner = lrn("regr.rpart")
+  # Checkpointing knobs are permutation-only; the convergence knobs are not.
   expect_warning(
-    MarginalSAGE$new(task, learner, estimator = "kernel", se_threshold = 0.5, n_samples = 15L),
-    "only used by"
+    MarginalSAGE$new(task, learner, estimator = "kernel", check_interval = 5L, n_samples = 15L),
+    "check_interval"
+  )
+  expect_warning(
+    MarginalSAGE$new(task, learner, estimator = "exact", se_threshold = 0.5, n_samples = 15L),
+    "se_threshold"
   )
   expect_warning(
     MarginalSAGE$new(task, learner, estimator = "kernel", max_features = 5L, n_samples = 15L),
     "max_features"
   )
-  set.seed(5527)
-  sage = MarginalSAGE$new(task, learner, estimator = "kernel", n_coalitions = 16L, n_samples = 10L)
-  expect_warning(sage$compute(early_stopping = TRUE), "only used by")
+  sage = MarginalSAGE$new(task, learner, estimator = "exact", n_samples = 10L)
+  expect_warning(sage$compute(early_stopping = TRUE), "early_stopping")
+})
+
+test_that("$budget reports the effort spent in comparable units", {
+  set.seed(3391)
+  task = sim_dgp_independent(n = 120)
+  learner = lrn("regr.rpart")
+
+  sage = MarginalSAGE$new(task, learner, estimator = "kernel", n_coalitions = 24L, n_samples = 15L)
+  # Before computing, the request is known but nothing has been spent.
+  expect_identical(sage$budget$requested, 24)
+  expect_identical(sage$budget$used, NA_real_)
+  expect_identical(sage$budget$n_evals, NA_real_)
+
+  sage$compute()
+  expect_identical(sage$budget$used, 24)
+  # Two anchors plus a coalition and its complement per draw.
+  expect_identical(sage$budget$n_evals, 2 + 2 * 24)
+  expect_identical(sage$budget$unit, "coalition draws")
+  expect_false(sage$budget$converged)
+
+  perm = MarginalSAGE$new(task, learner, n_permutations = 3L, n_samples = 15L)
+  perm$compute()
+  # One empty-coalition baseline plus one growing prefix per feature and permutation.
+  expect_identical(perm$budget$n_evals, 1 + 3 * length(task$feature_names))
+  expect_identical(perm$budget$unit, "permutations")
+
+  exact = MarginalSAGE$new(task, learner, estimator = "exact", n_samples = 15L)
+  exact$compute()
+  expect_identical(exact$budget$n_evals, 2^length(task$feature_names))
+  expect_true(exact$budget$converged)
+
+  # $reset() clears the convergence tracking, not just the scores.
+  sage$reset()
+  expect_identical(sage$budget$used, NA_real_)
+  expect_null(sage$convergence_history)
+})
+
+test_that("kernel early stopping stops below the budget and stays accurate", {
+  set.seed(8123)
+  task = tgen("friedman1")$generate(n = 250)
+  learner = lrn("regr.rpart")
+  resampling = rsmp("holdout")$instantiate(task)
+
+  # Both objects must see the same reference subsample (drawn once at construction),
+  # otherwise they marginalize over different data and estimate different games.
+  set.seed(52)
+  stopped = MarginalSAGE$new(
+    task,
+    learner,
+    resampling = resampling,
+    estimator = "kernel",
+    early_stopping = TRUE,
+    se_threshold = 0.025,
+    n_coalitions = 400L,
+    n_samples = 30L
+  )
+  stopped$compute()
+  set.seed(52)
+  exact = MarginalSAGE$new(
+    task,
+    learner,
+    resampling = resampling,
+    estimator = "exact",
+    n_samples = 30L
+  )
+  exact$compute()
+
+  expect_true(stopped$budget$converged)
+  expect_lt(stopped$budget$used, 400)
+  # Stopping early must not mean stopping short: the values still track the exact
+  # SAGE values of the same game.
+  cmp = merge(stopped$importance(), exact$importance(), by = "feature")
+  expect_gt(cor(cmp$importance.x, cmp$importance.y), 0.98)
+  expect_lt(max(abs(cmp$importance.x - cmp$importance.y)), 0.5)
+})
+
+test_that("the original kernel variant reaches the criterion earlier than the unbiased one", {
+  # The documented consequence of sharing samples between the design matrix and the
+  # right-hand side: their errors cancel, so the same budget buys a much smaller
+  # coalition-sampling error, and any given threshold is reached much sooner.
+  set.seed(8123)
+  task = tgen("friedman1")$generate(n = 250)
+  learner = lrn("regr.rpart")
+  resampling = rsmp("holdout")$instantiate(task)
+
+  ratio = function(variant) {
+    set.seed(52)
+    sage = MarginalSAGE$new(
+      task,
+      learner,
+      resampling = resampling,
+      estimator = "kernel",
+      kernel_variant = variant,
+      n_coalitions = 400L,
+      n_samples = 30L
+    )
+    sage$compute()
+    scores = sage$scores() # the standard errors live here, not in $importance()
+    sage_convergence_ratio(scores$importance, scores$se)
+  }
+  # Roughly a factor of ten apart in this setting; asserted loosely.
+  expect_lt(ratio("original"), ratio("unbiased") / 3)
+})
+
+test_that("kernel early stopping warns when the budget is exhausted", {
+  set.seed(8123)
+  task = tgen("friedman1")$generate(n = 250)
+  set.seed(52)
+  sage = MarginalSAGE$new(
+    task,
+    lrn("regr.rpart"),
+    estimator = "kernel",
+    kernel_variant = "unbiased",
+    early_stopping = TRUE,
+    se_threshold = 0.02,
+    n_coalitions = 256L,
+    n_samples = 30L
+  )
+  expect_warning(sage$compute(), "did not converge")
+  expect_false(sage$budget$converged)
+  expect_identical(sage$budget$used, 256)
+})
+
+test_that("an unset kernel budget becomes a ceiling under early stopping", {
+  task = sim_dgp_independent(n = 100)
+  learner = lrn("regr.rpart")
+  m = length(task$feature_names)
+
+  planned = MarginalSAGE$new(task, learner, estimator = "kernel", n_samples = 15L)
+  ceiling = MarginalSAGE$new(task, learner, estimator = "kernel", early_stopping = TRUE, n_samples = 15L)
+
+  expect_identical(planned$param_set$values$n_coalitions, sage_default_n_coalitions(m))
+  expect_identical(ceiling$param_set$values$n_coalitions, sage_max_n_coalitions(m))
+  expect_gt(ceiling$param_set$values$n_coalitions, planned$param_set$values$n_coalitions)
+})
+
+test_that("the convergence criterion refuses missing standard errors", {
+  # A budget too small to identify the design matrix yields NA SEs, which must read
+  # as "not converged" rather than being dropped from the maximum.
+  expect_identical(sage_convergence_ratio(c(1, 2, 3), c(0.1, NA, 0.1)), NA_real_)
+  expect_identical(sage_convergence_ratio(c(1, 2), c(0.1, 0.1)), 0.1)
+  # Degenerate spread leaves nothing to normalize by, so the absolute SE is used.
+  expect_identical(sage_convergence_ratio(c(2, 2), c(0.3, 0.1)), 0.3)
 })

@@ -201,7 +201,7 @@ test_that("MarginalSAGE SE tracking in convergence_history", {
   expect_contains(colnames(sage$convergence_history), "se")
 
   # Check structure of convergence_history
-  expected_cols = c("n_permutations", "feature", "importance", "se")
+  expected_cols = c("budget", "n_evals", "feature", "importance", "se")
   expect_setequal(colnames(sage$convergence_history), expected_cols)
 
   # SE values should be non-negative and finite
@@ -211,7 +211,7 @@ test_that("MarginalSAGE SE tracking in convergence_history", {
   # For each feature, SE should be in a reasonable range
   for (feat in unique(sage$convergence_history$feature)) {
     feat_data = sage$convergence_history[feature == feat]
-    feat_data = feat_data[order(n_permutations)]
+    feat_data = feat_data[order(budget)]
 
     if (nrow(feat_data) > 1) {
       # Just check that SE values are in a reasonable range and not exploding
@@ -252,7 +252,7 @@ test_that("MarginalSAGE SE-based convergence detection", {
 
   # Should converge early because SE will be well below 100.0
   expect_true(sage$converged)
-  expect_lte(sage$n_permutations_used, 10L)
+  expect_lte(sage$budget$used, 10L)
 
   # Reset for next test
   sage$reset()

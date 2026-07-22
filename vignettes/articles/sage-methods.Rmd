@@ -178,26 +178,33 @@ $$
 \max_j \left(\frac{SE_j}{\max_i(\text{SAGE}_i) - \min_i(\text{SAGE}_i)}\right) < \text{threshold}
 $$
 
-The default threshold is `se_threshold = 0.01` (1%), meaning convergence occurs when the relative SE is below 1% of the importance range for all features, which is equivalent to the approach in the Python implementation in the `fippy` package.
+The default threshold is `se_threshold = 0.01` (1%), meaning convergence occurs when the relative SE is below 1% of the importance range for all features, which is the criterion used by the Python `sage` and `fippy` packages.
+
+Both sampling estimators support this, but the threshold is not comparable between them: the standard errors it is applied to are constructed differently, so the same threshold is reached at very different budgets (see the estimator comparison below).
 
 You can customize convergence detection in `$compute()`:
 
 ```r
-# More strict convergence (requires more permutations)
-sage$compute(early_stopping = TRUE, se_threshold = 0.005, min_permutations = 5L)
+# More strict convergence (requires more sampling)
+sage$compute(early_stopping = TRUE, se_threshold = 0.005)
 
-# Disable early stopping to always run all permutations
+# Disable early stopping to always spend the full budget
 sage$compute(early_stopping = FALSE)
 ```
 
-After computation, you can check convergence status:
+For the kernel estimator, leaving `n_coalitions` unset together with `early_stopping = TRUE` in the constructor raises the budget to a safety ceiling and lets the criterion decide the effort.
+If the criterion is not met within the budget, the values are returned with a warning and `$budget` reports `converged = FALSE`.
+
+After computation, `$budget` reports what was actually spent:
 
 ```r
-marginal_sage$converged  # TRUE if converged early
-marginal_sage$n_permutations_used  # Actual permutations used
+marginal_sage$budget  # estimator, unit, requested, used, n_evals, converged
 ```
 
-If a resampling with multiple iterations (i.e., not holdout) is supplied, the value of `n_permutations_used` will be set as the value for `n_permutations` in all subsequent iterations to avoid some computational overhead.
+The `used` column falls below `requested` only when early stopping triggered.
+`n_evals` translates the budget into evaluated coalitions, the unit in which the estimators are actually comparable: a permutation costs one evaluation per feature, a coalition draw costs two.
+
+If a resampling with multiple iterations (i.e., not holdout) is supplied, the budget spent by the first iteration is reused by all subsequent ones, to avoid some computational overhead and to keep the iterations comparable.
 
 ## Conditional SAGE
 
@@ -323,7 +330,13 @@ The practical difference is **how the cost scales with the number of features** 
 - **Kernel** evaluates `2 * n_coalitions + 2` coalitions (each sampled coalition is paired with its complement for variance reduction), independent of $p$.
   It fits a regression to these coalition values and is typically more sample-efficient, with the advantage growing as $p$ increases.
 
-Both sampling estimators track per-feature standard errors that quantify the coalition-sampling uncertainty (visible in `$convergence_history` and via `$importance(ci_method = "montecarlo")`, see the [inference article](https://xplainfi.mlr-org.com/articles/inference.html) for interpretation); early stopping based on these is currently available for the permutation estimator only, while the kernel estimator evaluates its full `n_coalitions` budget.
+Both sampling estimators track per-feature standard errors that quantify the coalition-sampling uncertainty (visible in `$convergence_history` and via `$importance(ci_method = "montecarlo")`, see the [inference article](https://xplainfi.mlr-org.com/articles/inference.html) for interpretation), and both can stop early once those errors are small relative to the spread of the importance values (`early_stopping = TRUE`).
+
+The threshold does not translate between them, though.
+The standard errors it is compared against come from different constructions, and the `"original"` kernel variant in particular reaches any given threshold far earlier than the `"unbiased"` one, because its design matrix and right-hand side are estimated from the same draws and their errors cancel.
+On `friedman1` with a `rpart` learner and 400 coalition draws, the original variant's relative standard error was about 0.011 against the unbiased variant's 0.096: roughly a factor of ten, which translates into a much larger factor in budget.
+Stopping early is therefore not a precision trade-off here; it reflects that the coalition sampling really has settled.
+What it does *not* certify is the accuracy of the value function itself: with a small `n_samples`, a converged run is still a marginalization-limited one.
 
 Let's compute Marginal SAGE both ways on `friedman1`, which has ten features (`important1`--`important5` are informative, the rest are noise):
 

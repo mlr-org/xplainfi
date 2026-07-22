@@ -77,10 +77,41 @@ In addition, \code{sage}'s uncertainty computation appears to deviate from the p
 in the sign of the covariance propagation's constraint-adjustment term.
 xplainfi implements Eqs. 12-13 as published, which matched the empirical variance in our
 simulations.
-\item \emph{Convergence}: \code{sage} runs until its convergence criterion is met by default, while the
-kernel estimator in xplainfi evaluates a fixed budget of \code{n_coalitions} (early stopping
-applies to the permutation estimator only).
+\item \emph{Convergence}: \code{sage} runs until its convergence criterion is met by default, whereas
+xplainfi spends a fixed budget unless \code{early_stopping = TRUE} is requested.
+The criterion itself is the same (see below), but it is reached at very different budgets
+because the standard errors feeding it come from different regimes.
 }
+
+\strong{Convergence and early stopping}:
+Both sampling estimators support \code{early_stopping = TRUE}, which stops as soon as the largest
+standard error, relative to the spread of the importance values, falls below \code{se_threshold}.
+This is the criterion of the Python \code{sage} package (its \code{detect_convergence}), and it certifies
+the same thing the standard errors do: that more sampling would not move the values much, for
+this fitted model and this test data.
+It says nothing about the components those standard errors exclude (see \emph{Standard errors}
+above), so a converged run is not a precise one if \code{n_samples} is small.
+
+The threshold is not portable across estimators or kernel variants, because the standard errors
+it is applied to differ in provenance: a running variance across permutations, the published
+closed form for \code{kernel_variant = "unbiased"}, and a delta-method extension of it for
+\code{kernel_variant = "original"}.
+The original variant in particular reaches any given threshold much earlier: on \code{friedman1}
+with a \code{rpart} learner its relative standard error after 400 coalition draws was about a tenth
+of the unbiased variant's, which translates into a far larger factor in budget, and on
+additive games it can converge within the first few dozen draws.
+That is a real property of the estimator rather than a premature stop: its coupled sampling
+errors cancel, and the closer the game is to additive, the closer each individual draw is to
+exact, so the coalition-sampling error genuinely is negligible at that point.
+It does mean that reproducing a \code{sage} run's budget requires \code{kernel_variant = "unbiased"}.
+
+With early stopping the budget argument becomes an upper bound rather than a planned cost;
+see \code{n_coalitions} for how an unset kernel budget resolves to a safety ceiling.
+\verb{$budget} reports what was actually spent and whether the criterion was met, and
+\verb{$plot_convergence()} shows the trajectory that led there.
+Under resampling, only the first iteration runs the criterion and the remaining iterations
+reuse its budget; per-iteration stopping would require re-deriving the standard errors in every
+iteration, which for \code{kernel_variant = "original"} is a substantial part of the total cost.
 }
 \references{
 Covert I, Lundberg S, Lee S (2020).
@@ -102,20 +133,36 @@ In \emph{Proceedings of the 24th International Conference on Artificial Intellig
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}
   \describe{
-    \item{\code{convergence_history}}{(\code{\link[data.table:data.table]{data.table}}) History of SAGE values during computation.}
+    \item{\code{convergence_history}}{(\code{\link[data.table:data.table]{data.table}}) History of SAGE values during computation.
+Columns \code{budget} (sampling effort in the estimator's own units) and \code{n_evals} (the corresponding
+number of evaluated coalitions, comparable across estimators) index the checkpoints; see \verb{$budget}.}
 
-    \item{\code{converged}}{(\code{logical(1)}) Whether convergence was detected (permutation estimator with early stopping).
-The exact estimator sets \code{TRUE} trivially since it enumerates all coalitions; the kernel estimator never stops early and reports \code{FALSE}.}
-
-    \item{\code{n_permutations_used}}{(\code{integer(1)}) Sampling effort actually spent, in estimator-specific units:
-permutations (permutation estimator), paired coalition draws (kernel; each draw evaluates 2 coalitions),
-or enumerated coalitions (exact).}
+    \item{\code{converged}}{(\code{logical(1)}) Whether the convergence criterion was met (sampling estimators with
+\code{early_stopping = TRUE}).
+The exact estimator sets \code{TRUE} trivially since it enumerates all coalitions.}
   }
   \if{html}{\out{</div>}}
 }
 \section{Active bindings}{
   \if{html}{\out{<div class="r6-active-bindings">}}
   \describe{
+    \item{\code{budget}}{(\code{\link[data.table:data.table]{data.table}}) Read-only one-row summary of the sampling
+effort: the \code{estimator}, its \code{unit} of budget, the \code{requested} upper bound, the amount \code{used}
+(below the request only with early stopping), the resulting number of coalition evaluations
+\code{n_evals}, and whether the computation \code{converged}.
+\code{used} and \code{n_evals} are \code{NA} before \verb{$compute()}.
+The budget units are not comparable across estimators (a permutation costs \code{n_features}
+evaluations, a paired coalition draw costs two), which is what \code{n_evals} is for: it is the
+currency the value function is actually called in, so budgets and convergence histories of
+different estimators can be compared on it.
+With multiple resampling iterations it describes the first iteration, whose budget the
+remaining ones reuse (see \code{early_stopping}).}
+
+    \item{\code{n_permutations_used}}{(\code{integer(1)}) Deprecated.
+Use \verb{$budget} instead, which reports the effort spent alongside its unit and the implied
+number of coalition evaluations.
+This alias is kept for backward compatibility and warns on access.}
+
     \item{\code{n_permutations}}{(\code{integer(1)}) Deprecated.
 The permutation budget lives in the param_set; use \verb{$param_set$values$n_permutations} instead.
 This alias is kept for backward compatibility with the field of the same name in
@@ -129,6 +176,7 @@ earlier releases and warns on access.}
     \item \href{#method-SAGE-initialize}{\code{SAGE$new()}}
     \item \href{#method-SAGE-importance}{\code{SAGE$importance()}}
     \item \href{#method-SAGE-compute}{\code{SAGE$compute()}}
+    \item \href{#method-SAGE-reset}{\code{SAGE$reset()}}
     \item \href{#method-SAGE-plot_convergence}{\code{SAGE$plot_convergence()}}
     \item \href{#method-SAGE-clone}{\code{SAGE$clone()}}
   }
@@ -137,7 +185,6 @@ earlier releases and warns on access.}
 <ul>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>FeatureImportanceMethod$obs_loss()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>FeatureImportanceMethod$print()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>FeatureImportanceMethod$reset()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>FeatureImportanceMethod$scores()</code></a></span></li>
 </ul>
 </details>}}
@@ -218,7 +265,13 @@ The default is capped at \code{512L} and, on small feature sets, at \code{2^(n_f
 at or below half the cost of enumerating all \code{2^n_features} coalitions, where
 \code{estimator = "exact"} becomes the better tool (see \code{estimator}).
 Check whether the budget suffices the same way as for \code{n_permutations},
-via \verb{$importance(ci_method = "montecarlo")} or \verb{$plot_convergence()}.}
+via \verb{$importance(ci_method = "montecarlo")} or \verb{$plot_convergence()}.
+With \code{early_stopping = TRUE} the budget is an upper bound rather than a planned cost, so
+leaving it unset raises it to a safety ceiling (\code{2^(n_features - 1)} draws, the point at
+which enumeration is cheaper, capped at \code{8192L}) and lets the convergence criterion decide.
+Set it explicitly to impose a smaller ceiling.
+The ceiling is resolved at construction, so enabling early stopping afterwards (in
+\verb{$compute()} or via \verb{$param_set$values}) keeps the budget already stored.}
       \item{\code{kernel_variant}}{(\code{character(1)}: \code{"original"}) Variant of the kernel estimator.
 Only valid for \code{estimator = "kernel"}.
 \code{"original"} (default) estimates both the design matrix and its right-hand side from the same
@@ -248,18 +301,25 @@ even \code{estimator = "exact"} is exact only with respect to coalition sampling
 marginalization error from \code{n_samples} remains and shrinks roughly with \code{1 / sqrt(n_samples)}.
 See the \emph{Standard errors} section in Details for how this component relates to the reported
 standard errors and when to increase \code{n_samples}.}
-      \item{\code{early_stopping}}{(\code{logical(1)}: \code{FALSE}) Whether to enable early stopping based on convergence detection.
-Only used by the permutation estimator.}
+      \item{\code{early_stopping}}{(\code{logical(1)}: \code{FALSE}) Whether to stop once the convergence criterion is met,
+rather than spending the full budget.
+Used by both sampling estimators (see the \emph{Convergence} section in Details for what the criterion
+does and does not certify, and why the same threshold buys very different budgets across
+estimators and kernel variants); setting it for \code{estimator = "exact"} is a warning.
+The budget then acts as an upper bound: if the criterion is not met within it, the values are
+returned with a warning and \verb{$budget} reports \code{converged = FALSE}.}
       \item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.01}) Convergence threshold for relative standard error.
 Convergence is detected when the maximum relative SE across all features falls below this threshold.
 Relative SE is calculated as SE divided by the range of importance values (max - min),
 making it scale-invariant across different loss metrics.
 Default of \code{0.01} means convergence when relative SE is below 1\% of the importance range.
-Only used by the permutation estimator; setting a non-default value for another estimator is a warning.}
+Used by both sampling estimators; setting a non-default value for \code{estimator = "exact"} is a warning.}
       \item{\code{min_permutations}}{(\code{integer(1)}: \code{10L}) Minimum permutations before checking for convergence.
 Convergence is judged based on the standard errors of the estimated SAGE values,
 which requires a sufficiently large number of samples (i.e., evaluated coalitions).
-Only used by the permutation estimator; setting a non-default value for another estimator is a warning.}
+Only used by the permutation estimator; setting a non-default value for another estimator is a warning.
+The kernel estimator needs no such floor: below the budget that identifies all features its
+standard errors are \code{NA}, which never satisfies the criterion.}
       \item{\code{check_interval}}{(\code{integer(1)}: \code{1L}) Check convergence every N permutations.
 Only used by the permutation estimator; setting a non-default value for another estimator is a warning.
 The kernel estimator manages its own checkpointing for prediction batching and convergence history.}
@@ -358,16 +418,31 @@ Not accepted for \code{ci_method = "montecarlo"}, which performs no hypothesis t
       \item{\code{store_backends}}{(\code{logical(1)}) Whether to store data backends.}
       \item{\code{batch_size}}{(\code{integer(1)}: \code{5000L}) Maximum number of observations to process in a single prediction call.}
       \item{\code{early_stopping}}{(\code{logical(1)}: \code{FALSE}) Whether to check for convergence and stop early.
-Only used by the permutation estimator; passing it for another estimator is a warning.}
+Used by both sampling estimators; passing it for \code{estimator = "exact"} is a warning.
+Note that for the kernel estimator this only spends \emph{less} of the budget stored at
+construction; it does not raise it (see \code{n_coalitions}).}
       \item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.01}) Convergence threshold for relative standard error.
 SE is normalized by the range of importance values (max - min) to make convergence
 detection scale-invariant. Default \code{0.01} means convergence when relative SE < 1\%.
-Only used by the permutation estimator; passing it for another estimator is a warning.}
+Used by both sampling estimators; passing it for \code{estimator = "exact"} is a warning.}
       \item{\code{min_permutations}}{(\code{integer(1)}: \code{10L}) Minimum permutations before checking convergence.
 Only used by the permutation estimator; passing it for another estimator is a warning.}
       \item{\code{check_interval}}{(\code{integer(1)}: \code{1L}) Check convergence every N permutations.
 Only used by the permutation estimator; passing it for another estimator is a warning.}
     }
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SAGE-reset"></a>}}
+\if{latex}{\out{\hypertarget{method-SAGE-reset}{}}}
+\subsection{\code{SAGE$reset()}}{
+  Resets all stored fields populated by \verb{$compute()}, including the convergence tracking
+(\verb{$convergence_history}, \verb{$converged}, \verb{$budget}).
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{SAGE$reset()}
     \if{html}{\out{</div>}}
   }
 }
