@@ -62,57 +62,50 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0.9000" id="xplainfi-1109000-development-version">xplainfi 1.1.0.9000 (development version)<a class="anchor" aria-label="anchor" href="#xplainfi-1109000-development-version"></a></h2>
 <div class="section level3">
-<h3 id="performance-and-new-features-1-1-0-9000">Performance and new features<a class="anchor" aria-label="anchor" href="#performance-and-new-features-1-1-0-9000"></a></h3>
-<ul><li>New <code>samples_per_row</code> argument on <code>FeatureSampler$sample()</code> and <code>$sample_newdata()</code> (default <code>1L</code>).
-<ul><li>When <code>&gt; 1</code>, samplers return <code>samples_per_row * length(row_ids)</code> rows in draw-major order (one block of all input rows per draw).</li>
-<li>Default behaviour is unchanged.</li>
-</ul></li>
-<li>
-<code>PerturbationImportance</code> (<code>PFI</code>/<code>CFI</code>/<code>RFI</code>) now passes <code>samples_per_row = n_repeats</code> to the sampler on unique test row IDs, instead of replicating row IDs externally.
-<ul><li>For <code>ConditionalARFSampler</code> this means <code>arf::forge(n_synth = n_repeats)</code> on <code>n_test</code> unique evidence rows rather than <code>n_synth = 1</code> on <code>n_repeats * n_test</code> replicated rows.</li>
-<li>Dramatically faster at scale and dodges an int32 overflow inside <code><a href="https://bips-hb.github.io/arf/reference/forge.html" class="external-link">arf::forge</a></code> for large <code>n_test * n_repeats</code>.</li>
-<li>All other in-package samplers implement <code>samples_per_row</code> natively as well.</li>
-</ul></li>
-<li>
-<code>PerturbationImportance</code> (PFI/CFI/RFI) now registers a <code>doParallel</code> backend inside each mirai daemon when the sampler is configured with <code>parallel = TRUE</code>.
-<ul><li>This lets <code>ConditionalARFSampler</code> use parallel <code><a href="https://bips-hb.github.io/arf/reference/forge.html" class="external-link">arf::forge()</a></code> from within mirai workers, which don’t inherit the caller’s foreach state.</li>
-<li>Worker count per daemon is controlled by the new <code>arf_workers</code> option (default <code>2L</code>); see <code><a href="../reference/xplain_opt.html">?xplain_opt</a></code>.</li>
-<li>Requires the <code>doParallel</code> package (now in Suggests).</li>
-</ul></li>
-<li>
-<code>WVIM</code> and <code>LOCO</code> gain a <code>batch_size</code> constructor argument (default <code>NULL</code>).
-<ul><li>Controls how many refits (<code>design_points</code>) are dispatched per internal <code><a href="https://mlr3.mlr-org.com/reference/benchmark.html" class="external-link">mlr3::benchmark()</a></code> call by the <code>mlr3fselect::fs("design_points")</code> fselector.</li>
-<li>
-<code>NULL</code> keeps the prior behaviour (bbotk default of one design point per call, i.e. sequential single-refit evaluation).</li>
-<li>Set a positive integer (e.g. the number of <code>future</code>/<code>mirai</code> workers) to batch refits so mlr3’s parallelization can spread them across workers; previously refits were dispatched one at a time, so <code>future</code>/<code>mirai</code> backends sat idle during LOCO/WVIM computation.</li>
-<li>Post-benchmark aggregation keys on the per-design-point resample-result <code>uhash</code>, so scores/obs-losses are attributed correctly for any <code>batch_size</code>.</li>
-</ul></li>
-<li>
-<code>ConditionalSAGE</code> now passes <code>samples_per_row = n_samples</code> to the sampler on unique test rows, instead of replicating test rows externally before calling the sampler.
-<ul><li>For <code>ConditionalARFSampler</code> this triggers the same <code>arf::forge(n_synth = n_samples)</code> speedup as <code>PerturbationImportance</code>, on <code>n_test</code> unique evidence rows rather than <code>n_samples * n_test</code> replicated rows.</li>
-<li>Marginal SAGE (<code>MarginalSAGE</code>) does not use a <code>FeatureSampler</code> and is unaffected.</li>
+<h3 id="behavior-changes-1-1-0-9000">Behavior changes<a class="anchor" aria-label="anchor" href="#behavior-changes-1-1-0-9000"></a></h3>
+<ul><li>
+<code>WVIM</code> and <code>LOCO</code> now default to <code>n_repeats = 1</code>, and the argument may be removed for these refit-based methods in the future (<a href="https://github.com/mlr-org/xplainfi/issues/84" class="external-link">#84</a>).
+<ul><li>For refit-based methods, computational budget is better spent on more resampling iterations (which stabilize the FI estimate) than on repeated refits within a single resampling iteration.</li>
 </ul></li>
 </ul></div>
 <div class="section level3">
-<h3 id="other-user-facing-changes-1-1-0-9000">Other user-facing changes<a class="anchor" aria-label="anchor" href="#other-user-facing-changes-1-1-0-9000"></a></h3>
+<h3 id="new-features-1-1-0-9000">New features<a class="anchor" aria-label="anchor" href="#new-features-1-1-0-9000"></a></h3>
 <ul><li>
-<code>WVIM</code> and <code>LOCO</code> now default to <code>n_repeats = 1</code>, and the argument may be removed for these refit methods in the future.
-<ul><li>Reasoning: For refit-based methods, it is much more useful to increase the the number of resampling iterations to increase stability of the resulting FI estimate rather than trying to stabilize stochastic learners by repeatedly refitting within the same resampling iteration. If computation budget is spent on refits, it should be spent there.</li>
+<code>FeatureSampler$sample()</code> and <code>$sample_newdata()</code> gain a <code>samples_per_row</code> argument (default <code>1L</code>).
+<ul><li>With <code>samples_per_row &gt; 1</code> the sampler returns <code>samples_per_row * length(row_ids)</code> rows in draw-major order (one block of all input rows per draw), default behaviour is unchanged.</li>
+<li>All in-package samplers implement <code>samples_per_row</code> natively.</li>
 </ul></li>
+<li>
+<code>WVIM</code> and <code>LOCO</code> gain a <code>batch_size</code> constructor argument (default <code>NULL</code>) to parallelize refits.
+<ul><li>It controls how many refits (<code>design_points</code>) are dispatched per internal <code><a href="https://mlr3.mlr-org.com/reference/benchmark.html" class="external-link">mlr3::benchmark()</a></code> call via the <code>mlr3fselect::fs("design_points")</code> fselector.</li>
+<li>
+<code>NULL</code> keeps the prior sequential single-refit behaviour (bbotk default of one design point per call). Set a positive integer (e.g. the number of <code>future</code>/<code>mirai</code> workers) so mlr3 can spread refits across workers. Previously they were dispatched one at a time and backends sat idle during LOCO/WVIM computation.</li>
+<li>Post-benchmark aggregation keys on the per-design-point resample-result <code>uhash</code>, so scores/obs-losses are attributed correctly for any <code>batch_size</code>.</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="performance-1-1-0-9000">Performance<a class="anchor" aria-label="anchor" href="#performance-1-1-0-9000"></a></h3>
+<ul><li>
+<code>PerturbationImportance</code> (<code>PFI</code>/<code>CFI</code>/<code>RFI</code>) and <code>ConditionalSAGE</code> now pass <code>samples_per_row = n_repeats</code> / <code>n_samples</code> to the sampler on unique test rows instead of externally replicating row IDs.
+<ul><li>For <code>ConditionalARFSampler</code> this calls <code>arf::forge(n_synth = ...)</code> on <code>n_test</code> unique evidence rows rather than <code>n_synth = 1</code> on replicated rows: much faster at scale, and it dodges an int32 overflow inside <code><a href="https://bips-hb.github.io/arf/reference/forge.html" class="external-link">arf::forge</a></code> for large <code>n_test * n_repeats</code>.</li>
+<li>Marginal SAGE (<code>MarginalSAGE</code>) does not use a <code>FeatureSampler</code> and is unaffected.</li>
+</ul></li>
+<li>
+<code>PerturbationImportance</code> now forges sequentially inside each mirai daemon, since the outer mirai layer already parallelizes across features; a <code>ConditionalARFSampler</code> with <code>parallel = TRUE</code> no longer nests <code><a href="https://bips-hb.github.io/arf/reference/forge.html" class="external-link">arf::forge()</a></code> parallelism inside workers (which would oversubscribe cores). The sampler’s <code>parallel</code> flag still drives fit-time parallelism (<code>adversarial_rf</code>/<code>forde</code>) as before.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-1-1-0-9000">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-0-9000"></a></h3>
 <ul><li>
 <code>relation = "ratio"</code> importances now return <code>NA</code> (with a warning) instead of <code>Inf</code>/<code>NaN</code> for features whose baseline score is <code>0</code>.</li>
-<li>Fix <code>$obs_loss()</code> being erroneously called without <code>measure</code> in <code>PerturbationImportance</code>, resulting in an error when <code>measures</code> was not the task-default.</li>
+<li>
+<code>PerturbationImportance</code> no longer calls <code>$obs_loss()</code> without <code>measure</code>, which errored when <code>measures</code> was not the task default.</li>
 <li>
 <code>ConditionalARFSampler$sample()</code> now errors when <code>parallel = TRUE</code> but no parallel backend is registered, e.g. after deserializing a sampler in a new session.</li>
-<li>Fix <code>ConditionalARFSampler</code> returning under-sampled (and, with <code>samples_per_row &gt; 1</code>, partially <code>NA</code>-filled) outputs when <code>conditioning_set</code> is empty.
+<li>
+<code>ConditionalARFSampler</code> no longer returns under-sampled (and, with <code>samples_per_row &gt; 1</code>, partially <code>NA</code>-filled) output when <code>conditioning_set</code> is empty.
 <ul><li>
-<code>arf::forge(evidence = NULL, n_synth = k)</code> returns only <code>k</code> unconditional draws, not <code>nrow(data) * k</code>; the previous code path silently recycled a single sample across all output rows when <code>samples_per_row = 1L</code>.</li>
-<li>The marginal case now requests <code>nrow(data) * samples_per_row</code> independent unconditional draws so every (instance, draw) pair gets its own sample.</li>
-<li>In practice this only affects <code>ConditionalSAGE</code> (which calls the sampler with an empty conditioning set on every empty coalition); CFI/RFI/PFI condition on the complement of the perturbed feature and never trigger the empty-conditioning path.</li>
-<li>As a side effect, <code>ConditionalSAGE</code> importance estimates for noise features are now substantially less inflated under the same <code>n_permutations</code> / <code>n_samples</code> budget.</li>
+<code>arf::forge(evidence = NULL, n_synth = k)</code> returns only <code>k</code> unconditional draws, not <code>nrow(data) * k</code>; the previous code path silently recycled a single sample across all output rows when <code>samples_per_row = 1L</code>. The marginal case now requests <code>nrow(data) * samples_per_row</code> independent draws so every (instance, draw) pair gets its own sample.</li>
+<li>In practice this only affected <code>ConditionalSAGE</code> (empty conditioning set on every empty coalition); CFI/RFI/PFI condition on the complement of the perturbed feature and never trigger the empty-conditioning path. As a side effect, <code>ConditionalSAGE</code> importance estimates for noise features are now substantially less inflated under the same <code>n_permutations</code> / <code>n_samples</code> budget.</li>
 </ul></li>
 </ul></div>
 <div class="section level3">
