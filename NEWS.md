@@ -1,4 +1,4 @@
-# xplainfi 1.1.0.9000 (development version)
+# xplainfi 1.2.0
 
 ## Behavior changes
 
@@ -24,6 +24,7 @@
 
 ## Bug fixes
 
+- `$importance()` with a test-based `ci_method` (`"lei"`, `"cpi"`) now warns and returns `NA` inference fields for a feature whose hypothesis test errors, instead of aborting the whole call; this guards against an R-devel (2026-05) change to `stats::wilcox.test` that errors on many-ties or many-zeros inputs.
 - `relation = "ratio"` importances now return `NA` (with a warning) instead of `Inf`/`NaN` for features whose baseline score is `0`.
 - `PerturbationImportance` no longer calls `$obs_loss()` without `measure`, which errored when `measures` was not the task default.
 - `ConditionalARFSampler$sample()` now errors when `parallel = TRUE` but no parallel backend is registered, e.g. after deserializing a sampler in a new session.
