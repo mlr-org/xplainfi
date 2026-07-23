@@ -1,74 +1,39 @@
 # xplainfi 1.1.0.9000 (development version)
 
-## Performance and new features
+## Behavior changes
 
-- New `samples_per_row` argument on `FeatureSampler$sample()` and `$sample_newdata()` (default `1L`).
-  - When `> 1`, samplers return `samples_per_row * length(row_ids)` rows in draw-major order
-    (one block of all input rows per draw).
-  - Default behaviour is unchanged.
-- `PerturbationImportance` (`PFI`/`CFI`/`RFI`) now passes `samples_per_row = n_repeats` to the
-  sampler on unique test row IDs, instead of replicating row IDs externally.
-  - For `ConditionalARFSampler` this means `arf::forge(n_synth = n_repeats)` on `n_test`
-    unique evidence rows rather than `n_synth = 1` on `n_repeats * n_test` replicated rows.
-  - Dramatically faster at scale and dodges an int32 overflow inside `arf::forge` for large
-    `n_test * n_repeats`.
-  - All other in-package samplers implement `samples_per_row` natively as well.
-- `PerturbationImportance` (PFI/CFI/RFI) now registers a `doParallel` backend inside each
-  mirai daemon when the sampler is configured with `parallel = TRUE`.
-  - This lets `ConditionalARFSampler` use parallel `arf::forge()` from within mirai workers,
-    which don't inherit the caller's foreach state.
-  - Worker count per daemon is controlled by the new `arf_workers` option (default `2L`);
-    see `?xplain_opt`.
-  - Requires the `doParallel` package (now in Suggests).
-- `WVIM` and `LOCO` gain a `batch_size` constructor argument (default `NULL`).
-  - Controls how many refits (`design_points`) are dispatched per internal `mlr3::benchmark()`
-    call by the `mlr3fselect::fs("design_points")` fselector.
-  - `NULL` keeps the prior behaviour (bbotk default of one design point per call, i.e.
-    sequential single-refit evaluation).
-  - Set a positive integer (e.g. the number of `future`/`mirai` workers) to batch refits so
-    mlr3's parallelization can spread them across workers; previously refits were dispatched
-    one at a time, so `future`/`mirai` backends sat idle during LOCO/WVIM computation.
-  - Post-benchmark aggregation keys on the per-design-point resample-result `uhash`, so
-    scores/obs-losses are attributed correctly for any `batch_size`.
-- `ConditionalSAGE` now passes `samples_per_row = n_samples` to the sampler on unique
-  test rows, instead of replicating test rows externally before calling the sampler.
-  - For `ConditionalARFSampler` this triggers the same `arf::forge(n_synth = n_samples)`
-    speedup as `PerturbationImportance`, on `n_test` unique evidence rows rather than
-    `n_samples * n_test` replicated rows.
+- `WVIM` and `LOCO` now default to `n_repeats = 1`, and the argument may be removed for these refit-based methods in the future (#84).
+  - For refit-based methods, computational budget is better spent on more resampling iterations (which stabilize the FI estimate) than on repeated refits within a single resampling iteration.
+
+## New features
+
+- `FeatureSampler$sample()` and `$sample_newdata()` gain a `samples_per_row` argument (default `1L`).
+  - With `samples_per_row > 1` the sampler returns `samples_per_row * length(row_ids)` rows in draw-major order (one block of all input rows per draw), default behaviour is unchanged.
+  - All in-package samplers implement `samples_per_row` natively.
+- `WVIM` and `LOCO` gain a `batch_size` constructor argument (default `NULL`) to parallelize refits.
+  - It controls how many refits (`design_points`) are dispatched per internal `mlr3::benchmark()` call via the `mlr3fselect::fs("design_points")` fselector.
+  - `NULL` keeps the prior sequential single-refit behaviour (bbotk default of one design point per call). Set a positive integer (e.g. the number of `future`/`mirai` workers) so mlr3 can spread refits across workers. Previously they were dispatched one at a time and backends sat idle during LOCO/WVIM computation.
+  - Post-benchmark aggregation keys on the per-design-point resample-result `uhash`, so scores/obs-losses are attributed correctly for any `batch_size`.
+
+## Performance
+
+- `PerturbationImportance` (`PFI`/`CFI`/`RFI`) and `ConditionalSAGE` now pass `samples_per_row = n_repeats` / `n_samples` to the sampler on unique test rows instead of externally replicating row IDs.
+  - For `ConditionalARFSampler` this calls `arf::forge(n_synth = ...)` on `n_test` unique evidence rows rather than `n_synth = 1` on replicated rows: much faster at scale, and it dodges an int32 overflow inside `arf::forge` for large `n_test * n_repeats`.
   - Marginal SAGE (`MarginalSAGE`) does not use a `FeatureSampler` and is unaffected.
-
-## Other user-facing changes
-
-- `WVIM` and `LOCO` now default to `n_repeats = 1`, and the argument may be removed for these refit methods in the future.
-  - Reasoning: For refit-based methods, it is much more useful to increase the the number of resampling iterations to increase stability of the resulting FI estimate rather than trying to stabilize stochastic learners by repeatedly refitting within the same resampling iteration. If computation budget is spent on refits, it should be spent there.
+- `PerturbationImportance` now forges sequentially inside each mirai daemon, since the outer mirai layer already parallelizes across features; a `ConditionalARFSampler` with `parallel = TRUE` no longer nests `arf::forge()` parallelism inside workers (which would oversubscribe cores). The sampler's `parallel` flag still drives fit-time parallelism (`adversarial_rf`/`forde`) as before.
 
 ## Bug fixes
 
-- `relation = "ratio"` importances now return `NA` (with a warning) instead of
-  `Inf`/`NaN` for features whose baseline score is `0`.
-- Fix `$obs_loss()` being erroneously called without `measure` in `PerturbationImportance`,
-  resulting in an error when `measures` was not the task-default.
-- `ConditionalARFSampler$sample()` now errors when `parallel = TRUE` but no parallel backend
-  is registered, e.g. after deserializing a sampler in a new session.
-- Fix `ConditionalARFSampler` returning under-sampled (and, with `samples_per_row > 1`,
-  partially `NA`-filled) outputs when `conditioning_set` is empty.
-  - `arf::forge(evidence = NULL, n_synth = k)` returns only `k` unconditional draws,
-    not `nrow(data) * k`; the previous code path silently recycled a single sample
-    across all output rows when `samples_per_row = 1L`.
-  - The marginal case now requests `nrow(data) * samples_per_row` independent
-    unconditional draws so every (instance, draw) pair gets its own sample.
-  - In practice this only affects `ConditionalSAGE` (which calls the sampler with an
-    empty conditioning set on every empty coalition); CFI/RFI/PFI condition on the
-    complement of the perturbed feature and never trigger the empty-conditioning path.
-  - As a side effect, `ConditionalSAGE` importance estimates for noise features are
-    now substantially less inflated under the same `n_permutations` / `n_samples`
-    budget.
+- `relation = "ratio"` importances now return `NA` (with a warning) instead of `Inf`/`NaN` for features whose baseline score is `0`.
+- `PerturbationImportance` no longer calls `$obs_loss()` without `measure`, which errored when `measures` was not the task default.
+- `ConditionalARFSampler$sample()` now errors when `parallel = TRUE` but no parallel backend is registered, e.g. after deserializing a sampler in a new session.
+- `ConditionalARFSampler` no longer returns under-sampled (and, with `samples_per_row > 1`, partially `NA`-filled) output when `conditioning_set` is empty.
+  - `arf::forge(evidence = NULL, n_synth = k)` returns only `k` unconditional draws, not `nrow(data) * k`; the previous code path silently recycled a single sample across all output rows when `samples_per_row = 1L`. The marginal case now requests `nrow(data) * samples_per_row` independent draws so every (instance, draw) pair gets its own sample.
+  - In practice this only affected `ConditionalSAGE` (empty conditioning set on every empty coalition); CFI/RFI/PFI condition on the complement of the perturbed feature and never trigger the empty-conditioning path. As a side effect, `ConditionalSAGE` importance estimates for noise features are now substantially less inflated under the same `n_permutations` / `n_samples` budget.
 
 ## Internal changes
 
-- The `KnockoffSampler` `n_repeats > iters` cap-and-warn behaviour moved from
-  `PerturbationImportance$initialize()` into `KnockoffSampler$sample()` itself;
-  behaviour is unchanged.
+- The `KnockoffSampler` `n_repeats > iters` cap-and-warn behaviour moved from `PerturbationImportance$initialize()` into `KnockoffSampler$sample()` itself; behaviour is unchanged.
 
 # xplainfi 1.1.0
 

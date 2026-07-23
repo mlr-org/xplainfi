@@ -21,7 +21,6 @@
 #' | `progress` | `FALSE` | Show progress bars during computation |
 #' | `sequential` | `FALSE` | Force sequential execution (disable parallelization) |
 #' | `debug` | `FALSE` | Enable debug output for development and troubleshooting |
-#' | `arf_workers` | `2L` | doParallel workers registered inside each mirai daemon when the sampler is configured with `parallel = TRUE`. Has no effect on sequential or non-ARF execution. |
 #'
 #' @return
 #' - When **getting** a single option: the option value (logical)
@@ -60,8 +59,7 @@ xplain_opt = function(...) {
     verbose = TRUE,
     progress = FALSE,
     sequential = FALSE,
-    debug = FALSE,
-    arf_workers = 2L
+    debug = FALSE
   )
 
   args = list(...)
@@ -118,9 +116,8 @@ xplain_opt = function(...) {
 
 #' Get option value with precedence: R option > env var > default
 #'
-#' Coerces to the default's storage type, so logical options stay
-#' logical and integer options like `arf_workers` stay integer. Anything
-#' that fails to coerce is treated as unset.
+#' Coerces to the default's storage type, so logical options stay logical.
+#' Anything that fails to coerce is treated as unset.
 #'
 #' @noRd
 #' @keywords internal
