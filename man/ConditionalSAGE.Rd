@@ -7,6 +7,28 @@
 \link{SAGE} with conditional sampling (features are "marginalized" conditionally).
 Uses \link{ConditionalARFSampler} as default \link{ConditionalSampler}.
 }
+\details{
+Conditional SAGE estimates SAGE values as originally defined:
+Covert et al. (2020) define the restricted model via the conditional expectation
+\verb{f_S(x_S) = E[f(X) | X_S = x_S]} (their Eq. 1), i.e. held-out features are marginalized using
+their conditional distribution given the observed features.
+Their sampling algorithm then substitutes the marginal distribution for tractability, noting
+that this "alters some of SAGE's properties"; that approximation is what \link{MarginalSAGE} and the
+reference Python \code{sage} package implement.
+\code{ConditionalSAGE} instead approximates the conditional expectation directly by drawing held-out
+features from a \link{ConditionalSampler} (by default \link{ConditionalARFSampler}), akin to how the
+\code{fippy} Python package implements conditional SAGE.
+The reference \code{sage} package does not sample conditionally, but approximates conditional removal
+by training surrogate models (Covert et al., 2021, "Explaining by Removing"), so results are not
+directly comparable between the two approaches.
+
+See \link{SAGE} for details on the available estimators, standard errors and confidence intervals,
+and how this implementation relates to the reference Python \code{sage} package.
+The kernel estimator combined with conditional sampling has no reference implementation.
+It reuses the exact same value function as the permutation estimator and only changes how
+coalitions are sampled.
+Results can be verified against \code{estimator = "exact"} on small feature sets.
+}
 \examples{
 \dontshow{if (requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE) && requireNamespace("arf", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 library(mlr3)
@@ -40,6 +62,17 @@ sage_custom$compute()
 }
 \dontshow{\}) # examplesIf}
 }
+\references{
+Covert I, Lundberg S, Lee S (2020).
+\dQuote{Understanding Global Feature Contributions With Additive Importance Measures.}
+In \emph{Advances in Neural Information Processing Systems}, volume 33, 17212--17223.
+\url{https://proceedings.neurips.cc/paper/2020/hash/c7bf0b7c1a86d5eb3be2c722cf2cf746-Abstract.html}.
+
+Covert I, Lundberg S, Lee S (2021).
+\dQuote{Explaining by Removing: A Unified Framework for Model Explanation.}
+\emph{Journal of Machine Learning Research}, \bold{22}(209), 1--90.
+\url{https://jmlr.org/papers/v22/20-1316.html}.
+}
 \seealso{
 \link{MarginalSAGE}
 }
@@ -62,13 +95,13 @@ sage_custom$compute()
 }
 \if{html}{\out{<details><summary>Inherited methods</summary>
 <ul>
-  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="importance"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-importance'><code>FeatureImportanceMethod$importance()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>FeatureImportanceMethod$obs_loss()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>FeatureImportanceMethod$print()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>FeatureImportanceMethod$reset()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>FeatureImportanceMethod$scores()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="SAGE" data-id="compute"><a href='../../xplainfi/html/SAGE.html#method-SAGE-compute'><code>SAGE$compute()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="SAGE" data-id="importance"><a href='../../xplainfi/html/SAGE.html#method-SAGE-importance'><code>SAGE$importance()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="SAGE" data-id="plot_convergence"><a href='../../xplainfi/html/SAGE.html#method-SAGE-plot_convergence'><code>SAGE$plot_convergence()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="SAGE" data-id="reset"><a href='../../xplainfi/html/SAGE.html#method-SAGE-reset'><code>SAGE$reset()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}
@@ -84,7 +117,11 @@ sage_custom$compute()
   measure = NULL,
   resampling = NULL,
   features = NULL,
-  n_permutations = 10L,
+  estimator = c("permutation", "kernel", "exact"),
+  n_permutations = NULL,
+  n_coalitions = NULL,
+  kernel_variant = NULL,
+  max_features = 12L,
   sampler = NULL,
   batch_size = 5000L,
   n_samples = 100L,
@@ -98,7 +135,7 @@ sage_custom$compute()
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{task, learner, measure, resampling, features, n_permutations, batch_size, n_samples, early_stopping, se_threshold, min_permutations, check_interval}}{Passed to \link{SAGE}.}
+      \item{\code{task, learner, measure, resampling, features, estimator, n_permutations, n_coalitions, kernel_variant, max_features, batch_size, n_samples, early_stopping, se_threshold, min_permutations, check_interval}}{Passed to \link{SAGE}.}
       \item{\code{sampler}}{(\link{ConditionalSampler}) Optional custom sampler. Defaults to \link{ConditionalARFSampler}.}
     }
     \if{html}{\out{</div>}}

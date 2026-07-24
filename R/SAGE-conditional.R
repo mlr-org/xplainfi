@@ -3,6 +3,33 @@
 #' @description [SAGE] with conditional sampling (features are "marginalized" conditionally).
 #' Uses [ConditionalARFSampler] as default [ConditionalSampler].
 #'
+#' @details
+#' Conditional SAGE estimates SAGE values as originally defined:
+#' Covert et al. (2020) define the restricted model via the conditional expectation
+#' `f_S(x_S) = E[f(X) | X_S = x_S]` (their Eq. 1), i.e. held-out features are marginalized using
+#' their conditional distribution given the observed features.
+#' Their sampling algorithm then substitutes the marginal distribution for tractability, noting
+#' that this "alters some of SAGE's properties"; that approximation is what [MarginalSAGE] and the
+#' reference Python `sage` package implement.
+#' `ConditionalSAGE` instead approximates the conditional expectation directly by drawing held-out
+#' features from a [ConditionalSampler] (by default [ConditionalARFSampler]), akin to how the
+#' `fippy` Python package implements conditional SAGE.
+#' The reference `sage` package does not sample conditionally, but approximates conditional removal
+#' by training surrogate models (Covert et al., 2021, "Explaining by Removing"), so results are not
+#' directly comparable between the two approaches.
+#'
+#' See [SAGE] for details on the available estimators, standard errors and confidence intervals,
+#' and how this implementation relates to the reference Python `sage` package.
+#' The kernel estimator combined with conditional sampling has no reference implementation.
+#' It reuses the exact same value function as the permutation estimator and only changes how
+#' coalitions are sampled.
+#' Results can be verified against `estimator = "exact"` on small feature sets.
+#'
+#' @references
+#' `r print_bib("lundberg_2020")`
+#'
+#' `r print_bib("covert_2021_jmlr")`
+#'
 #' @seealso [MarginalSAGE]
 #'
 #' @examplesIf requireNamespace("ranger", quietly = TRUE) && requireNamespace("mlr3learners", quietly = TRUE) && requireNamespace("arf", quietly = TRUE)
@@ -45,7 +72,7 @@ ConditionalSAGE = R6Class(
 
     #' @description
     #' Creates a new instance of the ConditionalSAGE class.
-    #' @param task,learner,measure,resampling,features,n_permutations,batch_size,n_samples,early_stopping,se_threshold,min_permutations,check_interval Passed to [SAGE].
+    #' @param task,learner,measure,resampling,features,estimator,n_permutations,n_coalitions,kernel_variant,max_features,batch_size,n_samples,early_stopping,se_threshold,min_permutations,check_interval Passed to [SAGE].
     #' @param sampler ([ConditionalSampler]) Optional custom sampler. Defaults to [ConditionalARFSampler].
     initialize = function(
       task,
@@ -53,7 +80,11 @@ ConditionalSAGE = R6Class(
       measure = NULL,
       resampling = NULL,
       features = NULL,
-      n_permutations = 10L,
+      estimator = c("permutation", "kernel", "exact"),
+      n_permutations = NULL,
+      n_coalitions = NULL,
+      kernel_variant = NULL,
+      max_features = 12L,
       sampler = NULL,
       batch_size = 5000L,
       n_samples = 100L,
@@ -80,7 +111,11 @@ ConditionalSAGE = R6Class(
         measure = measure,
         resampling = resampling,
         features = features,
+        estimator = estimator,
         n_permutations = n_permutations,
+        n_coalitions = n_coalitions,
+        kernel_variant = kernel_variant,
+        max_features = max_features,
         batch_size = batch_size,
         n_samples = n_samples,
         early_stopping = early_stopping,

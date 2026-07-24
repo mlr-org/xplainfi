@@ -1,2 +1,26 @@
-# Project-specific words — commit and share with the team.
+# Project-specific words; commit and share with the team.
 # Add words here (or via "Add to project dictionary" in VS Code / Cursor).
+Welford
+miscalibration
+montecarlo
+noff
+offdiag
+unmodeled
+estimand
+estimands
+Bengio
+Nadeau
+WVIM
+subsampling
+xplainfi
+Feng
+SPVIM
+vimp
+importances
+Shapley
+SHAP
+sublist
+checkpointing
+dphi
+lundberg
+jmlr

@@ -59,8 +59,8 @@ check_single_resampling_iter = function(resampling) {
 #' Warn if any test observation appears in more than one resampling test set
 #'
 #' Lei et al. inference assumes unique test observations.
-#' The iter_repeat dimension (refit/sampling repeats) is averaged over and
-#' irrelevant here — what matters is whether a row_id appears in multiple
+#' The iter_repeat dimension (refit/sampling repeats) is averaged over and irrelevant here;
+#' what matters is whether a row_id appears in multiple
 #' resampling iterations (iter_rsmp), e.g. with subsampling.
 #'
 #' @param obs_loss_data data.table with columns row_ids, iter_rsmp
@@ -519,6 +519,64 @@ importance_loco = function(
 
   test = match.arg(test)
   test_obs_importance(obs_loss_agg, test, alternative, conf_level, p_adjust, aggregator)
+}
+
+#' Monte Carlo (coalition-sampling) convergence intervals for SAGE
+#'
+#' Wald intervals from the Monte Carlo standard errors of the SAGE estimator, i.e. the
+#' uncertainty of the Shapley estimate for a *fixed* trained model due to finite coalition /
+#' permutation sampling. This is a different source of uncertainty from the resampling-based
+#' methods (`"raw"`, `"nadeau_bengio"`, `"quantile"`), which quantify variability across
+#' train/test splits; the two are not comparable.
+#'
+#' Deliberately reports no test statistic or p-value: the estimation target (the exhaustive-
+#' enumeration SAGE value of this fitted model on this test data) is a fixed, generally nonzero
+#' number, so a test against zero rejects for every feature once enough coalitions are sampled.
+#' The intervals quantify how converged the computation is, not whether a feature matters;
+#' importance inference is the job of the resampling-based methods.
+#'
+#' Each resampling iteration contributes its own point estimate and Monte Carlo SE. The pooled
+#' point estimate is the mean over iterations; treating the iterations' Monte Carlo errors as
+#' independent, the SE of that mean is `sqrt(sum(se^2)) / n_iters`. Standard normal quantiles are
+#' used (the estimator is asymptotically normal in the number of coalitions).
+#'
+#' With more than one resampling iteration this reflects only the Monte Carlo error and *not*
+#' the between-model variability across splits; a single holdout split is the intended use.
+#'
+#' @param scores data.table with columns `iter_rsmp`, `feature`, `importance`, `se`
+#' @param conf_level confidence level for intervals
+#' @param alternative "greater" (one-sided) or "two.sided"
+#' @noRd
+importance_sage_montecarlo = function(scores, conf_level, alternative) {
+  # The data.table NSE tax
+  importance = se = NULL
+
+  agg = scores[,
+    list(
+      importance = mean(importance),
+      # SE of the mean over iterations; NA in any iteration propagates to NA.
+      se = sqrt(sum(se^2)) / .N
+    ),
+    by = "feature"
+  ]
+
+  ci_alpha = 1 - conf_level
+
+  if (alternative == "greater") {
+    quant = stats::qnorm(1 - ci_alpha)
+    agg[, let(
+      conf_lower = importance - quant * se,
+      conf_upper = Inf
+    )]
+  } else {
+    quant = stats::qnorm(1 - ci_alpha / 2)
+    agg[, let(
+      conf_lower = importance - quant * se,
+      conf_upper = importance + quant * se
+    )]
+  }
+
+  agg
 }
 
 # Score Relation Helpers ----

@@ -281,7 +281,7 @@ test_that("ConditionalSAGE SE tracking in convergence_history", {
   expect_contains(colnames(sage$convergence_history), "se")
 
   # Check structure of convergence_history
-  expected_cols = c("n_permutations", "feature", "importance", "se")
+  expected_cols = c("budget", "n_evals", "feature", "importance", "se")
   expect_setequal(colnames(sage$convergence_history), expected_cols)
 
   # SE values should be non-negative and finite

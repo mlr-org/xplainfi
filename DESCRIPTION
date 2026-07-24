@@ -46,6 +46,7 @@ Suggests:
     partykit,
     patchwork,
     ranger,
+    rlang,
     rmarkdown,
     rpart,
     testthat (>= 3.0.0),
