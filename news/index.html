@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">xplainfi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,16 +60,16 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.1.0.9000" id="xplainfi-1109000-development-version">xplainfi 1.1.0.9000 (development version)<a class="anchor" aria-label="anchor" href="#xplainfi-1109000-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.2.0" id="xplainfi-120">xplainfi 1.2.0<a class="anchor" aria-label="anchor" href="#xplainfi-120"></a></h2>
 <div class="section level3">
-<h3 id="behavior-changes-1-1-0-9000">Behavior changes<a class="anchor" aria-label="anchor" href="#behavior-changes-1-1-0-9000"></a></h3>
+<h3 id="behavior-changes-1-2-0">Behavior changes<a class="anchor" aria-label="anchor" href="#behavior-changes-1-2-0"></a></h3>
 <ul><li>
 <code>WVIM</code> and <code>LOCO</code> now default to <code>n_repeats = 1</code>, and the argument may be removed for these refit-based methods in the future (<a href="https://github.com/mlr-org/xplainfi/issues/84" class="external-link">#84</a>).
 <ul><li>For refit-based methods, computational budget is better spent on more resampling iterations (which stabilize the FI estimate) than on repeated refits within a single resampling iteration.</li>
 </ul></li>
 </ul></div>
 <div class="section level3">
-<h3 id="new-features-1-1-0-9000">New features<a class="anchor" aria-label="anchor" href="#new-features-1-1-0-9000"></a></h3>
+<h3 id="new-features-1-2-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-2-0"></a></h3>
 <ul><li>
 <code>FeatureSampler$sample()</code> and <code>$sample_newdata()</code> gain a <code>samples_per_row</code> argument (default <code>1L</code>).
 <ul><li>With <code>samples_per_row &gt; 1</code> the sampler returns <code>samples_per_row * length(row_ids)</code> rows in draw-major order (one block of all input rows per draw), default behaviour is unchanged.</li>
@@ -84,7 +84,7 @@
 </ul></li>
 </ul></div>
 <div class="section level3">
-<h3 id="performance-1-1-0-9000">Performance<a class="anchor" aria-label="anchor" href="#performance-1-1-0-9000"></a></h3>
+<h3 id="performance-1-2-0">Performance<a class="anchor" aria-label="anchor" href="#performance-1-2-0"></a></h3>
 <ul><li>
 <code>PerturbationImportance</code> (<code>PFI</code>/<code>CFI</code>/<code>RFI</code>) and <code>ConditionalSAGE</code> now pass <code>samples_per_row = n_repeats</code> / <code>n_samples</code> to the sampler on unique test rows instead of externally replicating row IDs.
 <ul><li>For <code>ConditionalARFSampler</code> this calls <code>arf::forge(n_synth = ...)</code> on <code>n_test</code> unique evidence rows rather than <code>n_synth = 1</code> on replicated rows: much faster at scale, and it dodges an int32 overflow inside <code><a href="https://bips-hb.github.io/arf/reference/forge.html" class="external-link">arf::forge</a></code> for large <code>n_test * n_repeats</code>.</li>
@@ -94,8 +94,10 @@
 <code>PerturbationImportance</code> now forges sequentially inside each mirai daemon, since the outer mirai layer already parallelizes across features; a <code>ConditionalARFSampler</code> with <code>parallel = TRUE</code> no longer nests <code><a href="https://bips-hb.github.io/arf/reference/forge.html" class="external-link">arf::forge()</a></code> parallelism inside workers (which would oversubscribe cores). The sampler’s <code>parallel</code> flag still drives fit-time parallelism (<code>adversarial_rf</code>/<code>forde</code>) as before.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-1-1-0-9000">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-0-9000"></a></h3>
+<h3 id="bug-fixes-1-2-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-2-0"></a></h3>
 <ul><li>
+<code>$importance()</code> with a test-based <code>ci_method</code> (<code>"lei"</code>, <code>"cpi"</code>) now warns and returns <code>NA</code> inference fields for a feature whose hypothesis test errors, instead of aborting the whole call; this guards against an R-devel (2026-05) change to <code><a href="https://rdrr.io/r/stats/wilcox.test.html" class="external-link">stats::wilcox.test</a></code> that errors on many-ties or many-zeros inputs.</li>
+<li>
 <code>relation = "ratio"</code> importances now return <code>NA</code> (with a warning) instead of <code>Inf</code>/<code>NaN</code> for features whose baseline score is <code>0</code>.</li>
 <li>
 <code>PerturbationImportance</code> no longer calls <code>$obs_loss()</code> without <code>measure</code>, which errored when <code>measures</code> was not the task default.</li>
@@ -109,7 +111,7 @@
 </ul></li>
 </ul></div>
 <div class="section level3">
-<h3 id="internal-changes-1-1-0-9000">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-1-0-9000"></a></h3>
+<h3 id="internal-changes-1-2-0">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-2-0"></a></h3>
 <ul><li>The <code>KnockoffSampler</code> <code>n_repeats &gt; iters</code> cap-and-warn behaviour moved from <code>PerturbationImportance$initialize()</code> into <code>KnockoffSampler$sample()</code> itself; behaviour is unchanged.</li>
 </ul></div>
 </div>
@@ -119,7 +121,7 @@
 <h3 id="new-features-1-1-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-1-0"></a></h3>
 <ul><li>Use of a pre-trained <code>mlr3</code> learner is now supported in <code>PerturbationImportance</code> (<code>PFI</code>, <code>CFI</code>, <code>RFI</code>) and <code>SAGE</code> methods.
 <ul><li>Requires the provided <code>Resampling</code> to be instantiated and consist of a single iteration, e.g. there must be only 1 test set.</li>
-<li>The <code>rsmp_all_test(task)</code> utility can be used to construct a single-iteration <code>Resampling</code> object from a given <code>Task</code> where all observations are alligned to the test set and the train set is empty. We will likely refine the API around this in the future.</li>
+<li>The <code>rsmp_all_test(task)</code> utility can be used to construct a single-iteration <code>Resampling</code> object from a given <code>Task</code> where all observations are aligned to the test set and the train set is empty. We will likely refine the API around this in the future.</li>
 <li>Internally, a <code>ResampleResult</code> will be constructed from the given <code>learner</code>, <code>task</code>, and <code>resampling</code> arguments, which is then consistent with the previous default of performing <code><a href="https://mlr3.mlr-org.com/reference/resample.html" class="external-link">resample()</a></code> to get trained learners for each resampling iteration.</li>
 </ul></li>
 </ul></div>
@@ -159,7 +161,7 @@
 <li>Clean up various documentation issues and other metadata.</li>
 <li>Adjusted the <code>min_permutations</code> default in <code>SAGE</code> methods to 10 rather than 3, since the previous value was found to lead to spurious early stopping.</li>
 <li>Fix <code>sim_dgp_ewald</code> lading to erroneous variances when compared to their settings.</li>
-<li>Reduce runtime of tests (mostly by using less ARF and mor Gaussian sampling)</li>
+<li>Reduce runtime of tests (mostly by using less ARF and more Gaussian sampling)</li>
 <li>Remove <code>KnockoffSequentialSampler</code> as the <code>seqknockoff</code> package is not available on CRAN or R-universe. <code>KnockoffSampler</code> with the corresponding <code>knockoff_fun = seqknockoff::knockoffs_seq</code> still works.</li>
 </ul></div>
 </div>

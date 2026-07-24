@@ -235,7 +235,7 @@ true direct causal effects. Note that `independent` is truly independent
 (no confounding) while `proxy` provides a noisy measurement of the
 confounder.
 
-In the observable confounder scenaro (used later), the confounder H
+In the observable confounder scenario (used later), the confounder H
 would be included as a feature in the dataset, allowing direct
 conditioning rather than relying on the noisy proxy.
 

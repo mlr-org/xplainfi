@@ -1,6 +1,6 @@
 # Changelog
 
-## xplainfi 1.1.0.9000 (development version)
+## xplainfi 1.2.0
 
 ### Behavior changes
 
@@ -58,6 +58,12 @@
 
 ### Bug fixes
 
+- `$importance()` with a test-based `ci_method` (`"lei"`, `"cpi"`) now
+  warns and returns `NA` inference fields for a feature whose hypothesis
+  test errors, instead of aborting the whole call; this guards against
+  an R-devel (2026-05) change to
+  [`stats::wilcox.test`](https://rdrr.io/r/stats/wilcox.test.html) that
+  errors on many-ties or many-zeros inputs.
 - `relation = "ratio"` importances now return `NA` (with a warning)
   instead of `Inf`/`NaN` for features whose baseline score is `0`.
 - `PerturbationImportance` no longer calls `$obs_loss()` without
@@ -99,8 +105,8 @@ CRAN release: 2026-02-26
     a single iteration, e.g. there must be only 1 test set.
   - The `rsmp_all_test(task)` utility can be used to construct a
     single-iteration `Resampling` object from a given `Task` where all
-    observations are alligned to the test set and the train set is
-    empty. We will likely refine the API around this in the future.
+    observations are aligned to the test set and the train set is empty.
+    We will likely refine the API around this in the future.
   - Internally, a `ResampleResult` will be constructed from the given
     `learner`, `task`, and `resampling` arguments, which is then
     consistent with the previous default of performing
@@ -183,7 +189,7 @@ is now considered “released”.
   stopping.
 - Fix `sim_dgp_ewald` lading to erroneous variances when compared to
   their settings.
-- Reduce runtime of tests (mostly by using less ARF and mor Gaussian
+- Reduce runtime of tests (mostly by using less ARF and more Gaussian
   sampling)
 - Remove `KnockoffSequentialSampler` as the `seqknockoff` package is not
   available on CRAN or R-universe. `KnockoffSampler` with the
