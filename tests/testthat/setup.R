@@ -3,6 +3,12 @@
 # Load mlr3 to avoid mlr3:: namespace clutter in tests
 library(mlr3)
 
+# CRAN policy: use at most 2 cores in tests, restore in teardown env
+old_dt_threads = data.table::getDTthreads()
+old_ranger_threads = getOption("ranger.num.threads")
+data.table::setDTthreads(2)
+options(ranger.num.threads = 2)
+
 # Get current log threshold
 logger = lgr::get_logger("mlr3")
 old_threshold = logger$threshold
@@ -18,6 +24,8 @@ withr::defer(
   {
     lgr::get_logger("mlr3")$set_threshold(old_threshold)
     xplain_opt(verbose = old_opts$verbose, progress = old_opts$progress)
+    data.table::setDTthreads(old_dt_threads)
+    options(ranger.num.threads = old_ranger_threads)
   },
   teardown_env()
 )
