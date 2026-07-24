@@ -1,4 +1,4 @@
-# xplainfi 1.1.0.9000 (development version)
+# xplainfi 1.2.0
 
 ## Behavior changes
 
@@ -24,6 +24,7 @@
 
 ## Bug fixes
 
+- `$importance()` with a test-based `ci_method` (`"lei"`, `"cpi"`) now warns and returns `NA` inference fields for a feature whose hypothesis test errors, instead of aborting the whole call; this guards against an R-devel (2026-05) change to `stats::wilcox.test` that errors on many-ties or many-zeros inputs.
 - `relation = "ratio"` importances now return `NA` (with a warning) instead of `Inf`/`NaN` for features whose baseline score is `0`.
 - `PerturbationImportance` no longer calls `$obs_loss()` without `measure`, which errored when `measures` was not the task default.
 - `ConditionalARFSampler$sample()` now errors when `parallel = TRUE` but no parallel backend is registered, e.g. after deserializing a sampler in a new session.
@@ -41,7 +42,7 @@
 
 - Use of a pre-trained `mlr3` learner is now supported in `PerturbationImportance` (`PFI`, `CFI`, `RFI`) and `SAGE` methods.
   - Requires the provided `Resampling` to be instantiated and consist of a single iteration, e.g. there must be only 1 test set.
-  - The `rsmp_all_test(task)` utility can be used to construct a single-iteration `Resampling` object from a given `Task` where all observations are alligned to the test set and the train set is empty. We will likely refine the API around this in the future.
+  - The `rsmp_all_test(task)` utility can be used to construct a single-iteration `Resampling` object from a given `Task` where all observations are aligned to the test set and the train set is empty. We will likely refine the API around this in the future.
   - Internally, a `ResampleResult` will be constructed from the given `learner`, `task`, and `resampling` arguments, which is then consistent with the previous default of performing `resample()` to get trained learners for each resampling iteration.
 
 ## Inference
@@ -95,7 +96,7 @@ The major version bump is largely to mark the occasion that the package is now c
 - Clean up various documentation issues and other metadata.
 - Adjusted the `min_permutations` default in `SAGE` methods to 10 rather than 3, since the previous value was found to lead to spurious early stopping.
 - Fix `sim_dgp_ewald` lading to erroneous variances when compared to their settings.
-- Reduce runtime of tests (mostly by using less ARF and mor Gaussian sampling)
+- Reduce runtime of tests (mostly by using less ARF and more Gaussian sampling)
 - Remove `KnockoffSequentialSampler` as the `seqknockoff` package is not available on CRAN or R-universe. `KnockoffSampler` with the corresponding `knockoff_fun = seqknockoff::knockoffs_seq` still works.
 
 # xplainfi 0.2.1

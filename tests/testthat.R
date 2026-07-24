@@ -6,6 +6,10 @@
 # * https://r-pkgs.org/testing-design.html#sec-tests-files-overview
 # * https://testthat.r-lib.org/articles/special-files.html
 
+# Cap threads before any BLAS/OpenMP init: CRAN's Debian machine links a multithreaded (OpenMP) BLAS whose
+# spin-pool inflates the CPU/elapsed ratio. Must be set here, before library() and any matrix op, to take effect.
+Sys.setenv("OMP_THREAD_LIMIT" = 2)
+
 library(testthat)
 library(xplainfi)
 

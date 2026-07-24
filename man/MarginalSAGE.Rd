@@ -13,10 +13,10 @@ library(mlr3)
 task = tgen("friedman1")$generate(n = 100)
 sage = MarginalSAGE$new(
   task = task,
-  learner = lrn("regr.ranger", num.trees = 50),
+  learner = lrn("regr.ranger", num.trees = 20),
   measure = msr("regr.mse"),
-  n_permutations = 3L,
-  n_samples = 20
+  n_permutations = 2L,
+  n_samples = 10
 )
 sage$compute()
 \dontshow{\}) # examplesIf}
