@@ -47,5 +47,4 @@
 ^codecov\.yml$
 ^codemeta\.json$
 ^vignettes/articles$
-^coverage.html$
 ^jarl\.toml$
