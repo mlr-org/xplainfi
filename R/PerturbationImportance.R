@@ -218,7 +218,6 @@ PerturbationImportance = R6Class(
             n_repeats,
             batch_size,
             learner_packages,
-            arf_workers,
             is_sequential = TRUE
           ) {
             # Load required packages in parallel workers
@@ -229,18 +228,16 @@ PerturbationImportance = R6Class(
               for (pkg in learner_packages) {
                 library(pkg, character.only = TRUE)
               }
-              # If sampler is configured for parallel sampling (e.g. arf::forge
-              # with parallel = TRUE), foreach needs a backend registered inside
-              # THIS daemon's R session — mirai daemons are separate processes
-              # and don't inherit the caller's foreach state. arf's sequential
-              # %do% path has bugs at scale, so the only reliable way to use
-              # ARF inside a mirai daemon is to give it a parallel backend.
-              # Tune workers per daemon via `xplain_opt(arf_workers = N)`
-              # in the caller session (value resolved before dispatch).
-              if (isTRUE(sampler$param_set$values$parallel) && arf_workers > 0L) {
-                require_package("doParallel")
-                doParallel::registerDoParallel(cores = arf_workers)
-                on.exit(doParallel::stopImplicitCluster(), add = TRUE)
+              # Force sequential forging inside the daemon. The outer mirai layer
+              # already parallelizes across features, so letting the sampler's
+              # stored `parallel` flag drive nested `arf::forge()` parallelism
+              # here would only oversubscribe cores. That flag reflects fit-time
+              # config (`adversarial_rf`/`forde`, done once in the caller) and
+              # must not leak into sample-time forging. Set it on the daemon-local
+              # sampler copy, samplers without a `parallel` param (all non-ARF
+              # samplers) are unaffected.
+              if ("parallel" %in% sampler$param_set$ids()) {
+                sampler$param_set$set_values(parallel = FALSE)
               }
             }
 
@@ -282,12 +279,7 @@ PerturbationImportance = R6Class(
             test_row_ids = test_row_ids,
             n_repeats = n_repeats,
             batch_size = batch_size,
-            learner_packages = this_learner$packages,
-            # Resolved once on caller side — mirai daemons are separate R
-            # sessions and don't inherit options from the caller, so reading
-            # `xplain_opt()` inside the daemon would always see the package
-            # default. Pass the resolved value through `.args` instead.
-            arf_workers = xplain_opt("arf_workers")
+            learner_packages = this_learner$packages
           )
         )
 
