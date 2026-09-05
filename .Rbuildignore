@@ -48,3 +48,6 @@
 ^codemeta\.json$
 ^vignettes/articles$
 ^jarl\.toml$
+coverage.html
+tmp.md
+TODO.md
