@@ -274,7 +274,11 @@ test_that("ConditionalSAGE SE tracking in convergence_history", {
   )
 
   # Compute with early stopping to get convergence history
-  sage$compute(early_stopping = TRUE, se_threshold = 0.05, check_interval = 2L)
+  # min_permutations (10) exceeds n_permutations (6), so the criterion never trips.
+  expect_warning(
+    sage$compute(early_stopping = TRUE, se_threshold = 0.05, check_interval = 2L),
+    "did not converge"
+  )
 
   # Check that convergence_history exists and has SE column
   expect_false(is.null(sage$convergence_history))

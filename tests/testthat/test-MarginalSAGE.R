@@ -194,7 +194,11 @@ test_that("MarginalSAGE SE tracking in convergence_history", {
   )
 
   # Compute with early stopping to get convergence history
-  sage$compute(early_stopping = TRUE, se_threshold = 0.05, check_interval = 2L)
+  # min_permutations (10) exceeds n_permutations (6), so the criterion never trips.
+  expect_warning(
+    sage$compute(early_stopping = TRUE, se_threshold = 0.05, check_interval = 2L),
+    "did not converge"
+  )
 
   # Check that convergence_history exists and has SE column
   expect_false(is.null(sage$convergence_history))
@@ -258,11 +262,14 @@ test_that("MarginalSAGE SE-based convergence detection", {
   sage$reset()
 
   # Test with very strict SE threshold (should not converge)
-  sage$compute(
-    early_stopping = TRUE,
-    se_threshold = 0.001,
-    min_permutations = 5L,
-    check_interval = 1L
+  expect_warning(
+    sage$compute(
+      early_stopping = TRUE,
+      se_threshold = 0.001,
+      min_permutations = 5L,
+      check_interval = 1L
+    ),
+    "did not converge"
   )
 
   # With very strict SE threshold, should not converge early
@@ -271,12 +278,13 @@ test_that("MarginalSAGE SE-based convergence detection", {
   # Test with moderate SE threshold
   sage$reset()
 
-  sage$compute(
+  # Convergence is not asserted here, so a non-convergence warning is irrelevant.
+  suppressWarnings(sage$compute(
     early_stopping = TRUE,
     se_threshold = 0.1,
     min_permutations = 5L,
     check_interval = 1L
-  )
+  ))
 
   # Should have convergence history with SE tracking regardless of convergence
   expect_false(is.null(sage$convergence_history))
@@ -370,6 +378,8 @@ test_that("deprecated n_permutations field aliases the param_set", {
   sage = MarginalSAGE$new(task, lrn("regr.rpart"), n_permutations = 5L)
   # cli warns once per session, so only the alias semantics are asserted here.
   expect_identical(suppressWarnings(sage$n_permutations), 5L)
-  suppressWarnings(sage$n_permutations <- 7L)
+  suppressWarnings({
+    sage$n_permutations = 7L
+  })
   expect_identical(sage$param_set$values$n_permutations, 7L)
 })

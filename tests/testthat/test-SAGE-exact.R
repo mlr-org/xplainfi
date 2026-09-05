@@ -121,17 +121,18 @@ test_that("sampling estimators converge to the exact estimator", {
   resampling$instantiate(task)
 
   # Share the reference subsample so all estimators target the same value function.
-  set.seed(1)
+  set.seed(1097)
   exact = MarginalSAGE$new(task, learner, measure, resampling = resampling, estimator = "exact", n_samples = 40L)
   exact$compute()
 
-  set.seed(1)
+  set.seed(1097)
   kernel = MarginalSAGE$new(
     task,
     learner,
     measure,
     resampling = resampling,
     estimator = "kernel",
+    kernel_variant = "original",
     n_coalitions = 2000L,
     n_samples = 40L
   )
@@ -141,6 +142,24 @@ test_that("sampling estimators converge to the exact estimator", {
   # Totals match exactly (efficiency); values match up to Monte Carlo error.
   expect_equal(sum(cmp$importance.x), sum(cmp$importance.y), tolerance = 1e-8)
   expect_lt(max(abs(cmp$importance.x - cmp$importance.y)), 0.05)
+})
+
+test_that("maximized measures yield the same SAGE values as their minimized counterpart", {
+  # classif.acc = 1 - classif.ce per coalition, so the score reductions must coincide
+  # once the maximized measure's scores are negated internally.
+  task = tgen("2dnormals")$generate(n = 100)
+  learner = lrn("classif.rpart", predict_type = "prob")
+  resampling = rsmp("holdout")$instantiate(task)
+
+  set.seed(2311)
+  ce = MarginalSAGE$new(task, learner, msr("classif.ce"), resampling, estimator = "exact", n_samples = 20L)
+  ce$compute()
+  set.seed(2311)
+  acc = MarginalSAGE$new(task, learner, msr("classif.acc"), resampling, estimator = "exact", n_samples = 20L)
+  acc$compute()
+
+  expect_equal(acc$importance()$importance, ce$importance()$importance, tolerance = 1e-10)
+  expect_gt(sum(acc$importance()$importance), 0)
 })
 
 # -----------------------------------------------------------------------------

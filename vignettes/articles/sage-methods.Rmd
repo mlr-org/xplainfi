@@ -192,8 +192,8 @@ sage$compute(early_stopping = TRUE, se_threshold = 0.005)
 sage$compute(early_stopping = FALSE)
 ```
 
-For the kernel estimator, leaving `n_coalitions` unset together with `early_stopping = TRUE` in the constructor raises the budget to a safety ceiling and lets the criterion decide the effort.
-If the criterion is not met within the budget, the values are returned with a warning and `$budget` reports `converged = FALSE`.
+With early stopping the budget (`n_permutations` or `n_coalitions`) acts as an upper bound rather than a planned cost.
+If the criterion is not met within it, the values are returned with a warning and `$budget` reports `converged = FALSE`.
 
 After computation, `$budget` reports what was actually spent:
 
@@ -355,14 +355,15 @@ sage_perm = MarginalSAGE$new(
 	n_samples = 50L
 )
 
-# Kernel estimator: budget set by n_coalitions instead
+# Kernel estimator: budget set by n_coalitions instead (the default variant needs a
+# large budget in this setting, see below)
 sage_kernel = MarginalSAGE$new(
 	task = task_f,
 	learner = learner_f,
 	measure = measure_f,
 	resampling = resampling_f,
 	estimator = "kernel",
-	n_coalitions = 250L,
+	n_coalitions = 1000L,
 	n_samples = 50L
 )
 
@@ -411,24 +412,25 @@ c(
 
 ### When does the kernel estimator pay off?
 
-For this ten-feature task the two estimators are comparably cheap, so there is little reason to switch.
-The kernel estimator's advantage is a matter of *scaling*: its evaluation budget is fixed by `n_coalitions` and does not grow with the number of features, whereas the permutation estimator evaluates `n_permutations * p + 1` coalitions.
-The following table illustrates the number of model evaluations at fixed budgets (`n_permutations = 15`, `n_coalitions = 250`) as the feature count grows:
+For this ten-feature task the kernel estimator needed a much larger budget than the permutation estimator to reach comparable accuracy, so there is no reason to switch here.
+Its advantage is a matter of *scaling*: the evaluation budget is fixed by `n_coalitions` and does not grow with the number of features, whereas the permutation estimator evaluates `n_permutations * p + 1` coalitions.
+The following table illustrates the number of model evaluations at fixed budgets (`n_permutations = 15`, `n_coalitions = 1000`) as the feature count grows:
 
 ```{r estimator-scaling}
-p = c(5L, 10L, 25L, 50L, 100L)
+p = c(5L, 10L, 25L, 50L, 100L, 200L)
 data.frame(
 	n_features = p,
 	permutation_evals = 15L * p + 1L,
-	kernel_evals = 2L * 250L + 2L
+	kernel_evals = 2L * 1000L + 2L
 )
 ```
 
 The number of coalitions the kernel estimator needs to converge grows only slowly with $p$, while the permutation estimator's per-iteration cost grows linearly.
 As a rule of thumb:
 
-- For a handful of features, prefer **permutation**: it is simple and cheap, and its cost is easy to reason about.
-- As the feature count grows into the dozens, prefer **kernel**: it reaches a given accuracy with far fewer model evaluations.
+- For a handful to a few dozen features, prefer **permutation**: it is simple, and its cost is easy to reason about.
+- For large feature counts, prefer **kernel**: its budget does not grow with $p$, so it eventually reaches a given accuracy with fewer model evaluations.
+- `kernel_variant = "original"` typically needs an order of magnitude fewer draws than the default in this package's setting (see [Relation to the Python `sage` package](#relation-to-sage)), which moves the crossover to far smaller feature counts.
 
 This matches the empirical results in Covert & Lee (2021) and the reference `sage` implementation, where the kernel estimator is noisier than permutation sampling for very few features but converges substantially faster once there are many features.
 
@@ -441,8 +443,8 @@ Two anchors make the choice manageable in practice:
    The three estimators' costs are directly comparable via their total number of evaluated coalitions: `n_permutations * p + 1` (permutation), `2 * n_coalitions + 2` (kernel), and `2^p` (exact).
    A sampling budget approaching `2^p` buys enumeration at sampling prices: for the ten-feature `friedman1` task, `n_coalitions = 500` costs 1002 evaluations while `estimator = "exact"` removes the coalition-sampling error entirely for 1024.
    When a budget meets or exceeds the exact cost, `$compute()` points this out in a message (once per session).
-   The defaults are chosen accordingly: if unset, `n_permutations` defaults to `10` and `n_coalitions` to `5 * p` draws, which matches the permutation default's evaluation budget; since the kernel estimator is more sample-efficient, it typically comes out more accurate at that shared cost.
-   Both defaults are reduced on small feature sets so they stay at or below half the cost of exact enumeration (`n_coalitions` is additionally capped at `512`).
+   The defaults reflect this: if unset, `n_permutations` defaults to `10` (reduced on small feature sets so it stays at or below half the cost of exact enumeration), and `n_coalitions` to `100 * p` draws (capped at `4096`), which is what the default kernel variant needs for an accuracy comparable to the permutation default on a task like this one.
+   On small feature sets the kernel default exceeds the cost of exact enumeration, and the message points you there.
 2. **Check the Monte Carlo standard errors after computing.**
    Both sampling estimators report per-feature standard errors for their coalition-sampling error, available via `$importance(ci_method = "montecarlo")` and `$plot_convergence()` (see the [inference article](https://xplainfi.mlr-org.com/articles/inference.html) for interpretation).
    If the intervals are wide relative to the spread of the importance values, increase the budget (a maximum SE below about 1% of the importance range is the same criterion early stopping uses by default).
@@ -525,7 +527,7 @@ With a near-deterministic value function, coalition sampling is the *only* remai
 How much they cancel depends on the value function: on an exactly additive game the cancellation is complete, and the variant returns that game's Shapley values at any budget.
 Away from that case the two variants can need very different budgets to reach the same accuracy.
 
-So xplainfi ships both, with `"original"` as the default because it suits the learned value functions the package is typically applied to, and `"unbiased"` available for direct comparison with `sage`.
+So xplainfi ships both, with `"unbiased"` as the default for consistency with `sage`, and `"original"` available where sampling efficiency matters: on the learned value functions this package is typically applied to it reaches a given accuracy at roughly an order of magnitude smaller budgets.
 Neither is universally better, and a budget tuned for one should not be assumed to suffice for the other.
 
 ### What you can and cannot compare across the packages

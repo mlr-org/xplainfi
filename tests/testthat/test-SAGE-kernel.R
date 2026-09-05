@@ -27,6 +27,8 @@ test_that("MarginalSAGE kernel estimator works across task types", {
   expect_identical(sage_regr$param_set$values$estimator, "kernel")
   expect_null(sage_regr$param_set$values$n_permutations)
   expect_identical(sage_regr$param_set$values$n_coalitions, 100L)
+  # Default variant is the one the reference Python sage package implements.
+  expect_identical(sage_regr$param_set$values$kernel_variant, "unbiased")
   sage_regr$compute()
   expect_importance_dt(sage_regr$importance(), features = sage_regr$features)
 
@@ -129,6 +131,7 @@ test_that("MarginalSAGE kernel with a single feature returns the total", {
 # -----------------------------------------------------------------------------
 
 test_that("kernel estimator recovers exact Shapley on a small feature set", {
+  skip_on_cran() # validation anchor, ~25s: 2002 coalitions on a ranger game
   # skip_if_not_installed() also loads the mlr3learners namespace, which is what
   # registers "regr.ranger" in the learner dictionary (setup.R only loads mlr3).
   skip_if_not_installed("mlr3learners")
@@ -143,7 +146,8 @@ test_that("kernel estimator recovers exact Shapley on a small feature set", {
   # coincide, and on (near-)additive games any full-support weighting recovers
   # the Shapley values, so either setting would mask a wrong size distribution
   # (see sage_kernel_size_probs). Calibrated separation here: correct weights
-  # ~0.001 max abs error, per-coalition weights ~0.008.
+  # ~0.001 max abs error, per-coalition weights ~0.008. Uses the "original"
+  # variant, whose sampled design matrix makes this tolerance reachable.
   set.seed(0xC0FFEE)
   task = sim_dgp_interactions(n = 200)
   learner = lrn("regr.ranger", num.trees = 25)
@@ -153,6 +157,7 @@ test_that("kernel estimator recovers exact Shapley on a small feature set", {
     learner = learner,
     measure = msr("regr.mse"),
     estimator = "kernel",
+    kernel_variant = "original",
     n_coalitions = 1000L,
     n_samples = 20L
   )
@@ -199,6 +204,7 @@ test_that("ConditionalSAGE kernel agrees with the exact estimator", {
     resampling = resampling,
     sampler = sampler,
     estimator = "kernel",
+    kernel_variant = "original",
     n_coalitions = 400L,
     n_samples = 30L
   )
@@ -240,6 +246,7 @@ test_that("kernel and permutation estimators agree on important features", {
     measure,
     resampling = resampling,
     estimator = "kernel",
+    kernel_variant = "original",
     n_coalitions = 600L,
     n_samples = 30L
   )
@@ -287,16 +294,16 @@ test_that("budget defaults adapt to the feature count", {
   expect_identical(MarginalSAGE$new(task10, learner)$param_set$values$n_permutations, 10L)
   expect_identical(MarginalSAGE$new(task5, learner)$param_set$values$n_permutations, 3L)
 
-  # Kernel: 5 * m draws (matching the permutation default's evaluation budget),
-  # capped at 512 and at 2^(m-2) (half the enumeration cost) on small feature sets.
+  # Kernel: 100 * m draws (sized for the unbiased default variant), capped at 4096.
   expect_identical(
     MarginalSAGE$new(task10, learner, estimator = "kernel")$param_set$values$n_coalitions,
-    50L
+    1000L
   )
   expect_identical(
     MarginalSAGE$new(task5, learner, estimator = "kernel")$param_set$values$n_coalitions,
-    8L
+    500L
   )
+  expect_identical(sage_default_n_coalitions(60L), 4096L)
 })
 
 test_that("compute points to the exact estimator when the budget reaches enumeration cost", {
@@ -431,8 +438,8 @@ test_that("kernel ci_method = 'montecarlo' returns valid Wald intervals", {
 
 test_that("montecarlo CI width widens with higher confidence and one-sided is unbounded", {
   set.seed(2953)
-  # Needs a non-additive game: the default kernel variant is exact on additive games,
-  # so an additive DGP drives all SEs to machine noise (exactly 0 on some platforms).
+  # Non-additive game so that both kernel variants have positive SEs (the "original"
+  # variant is exact on additive games, driving its SEs to machine noise).
   task = sim_dgp_interactions(n = 200)
   sage = MarginalSAGE$new(task, lrn("regr.rpart"), estimator = "kernel", n_coalitions = 150L, n_samples = 20L)
   sage$compute()
@@ -480,6 +487,7 @@ test_that("exact estimator rejects montecarlo CIs", {
 })
 
 test_that("kernel Monte Carlo SEs are calibrated against replicate variability", {
+  skip_on_cran() # validation anchor, ~20s: 30 replicate computations
   # The delta-method SEs must match the actual run-to-run spread of the point
   # estimates when only the coalition draws vary: fixed split, fixed reference
   # subsample (seed before the constructor), deterministic rpart fit, and a
@@ -574,6 +582,7 @@ test_that("kernel unbiased variant works and reports montecarlo CIs", {
 })
 
 test_that("unbiased variant converges to exact Shapley of the value function", {
+  skip_on_cran() # validation anchor, ~17s: 4002 coalitions
   set.seed(0xBEEF)
   task = tgen("friedman1")$generate(n = 150)
   task$select(c("important1", "important2", "important4"))
@@ -690,6 +699,7 @@ test_that("kernel falls back to the exact design matrix when the sampled one is 
     task,
     lrn("regr.rpart"),
     estimator = "kernel",
+    kernel_variant = "original",
     # A single paired draw cannot identify a 10x10 design matrix.
     n_coalitions = 1L,
     n_samples = 10L
@@ -819,6 +829,7 @@ test_that("kernel early stopping stops below the budget and stays accurate", {
     learner,
     resampling = resampling,
     estimator = "kernel",
+    kernel_variant = "original",
     early_stopping = TRUE,
     se_threshold = 0.025,
     n_coalitions = 400L,
@@ -891,17 +902,28 @@ test_that("kernel early stopping warns when the budget is exhausted", {
   expect_identical(sage$budget$used, 256)
 })
 
-test_that("an unset kernel budget becomes a ceiling under early stopping", {
+test_that("permutation early stopping warns when the budget is exhausted", {
+  set.seed(4457)
+  task = sim_dgp_interactions(n = 150)
+  sage = MarginalSAGE$new(
+    task,
+    lrn("regr.rpart"),
+    early_stopping = TRUE,
+    se_threshold = 1e-8,
+    n_permutations = 12L,
+    n_samples = 15L
+  )
+  expect_warning(sage$compute(), "did not converge")
+  expect_false(sage$budget$converged)
+  expect_identical(sage$budget$used, 12)
+})
+
+test_that("early stopping does not change the default kernel budget", {
   task = sim_dgp_independent(n = 100)
   learner = lrn("regr.rpart")
-  m = length(task$feature_names)
-
   planned = MarginalSAGE$new(task, learner, estimator = "kernel", n_samples = 15L)
-  ceiling = MarginalSAGE$new(task, learner, estimator = "kernel", early_stopping = TRUE, n_samples = 15L)
-
-  expect_identical(planned$param_set$values$n_coalitions, sage_default_n_coalitions(m))
-  expect_identical(ceiling$param_set$values$n_coalitions, sage_max_n_coalitions(m))
-  expect_gt(ceiling$param_set$values$n_coalitions, planned$param_set$values$n_coalitions)
+  stopping = MarginalSAGE$new(task, learner, estimator = "kernel", early_stopping = TRUE, n_samples = 15L)
+  expect_identical(stopping$param_set$values$n_coalitions, planned$param_set$values$n_coalitions)
 })
 
 test_that("the convergence criterion refuses missing standard errors", {

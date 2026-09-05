@@ -3,8 +3,9 @@
 # Load mlr3 to avoid mlr3:: namespace clutter in tests
 library(mlr3)
 
-# CRAN policy: at most 2 cores in tests. data.table (OpenMP) and ranger (own thread pool via arf) need capping;
-# ranger uses std::thread, so OMP_THREAD_LIMIT in testthat.R does not cover it. Restored in teardown.
+# CRAN policy: at most 2 cores in tests. data.table (OpenMP) and ranger (own std::thread pool, also via arf)
+# are capped here; an OpenMP BLAS cannot be capped from inside R (libgomp reads OMP_* once at load), CRAN
+# sets OMP_THREAD_LIMIT externally for that. Restored in teardown.
 old_dt_threads = data.table::getDTthreads()
 old_ranger_threads = getOption("ranger.num.threads")
 data.table::setDTthreads(2)

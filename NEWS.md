@@ -7,11 +7,11 @@
   - `"kernel"` enables the regression-based Kernel SAGE estimator (Covert & Lee, 2021), controlled by a new `n_coalitions` budget argument.
   - `"exact"` enumerates all coalitions on small feature sets (capped by `max_features`) and computes SAGE values without coalition-sampling error, useful as a ground-truth reference for the sampling estimators.
   - Setting the budget argument of a different estimator is an error; setting a tuning argument for an estimator that ignores it (e.g. `check_interval` with the kernel estimator) is a warning.
-  - If unset, `n_permutations` defaults to `10L` and `n_coalitions` to `5 * n_features` draws, which matches the permutation default's evaluation budget (the kernel estimator, being more sample-efficient, typically comes out more accurate at that shared cost). Both defaults are reduced on small feature sets so they stay at or below half the cost of exact enumeration (`2^n_features` coalition evaluations); `n_coalitions` is additionally capped at `512L`.
+  - If unset, `n_permutations` defaults to `10L` (reduced on small feature sets so it stays at or below half the cost of exact enumeration) and `n_coalitions` to `100 * n_features` draws (capped at `4096L`), sized for the default kernel variant.
   - `$compute()` points out (once per session, if `xplain_opt("verbose")`) when a sampling budget meets or exceeds the cost of exact enumeration, where `estimator = "exact"` removes the coalition-sampling error at the same or lower cost.
 - `SAGE` kernel estimator gains a `kernel_variant` argument (#70, #71).
-  - `"original"` (the default) is Covert & Lee's Eq. 7, recommended by the paper for practical use and substantially more accurate at equal budgets in our setting.
-  - `"unbiased"` is their Eq. 9, the variant implemented by the reference Python `sage` package, mainly useful for direct cross-checks against it.
+  - `"unbiased"` (the default) is Covert & Lee's Eq. 9, the estimator implemented by the reference Python `sage` package, so results are directly comparable.
+  - `"original"` is their Eq. 7, recommended by the paper for practical use and typically reaching a given accuracy at an order of magnitude smaller budgets in our setting.
   - When `n_coalitions` is too small to identify the sampled design matrix of the `"original"` variant, the final point estimate now falls back to the exact design matrix with a warning (previously silent).
 - `SAGE$importance()` gains `ci_method = "montecarlo"`, which builds Wald intervals from the Monte Carlo (coalition-sampling) standard errors of the SAGE estimator (#71).
   - Kernel SAGE now reports these standard errors via a multivariate delta method (they were previously unavailable); for `kernel_variant = "unbiased"` this reduces to the paper's closed-form covariance (Eqs. 12-13). The permutation estimator surfaces its running standard error the same way; the exact estimator has no coalition-sampling error and does not support this method.
@@ -20,7 +20,7 @@
 - `SAGE$early_stopping` now applies to the kernel estimator as well, not just the permutation estimator (#70).
   - It stops as soon as the largest standard error, relative to the spread of the importance values, falls below `se_threshold`, the criterion of the reference Python `sage` package. `se_threshold` is accordingly no longer permutation-only.
   - The threshold does not translate across estimators or kernel variants, since the standard errors it is compared against are constructed differently; `kernel_variant = "original"` in particular converges at far smaller budgets than `"unbiased"`, which reflects its faster convergence rather than a premature stop. See the *Convergence and early stopping* section of `?SAGE`.
-  - With early stopping the budget becomes an upper bound. An unset `n_coalitions` is therefore raised from the planned default to a safety ceiling (`2^(n_features - 1)` draws, capped at `8192L`), and exhausting the budget without meeting the criterion warns.
+  - With early stopping the budget acts as an upper bound, and exhausting it without meeting the criterion warns (for the permutation estimator too, which previously fell through silently).
 - `SAGE$budget` is a new read-only accessor reporting the estimator, its budget unit, the requested and actually used effort, the resulting number of coalition evaluations, and whether the run converged.
   - `n_evals` makes budgets comparable across estimators, whose own units are not (a permutation costs one evaluation per feature, a coalition draw costs two).
   - It replaces the `$n_permutations_used` field, which counted estimator-specific units under a permutation-specific name and is now deprecated; it remains readable but warns once per session on access.
@@ -29,6 +29,7 @@
 
 ## Bug fixes
 
+- `SAGE` methods now negate the scores of measures that are maximized (`measure$minimize = FALSE`, e.g. `classif.acc`), so positive SAGE values mean "improves performance" for every measure; previously such measures yielded sign-flipped values.
 - `FeatureImportanceMethod$importance(standardize = TRUE)` no longer permanently modifies the stored scores of SAGE methods by reference; repeated calls previously compounded the standardization. Any standard errors are now scaled together with the importances.
 
 # xplainfi 1.2.0

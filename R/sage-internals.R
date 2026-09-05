@@ -188,16 +188,22 @@ sage_marginal_contributions = function(perm_sublist, losses, baseline, feature_n
   list(sv = sv, sv_sq = sv_sq)
 }
 
-#' Adaptive default sampling budgets for the SAGE estimators
+#' Default sampling budgets for the SAGE estimators
 #'
 #' Free functions rather than private methods to keep the R6 objects lean
-#' (closures on R6 objects are serialized with them). The defaults adapt to the
-#' feature count so the default cost never exceeds half of exact enumeration
-#' (`2^m` coalition evaluations). The kernel default of `5 * m` draws targets
-#' the same evaluation budget as the permutation default (`2 + 10m` vs
-#' `1 + 10m` evaluations); being the more sample-efficient estimator, it
-#' typically comes out more accurate at that shared cost. Documented in the
+#' (closures on R6 objects are serialized with them). Documented in the
 #' `n_permutations` / `n_coalitions` param docs of [SAGE].
+#'
+#' The permutation default of 10 permutations is reduced on small feature sets so its cost
+#' stays at or below half of exact enumeration (`2^m` coalition evaluations).
+#'
+#' The kernel default of `100 * m` draws is sized for the default `"unbiased"` variant, which
+#' needs a large budget in this package's near-deterministic value-function regime: on a
+#' ten-feature `friedman1` task it reaches roughly the permutation default's accuracy at
+#' 1000 draws, whereas 50 draws (the permutation default's cost) leave errors of half the
+#' importance spread. The cap keeps very wide tasks bounded; `sage_inform_budget_vs_exact()`
+#' points to exact enumeration where it is cheaper. The `"original"` variant typically needs an
+#' order of magnitude less.
 #'
 #' @param m (`integer(1)`) Number of features.
 #' @return `integer(1)` default budget.
@@ -210,27 +216,27 @@ sage_default_n_permutations = function(m) {
 #' @rdname sage_default_n_permutations
 #' @noRd
 sage_default_n_coalitions = function(m) {
-  half_enum = if (m <= 30L) as.integer(2^(m - 2L)) else 512L # binds only for small m
-  max(2L, min(512L, half_enum, 5L * m))
+  min(4096L, 100L * m)
 }
 
-#' Safety ceiling for the kernel estimator's convergence-driven budget
+#' Sampling budget requested for the configured estimator
 #'
-#' With `early_stopping = TRUE` the criterion decides how many draws are needed, so the
-#' budget argument degenerates into an upper bound guarding against a criterion that never
-#' trips. Two bounds apply: enumerating all `2^m` coalitions costs `2^(m - 1)` paired draws,
-#' beyond which `estimator = "exact"` is strictly better; and an absolute ceiling for feature
-#' counts where enumeration is out of reach anyway. Deliberately not a user-facing argument:
-#' `n_coalitions` already *is* the user's upper bound, so a second one would be a synonym.
+#' Reads the active estimator's budget from the param_set values, falling back to the
+#' adaptive default when it is unset (e.g. cleared via `$param_set$values`). Shared by
+#' `$compute()` and the `$budget` accessor so both report the same number.
 #'
+#' @param values (`list`) `$param_set$values` of a [SAGE] object.
 #' @param m (`integer(1)`) Number of features.
-#' @return `integer(1)` ceiling in paired coalition draws.
+#' @return `numeric(1)` budget in the estimator's own units (`2^m` coalitions for `"exact"`).
 #' @keywords internal
 #' @noRd
-sage_max_n_coalitions = function(m) {
-  # 2^(m - 1) exceeds the absolute ceiling from m = 15 on, so it only binds below that.
-  half_enum = if (m <= 14L) as.integer(2^(m - 1L)) else 8192L
-  max(2L, min(8192L, half_enum))
+sage_requested_budget = function(values, m) {
+  switch(
+    values$estimator %||% "permutation",
+    permutation = values$n_permutations %||% sage_default_n_permutations(m),
+    kernel = values$n_coalitions %||% sage_default_n_coalitions(m),
+    exact = 2^m
+  )
 }
 
 #' Coalition evaluations implied by a sampling budget
@@ -456,15 +462,55 @@ sage_kernel_solve_constrained = function(A_inv, b, total) {
   A_inv_b - A_inv_1 * ((sum(A_inv_b) - total) / sum(A_inv_1))
 }
 
+#' Derivative of the constrained solve with respect to `b`
+#'
+#' For a fixed design matrix the constrained solve is affine in `b`, with Jacobian
+#' `C = A^-1 - A^-1 1 1^T A^-1 / (1^T A^-1 1)` (Covert & Lee 2021, Eq. 13).
+#'
+#' @param A_inv (`matrix`) Inverse of the design matrix.
+#' @return `m x m` matrix.
+#' @keywords internal
+#' @noRd
+sage_kernel_jacobian_b = function(A_inv) {
+  A_inv_1 = as.numeric(A_inv %*% rep(1, nrow(A_inv)))
+  A_inv - outer(A_inv_1, A_inv_1) / sum(A_inv_1)
+}
+
+#' Derivative of the constrained solve with respect to the off-diagonals of `A`
+#'
+#' Writing `u = A^-1 b`, `v = A^-1 1`, the solve is `phi = u - v (1^T u - total) / (1^T v)`.
+#' Perturbing off-diagonal entry `k = (i, j)` moves both `A[i, j]` and `A[j, i]`, and
+#' `d(A^-1) = -A^-1 dA A^-1`, so `du_k = -(A^-1[, i] u_j + A^-1[, j] u_i)` and likewise
+#' for `v`; the quotient rule then gives `dphi`. All columns are built at once.
+#'
+#' @param A_inv (`matrix`) Inverse of the sampled design matrix.
+#' @param b (`numeric(m)`) Right-hand side.
+#' @param total (`numeric(1)`) Value of the grand coalition.
+#' @param od (`matrix`) Lower-triangular index matrix (see `sage_kernel_A_from_offdiag`).
+#' @return `m x nrow(od)` matrix, column `k` being `dphi / da_k`.
+#' @keywords internal
+#' @noRd
+sage_kernel_jacobian_A = function(A_inv, b, total, od) {
+  m = nrow(A_inv)
+  u = as.numeric(A_inv %*% b)
+  v = as.numeric(A_inv %*% rep(1, m))
+  i = od[, 1L]
+  j = od[, 2L]
+  du = -(A_inv[, i, drop = FALSE] * rep(u[j], each = m) + A_inv[, j, drop = FALSE] * rep(u[i], each = m))
+  dv = -(A_inv[, i, drop = FALSE] * rep(v[j], each = m) + A_inv[, j, drop = FALSE] * rep(v[i], each = m))
+  s = sum(v)
+  excess = sum(u) - total
+  du - dv * (excess / s) - outer(v, (colSums(du) * s - excess * colSums(dv)) / s^2)
+}
+
 #' Unbiased kernel SAGE estimate and closed-form standard errors
 #'
 #' The "unbiased KernelSHAP" estimator (Covert & Lee 2021, Eq. 9): the design matrix `A` is
 #' the exact closed form and only `b` is estimated from the sampled coalitions. This is the
 #' estimator implemented by the reference Python `sage` package, and it admits the closed-form
-#' covariance of their Eqs. 12-13: `Cov(phi) = C Cov(b_mean) C^T` with
-#' `C = A^-1 - A^-1 1 1^T A^-1 / (1^T A^-1 1)`.
-#' Note the minus sign: the `sage` implementation itself adds this term
-#' (`calculate_result` in `kernel_estimator.py`), which contradicts the paper's Eq. 13 and was
+#' covariance of their Eqs. 12-13: `Cov(phi) = C Cov(b_mean) C^T`.
+#' Note the minus sign in `C` (see `sage_kernel_jacobian_b`): the `sage` implementation adds this
+#' term (`calculate_result` in `kernel_estimator.py`), which contradicts the paper's Eq. 13 and was
 #' verified by simulation to misstate the variance; the paper's formula is used here.
 #' `total = v(full)` is treated as a fixed constraint (its Monte Carlo error from the anchor
 #' evaluations is ignored, matching `sage`).
@@ -485,8 +531,7 @@ sage_kernel_estimate_unbiased = function(b_mean, cov_mean, m, total, A_inv = NUL
 
   se = rep(NA_real_, m)
   if (!is.null(cov_mean)) {
-    A_inv_1 = as.numeric(A_inv %*% rep(1, m))
-    C = A_inv - outer(A_inv_1, A_inv_1) / sum(A_inv_1)
+    C = sage_kernel_jacobian_b(A_inv)
     se = sqrt(pmax(diag(C %*% cov_mean %*% t(C)), 0))
   }
   list(phi = phi, se = se)
@@ -506,10 +551,9 @@ sage_kernel_estimate_unbiased = function(b_mean, cov_mean, m, total, A_inv = NUL
 #' least-squares Shapley values and their standard errors. Because the estimate
 #' `phi = g(A, b)` is a smooth function of the sample-mean moments, its covariance follows from
 #' the multivariate delta method, `Cov(phi) = J cov_mean J^T`, with `J` the Jacobian of the
-#' constrained solve. For fixed `A` the solve is affine in `b`, so the `b` block of `J` is
-#' exactly the projection matrix `C` of the unbiased variant; only the `A` off-diagonal block
-#' needs central differences. This propagates the sampling variance of *both* `A` and `b`
-#' (and their shared-sample covariance), extending the closed form of the unbiased variant.
+#' constrained solve (`sage_kernel_jacobian_A` and `sage_kernel_jacobian_b`). This propagates
+#' the sampling variance of *both* `A` and `b` (and their shared-sample covariance), extending
+#' the closed form of the unbiased variant.
 #' `total = v(full)` is treated as a fixed constraint (its Monte Carlo error from the anchor
 #' evaluations is ignored, matching `sage`).
 #'
@@ -520,21 +564,21 @@ sage_kernel_estimate_unbiased = function(b_mean, cov_mean, m, total, A_inv = NUL
 #' @param m (`integer(1)`) Number of features.
 #' @param total (`numeric(1)`) Value of the grand coalition, `v(full)`, used as the sum constraint.
 #' @param od (`matrix`) Lower-triangular index matrix (see `sage_kernel_A_from_offdiag`).
-#' @param noff (`integer(1)`) Number of off-diagonal entries, `m * (m - 1) / 2`.
 #' @param require_result (`logical(1)`) If `TRUE`, fall back to the exact `A` (with a warning)
 #'   when the sampled `A` is singular so a finite point estimate is always returned.
 #' @return `list(phi, se)`, each a `numeric(m)`. `se` is all-`NA` when `cov_mean` is `NULL` or
-#'   the (perturbed) design matrix is not invertible.
+#'   the sampled design matrix is not invertible.
 #' @keywords internal
 #' @noRd
-sage_kernel_estimate_original = function(w_mean, cov_mean, m, total, od, noff, require_result = FALSE) {
+sage_kernel_estimate_original = function(w_mean, cov_mean, m, total, od, require_result = FALSE) {
+  noff = nrow(od)
+  a = w_mean[seq_len(noff)]
   b = w_mean[noff + seq_len(m)]
 
-  A = sage_kernel_A_from_offdiag(w_mean[seq_len(noff)], m, od)
+  A = sage_kernel_A_from_offdiag(a, m, od)
   # Near-singular sampled A (early checkpoints at tiny budgets) is treated like a
   # hard singularity, so the convergence history reports NA instead of wild values.
-  A_inv = if (rcond(A) > 1e-10) tryCatch(solve(A), error = function(e) NULL) else NULL
-  if (is.null(A_inv)) {
+  if (rcond(A) <= 1e-10) {
     # Not yet identifiable from the sampled coalitions. Fall back to the exact A only
     # when a value is required (final estimate); otherwise degrade to NA gracefully.
     phi = if (require_result) {
@@ -550,49 +594,13 @@ sage_kernel_estimate_original = function(w_mean, cov_mean, m, total, od, noff, r
     }
     return(list(phi = phi, se = rep(NA_real_, m)))
   }
+  A_inv = solve(A)
   phi = sage_kernel_solve_constrained(A_inv, b, total)
 
   se = rep(NA_real_, m)
   if (!is.null(cov_mean)) {
-    # b block of the Jacobian: the solve is affine in b for fixed A, so
-    # dphi/db is exactly the projection matrix C (no differencing needed).
-    A_inv_1 = as.numeric(A_inv %*% rep(1, m))
-    C = A_inv - outer(A_inv_1, A_inv_1) / sum(A_inv_1)
-
-    # A block: phi as a function of the off-diagonals, for central differences.
-    phi_of_a = function(a) {
-      Aw = sage_kernel_A_from_offdiag(a, m, od)
-      if (rcond(Aw) <= 1e-10) {
-        return(NULL)
-      }
-      Aw_inv = tryCatch(solve(Aw), error = function(e) NULL)
-      if (is.null(Aw_inv)) {
-        return(NULL)
-      }
-      sage_kernel_solve_constrained(Aw_inv, b, total)
-    }
-    J = matrix(0, m, noff + m)
-    J[, noff + seq_len(m)] = C
-    a_mean = w_mean[seq_len(noff)]
-    h = 1e-6
-    ok = TRUE
-    for (j in seq_len(noff)) {
-      ap = a_mean
-      am = a_mean
-      ap[j] = ap[j] + h
-      am[j] = am[j] - h
-      up = phi_of_a(ap)
-      dn = phi_of_a(am)
-      if (is.null(up) || is.null(dn)) {
-        ok = FALSE
-        break
-      }
-      J[, j] = (up - dn) / (2 * h)
-    }
-    if (ok) {
-      phi_cov = J %*% cov_mean %*% t(J)
-      se = sqrt(pmax(diag(phi_cov), 0))
-    }
+    J = cbind(sage_kernel_jacobian_A(A_inv, b, total, od), sage_kernel_jacobian_b(A_inv))
+    se = sqrt(pmax(diag(J %*% cov_mean %*% t(J)), 0))
   }
   list(phi = phi, se = se)
 }
