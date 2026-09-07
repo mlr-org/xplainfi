@@ -274,14 +274,18 @@ test_that("ConditionalSAGE SE tracking in convergence_history", {
   )
 
   # Compute with early stopping to get convergence history
-  sage$compute(early_stopping = TRUE, se_threshold = 0.05, check_interval = 2L)
+  # min_permutations (10) exceeds n_permutations (6), so the criterion never trips.
+  expect_warning(
+    sage$compute(early_stopping = TRUE, se_threshold = 0.05, check_interval = 2L),
+    "did not converge"
+  )
 
   # Check that convergence_history exists and has SE column
   expect_false(is.null(sage$convergence_history))
   expect_contains(colnames(sage$convergence_history), "se")
 
   # Check structure of convergence_history
-  expected_cols = c("n_permutations", "feature", "importance", "se")
+  expected_cols = c("budget", "n_evals", "feature", "importance", "se")
   expect_setequal(colnames(sage$convergence_history), expected_cols)
 
   # SE values should be non-negative and finite

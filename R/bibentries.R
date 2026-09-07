@@ -51,6 +51,37 @@ bibentries = c(
     doi = "10.1109/ICPR48806.2021.9413090"
   ),
 
+  covert_2021 = bibentry(
+    "inproceedings",
+    title = "Improving KernelSHAP: Practical Shapley Value Estimation Using Linear Regression",
+    author = c(
+      person("Ian", "Covert"),
+      person("Su-In", "Lee")
+    ),
+    year = "2021",
+    booktitle = "Proceedings of the 24th International Conference on Artificial Intelligence and Statistics",
+    volume = "130",
+    pages = "3457--3465",
+    publisher = "PMLR",
+    url = "https://proceedings.mlr.press/v130/covert21a.html"
+  ),
+
+  covert_2021_jmlr = bibentry(
+    "article",
+    title = "Explaining by Removing: A Unified Framework for Model Explanation",
+    author = c(
+      person("Ian", "Covert"),
+      person("Scott", "Lundberg"),
+      person("Su-In", "Lee")
+    ),
+    year = "2021",
+    journal = "Journal of Machine Learning Research",
+    volume = "22",
+    number = "209",
+    pages = "1--90",
+    url = "https://jmlr.org/papers/v22/20-1316.html"
+  ),
+
   blesch_2025 = bibentry(
     "article",
     title = "Conditional Feature Importance with Generative Modeling Using Adversarial Random Forests",

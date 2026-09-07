@@ -11,10 +11,9 @@ default-exclude = true
 # fix-roxygen = false
 
 # Options for jarl 0.4.0, need to change in next update 
-assignment = "="
-# [lint.assignment]
-# operator = "=" # mlr3 default
+[lint.assignment]
+operator = "=" # mlr3 default
 
-# [lint.quotes]
-# quote = "double" # or "single"
+[lint.quotes]
+quote = "double" # or "single"
 

@@ -95,3 +95,55 @@ expect_method_output = function(method) {
     expect_obs_loss_dt(method$obs_loss(), features = features)
   }
 }
+
+# Brute-force exact Shapley values of the empirical SAGE value function.
+# Enumerates all coalitions via the method's own value function and averages
+# marginal contributions over all m! feature orderings. Serves as the shared
+# ground-truth reference for the sampling and exact estimators (kept in one
+# place so both correctness anchors validate against the same computation).
+brute_force_shapley = function(sage, task) {
+  feats = sage$features
+  m = length(feats)
+  priv = sage$.__enclos_env__$private
+  rr = sage$resample_result
+  learner_fitted = rr$learners[[1]]
+  test_dt = task$data(rows = rr$resampling$test_set(1))
+
+  subsets = unlist(lapply(0:m, function(k) combn(m, k, simplify = FALSE)), recursive = FALSE)
+  losses = priv$.evaluate_coalitions_batch(learner_fitted, test_dt, lapply(subsets, function(ix) feats[ix]), NULL)
+  key = function(ix) if (length(ix) == 0L) "E" else paste(sort(ix), collapse = ",")
+  vmap = new.env()
+  for (i in seq_along(subsets)) {
+    assign(key(subsets[[i]]), losses[i], envir = vmap)
+  }
+  baseline = get("E", envir = vmap)
+  vfun = function(ix) baseline - get(key(ix), envir = vmap)
+
+  gen_perms = function(x) {
+    if (length(x) == 1L) {
+      return(list(x))
+    }
+    out = list()
+    for (i in seq_along(x)) {
+      for (p in gen_perms(x[-i])) {
+        out[[length(out) + 1L]] = c(x[i], p)
+      }
+    }
+    out
+  }
+  perms = gen_perms(seq_len(m))
+  phi = numeric(m)
+  for (p in perms) {
+    prev = vfun(integer(0))
+    S = integer(0)
+    for (j in p) {
+      S = c(S, j)
+      cur = vfun(S)
+      phi[j] = phi[j] + (cur - prev)
+      prev = cur
+    }
+  }
+  phi = phi / length(perms)
+  names(phi) = feats
+  phi
+}

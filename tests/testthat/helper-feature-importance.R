@@ -24,12 +24,12 @@ test_default_behavior = function(method_class, task_type = "regr", ...) {
   expect_error(method_class$new())
 
   if (task_type == "regr") {
-    task = tgen("friedman1")$generate(n = 100)
-    learner = lrn("regr.rpart")
+    task = mlr3::tgen("friedman1")$generate(n = 100)
+    learner = mlr3::lrn("regr.rpart")
     expected_measure_class = "MeasureRegr"
   } else {
-    task = tgen("2dnormals")$generate(n = 100)
-    learner = lrn("classif.rpart", predict_type = "prob")
+    task = mlr3::tgen("2dnormals")$generate(n = 100)
+    learner = mlr3::lrn("classif.rpart", predict_type = "prob")
     expected_measure_class = "MeasureClassif"
   }
 
@@ -64,13 +64,13 @@ test_default_behavior = function(method_class, task_type = "regr", ...) {
 #' @param ... Additional arguments passed to method constructor
 test_featureless_zero_importance = function(method_class, task_type = "classif", ...) {
   if (task_type == "regr") {
-    task = tgen("friedman1")$generate(n = 200)
-    learner = lrn("regr.featureless")
-    measure = msr("regr.mse")
+    task = mlr3::tgen("friedman1")$generate(n = 200)
+    learner = mlr3::lrn("regr.featureless")
+    measure = mlr3::msr("regr.mse")
   } else {
-    task = tgen("xor")$generate(n = 200)
-    learner = lrn("classif.featureless")
-    measure = msr("classif.ce")
+    task = mlr3::tgen("xor")$generate(n = 200)
+    learner = mlr3::lrn("classif.featureless")
+    measure = mlr3::msr("classif.ce")
   }
 
   method = method_class$new(
@@ -112,7 +112,7 @@ test_n_repeats_and_scores = function(
   learner,
   measure,
   n_repeats = 2L,
-  resampling = rsmp("cv", folds = 3),
+  resampling = mlr3::rsmp("cv", folds = 3),
   ...
 ) {
   method = method_class$new(
@@ -164,7 +164,7 @@ test_single_feature = function(
   measure,
   feature = "important4",
   n_repeats = 2L,
-  resampling = rsmp("cv", folds = 3),
+  resampling = mlr3::rsmp("cv", folds = 3),
   ...
 ) {
   method = method_class$new(
@@ -213,12 +213,12 @@ test_single_feature = function(
 #' @param ... Additional arguments passed to method constructor (e.g., n_repeats for perturbation methods)
 test_friedman1_sensible_ranking = function(
   method_class,
-  learner = lrn("regr.rpart"),
-  measure = msr("regr.mse"),
+  learner = mlr3::lrn("regr.rpart"),
+  measure = mlr3::msr("regr.mse"),
   n = 500L,
   ...
 ) {
-  task = tgen("friedman1")$generate(n = n)
+  task = mlr3::tgen("friedman1")$generate(n = n)
 
   method = method_class$new(
     task = task,
