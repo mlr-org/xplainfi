@@ -12,9 +12,10 @@
 #'
 #' The permutation estimator follows Covert et al. (2020); the kernel estimator
 #' (`estimator = "kernel"`, Kernel SAGE) follows Covert & Lee (2021) and comes in two
-#' variants selected by `kernel_variant`: `"unbiased"` (their Eq. 9, the default, and the variant
-#' implemented by the reference Python `sage` package) and `"original"` (their Eq. 7, recommended
-#' in their Section 4.1 for practical use and typically far more accurate at equal budgets here).
+#' variants selected by `kernel_variant`: `"original"` (their Eq. 7, the default, recommended in
+#' their Section 4.1 for practical use) and `"unbiased"` (their Eq. 9, the variant implemented by
+#' the reference Python `sage` package, kept as a parity check; see Details for why it is far more
+#' expensive in this package).
 #' The exact estimator (`estimator = "exact"`) enumerates all coalitions and serves as a ground-truth
 #' reference on small feature sets.
 #'
@@ -42,27 +43,38 @@
 #' enters the variation across permutations and is largely reflected in the reported SEs.
 #' The exact estimator has no coalition-sampling error and reports no SE.
 #'
-#' Computationally, the permutation estimator uses the running SE across permutations, while
-#' the kernel estimator propagates the coalition-sampling covariance through the constrained
-#' least-squares solve (the delta method), which for `kernel_variant = "unbiased"` reduces to
-#' the closed-form covariance of Covert & Lee (2021, Eqs. 12-13).
-#' For `kernel_variant = "original"` this bookkeeping maintains a covariance matrix over all
-#' pairwise feature co-occurrences, whose memory use grows with the fourth power of the number
-#' of features (roughly 200 MB at 100 features), so with hundreds of features expect the SE
-#' machinery rather than the model evaluations to become the bottleneck.
+#' The standard errors follow the published recipes of each estimator.
+#' The permutation estimator uses the running standard error across permutations (Covert et al.,
+#' 2020, Section 3.3).
+#' For `kernel_variant = "unbiased"` the covariance is the closed form of Covert & Lee (2021,
+#' Eqs. 12-13, their Algorithm 3).
+#' For `kernel_variant = "original"` no closed form exists (their Section 4.1); following their
+#' Section 4.3 and Algorithm 1, the variance is estimated from independent estimates computed on
+#' consecutive blocks of coalition draws, which assumes the empirically observed `O(1 / n)` rate.
+#' This variant is consistent but not provably unbiased; the paper reports its finite-sample bias
+#' as negligible, and the standard errors do not cover it.
+#' For both kernel variants the values of the empty and full coalition enter as fixed constraints,
+#' as in the reference implementation; for [ConditionalSAGE] these two anchor evaluations carry
+#' sampler noise that the standard errors therefore do not reflect.
 #'
 #' **Relation to the reference implementation (Python `sage`)**:
 #' Both packages implement the same estimators but estimate the value function in different regimes.
-#' `sage` pairs each coalition draw with a single randomly drawn test observation, so an individual
+#' `sage` pairs each coalition draw with a random minibatch of test observations, so an individual
 #' evaluation is cheap but noisy and the noise is averaged away across many draws.
 #' xplainfi evaluates every coalition on the complete test set, averaging predictions over
 #' `n_samples` reference draws, so a single evaluation is expensive but nearly deterministic.
 #' This follows from supporting arbitrary mlr3 measures, sampler-based conditional SAGE, and exact
 #' enumeration, and it drives the remaining differences:
-#' * Point estimates are directly comparable with the default `kernel_variant = "unbiased"`, the
-#'   estimator `sage` implements; the two then agree up to Monte Carlo error.
-#' * `kernel_variant = "original"` follows the paper's practical recommendation and is the variant
-#'   that profits from a near-deterministic value function (see `kernel_variant`).
+#' * Point estimates are directly comparable with `kernel_variant = "unbiased"`, the estimator
+#'   `sage` implements; in our cross-check both agreed with exact enumeration to within 3% of the
+#'   importance spread.
+#' * Cost is not: evaluating every coalition on the whole test set is the "expectation" regime that
+#'   Covert & Lee (2021, Section 5 and Figure 5) report as prohibitively slow for the unbiased
+#'   estimator, and in our cross-check `"unbiased"` needed more than 30 times the model evaluations
+#'   of `sage` to reach the same convergence criterion, whereas the default `"original"` and the
+#'   permutation estimator were on par with `sage`.
+#'   The default therefore follows the paper's practical recommendation, and `"unbiased"` is a
+#'   parity check rather than a working default (see `kernel_variant`).
 #' * Reported uncertainties are not comparable: those of `sage` include the observation-sampling
 #'   noise, whereas xplainfi conditions on the test set and quantifies coalition-sampling error only.
 #' * Convergence budgets are not comparable for the same reason, even though the criterion is the
@@ -74,15 +86,17 @@
 #' **Convergence and early stopping**:
 #' Both sampling estimators support `early_stopping = TRUE`, which stops as soon as the largest
 #' standard error, relative to the spread of the importance values, falls below `se_threshold`.
-#' This is the criterion of the Python `sage` package (its `detect_convergence`), and it certifies
-#' the same thing the standard errors do: that more sampling would not move the values much for
-#' this fitted model and this test data.
+#' This is the ratio proposed by Covert et al. (2020, Section 3.3) and Covert & Lee (2021,
+#' Section 4.3), and the default threshold of `0.025` is that of the Python `sage` package
+#' (the papers' examples use `0.01` to `0.02`).
+#' It certifies the same thing the standard errors do: that more sampling would not move the
+#' values much for this fitted model and this test data.
 #' It says nothing about the components those standard errors exclude (see *Standard errors*
 #' above), so a converged run is not a precise one if `n_samples` is small.
 #' The threshold is not portable across estimators or kernel variants, because the standard errors
 #' it is applied to are constructed differently.
-#' `kernel_variant = "original"` in particular reaches a given threshold at far smaller budgets than
-#' `"unbiased"`, which reflects genuinely settled coalition sampling rather than a premature stop.
+#' In our benchmarks `kernel_variant = "original"` reached a given threshold at far smaller budgets
+#' than `"unbiased"`.
 #'
 #' With early stopping the budget argument becomes an upper bound rather than a planned cost.
 #' `$budget` reports what was actually spent and whether the criterion was met, and
@@ -109,7 +123,7 @@ SAGE = R6Class(
     convergence_history = NULL,
     #' @field converged (`logical(1)`) Whether the convergence criterion was met (sampling estimators with
     #'   `early_stopping = TRUE`).
-    #'   The exact estimator sets `TRUE` trivially since it enumerates all coalitions.
+    #'   `NA` for the exact estimator, which enumerates all coalitions and has no criterion to meet.
     converged = FALSE,
 
     #' @description
@@ -124,9 +138,9 @@ SAGE = R6Class(
     #'   an error.
     #'   Their costs are comparable through the number of evaluated coalitions:
     #'   `1 + n_permutations * n_features`, `2 + 2 * n_coalitions`, and `2^n_features`, respectively.
-    #'   `$compute()` points out (once per session, if `xplain_opt("verbose")`) when a sampling budget meets or
-    #'   exceeds the exact estimator's cost, since enumeration then removes the coalition-sampling error at no
-    #'   extra cost.
+    #'   `$compute()` points out in a message (silenced by `xplain_opt(verbose = FALSE)`) when a sampling
+    #'   budget meets or exceeds the exact estimator's cost, since enumeration then removes the
+    #'   coalition-sampling error at no extra cost.
     #'   "Exact" refers to coalition sampling only: the marginalization error controlled by `n_samples` remains
     #'   for all estimators, and for [ConditionalSAGE] the value function itself is a Monte Carlo estimate,
     #'   so oversampling coalitions can still be deliberate there (repeated evaluations average the sampler's
@@ -142,28 +156,31 @@ SAGE = R6Class(
     #' @param n_coalitions (`integer(1)`: `NULL`) Number of paired coalition draws for `estimator = "kernel"`.
     #'   Each draw evaluates a coalition and its complement, so the cost is `2 + 2 * n_coalitions` evaluated
     #'   coalitions.
-    #'   If unset, defaults to `100 * n_features` draws, capped at `4096L`.
-    #'   This is sized for the default `kernel_variant = "unbiased"`, which needs a large budget in this
-    #'   package's near-deterministic value-function regime (see Details); on small feature sets the default
-    #'   exceeds the cost of exact enumeration, which `$compute()` points out.
+    #'   If unset, defaults to `20 * n_features` draws, capped at `4096L` and, like the permutation default,
+    #'   at half the cost of exact enumeration (`2^(n_features - 2)` draws).
+    #'   This gives the default `kernel_variant = "original"` five variance blocks for its standard errors
+    #'   (see Details) at roughly four times the evaluation cost of the permutation default; in our
+    #'   benchmarks it was several times more accurate at that cost.
+    #'   Below about nine features the enumeration cap binds, standard errors may be unavailable (fewer than
+    #'   two blocks), and `estimator = "exact"` is the better tool.
     #'   Check whether the budget suffices the same way as for `n_permutations`.
     #'   With `early_stopping = TRUE` the same budget acts as an upper bound instead of a planned cost.
-    #' @param kernel_variant (`character(1)`: `"unbiased"`) Variant of the kernel estimator.
+    #' @param kernel_variant (`character(1)`: `"original"`) Variant of the kernel estimator.
     #'   Only valid for `estimator = "kernel"`.
-    #'   `"unbiased"` (Covert & Lee 2021, Eq. 9) uses the exact closed-form design matrix and estimates only the
-    #'   right-hand side from the sampled coalitions.
-    #'   It is the estimator implemented in the reference Python `sage` package and the default here, so
-    #'   results are directly comparable with `sage`.
-    #'   `"original"` (Eq. 7) estimates both the design matrix and its right-hand side from the same sampled
-    #'   coalitions, which couples their errors.
+    #'   `"original"` (Covert & Lee 2021, Eq. 7) estimates both the design matrix and its right-hand side from
+    #'   the same sampled coalitions, which couples their errors.
     #'   How much those errors cancel depends on the value function: on an exactly additive game the
-    #'   cancellation is complete and the variant returns that game's Shapley values at any budget, and on
-    #'   the learned value functions this package is typically applied to it reaches a given accuracy at
-    #'   roughly an order of magnitude smaller budgets than `"unbiased"`.
-    #'   It is the paper's practical recommendation (their Section 4.1); its standard errors are an
-    #'   extension of the paper's closed form (see Details).
-    #'   `vignette("sage-methods", package = "xplainfi")` explains why the two variants behave so differently
-    #'   here.
+    #'   cancellation is complete and the variant returns that game's Shapley values at any budget, and in
+    #'   our benchmarks on learned value functions it reached a given accuracy at roughly an order of
+    #'   magnitude smaller budgets than `"unbiased"`.
+    #'   It is the paper's practical recommendation (their Section 4.1) and the default; its standard errors
+    #'   follow their batch-means recipe (see Details).
+    #'   `"unbiased"` (Eq. 9) uses the exact closed-form design matrix and estimates only the right-hand side.
+    #'   It is the estimator implemented in the reference Python `sage` package and is kept for direct
+    #'   parity checks against it; in this package it is far more expensive to converge than either the
+    #'   default variant or the permutation estimator (see Details), so budget it generously and check the
+    #'   standard errors.
+    #'   `vignette("sage-methods", package = "xplainfi")` documents the cross-check against `sage`.
     #' @param max_features (`integer(1)`: `12L`) Feature-count cap for `estimator = "exact"`.
     #'   The exact estimator evaluates `2^n_features` coalitions, so it aborts when the number of
     #'   features exceeds this cap.
@@ -187,11 +204,13 @@ SAGE = R6Class(
     #'   estimators and kernel variants); setting it for `estimator = "exact"` is a warning.
     #'   The budget then acts as an upper bound: if the criterion is not met within it, the values are
     #'   returned with a warning and `$budget` reports `converged = FALSE`.
-    #' @param se_threshold (`numeric(1)`: `0.01`) Convergence threshold for relative standard error.
+    #' @param se_threshold (`numeric(1)`: `0.025`) Convergence threshold for relative standard error.
     #'   Convergence is detected when the maximum relative SE across all features falls below this threshold.
     #'   Relative SE is calculated as SE divided by the range of importance values (max - min),
     #'   making it scale-invariant across different loss metrics.
-    #'   Default of `0.01` means convergence when relative SE is below 1% of the importance range.
+    #'   The default of `0.025` (convergence once the relative SE is below 2.5% of the importance range) is
+    #'   the default of the Python `sage` package; the examples in Covert et al. (2020) and Covert & Lee
+    #'   (2021) use `0.01` to `0.02`.
     #'   Used by both sampling estimators; setting a non-default value for `estimator = "exact"` is a warning.
     #' @param min_permutations (`integer(1)`: `10L`) Minimum permutations before checking for convergence.
     #'   Convergence is judged based on the standard errors of the estimated SAGE values,
@@ -216,7 +235,7 @@ SAGE = R6Class(
       batch_size = 5000L,
       n_samples = 100L,
       early_stopping = FALSE,
-      se_threshold = 0.01,
+      se_threshold = 0.025,
       min_permutations = 10L,
       check_interval = 1L
     ) {
@@ -268,7 +287,7 @@ SAGE = R6Class(
           lower = 1L
         )
         kernel_variant = checkmate::assert_choice(
-          kernel_variant %||% "unbiased",
+          kernel_variant %||% "original",
           choices = c("original", "unbiased")
         )
       } else {
@@ -294,7 +313,7 @@ SAGE = R6Class(
       # knobs control the permutation estimator's checkpointing only.
       non_default = c(
         early_stopping = early_stopping && estimator == "exact",
-        se_threshold = !identical(se_threshold, 0.01) && estimator == "exact",
+        se_threshold = !identical(se_threshold, 0.025) && estimator == "exact",
         min_permutations = !identical(as.integer(min_permutations), 10L) && estimator != "permutation",
         check_interval = !identical(as.integer(check_interval), 1L) && estimator != "permutation"
       )
@@ -320,12 +339,12 @@ SAGE = R6Class(
         estimator = paradox::p_fct(c("permutation", "kernel", "exact"), default = "permutation"),
         n_permutations = paradox::p_int(lower = 1L, default = 10L),
         n_coalitions = paradox::p_int(lower = 1L, default = 4096L),
-        kernel_variant = paradox::p_fct(c("original", "unbiased"), default = "unbiased"),
+        kernel_variant = paradox::p_fct(c("original", "unbiased"), default = "original"),
         max_features = paradox::p_int(lower = 1L, default = 12L),
         batch_size = paradox::p_int(lower = 1L, default = 5000L),
         n_samples = paradox::p_int(lower = 1L, default = 100L),
         early_stopping = paradox::p_lgl(default = FALSE),
-        se_threshold = paradox::p_dbl(lower = 0, upper = 1, default = 0.01),
+        se_threshold = paradox::p_dbl(lower = 0, upper = 1, default = 0.025),
         min_permutations = paradox::p_int(lower = 1L, default = 10L),
         check_interval = paradox::p_int(lower = 1L, default = 1L)
       )
@@ -440,48 +459,12 @@ SAGE = R6Class(
         }
         alternative = match.arg(alternative)
 
-        scores = self$scores()
-        if (!("se" %in% names(scores)) || all(is.na(scores$se))) {
-          cli::cli_abort(c(
-            "{.code ci_method = \"montecarlo\"} requires Monte Carlo standard errors, but none are available.",
-            "i" = "The exact estimator has no coalition-sampling error, so it reports no SEs.",
-            "i" = "SEs are also unavailable with a single feature of interest, with {.code n_permutations = 1},
-                   or when the kernel sampling budget is too small to identify all features."
-          ))
-        }
-        if (anyNA(scores$se)) {
-          n_na = length(unique(scores$iter_rsmp[is.na(scores$se)]))
-          cli::cli_warn(c(
-            "Monte Carlo standard errors are missing for {n_na} resampling iteration{?s}.",
-            "i" = "Affected features aggregate to {.val NA} intervals."
-          ))
-        }
-        # The intervals quantify each iteration's coalition-sampling error only; pooling
-        # across refitted models must not be mistaken for between-model uncertainty.
-        if (self$resampling$iters > 1L) {
-          cli::cli_warn(c(
-            "Monte Carlo intervals are pooled across {self$resampling$iters} resampling iterations.",
-            "i" = "They reflect only the coalition-sampling error of each iteration's computation,
-                   not the variability between the refitted models.",
-            "i" = "A single holdout split is the intended use for this {.arg ci_method}."
-          ))
-        }
-        aggregator = self$measure$aggregator
-        if (!is.null(aggregator) && !identical(aggregator, mean)) {
-          cli::cli_warn(c(
-            "{.code ci_method = \"montecarlo\"} always uses the mean across iterations as point estimate.",
-            "i" = "The aggregator of measure {.val {self$measure$id}} is ignored here,
-                   so point estimates can differ from other {.arg ci_method}s."
-          ))
-        }
-
-        if (standardize) {
-          importance = se = NULL # data.table NSE tax
-          scale_factor = max(abs(scores$importance), na.rm = TRUE)
-          scores[, c("importance", "se") := list(importance / scale_factor, se / scale_factor)]
-        }
-
-        agg = importance_sage_montecarlo(scores, conf_level, alternative)
+        agg = importance_sage_montecarlo(
+          conf_level = conf_level,
+          alternative = alternative,
+          standardize = standardize,
+          method_obj = self
+        )
         setkeyv(agg, "feature")
         return(agg[])
       }
@@ -505,9 +488,9 @@ SAGE = R6Class(
     #'   Used by both sampling estimators; passing it for `estimator = "exact"` is a warning.
     #'   Note that for the kernel estimator this only spends *less* of the budget stored at
     #'   construction; it does not raise it (see `n_coalitions`).
-    #' @param se_threshold (`numeric(1)`: `0.01`) Convergence threshold for relative standard error.
+    #' @param se_threshold (`numeric(1)`: `0.025`) Convergence threshold for relative standard error.
     #'   SE is normalized by the range of importance values (max - min) to make convergence
-    #'   detection scale-invariant. Default `0.01` means convergence when relative SE < 1%.
+    #'   detection scale-invariant. Default `0.025` means convergence when relative SE < 2.5%.
     #'   Used by both sampling estimators; passing it for `estimator = "exact"` is a warning.
     #' @param min_permutations (`integer(1)`: `10L`) Minimum permutations before checking convergence.
     #'   Only used by the permutation estimator; passing it for another estimator is a warning.
@@ -558,7 +541,7 @@ SAGE = R6Class(
       se_threshold = resolve_param(
         se_threshold,
         self$param_set$values$se_threshold,
-        0.01
+        0.025
       )
       min_permutations = resolve_param(
         min_permutations,
@@ -732,7 +715,7 @@ SAGE = R6Class(
         ggplot2::geom_point(size = 2) +
         ggplot2::labs(
           title = "SAGE Value Convergence",
-          subtitle = if (self$converged) {
+          subtitle = if (isTRUE(self$converged)) {
             sprintf(
               "Converged after %g %s (saved %g)",
               budget_row$used,
@@ -749,7 +732,7 @@ SAGE = R6Class(
         ) +
         ggplot2::theme_minimal(base_size = 14)
 
-      if (self$converged) {
+      if (isTRUE(self$converged)) {
         p = p +
           ggplot2::geom_vline(
             xintercept = budget_row$used,
@@ -768,7 +751,7 @@ SAGE = R6Class(
     #'   effort: the `estimator`, its `unit` of budget, the `requested` upper bound, the amount `used`
     #'   (below the request only with early stopping), the resulting number of coalition evaluations
     #'   `n_evals`, and whether the computation `converged`.
-    #'   `used` and `n_evals` are `NA` before `$compute()`.
+    #'   `used` and `n_evals` are `NA` before `$compute()`; `converged` is `NA` for the exact estimator.
     #'   The budget units are not comparable across estimators (a permutation costs `n_features`
     #'   evaluations, a paired coalition draw costs two), which is what `n_evals` is for: it is the
     #'   currency the value function is actually called in, so budgets and convergence histories of
@@ -791,23 +774,16 @@ SAGE = R6Class(
       )
     },
 
-    #' @field n_permutations_used (`integer(1)`) Deprecated.
+    #' @field n_permutations_used Defunct.
     #'   Use `$budget` instead, which reports the effort spent alongside its unit and the implied
     #'   number of coalition evaluations.
-    #'   This alias is kept for backward compatibility and warns on access.
+    #'   Accessing this field is an error, since its value would be in the estimator's own units and
+    #'   would no longer be a permutation count for the kernel or exact estimator.
     n_permutations_used = function(rhs) {
-      if (!missing(rhs)) {
-        cli::cli_abort("{.field n_permutations_used} is read-only; it is set by {.fun $compute}.")
-      }
-      cli::cli_warn(
-        c(
-          "The {.field n_permutations_used} field is deprecated.",
-          "i" = "Read the effort spent via {.code $budget} instead."
-        ),
-        .frequency = "once",
-        .frequency_id = "xplainfi_sage_n_permutations_used_get"
-      )
-      private$.budget_used
+      cli::cli_abort(c(
+        "The {.field n_permutations_used} field is defunct.",
+        "i" = "Read the effort spent via {.code $budget} instead, which also reports its unit."
+      ))
     },
 
     #' @field n_permutations (`integer(1)`) Deprecated.
@@ -857,7 +833,7 @@ SAGE = R6Class(
       n_permutations,
       batch_size = NULL,
       early_stopping = FALSE,
-      se_threshold = 0.01,
+      se_threshold = 0.025,
       min_permutations = 10L,
       check_interval = 1L
     ) {
@@ -1061,23 +1037,17 @@ SAGE = R6Class(
     # so both MarginalSAGE and ConditionalSAGE inherit it unchanged.
     #
     # Two variants (see `kernel_variant`), sharing the coalition sampling loop:
-    # "original" (default, their Eq. 7) estimates BOTH the design matrix A = E[z z^T]
-    # and b = E[z v(z)] from the same sampled coalitions. Sharing the samples couples
-    # the errors in A and b, so the ratio A^{-1} b is far lower variance than plugging
-    # in the exact A; Covert & Lee recommend it in practice for exactly this reason
-    # (their Section 4.1). "unbiased" (their Eq. 9, the variant the Python `sage`
-    # package implements) uses the exact closed-form A and estimates only b.
-    # Coalitions are drawn with paired sampling (each draw plus its complement) for
-    # variance reduction.
+    # "original" (default, their Eq. 7 / Algorithm 1) estimates both A = E[z z^T] and
+    # b = E[z v(z)] from the same sampled coalitions; "unbiased" (their Eq. 9 /
+    # Algorithm 3, the variant the Python `sage` package implements) uses the exact
+    # closed-form A and estimates only b. Coalitions are drawn with paired sampling (each draw
+    # plus its complement, their Section 4.2) for variance reduction.
     #
-    # Standard errors: the estimate is a smooth function of sample-mean moments, so
-    # its covariance follows from the multivariate delta method. Per-pair moments are
-    # accumulated with Welford's online algorithm (numerically stable running mean +
-    # covariance). For "unbiased" the moment is just b and the delta method reduces to
-    # the paper's closed form Cov(phi) = C Cov(b_mean) C^T (Eqs. 12-13); for
-    # "original" the moment is w = (offdiag(A), b) and Cov(w_mean) is propagated
-    # through the Jacobian of the constrained solve, capturing the sampling
-    # variance of both A and b (see sage_kernel_estimate_original).
+    # Standard errors follow the paper's own recipes: for "unbiased" the closed form
+    # Cov(phi) = C Cov(b_mean) C^T (Eqs. 12-13) from a Welford covariance of b; for
+    # "original" batch means over independent block estimates,
+    # Cov(phi_n) ~ (block / n) Cov(block estimates) (Section 4.3), so a checkpoint
+    # is one block there.
     .compute_sage_scores_kernel = function(
       learner,
       test_dt,
@@ -1085,14 +1055,17 @@ SAGE = R6Class(
       batch_size = NULL,
       track_convergence = TRUE,
       early_stopping = FALSE,
-      se_threshold = 0.01
+      se_threshold = 0.025
     ) {
       features = self$features
       m = length(features)
+      unbiased = identical(self$param_set$values$kernel_variant %||% "original", "unbiased")
       # Draws per checkpoint: bounds the rows materialized per prediction batch and
-      # sets the granularity of the convergence history. Not user-facing (the
+      # sets the granularity of the convergence history. For "original" a checkpoint
+      # is also one variance block, which must be large enough to identify its own
+      # sampled design matrix (2 rows per draw, m columns). Not user-facing (the
       # permutation estimator's check_interval knob deliberately does not map here).
-      check_interval = 64L
+      check_interval = if (unbiased) 16L else max(16L, 4L * m)
 
       # Value-function anchors. V(S) = baseline_loss - loss(S), evaluated with the
       # same machinery the permutation estimator uses, so V(empty) = 0 and
@@ -1128,33 +1101,35 @@ SAGE = R6Class(
       }
 
       size_probs = sage_kernel_size_probs(m)
-      unbiased = identical(self$param_set$values$kernel_variant %||% "unbiased", "unbiased")
       # The exact design matrix depends only on m; invert it once per iteration
       # rather than at every checkpoint estimate.
       A_inv_exact = if (unbiased) solve(sage_kernel_A(m)) else NULL
 
-      # Moment vector layout. For "unbiased" only b is estimated (A is exact), so the
-      # per-pair moment is just b. For "original" the sampled A has an exactly
-      # constant diagonal (0.5), so only its lower-triangular off-diagonals are
-      # random and enter w alongside b.
-      od = which(lower.tri(matrix(0, m, m)), arr.ind = TRUE)
-      noff = nrow(od)
-      len_w = if (unbiased) m else noff + m
-
-      # Welford running mean (w_mean) and sum of cross-deviations (w_M2) of the
-      # per-pair moment vector, plus the pair count.
-      w_mean = numeric(len_w)
-      w_M2 = matrix(0, len_w, len_w)
+      # Running means of the per-pair moments b (both variants) and A (original only),
+      # the Welford sum of cross-deviations of b (unbiased only), and the per-block
+      # Shapley estimates (original only).
       n_pairs = 0L
+      b_mean = numeric(m)
+      b_M2 = matrix(0, m, m)
+      A_mean = matrix(0, m, m)
+      block_estimates = list()
 
       # Point estimate + SE from the running moments, dispatched by variant.
       estimate = function(require_result = FALSE) {
-        # Double arithmetic: the integer product overflows to NA beyond ~46000 pairs.
-        cov_mean = if (n_pairs > 1L) w_M2 / (as.numeric(n_pairs) * (n_pairs - 1)) else NULL
         if (unbiased) {
-          sage_kernel_estimate_unbiased(w_mean, cov_mean, m, total, A_inv = A_inv_exact)
+          # Double arithmetic: the integer product overflows to NA beyond ~46000 pairs.
+          cov_mean = if (n_pairs > 1L) b_M2 / (as.numeric(n_pairs) * (n_pairs - 1)) else NULL
+          sage_kernel_estimate_unbiased(b_mean, cov_mean, total, A_inv_exact)
         } else {
-          sage_kernel_estimate_original(w_mean, cov_mean, m, total, od, require_result)
+          sage_kernel_estimate_original(
+            A_mean,
+            b_mean,
+            block_estimates,
+            check_interval,
+            n_pairs,
+            total,
+            require_result
+          )
         }
       }
 
@@ -1194,36 +1169,39 @@ SAGE = R6Class(
         losses = private$.evaluate_coalitions_batch(learner, test_dt, coalitions, batch_size)
         V = baseline_loss - losses # value function in importance units
 
-        # Chunk moment matrix W, one row per (coalition, complement) pair:
-        # b_i = 0.5 (z V(z) + comp V(comp)) for both variants, prefixed by the
-        # sampled-A off-diagonals 0.5 (z_k z_l + comp_k comp_l) for "original".
+        # Paired per-draw moments (Covert & Lee 2021, Eq. 14 and Algorithm 1):
+        # b = 0.5 (z V(z) + comp V(comp)) and A = 0.5 (z z^T + comp comp^T).
         # Matrix-times-vector recycles column-wise, i.e. scales row i by V[i].
         odd = seq(1L, 2L * this_chunk, by = 2L)
         za = zs[odd, , drop = FALSE]
         zb = zs[odd + 1L, , drop = FALSE]
-        b_block = 0.5 * (za * V[odd] + zb * V[odd + 1L])
-        W = if (unbiased) {
-          b_block
-        } else {
-          a_block = 0.5 *
-            (za[, od[, 1L], drop = FALSE] *
-              za[, od[, 2L], drop = FALSE] +
-              zb[, od[, 1L], drop = FALSE] * zb[, od[, 2L], drop = FALSE])
-          cbind(a_block, b_block)
-        }
+        b_chunk = 0.5 * (za * V[odd] + zb * V[odd + 1L]) # one row per draw
+        n_total = n_pairs + this_chunk
+        weight = this_chunk / n_total
 
-        # Merge the chunk into the running moments with Chan's parallel Welford
-        # update: one crossprod per chunk instead of a per-pair R-level loop with
-        # O(len_w^2) allocations, same statistics. The between-means correction
-        # term outer(delta, delta) * n_pairs * n_new / n_total is folded into the
-        # crossprod as one extra scaled row.
-        n_new = nrow(W)
-        mean_new = colMeans(W)
-        centered = sweep(W, 2L, mean_new)
-        n_total = n_pairs + n_new
-        delta = mean_new - w_mean
-        w_M2 = w_M2 + crossprod(rbind(centered, sqrt(n_pairs * n_new / n_total) * delta))
-        w_mean = w_mean + delta * (n_new / n_total)
+        if (unbiased) {
+          # Chan's parallel Welford merge of the chunk into the running mean and
+          # cross-deviation sum of b; the between-means correction term is folded
+          # into the crossprod as one extra scaled row.
+          mean_chunk = colMeans(b_chunk)
+          delta = mean_chunk - b_mean
+          b_M2 = b_M2 +
+            crossprod(rbind(sweep(b_chunk, 2L, mean_chunk), sqrt(n_pairs * weight) * delta))
+          b_mean = b_mean + delta * weight
+        } else {
+          A_chunk = 0.5 * (crossprod(za) + crossprod(zb)) / this_chunk
+          A_mean = A_mean + (A_chunk - A_mean) * weight
+          b_mean = b_mean + (colMeans(b_chunk) - b_mean) * weight
+          # A full block yields one independent estimate for the batch-means variance;
+          # a short final block would not be exchangeable with the others and is skipped.
+          if (this_chunk == check_interval && rcond(A_chunk) > 1e-10) {
+            block_estimates[[length(block_estimates) + 1L]] = sage_kernel_solve_constrained(
+              solve(A_chunk),
+              colMeans(b_chunk),
+              total
+            )
+          }
+        }
         n_pairs = n_total
         n_completed = n_completed + this_chunk
 
@@ -1232,8 +1210,7 @@ SAGE = R6Class(
         }
 
         # Running estimate + SEs for convergence tracking / history. Skipped when
-        # the caller discards the history (resampling iterations after the first),
-        # since the per-checkpoint delta-method SE is the expensive part.
+        # the caller discards the history (resampling iterations after the first).
         if (track_convergence) {
           est = estimate()
           convergence_history[[length(convergence_history) + 1L]] = data.table(
@@ -1245,8 +1222,9 @@ SAGE = R6Class(
           )
 
           # Same criterion as the permutation estimator. No minimum-draw guard is needed:
-          # until the sampled design matrix is identifiable the standard errors are NA,
-          # which the ratio propagates rather than treating as convergence.
+          # until the standard errors are estimable (identifiable design matrix, at least
+          # two variance blocks) they are NA, which the ratio propagates rather than
+          # treating as convergence.
           if (early_stopping) {
             ratio = sage_convergence_ratio(est$phi, est$se)
             converged = !is.na(ratio) && ratio < se_threshold
@@ -1264,11 +1242,16 @@ SAGE = R6Class(
       # An exhausted budget under early stopping means the criterion never tripped, which is
       # a different result from a planned fixed-budget run and must not pass silently.
       if (early_stopping && !converged) {
+        block_hint = if (unbiased) {
+          ""
+        } else {
+          sprintf(" or to complete two variance blocks of %d draws", check_interval)
+        }
         cli::cli_warn(c(
           "Kernel SAGE did not converge within {.val {n_coalitions}} coalition draws.",
           "i" = if (is.na(ratio)) {
-            "The standard errors were not estimable, which usually means the budget is too
-             small to identify all {m} features."
+            "The standard errors were not estimable: the budget is too small to identify all
+             {m} features{block_hint}."
           } else {
             "Maximum relative SE: {.val {round(ratio, 4)}} (threshold: {.val {se_threshold}})."
           },
@@ -1356,12 +1339,13 @@ SAGE = R6Class(
       names(phi) = features
 
       # The exact estimator has no coalition-sampling error, so there is no Monte Carlo
-      # SE to report (se = NA); `ci_method = "montecarlo"` is therefore not applicable.
+      # SE to report (se = NA) and no convergence criterion (converged = NA);
+      # `ci_method = "montecarlo"` is therefore not applicable.
       list(
         scores = data.table(feature = features, importance = as.numeric(phi), se = NA_real_),
         convergence_data = list(
           convergence_history = NULL,
-          converged = TRUE,
+          converged = NA,
           budget_used = n_coal
         )
       )

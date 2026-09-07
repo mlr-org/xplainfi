@@ -518,7 +518,7 @@ both the permutation and the kernel estimator sample feature coalitions, so even
 It is available for `estimator = "kernel"` and `estimator = "permutation"`; the exact estimator enumerates all coalitions and therefore has no coalition-sampling error to quantify.
 
 These are parametric Wald intervals, not empirical quantiles:
-the standard errors derive from a central limit theorem on the sampled-coalition moments ([Covert & Lee, 2021](https://proceedings.mlr.press/v130/covert21a.html), Eqs. 12-13, extended by the delta method for the default kernel variant), so coverage is asymptotic in the number of sampled coalitions.
+the standard errors are the running variance across permutations for the permutation estimator ([Covert et al., 2020](https://arxiv.org/abs/2004.00668)), the closed-form covariance of [Covert & Lee (2021)](https://proceedings.mlr.press/v130/covert21a.html), Eqs. 12-13, for the default kernel variant, and their batch-means estimate (Section 4.3) for `kernel_variant = "original"`, so coverage is asymptotic in the number of sampled coalitions.
 The package's test suite checks the standard errors against the actual run-to-run variability of the estimates, but no systematic coverage study exists yet, so treat the intervals as approximate.
 
 **What the intervals do and do not cover.**
@@ -564,30 +564,30 @@ Two uses are supported by this estimand: checking that the sampling budget suffi
 `alternative = "greater"` is still available to obtain lower-bounded one-sided intervals.
 
 The kernel estimator comes in two variants (see `?SAGE`):
-the default `"unbiased"` matches the estimator implemented in the reference Python [sage](https://github.com/iancovert/sage) package, while `"original"` follows the estimator Covert & Lee (2021) recommend for practical use (their Section 4.1).
-Both provide calibrated intervals, but at equal coalition budgets the original variant's point estimates are substantially less noisy, which its narrower intervals reflect.
+the default `"original"` follows the estimator Covert & Lee (2021) recommend for practical use (their Section 4.1), while `"unbiased"` matches the estimator implemented in the reference Python [sage](https://github.com/iancovert/sage) package and is kept as a parity check.
+The test suite checks both variants' standard errors against replicate variability; at equal coalition budgets the unbiased variant's point estimates are substantially noisier, which its wider intervals reflect.
 To isolate the effect of the variant, both computations share the instantiated holdout split and, via the seeds, the same reference subsample, fitted model, and coalition draws:
 
-```{r sage-montecarlo-original}
-#| fig.alt: "Point-and-whisker plot with features on y-axis and SAGE values on x-axis. Two colored series for the unbiased and original kernel variants; the original variant shows markedly narrower horizontal error bars at the same coalition budget."
+```{r sage-montecarlo-unbiased}
+#| fig.alt: "Point-and-whisker plot with features on y-axis and SAGE values on x-axis. Two colored series for the original and unbiased kernel variants; the unbiased variant shows markedly wider horizontal error bars at the same coalition budget."
 set.seed(1)
-sage_original = MarginalSAGE$new(
+sage_unbiased = MarginalSAGE$new(
 	task = task_sage,
 	learner = learner_sage,
 	measure = measure,
 	resampling = resampling_sage,
 	estimator = "kernel",
-	kernel_variant = "original",
+	kernel_variant = "unbiased",
 	n_coalitions = 256,
 	n_samples = 50
 )
 
 set.seed(2)
-sage_original$compute()
+sage_unbiased$compute()
 
 sage_cis = rbindlist(list(
-	sage$importance(ci_method = "montecarlo")[, variant := "unbiased"],
-	sage_original$importance(ci_method = "montecarlo")[, variant := "original"]
+	sage$importance(ci_method = "montecarlo")[, variant := "original"],
+	sage_unbiased$importance(ci_method = "montecarlo")[, variant := "unbiased"]
 ))
 
 ggplot(sage_cis, aes(y = feature, color = variant)) +
@@ -600,7 +600,7 @@ ggplot(sage_cis, aes(y = feature, color = variant)) +
 	scale_color_brewer(palette = "Set2") +
 	labs(
 		title = "Monte Carlo CIs for kernel SAGE",
-		subtitle = "Same coalition budget; the original variant is markedly less noisy",
+		subtitle = "Same coalition budget; the unbiased (sage-parity) variant is noisier",
 		color = "Kernel variant"
 	) +
 	theme_minimal(base_size = 14) +

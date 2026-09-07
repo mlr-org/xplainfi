@@ -16,9 +16,10 @@ This is approximated by averaging predictions over a reference dataset.
 
 The permutation estimator follows Covert et al. (2020); the kernel estimator
 (\code{estimator = "kernel"}, Kernel SAGE) follows Covert & Lee (2021) and comes in two
-variants selected by \code{kernel_variant}: \code{"unbiased"} (their Eq. 9, the default, and the variant
-implemented by the reference Python \code{sage} package) and \code{"original"} (their Eq. 7, recommended
-in their Section 4.1 for practical use and typically far more accurate at equal budgets here).
+variants selected by \code{kernel_variant}: \code{"original"} (their Eq. 7, the default, recommended in
+their Section 4.1 for practical use) and \code{"unbiased"} (their Eq. 9, the variant implemented by
+the reference Python \code{sage} package, kept as a parity check; see Details for why it is far more
+expensive in this package).
 The exact estimator (\code{estimator = "exact"}) enumerates all coalitions and serves as a ground-truth
 reference on small feature sets.
 
@@ -46,28 +47,39 @@ For \link{ConditionalSAGE}, by contrast, the sampler redraws at every evaluation
 enters the variation across permutations and is largely reflected in the reported SEs.
 The exact estimator has no coalition-sampling error and reports no SE.
 
-Computationally, the permutation estimator uses the running SE across permutations, while
-the kernel estimator propagates the coalition-sampling covariance through the constrained
-least-squares solve (the delta method), which for \code{kernel_variant = "unbiased"} reduces to
-the closed-form covariance of Covert & Lee (2021, Eqs. 12-13).
-For \code{kernel_variant = "original"} this bookkeeping maintains a covariance matrix over all
-pairwise feature co-occurrences, whose memory use grows with the fourth power of the number
-of features (roughly 200 MB at 100 features), so with hundreds of features expect the SE
-machinery rather than the model evaluations to become the bottleneck.
+The standard errors follow the published recipes of each estimator.
+The permutation estimator uses the running standard error across permutations (Covert et al.,
+2020, Section 3.3).
+For \code{kernel_variant = "unbiased"} the covariance is the closed form of Covert & Lee (2021,
+Eqs. 12-13, their Algorithm 3).
+For \code{kernel_variant = "original"} no closed form exists (their Section 4.1); following their
+Section 4.3 and Algorithm 1, the variance is estimated from independent estimates computed on
+consecutive blocks of coalition draws, which assumes the empirically observed \code{O(1 / n)} rate.
+This variant is consistent but not provably unbiased; the paper reports its finite-sample bias
+as negligible, and the standard errors do not cover it.
+For both kernel variants the values of the empty and full coalition enter as fixed constraints,
+as in the reference implementation; for \link{ConditionalSAGE} these two anchor evaluations carry
+sampler noise that the standard errors therefore do not reflect.
 
 \strong{Relation to the reference implementation (Python \code{sage})}:
 Both packages implement the same estimators but estimate the value function in different regimes.
-\code{sage} pairs each coalition draw with a single randomly drawn test observation, so an individual
+\code{sage} pairs each coalition draw with a random minibatch of test observations, so an individual
 evaluation is cheap but noisy and the noise is averaged away across many draws.
 xplainfi evaluates every coalition on the complete test set, averaging predictions over
 \code{n_samples} reference draws, so a single evaluation is expensive but nearly deterministic.
 This follows from supporting arbitrary mlr3 measures, sampler-based conditional SAGE, and exact
 enumeration, and it drives the remaining differences:
 \itemize{
-\item Point estimates are directly comparable with the default \code{kernel_variant = "unbiased"}, the
-estimator \code{sage} implements; the two then agree up to Monte Carlo error.
-\item \code{kernel_variant = "original"} follows the paper's practical recommendation and is the variant
-that profits from a near-deterministic value function (see \code{kernel_variant}).
+\item Point estimates are directly comparable with \code{kernel_variant = "unbiased"}, the estimator
+\code{sage} implements; in our cross-check both agreed with exact enumeration to within 3\% of the
+importance spread.
+\item Cost is not: evaluating every coalition on the whole test set is the "expectation" regime that
+Covert & Lee (2021, Section 5 and Figure 5) report as prohibitively slow for the unbiased
+estimator, and in our cross-check \code{"unbiased"} needed more than 30 times the model evaluations
+of \code{sage} to reach the same convergence criterion, whereas the default \code{"original"} and the
+permutation estimator were on par with \code{sage}.
+The default therefore follows the paper's practical recommendation, and \code{"unbiased"} is a
+parity check rather than a working default (see \code{kernel_variant}).
 \item Reported uncertainties are not comparable: those of \code{sage} include the observation-sampling
 noise, whereas xplainfi conditions on the test set and quantifies coalition-sampling error only.
 \item Convergence budgets are not comparable for the same reason, even though the criterion is the
@@ -80,15 +92,17 @@ same; \code{sage} also runs until converged by default, whereas xplainfi spends 
 \strong{Convergence and early stopping}:
 Both sampling estimators support \code{early_stopping = TRUE}, which stops as soon as the largest
 standard error, relative to the spread of the importance values, falls below \code{se_threshold}.
-This is the criterion of the Python \code{sage} package (its \code{detect_convergence}), and it certifies
-the same thing the standard errors do: that more sampling would not move the values much for
-this fitted model and this test data.
+This is the ratio proposed by Covert et al. (2020, Section 3.3) and Covert & Lee (2021,
+Section 4.3), and the default threshold of \code{0.025} is that of the Python \code{sage} package
+(the papers' examples use \code{0.01} to \code{0.02}).
+It certifies the same thing the standard errors do: that more sampling would not move the
+values much for this fitted model and this test data.
 It says nothing about the components those standard errors exclude (see \emph{Standard errors}
 above), so a converged run is not a precise one if \code{n_samples} is small.
 The threshold is not portable across estimators or kernel variants, because the standard errors
 it is applied to are constructed differently.
-\code{kernel_variant = "original"} in particular reaches a given threshold at far smaller budgets than
-\code{"unbiased"}, which reflects genuinely settled coalition sampling rather than a premature stop.
+In our benchmarks \code{kernel_variant = "original"} reached a given threshold at far smaller budgets
+than \code{"unbiased"}.
 
 With early stopping the budget argument becomes an upper bound rather than a planned cost.
 \verb{$budget} reports what was actually spent and whether the criterion was met, and
@@ -123,7 +137,7 @@ number of evaluated coalitions, comparable across estimators) index the checkpoi
 
     \item{\code{converged}}{(\code{logical(1)}) Whether the convergence criterion was met (sampling estimators with
 \code{early_stopping = TRUE}).
-The exact estimator sets \code{TRUE} trivially since it enumerates all coalitions.}
+\code{NA} for the exact estimator, which enumerates all coalitions and has no criterion to meet.}
   }
   \if{html}{\out{</div>}}
 }
@@ -134,7 +148,7 @@ The exact estimator sets \code{TRUE} trivially since it enumerates all coalition
 effort: the \code{estimator}, its \code{unit} of budget, the \code{requested} upper bound, the amount \code{used}
 (below the request only with early stopping), the resulting number of coalition evaluations
 \code{n_evals}, and whether the computation \code{converged}.
-\code{used} and \code{n_evals} are \code{NA} before \verb{$compute()}.
+\code{used} and \code{n_evals} are \code{NA} before \verb{$compute()}; \code{converged} is \code{NA} for the exact estimator.
 The budget units are not comparable across estimators (a permutation costs \code{n_features}
 evaluations, a paired coalition draw costs two), which is what \code{n_evals} is for: it is the
 currency the value function is actually called in, so budgets and convergence histories of
@@ -142,10 +156,11 @@ different estimators can be compared on it.
 With multiple resampling iterations it describes the first iteration, whose budget the
 remaining ones reuse (see \code{early_stopping}).}
 
-    \item{\code{n_permutations_used}}{(\code{integer(1)}) Deprecated.
+    \item{\code{n_permutations_used}}{Defunct.
 Use \verb{$budget} instead, which reports the effort spent alongside its unit and the implied
 number of coalition evaluations.
-This alias is kept for backward compatibility and warns on access.}
+Accessing this field is an error, since its value would be in the estimator's own units and
+would no longer be a permutation count for the kernel or exact estimator.}
 
     \item{\code{n_permutations}}{(\code{integer(1)}) Deprecated.
 The permutation budget lives in the param_set; use \verb{$param_set$values$n_permutations} instead.
@@ -193,7 +208,7 @@ earlier releases and warns on access.}
   batch_size = 5000L,
   n_samples = 100L,
   early_stopping = FALSE,
-  se_threshold = 0.01,
+  se_threshold = 0.025,
   min_permutations = 10L,
   check_interval = 1L
 )}
@@ -212,9 +227,9 @@ All three approximate the same SAGE values; setting the budget argument of a dif
 an error.
 Their costs are comparable through the number of evaluated coalitions:
 \code{1 + n_permutations * n_features}, \code{2 + 2 * n_coalitions}, and \code{2^n_features}, respectively.
-\verb{$compute()} points out (once per session, if \code{xplain_opt("verbose")}) when a sampling budget meets or
-exceeds the exact estimator's cost, since enumeration then removes the coalition-sampling error at no
-extra cost.
+\verb{$compute()} points out in a message (silenced by \code{xplain_opt(verbose = FALSE)}) when a sampling
+budget meets or exceeds the exact estimator's cost, since enumeration then removes the
+coalition-sampling error at no extra cost.
 "Exact" refers to coalition sampling only: the marginalization error controlled by \code{n_samples} remains
 for all estimators, and for \link{ConditionalSAGE} the value function itself is a Monte Carlo estimate,
 so oversampling coalitions can still be deliberate there (repeated evaluations average the sampler's
@@ -230,28 +245,31 @@ relative to the spread of the importance values.}
       \item{\code{n_coalitions}}{(\code{integer(1)}: \code{NULL}) Number of paired coalition draws for \code{estimator = "kernel"}.
 Each draw evaluates a coalition and its complement, so the cost is \code{2 + 2 * n_coalitions} evaluated
 coalitions.
-If unset, defaults to \code{100 * n_features} draws, capped at \code{4096L}.
-This is sized for the default \code{kernel_variant = "unbiased"}, which needs a large budget in this
-package's near-deterministic value-function regime (see Details); on small feature sets the default
-exceeds the cost of exact enumeration, which \verb{$compute()} points out.
+If unset, defaults to \code{20 * n_features} draws, capped at \code{4096L} and, like the permutation default,
+at half the cost of exact enumeration (\code{2^(n_features - 2)} draws).
+This gives the default \code{kernel_variant = "original"} five variance blocks for its standard errors
+(see Details) at roughly four times the evaluation cost of the permutation default; in our
+benchmarks it was several times more accurate at that cost.
+Below about nine features the enumeration cap binds, standard errors may be unavailable (fewer than
+two blocks), and \code{estimator = "exact"} is the better tool.
 Check whether the budget suffices the same way as for \code{n_permutations}.
 With \code{early_stopping = TRUE} the same budget acts as an upper bound instead of a planned cost.}
-      \item{\code{kernel_variant}}{(\code{character(1)}: \code{"unbiased"}) Variant of the kernel estimator.
+      \item{\code{kernel_variant}}{(\code{character(1)}: \code{"original"}) Variant of the kernel estimator.
 Only valid for \code{estimator = "kernel"}.
-\code{"unbiased"} (Covert & Lee 2021, Eq. 9) uses the exact closed-form design matrix and estimates only the
-right-hand side from the sampled coalitions.
-It is the estimator implemented in the reference Python \code{sage} package and the default here, so
-results are directly comparable with \code{sage}.
-\code{"original"} (Eq. 7) estimates both the design matrix and its right-hand side from the same sampled
-coalitions, which couples their errors.
+\code{"original"} (Covert & Lee 2021, Eq. 7) estimates both the design matrix and its right-hand side from
+the same sampled coalitions, which couples their errors.
 How much those errors cancel depends on the value function: on an exactly additive game the
-cancellation is complete and the variant returns that game's Shapley values at any budget, and on
-the learned value functions this package is typically applied to it reaches a given accuracy at
-roughly an order of magnitude smaller budgets than \code{"unbiased"}.
-It is the paper's practical recommendation (their Section 4.1); its standard errors are an
-extension of the paper's closed form (see Details).
-\code{vignette("sage-methods", package = "xplainfi")} explains why the two variants behave so differently
-here.}
+cancellation is complete and the variant returns that game's Shapley values at any budget, and in
+our benchmarks on learned value functions it reached a given accuracy at roughly an order of
+magnitude smaller budgets than \code{"unbiased"}.
+It is the paper's practical recommendation (their Section 4.1) and the default; its standard errors
+follow their batch-means recipe (see Details).
+\code{"unbiased"} (Eq. 9) uses the exact closed-form design matrix and estimates only the right-hand side.
+It is the estimator implemented in the reference Python \code{sage} package and is kept for direct
+parity checks against it; in this package it is far more expensive to converge than either the
+default variant or the permutation estimator (see Details), so budget it generously and check the
+standard errors.
+\code{vignette("sage-methods", package = "xplainfi")} documents the cross-check against \code{sage}.}
       \item{\code{max_features}}{(\code{integer(1)}: \code{12L}) Feature-count cap for \code{estimator = "exact"}.
 The exact estimator evaluates \code{2^n_features} coalitions, so it aborts when the number of
 features exceeds this cap.
@@ -275,11 +293,13 @@ does and does not certify, and why the same threshold buys very different budget
 estimators and kernel variants); setting it for \code{estimator = "exact"} is a warning.
 The budget then acts as an upper bound: if the criterion is not met within it, the values are
 returned with a warning and \verb{$budget} reports \code{converged = FALSE}.}
-      \item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.01}) Convergence threshold for relative standard error.
+      \item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.025}) Convergence threshold for relative standard error.
 Convergence is detected when the maximum relative SE across all features falls below this threshold.
 Relative SE is calculated as SE divided by the range of importance values (max - min),
 making it scale-invariant across different loss metrics.
-Default of \code{0.01} means convergence when relative SE is below 1\% of the importance range.
+The default of \code{0.025} (convergence once the relative SE is below 2.5\% of the importance range) is
+the default of the Python \code{sage} package; the examples in Covert et al. (2020) and Covert & Lee
+(2021) use \code{0.01} to \code{0.02}.
 Used by both sampling estimators; setting a non-default value for \code{estimator = "exact"} is a warning.}
       \item{\code{min_permutations}}{(\code{integer(1)}: \code{10L}) Minimum permutations before checking for convergence.
 Convergence is judged based on the standard errors of the estimated SAGE values,
@@ -388,9 +408,9 @@ Not accepted for \code{ci_method = "montecarlo"}, which performs no hypothesis t
 Used by both sampling estimators; passing it for \code{estimator = "exact"} is a warning.
 Note that for the kernel estimator this only spends \emph{less} of the budget stored at
 construction; it does not raise it (see \code{n_coalitions}).}
-      \item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.01}) Convergence threshold for relative standard error.
+      \item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.025}) Convergence threshold for relative standard error.
 SE is normalized by the range of importance values (max - min) to make convergence
-detection scale-invariant. Default \code{0.01} means convergence when relative SE < 1\%.
+detection scale-invariant. Default \code{0.025} means convergence when relative SE < 2.5\%.
 Used by both sampling estimators; passing it for \code{estimator = "exact"} is a warning.}
       \item{\code{min_permutations}}{(\code{integer(1)}: \code{10L}) Minimum permutations before checking convergence.
 Only used by the permutation estimator; passing it for another estimator is a warning.}

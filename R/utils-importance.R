@@ -543,13 +543,57 @@ importance_loco = function(
 #' With more than one resampling iteration this reflects only the Monte Carlo error and *not*
 #' the between-model variability across splits; a single holdout split is the intended use.
 #'
-#' @param scores data.table with columns `iter_rsmp`, `feature`, `importance`, `se`
+#' Mirrors `importance_cpi()` / `importance_loco()`: takes the method object and performs the
+#' method-specific checks itself, so `SAGE$importance()` only dispatches.
+#'
 #' @param conf_level confidence level for intervals
 #' @param alternative "greater" (one-sided) or "two.sided"
+#' @param standardize whether to divide importances and SEs by the largest absolute importance
+#' @param method_obj the computed [SAGE] object
 #' @noRd
-importance_sage_montecarlo = function(scores, conf_level, alternative) {
+importance_sage_montecarlo = function(conf_level, alternative, standardize, method_obj) {
   # The data.table NSE tax
   importance = se = NULL
+
+  scores = method_obj$scores()
+  if (!("se" %in% names(scores)) || all(is.na(scores$se))) {
+    cli::cli_abort(c(
+      "{.code ci_method = \"montecarlo\"} requires Monte Carlo standard errors, but none are available.",
+      "i" = "The exact estimator has no coalition-sampling error, so it reports no SEs.",
+      "i" = "SEs are also unavailable with a single feature of interest, with {.code n_permutations = 1},
+             or when the kernel sampling budget is too small to estimate them."
+    ))
+  }
+  if (anyNA(scores$se)) {
+    n_na = length(unique(scores$iter_rsmp[is.na(scores$se)]))
+    cli::cli_warn(c(
+      "Monte Carlo standard errors are missing for {n_na} resampling iteration{?s}.",
+      "i" = "Affected features aggregate to {.val NA} intervals."
+    ))
+  }
+  # The intervals quantify each iteration's coalition-sampling error only; pooling
+  # across refitted models must not be mistaken for between-model uncertainty.
+  if (method_obj$resampling$iters > 1L) {
+    cli::cli_warn(c(
+      "Monte Carlo intervals are pooled across {method_obj$resampling$iters} resampling iterations.",
+      "i" = "They reflect only the coalition-sampling error of each iteration's computation,
+             not the variability between the refitted models.",
+      "i" = "A single holdout split is the intended use for this {.arg ci_method}."
+    ))
+  }
+  aggregator = method_obj$measure$aggregator
+  if (!is.null(aggregator) && !identical(aggregator, mean)) {
+    cli::cli_warn(c(
+      "{.code ci_method = \"montecarlo\"} always uses the mean across iterations as point estimate.",
+      "i" = "The aggregator of measure {.val {method_obj$measure$id}} is ignored here,
+             so point estimates can differ from other {.arg ci_method}s."
+    ))
+  }
+
+  if (standardize) {
+    scale_factor = max(abs(scores$importance), na.rm = TRUE)
+    scores[, c("importance", "se") := list(importance / scale_factor, se / scale_factor)]
+  }
 
   agg = scores[,
     list(

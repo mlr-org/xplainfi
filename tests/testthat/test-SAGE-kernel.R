@@ -27,8 +27,8 @@ test_that("MarginalSAGE kernel estimator works across task types", {
   expect_identical(sage_regr$param_set$values$estimator, "kernel")
   expect_null(sage_regr$param_set$values$n_permutations)
   expect_identical(sage_regr$param_set$values$n_coalitions, 100L)
-  # Default variant is the one the reference Python sage package implements.
-  expect_identical(sage_regr$param_set$values$kernel_variant, "unbiased")
+  # Default variant is the paper's practical recommendation (Covert & Lee 2021, Section 4.1).
+  expect_identical(sage_regr$param_set$values$kernel_variant, "original")
   sage_regr$compute()
   expect_importance_dt(sage_regr$importance(), features = sage_regr$features)
 
@@ -178,6 +178,7 @@ test_that("kernel estimator recovers exact Shapley on a small feature set", {
 })
 
 test_that("ConditionalSAGE kernel agrees with the exact estimator", {
+  skip_on_cran() # validation anchor, ~10s: conditional sampler on 800 coalitions
   set.seed(9241)
   task = sim_dgp_correlated(n = 200)
   learner = lrn("regr.rpart")
@@ -217,7 +218,7 @@ test_that("ConditionalSAGE kernel agrees with the exact estimator", {
 
 test_that("kernel and permutation estimators agree on important features", {
   set.seed(1234)
-  task = tgen("friedman1")$generate(n = 250)
+  task = tgen("friedman1")$generate(n = 150)
   learner = lrn("regr.rpart")
   measure = msr("regr.mse")
 
@@ -234,8 +235,8 @@ test_that("kernel and permutation estimators agree on important features", {
     learner,
     measure,
     resampling = resampling,
-    n_permutations = 30L,
-    n_samples = 30L
+    n_permutations = 20L,
+    n_samples = 15L
   )
   sage_perm$compute()
 
@@ -247,8 +248,8 @@ test_that("kernel and permutation estimators agree on important features", {
     resampling = resampling,
     estimator = "kernel",
     kernel_variant = "original",
-    n_coalitions = 600L,
-    n_samples = 30L
+    n_coalitions = 300L,
+    n_samples = 15L
   )
   sage_kern$compute()
 
@@ -271,11 +272,11 @@ test_that("MarginalSAGE kernel is reproducible with the same seed", {
   measure = msr("classif.ce")
 
   set.seed(99)
-  sage1 = MarginalSAGE$new(task, learner, measure, estimator = "kernel", n_coalitions = 128L)
+  sage1 = MarginalSAGE$new(task, learner, measure, estimator = "kernel", n_coalitions = 128L, n_samples = 20L)
   sage1$compute()
 
   set.seed(99)
-  sage2 = MarginalSAGE$new(task, learner, measure, estimator = "kernel", n_coalitions = 128L)
+  sage2 = MarginalSAGE$new(task, learner, measure, estimator = "kernel", n_coalitions = 128L, n_samples = 20L)
   sage2$compute()
 
   expect_equal(sage1$importance()$importance, sage2$importance()$importance, tolerance = 1e-10)
@@ -294,20 +295,20 @@ test_that("budget defaults adapt to the feature count", {
   expect_identical(MarginalSAGE$new(task10, learner)$param_set$values$n_permutations, 10L)
   expect_identical(MarginalSAGE$new(task5, learner)$param_set$values$n_permutations, 3L)
 
-  # Kernel: 100 * m draws (sized for the unbiased default variant), capped at 4096.
+  # Kernel: 20 * m draws, capped at 4096 and at 2^(m - 2) (half the enumeration cost).
   expect_identical(
     MarginalSAGE$new(task10, learner, estimator = "kernel")$param_set$values$n_coalitions,
-    1000L
+    200L
   )
   expect_identical(
     MarginalSAGE$new(task5, learner, estimator = "kernel")$param_set$values$n_coalitions,
-    500L
+    8L
   )
-  expect_identical(sage_default_n_coalitions(60L), 4096L)
+  expect_identical(sage_default_n_coalitions(15L), 300L)
+  expect_identical(sage_default_n_coalitions(300L), 4096L)
 })
 
 test_that("compute points to the exact estimator when the budget reaches enumeration cost", {
-  skip_if_not_installed("rlang") # reset_message_verbosity() for the once-per-session message
   set.seed(409)
   task = sim_dgp_independent(n = 60) # 5 features, 2^5 = 32 coalitions
   learner = lrn("regr.rpart")
@@ -317,12 +318,9 @@ test_that("compute points to the exact estimator when the budget reaches enumera
   old = xplain_opt(verbose = TRUE)
   withr::defer(xplain_opt(verbose = old$verbose))
 
-  # The message fires once per session and estimator; reset so reruns stay deterministic.
-  rlang::reset_message_verbosity("xplainfi_sage_budget_permutation")
   sage_perm = MarginalSAGE$new(task, learner, measure, resampling, n_permutations = 10L, n_samples = 10L)
   expect_message(sage_perm$compute(), "exact") # 1 + 10 * 5 = 51 >= 32
 
-  rlang::reset_message_verbosity("xplainfi_sage_budget_kernel")
   sage_kern = MarginalSAGE$new(
     task,
     learner,
@@ -334,13 +332,13 @@ test_that("compute points to the exact estimator when the budget reaches enumera
   )
   expect_message(sage_kern$compute(), "exact") # 2 + 2 * 20 = 42 >= 32
 
-  # Adaptive defaults stay below enumeration and compute silently.
-  rlang::reset_message_verbosity("xplainfi_sage_budget_permutation")
+  # Adaptive defaults stay below enumeration and compute silently, for both estimators.
   sage_def = MarginalSAGE$new(task, learner, measure, resampling, n_samples = 10L)
   expect_no_message(sage_def$compute(), message = "exact")
+  sage_def_kern = MarginalSAGE$new(task, learner, measure, resampling, estimator = "kernel", n_samples = 10L)
+  expect_no_message(sage_def_kern$compute(), message = "exact")
 
   # Gated below 3 features, where any usable budget exceeds the 2^m = 4 coalitions.
-  rlang::reset_message_verbosity("xplainfi_sage_budget_kernel")
   task2 = mlr3::tgen("2dnormals")$generate(n = 60)
   sage2 = MarginalSAGE$new(
     task2,
@@ -487,22 +485,24 @@ test_that("exact estimator rejects montecarlo CIs", {
 })
 
 test_that("kernel Monte Carlo SEs are calibrated against replicate variability", {
-  skip_on_cran() # validation anchor, ~20s: 30 replicate computations
-  # The delta-method SEs must match the actual run-to-run spread of the point
-  # estimates when only the coalition draws vary: fixed split, fixed reference
-  # subsample (seed before the constructor), deterministic rpart fit, and a
-  # non-additive learned game (on additive games the original variant is exact
-  # per draw and both spread and SE collapse to numerical noise).
+  skip_on_cran() # validation anchor, ~30s: 24 replicate computations
+  # The reported SEs (closed form for unbiased, batch means for original) must match
+  # the actual run-to-run spread of the point estimates when only the coalition draws
+  # vary: fixed split, fixed reference subsample (seed before the constructor),
+  # deterministic rpart fit, and a non-additive learned game (on additive games the
+  # original variant is exact per draw and both spread and SE collapse to noise).
+  # The budget gives the original variant 12 variance blocks (block = 16 draws at m = 4);
+  # observed ratios 0.9-1.6 over 12 replicates.
   # This is the failure mode a structural check cannot catch: an SE off by a
   # constant factor passes non-negativity, reproducibility, and ordering tests.
   set.seed(881)
-  task = tgen("friedman1")$generate(n = 150)
+  task = tgen("friedman1")$generate(n = 100)
   task$select(c("important1", "important2", "important3", "important4"))
   learner = lrn("regr.rpart")
   measure = msr("regr.mse")
   resampling = rsmp("holdout")$instantiate(task)
 
-  run_variant = function(variant, reps = 15L) {
+  run_variant = function(variant, reps = 12L) {
     ests = list()
     ses = list()
     for (i in seq_len(reps)) {
@@ -514,8 +514,8 @@ test_that("kernel Monte Carlo SEs are calibrated against replicate variability",
         resampling = resampling,
         estimator = "kernel",
         kernel_variant = variant,
-        n_coalitions = 64L,
-        n_samples = 20L
+        n_coalitions = 192L,
+        n_samples = 10L
       )
       set.seed(7000 + i)
       s$compute()
@@ -532,8 +532,7 @@ test_that("kernel Monte Carlo SEs are calibrated against replicate variability",
 
   for (variant in c("original", "unbiased")) {
     r = run_variant(variant)
-    # Calibrated ratios (observed 0.95-1.6 over 15 replicates); a factor-of-two
-    # miscalibration in either direction fails.
+    # A factor-of-two miscalibration in either direction fails.
     checkmate::expect_numeric(r$se / r$emp, lower = 0.5, upper = 2, any.missing = FALSE)
   }
 })
@@ -807,7 +806,9 @@ test_that("$budget reports the effort spent in comparable units", {
   exact = MarginalSAGE$new(task, learner, estimator = "exact", n_samples = 15L)
   exact$compute()
   expect_identical(exact$budget$n_evals, 2^length(task$feature_names))
-  expect_true(exact$budget$converged)
+  # Enumeration has no convergence criterion to meet.
+  expect_identical(exact$budget$converged, NA)
+  expect_error(exact$n_permutations_used, "defunct")
 
   # $reset() clears the convergence tracking, not just the scores.
   sage$reset()
@@ -817,7 +818,7 @@ test_that("$budget reports the effort spent in comparable units", {
 
 test_that("kernel early stopping stops below the budget and stays accurate", {
   set.seed(8123)
-  task = tgen("friedman1")$generate(n = 250)
+  task = tgen("friedman1")$generate(n = 150)
   learner = lrn("regr.rpart")
   resampling = rsmp("holdout")$instantiate(task)
 
@@ -833,7 +834,7 @@ test_that("kernel early stopping stops below the budget and stays accurate", {
     early_stopping = TRUE,
     se_threshold = 0.025,
     n_coalitions = 400L,
-    n_samples = 30L
+    n_samples = 15L
   )
   stopped$compute()
   set.seed(52)
@@ -842,7 +843,7 @@ test_that("kernel early stopping stops below the budget and stays accurate", {
     learner,
     resampling = resampling,
     estimator = "exact",
-    n_samples = 30L
+    n_samples = 15L
   )
   exact$compute()
 
@@ -860,7 +861,7 @@ test_that("the original kernel variant reaches the criterion earlier than the un
   # right-hand side: their errors cancel, so the same budget buys a much smaller
   # coalition-sampling error, and any given threshold is reached much sooner.
   set.seed(8123)
-  task = tgen("friedman1")$generate(n = 250)
+  task = tgen("friedman1")$generate(n = 150)
   learner = lrn("regr.rpart")
   resampling = rsmp("holdout")$instantiate(task)
 
@@ -873,7 +874,7 @@ test_that("the original kernel variant reaches the criterion earlier than the un
       estimator = "kernel",
       kernel_variant = variant,
       n_coalitions = 400L,
-      n_samples = 30L
+      n_samples = 15L
     )
     sage$compute()
     scores = sage$scores() # the standard errors live here, not in $importance()

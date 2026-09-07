@@ -126,7 +126,7 @@ Covert I, Lundberg S, Lee S (2021).
   batch_size = 5000L,
   n_samples = 100L,
   early_stopping = FALSE,
-  se_threshold = 0.01,
+  se_threshold = 0.025,
   min_permutations = 10L,
   check_interval = 1L
 )}

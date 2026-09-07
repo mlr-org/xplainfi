@@ -197,13 +197,13 @@ sage_marginal_contributions = function(perm_sublist, losses, baseline, feature_n
 #' The permutation default of 10 permutations is reduced on small feature sets so its cost
 #' stays at or below half of exact enumeration (`2^m` coalition evaluations).
 #'
-#' The kernel default of `100 * m` draws is sized for the default `"unbiased"` variant, which
-#' needs a large budget in this package's near-deterministic value-function regime: on a
-#' ten-feature `friedman1` task it reaches roughly the permutation default's accuracy at
-#' 1000 draws, whereas 50 draws (the permutation default's cost) leave errors of half the
-#' importance spread. The cap keeps very wide tasks bounded; `sage_inform_budget_vs_exact()`
-#' points to exact enumeration where it is cheaper. The `"original"` variant typically needs an
-#' order of magnitude less.
+#' The kernel default of `20 * m` draws (capped at 4096) is sized for the default `"original"`
+#' variant: it gives the batch-means standard errors five variance blocks of `4 * m` draws, and
+#' in our benchmarks (ten-feature `friedman1`, `regr.rpart`) it was several times more accurate
+#' than the permutation default at roughly four times its evaluation cost. Like the permutation
+#' default it is capped at half the cost of exact enumeration, so the default never triggers the
+#' exact-cost message; below about nine features that cap binds, and the exact estimator is the
+#' better tool.
 #'
 #' @param m (`integer(1)`) Number of features.
 #' @return `integer(1)` default budget.
@@ -216,7 +216,8 @@ sage_default_n_permutations = function(m) {
 #' @rdname sage_default_n_permutations
 #' @noRd
 sage_default_n_coalitions = function(m) {
-  min(4096L, 100L * m)
+  half_enum = if (m <= 30L) 2^(m - 2L) else Inf # binds only for small m
+  as.integer(max(2, min(4096, 20 * m, half_enum)))
 }
 
 #' Sampling budget requested for the configured estimator
@@ -284,8 +285,8 @@ sage_budget_unit = function(estimator) {
 #' the largest standard error relative to the spread of the importance values, which makes it
 #' invariant to the scale of the loss. Convergence is declared when the ratio falls below the
 #' threshold. Shared by both sampling estimators, but note that the standard errors feeding it
-#' differ in provenance (running variance across permutations, delta method across coalitions),
-#' so the same threshold does not buy the same budget across estimators or kernel variants.
+#' differ in provenance (running variance across permutations, closed form or batch means across
+#' coalitions), so the same threshold does not buy the same budget across estimators or variants.
 #'
 #' Missing standard errors yield `NA` rather than being dropped: for the kernel estimator they
 #' signal a design matrix that is not yet identifiable, which must not read as convergence.
@@ -312,7 +313,8 @@ sage_convergence_ratio = function(importance, se) {
 #' coalition evaluations as exact enumeration, which removes the
 #' coalition-sampling error at the same or lower cost. A message rather than a
 #' warning: oversampling can be deliberate (e.g. ConditionalSAGE, where
-#' repeated evaluations average the conditional sampler's noise). Gated to
+#' repeated evaluations average the conditional sampler's noise). Emitted once
+#' per `$compute()` call and silenced by `xplain_opt(verbose = FALSE)`. Gated to
 #' `m >= 3`, where the adaptive defaults stay below enumeration and the
 #' absolute waste can be nontrivial.
 #'
@@ -340,9 +342,7 @@ sage_inform_budget_vs_exact = function(estimator, m, budget, early_stopping = FA
         "i" = "{.code estimator = \"exact\"} computes SAGE values without coalition-sampling
                error at the same or lower cost (for {.cls ConditionalSAGE}, oversampling can
                still be deliberate; see the {.arg estimator} docs)."
-      ),
-      .frequency = "once",
-      .frequency_id = paste0("xplainfi_sage_budget_", estimator)
+      )
     )
   }
   invisible(NULL)
@@ -419,36 +419,11 @@ sage_kernel_A = function(m) {
   A
 }
 
-#' Reconstruct the sampled Shapley-kernel design matrix from its off-diagonals
-#'
-#' The sampled `A = E[z z^T]` has an *exactly* constant diagonal of `0.5`: with paired
-#' sampling every feature appears in exactly one of each (coalition, complement) pair, so
-#' each column of the stacked `z` matrix sums to `n` over `2n` rows and its mean is `0.5`.
-#' Only the off-diagonals are random, so the delta-method moment vector carries just those;
-#' this helper rebuilds the symmetric `m x m` matrix (diagonal fixed at `0.5`) from them.
-#'
-#' @param a (`numeric`) Off-diagonal entries in lower-triangular (row > col) order.
-#' @param m (`integer(1)`) Number of features.
-#' @param od (`matrix`) Two-column index matrix of the lower-triangular positions,
-#'   i.e. `which(lower.tri(matrix(0, m, m)), arr.ind = TRUE)`, passed in to avoid recomputing.
-#' @return Symmetric `m x m` matrix with diagonal `0.5`.
-#' @keywords internal
-#' @noRd
-sage_kernel_A_from_offdiag = function(a, m, od) {
-  A = matrix(0, m, m)
-  diag(A) = 0.5
-  A[od] = a
-  A[od[, 2:1, drop = FALSE]] = a # mirror to the upper triangle
-  A
-}
-
 #' Constrained weighted least-squares Shapley solve
 #'
-#' The efficiency-constrained WLS solution shared by both kernel variants and the
-#' delta-method Jacobian:
+#' The efficiency-constrained WLS solution shared by both kernel variants
+#' (Covert & Lee 2021, Eqs. 7 and 9):
 #' `phi = A^-1 b - A^-1 1 (1^T A^-1 b - total) / (1^T A^-1 1)`.
-#' Kept as the single implementation so the point estimate and the function being
-#' differentiated for its standard errors can never drift apart.
 #'
 #' @param A_inv (`matrix`) Inverse of the (sampled or exact) design matrix.
 #' @param b (`numeric(m)`) Right-hand side.
@@ -462,123 +437,76 @@ sage_kernel_solve_constrained = function(A_inv, b, total) {
   A_inv_b - A_inv_1 * ((sum(A_inv_b) - total) / sum(A_inv_1))
 }
 
-#' Derivative of the constrained solve with respect to `b`
-#'
-#' For a fixed design matrix the constrained solve is affine in `b`, with Jacobian
-#' `C = A^-1 - A^-1 1 1^T A^-1 / (1^T A^-1 1)` (Covert & Lee 2021, Eq. 13).
-#'
-#' @param A_inv (`matrix`) Inverse of the design matrix.
-#' @return `m x m` matrix.
-#' @keywords internal
-#' @noRd
-sage_kernel_jacobian_b = function(A_inv) {
-  A_inv_1 = as.numeric(A_inv %*% rep(1, nrow(A_inv)))
-  A_inv - outer(A_inv_1, A_inv_1) / sum(A_inv_1)
-}
-
-#' Derivative of the constrained solve with respect to the off-diagonals of `A`
-#'
-#' Writing `u = A^-1 b`, `v = A^-1 1`, the solve is `phi = u - v (1^T u - total) / (1^T v)`.
-#' Perturbing off-diagonal entry `k = (i, j)` moves both `A[i, j]` and `A[j, i]`, and
-#' `d(A^-1) = -A^-1 dA A^-1`, so `du_k = -(A^-1[, i] u_j + A^-1[, j] u_i)` and likewise
-#' for `v`; the quotient rule then gives `dphi`. All columns are built at once.
-#'
-#' @param A_inv (`matrix`) Inverse of the sampled design matrix.
-#' @param b (`numeric(m)`) Right-hand side.
-#' @param total (`numeric(1)`) Value of the grand coalition.
-#' @param od (`matrix`) Lower-triangular index matrix (see `sage_kernel_A_from_offdiag`).
-#' @return `m x nrow(od)` matrix, column `k` being `dphi / da_k`.
-#' @keywords internal
-#' @noRd
-sage_kernel_jacobian_A = function(A_inv, b, total, od) {
-  m = nrow(A_inv)
-  u = as.numeric(A_inv %*% b)
-  v = as.numeric(A_inv %*% rep(1, m))
-  i = od[, 1L]
-  j = od[, 2L]
-  du = -(A_inv[, i, drop = FALSE] * rep(u[j], each = m) + A_inv[, j, drop = FALSE] * rep(u[i], each = m))
-  dv = -(A_inv[, i, drop = FALSE] * rep(v[j], each = m) + A_inv[, j, drop = FALSE] * rep(v[i], each = m))
-  s = sum(v)
-  excess = sum(u) - total
-  du - dv * (excess / s) - outer(v, (colSums(du) * s - excess * colSums(dv)) / s^2)
-}
-
 #' Unbiased kernel SAGE estimate and closed-form standard errors
 #'
-#' The "unbiased KernelSHAP" estimator (Covert & Lee 2021, Eq. 9): the design matrix `A` is
-#' the exact closed form and only `b` is estimated from the sampled coalitions. This is the
-#' estimator implemented by the reference Python `sage` package, and it admits the closed-form
-#' covariance of their Eqs. 12-13: `Cov(phi) = C Cov(b_mean) C^T`.
-#' Note the minus sign in `C` (see `sage_kernel_jacobian_b`): the `sage` implementation adds this
-#' term (`calculate_result` in `kernel_estimator.py`), which contradicts the paper's Eq. 13 and was
-#' verified by simulation to misstate the variance; the paper's formula is used here.
+#' The "unbiased KernelSHAP" estimator (Covert & Lee 2021, Eq. 9, their Algorithm 3): the design
+#' matrix `A` is the exact closed form and only `b` is estimated from the sampled coalitions. This
+#' is the estimator implemented by the reference Python `sage` package. Its covariance is the
+#' closed form of their Eqs. 12-13, `Cov(phi) = C Cov(b_mean) C^T` with
+#' `C = A^-1 - A^-1 1 1^T A^-1 / (1^T A^-1 1)`.
+#' Note the minus sign in `C`: the `sage` implementation adds this term (`calculate_result` in
+#' `kernel_estimator.py`), which contradicts the paper's Eq. 13 and was verified by simulation to
+#' misstate the variance; the paper's formula is used here.
 #' `total = v(full)` is treated as a fixed constraint (its Monte Carlo error from the anchor
 #' evaluations is ignored, matching `sage`).
 #'
 #' @param b_mean (`numeric(m)`) Running mean of the per-pair `b` vector.
 #' @param cov_mean (`matrix` | `NULL`) Covariance of `b_mean` (per-pair covariance divided by
 #'   the number of pairs). If `NULL`, standard errors are returned as `NA`.
-#' @param m (`integer(1)`) Number of features.
 #' @param total (`numeric(1)`) Value of the grand coalition, `v(full)`, used as the sum constraint.
-#' @param A_inv (`matrix` | `NULL`) Precomputed `solve(sage_kernel_A(m))`; it depends only on
-#'   `m`, so callers evaluating repeatedly (convergence checkpoints) should pass it once.
+#' @param A_inv (`matrix`) Precomputed `solve(sage_kernel_A(m))`; it depends only on `m`, so
+#'   callers evaluating repeatedly (convergence checkpoints) pass it once.
 #' @return `list(phi, se)`, each a `numeric(m)`.
 #' @keywords internal
 #' @noRd
-sage_kernel_estimate_unbiased = function(b_mean, cov_mean, m, total, A_inv = NULL) {
-  A_inv = A_inv %||% solve(sage_kernel_A(m))
+sage_kernel_estimate_unbiased = function(b_mean, cov_mean, total, A_inv) {
   phi = sage_kernel_solve_constrained(A_inv, b_mean, total)
 
-  se = rep(NA_real_, m)
+  se = rep(NA_real_, length(b_mean))
   if (!is.null(cov_mean)) {
-    C = sage_kernel_jacobian_b(A_inv)
+    A_inv_1 = as.numeric(A_inv %*% rep(1, nrow(A_inv)))
+    C = A_inv - outer(A_inv_1, A_inv_1) / sum(A_inv_1)
     se = sqrt(pmax(diag(C %*% cov_mean %*% t(C)), 0))
   }
   list(phi = phi, se = se)
 }
 
-#' Original kernel SAGE estimate and delta-method standard errors
+#' Original kernel SAGE estimate and batch-means standard errors
 #'
-#' The "original KernelSHAP" estimator (Covert & Lee 2021, Eq. 7): both the design matrix `A`
-#' and `b` are estimated from the same sampled coalitions. Sharing the samples couples their
-#' errors, which cancel in the ratio `A^-1 b`, so this estimator converges much faster than the
-#' unbiased variant on (near-)additive games, and the paper's Section 4.1 recommends it in
-#' practice for this reason. It falls back to the exact `A` only when the sampled one is not
-#' yet full rank.
+#' The "original KernelSHAP" estimator (Covert & Lee 2021, Eq. 7, their Algorithm 1): both the
+#' design matrix `A` and `b` are estimated from the same sampled coalitions. Its variance has no
+#' closed form (their Section 4.1), so the paper estimates it from independent intermediate
+#' estimates computed on consecutive blocks of `block_size` draws (their Section 4.3):
+#' `Cov(phi_n) ~ (block_size / n) Cov(block estimates)`, relying on the empirically observed
+#' `O(1 / n)` rate. The standard errors thus quantify sampling variance only; the paper shows the
+#' estimator's finite-sample bias to be negligible but does not bound it.
+#' It falls back to the exact `A` only when the sampled one is singular at the end of the budget.
 #'
-#' Given the running mean `w_mean` of the per-pair moment vector `w = (offdiag(A), b)` and
-#' (optionally) the covariance `cov_mean` of that mean, compute the constrained weighted
-#' least-squares Shapley values and their standard errors. Because the estimate
-#' `phi = g(A, b)` is a smooth function of the sample-mean moments, its covariance follows from
-#' the multivariate delta method, `Cov(phi) = J cov_mean J^T`, with `J` the Jacobian of the
-#' constrained solve (`sage_kernel_jacobian_A` and `sage_kernel_jacobian_b`). This propagates
-#' the sampling variance of *both* `A` and `b` (and their shared-sample covariance), extending
-#' the closed form of the unbiased variant.
-#' `total = v(full)` is treated as a fixed constraint (its Monte Carlo error from the anchor
-#' evaluations is ignored, matching `sage`).
-#'
-#' @param w_mean (`numeric`) Running mean of the moment vector, off-diagonals of `A` first
-#'   (in `od` order) then the `m` entries of `b`.
-#' @param cov_mean (`matrix` | `NULL`) Covariance of `w_mean` (i.e. per-pair covariance divided
-#'   by the number of pairs). If `NULL`, standard errors are returned as `NA`.
-#' @param m (`integer(1)`) Number of features.
+#' @param A_mean (`matrix`) Running mean of the sampled design matrix.
+#' @param b_mean (`numeric(m)`) Running mean of the per-pair `b` vector.
+#' @param block_estimates (`list` of `numeric(m)`) Shapley estimates of the completed blocks.
+#' @param block_size (`integer(1)`) Draws per block.
+#' @param n_pairs (`integer(1)`) Total draws so far.
 #' @param total (`numeric(1)`) Value of the grand coalition, `v(full)`, used as the sum constraint.
-#' @param od (`matrix`) Lower-triangular index matrix (see `sage_kernel_A_from_offdiag`).
 #' @param require_result (`logical(1)`) If `TRUE`, fall back to the exact `A` (with a warning)
 #'   when the sampled `A` is singular so a finite point estimate is always returned.
-#' @return `list(phi, se)`, each a `numeric(m)`. `se` is all-`NA` when `cov_mean` is `NULL` or
-#'   the sampled design matrix is not invertible.
+#' @return `list(phi, se)`, each a `numeric(m)`. `se` is all-`NA` with fewer than two block
+#'   estimates or when the sampled design matrix is not invertible.
 #' @keywords internal
 #' @noRd
-sage_kernel_estimate_original = function(w_mean, cov_mean, m, total, od, require_result = FALSE) {
-  noff = nrow(od)
-  a = w_mean[seq_len(noff)]
-  b = w_mean[noff + seq_len(m)]
-
-  A = sage_kernel_A_from_offdiag(a, m, od)
+sage_kernel_estimate_original = function(
+  A_mean,
+  b_mean,
+  block_estimates,
+  block_size,
+  n_pairs,
+  total,
+  require_result = FALSE
+) {
+  m = length(b_mean)
   # Near-singular sampled A (early checkpoints at tiny budgets) is treated like a
   # hard singularity, so the convergence history reports NA instead of wild values.
-  if (rcond(A) <= 1e-10) {
+  if (rcond(A_mean) <= 1e-10) {
     # Not yet identifiable from the sampled coalitions. Fall back to the exact A only
     # when a value is required (final estimate); otherwise degrade to NA gracefully.
     phi = if (require_result) {
@@ -588,19 +516,18 @@ sage_kernel_estimate_original = function(w_mean, cov_mean, m, total, od, require
                which is the {.val unbiased} kernel variant.",
         "i" = "Standard errors are unavailable; increase {.arg n_coalitions}."
       ))
-      sage_kernel_solve_constrained(solve(sage_kernel_A(m)), b, total)
+      sage_kernel_solve_constrained(solve(sage_kernel_A(m)), b_mean, total)
     } else {
       rep(NA_real_, m)
     }
     return(list(phi = phi, se = rep(NA_real_, m)))
   }
-  A_inv = solve(A)
-  phi = sage_kernel_solve_constrained(A_inv, b, total)
+  phi = sage_kernel_solve_constrained(solve(A_mean), b_mean, total)
 
   se = rep(NA_real_, m)
-  if (!is.null(cov_mean)) {
-    J = cbind(sage_kernel_jacobian_A(A_inv, b, total, od), sage_kernel_jacobian_b(A_inv))
-    se = sqrt(pmax(diag(J %*% cov_mean %*% t(J)), 0))
+  if (length(block_estimates) >= 2L) {
+    block_var = apply(do.call(rbind, block_estimates), 2L, stats::var)
+    se = sqrt(block_size * block_var / n_pairs)
   }
   list(phi = phi, se = se)
 }

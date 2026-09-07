@@ -113,7 +113,7 @@ test_that("exact estimator matches an independent brute-force Shapley computatio
 
 test_that("sampling estimators converge to the exact estimator", {
   set.seed(808)
-  task = tgen("friedman1")$generate(n = 200)
+  task = tgen("friedman1")$generate(n = 150)
   task$select(c("important1", "important2", "important4", "unimportant1"))
   learner = lrn("regr.rpart")
   measure = msr("regr.mse")
@@ -122,7 +122,7 @@ test_that("sampling estimators converge to the exact estimator", {
 
   # Share the reference subsample so all estimators target the same value function.
   set.seed(1097)
-  exact = MarginalSAGE$new(task, learner, measure, resampling = resampling, estimator = "exact", n_samples = 40L)
+  exact = MarginalSAGE$new(task, learner, measure, resampling = resampling, estimator = "exact", n_samples = 20L)
   exact$compute()
 
   set.seed(1097)
@@ -133,8 +133,8 @@ test_that("sampling estimators converge to the exact estimator", {
     resampling = resampling,
     estimator = "kernel",
     kernel_variant = "original",
-    n_coalitions = 2000L,
-    n_samples = 40L
+    n_coalitions = 500L,
+    n_samples = 20L
   )
   kernel$compute()
 

@@ -178,7 +178,8 @@ $$
 \max_j \left(\frac{SE_j}{\max_i(\text{SAGE}_i) - \min_i(\text{SAGE}_i)}\right) < \text{threshold}
 $$
 
-The default threshold is `se_threshold = 0.01` (1%), meaning convergence occurs when the relative SE is below 1% of the importance range for all features, which is the criterion used by the Python `sage` and `fippy` packages.
+The default threshold is `se_threshold = 0.025` (2.5%), meaning convergence occurs when the relative SE is below 2.5% of the importance range for all features.
+This is the ratio proposed by Covert et al. (2020), and the default threshold is that of the Python `sage` package.
 
 Both sampling estimators support this, but the threshold is not comparable between them: the standard errors it is applied to are constructed differently, so the same threshold is reached at very different budgets (see the estimator comparison below).
 
@@ -328,7 +329,7 @@ The practical difference is **how the cost scales with the number of features** 
 - **Permutation** evaluates `n_permutations * p + 1` coalitions.
   Each additional feature adds another evaluation to *every* permutation, so the cost grows linearly with $p$.
 - **Kernel** evaluates `2 * n_coalitions + 2` coalitions (each sampled coalition is paired with its complement for variance reduction), independent of $p$.
-  It fits a regression to these coalition values and is typically more sample-efficient, with the advantage growing as $p$ increases.
+  It fits a weighted least-squares regression to these coalition values; how many it needs for a given accuracy depends on the value function and the variant (see below).
 
 Both sampling estimators track per-feature standard errors that quantify the coalition-sampling uncertainty (visible in `$convergence_history` and via `$importance(ci_method = "montecarlo")`, see the [inference article](https://xplainfi.mlr-org.com/articles/inference.html) for interpretation), and both can stop early once those errors are small relative to the spread of the importance values (`early_stopping = TRUE`).
 
@@ -355,15 +356,14 @@ sage_perm = MarginalSAGE$new(
 	n_samples = 50L
 )
 
-# Kernel estimator: budget set by n_coalitions instead (the default variant needs a
-# large budget in this setting, see below)
+# Kernel estimator: budget set by n_coalitions instead
 sage_kernel = MarginalSAGE$new(
 	task = task_f,
 	learner = learner_f,
 	measure = measure_f,
 	resampling = resampling_f,
 	estimator = "kernel",
-	n_coalitions = 1000L,
+	n_coalitions = 200L,
 	n_samples = 50L
 )
 
@@ -412,27 +412,23 @@ c(
 
 ### When does the kernel estimator pay off?
 
-For this ten-feature task the kernel estimator needed a much larger budget than the permutation estimator to reach comparable accuracy, so there is no reason to switch here.
-Its advantage is a matter of *scaling*: the evaluation budget is fixed by `n_coalitions` and does not grow with the number of features, whereas the permutation estimator evaluates `n_permutations * p + 1` coalitions.
-The following table illustrates the number of model evaluations at fixed budgets (`n_permutations = 15`, `n_coalitions = 1000`) as the feature count grows:
+For this ten-feature task both estimators are cheap, and at this budget the kernel estimator costs about 2.6 times as many model evaluations as the permutation run (402 vs 151).
+Its potential advantage is a matter of *scaling*: the evaluation budget is fixed by `n_coalitions` and does not grow with the number of features, whereas the permutation estimator evaluates `n_permutations * p + 1` coalitions.
+The following table illustrates the number of model evaluations at fixed budgets (`n_permutations = 15`, `n_coalitions = 200`) as the feature count grows:
 
 ```{r estimator-scaling}
 p = c(5L, 10L, 25L, 50L, 100L, 200L)
 data.frame(
 	n_features = p,
 	permutation_evals = 15L * p + 1L,
-	kernel_evals = 2L * 1000L + 2L
+	kernel_evals = 2L * 200L + 2L
 )
 ```
 
-The number of coalitions the kernel estimator needs to converge grows only slowly with $p$, while the permutation estimator's per-iteration cost grows linearly.
-As a rule of thumb:
-
-- For a handful to a few dozen features, prefer **permutation**: it is simple, and its cost is easy to reason about.
-- For large feature counts, prefer **kernel**: its budget does not grow with $p$, so it eventually reaches a given accuracy with fewer model evaluations.
-- `kernel_variant = "original"` typically needs an order of magnitude fewer draws than the default in this package's setting (see [Relation to the Python `sage` package](#relation-to-sage)), which moves the crossover to far smaller feature counts.
-
-This matches the empirical results in Covert & Lee (2021) and the reference `sage` implementation, where the kernel estimator is noisier than permutation sampling for very few features but converges substantially faster once there are many features.
+Whether a fixed kernel budget suffices at large $p$ is an empirical question we have not benchmarked; the number of draws the kernel estimator needs for a given accuracy does not have to stay constant as $p$ grows.
+The documentation of the reference `sage` package puts it this way: "Permutation sampling is a good approach to start with. KernelSAGE may converge a bit faster, but the uncertainty is spread more evenly among the features rather than being highest for more important features."
+Our own cross-check against `sage` (see [Relation to the Python `sage` package](#relation-to-sage)) found the default kernel variant and the permutation estimator to converge at similar model-evaluation costs on a ten-feature task.
+Use the Monte Carlo standard errors to judge the budget on your own task rather than a rule of thumb.
 
 ### Choosing a sampling budget {#choosing-a-budget}
 
@@ -442,12 +438,12 @@ Two anchors make the choice manageable in practice:
 1. **Compare against exact enumeration.**
    The three estimators' costs are directly comparable via their total number of evaluated coalitions: `n_permutations * p + 1` (permutation), `2 * n_coalitions + 2` (kernel), and `2^p` (exact).
    A sampling budget approaching `2^p` buys enumeration at sampling prices: for the ten-feature `friedman1` task, `n_coalitions = 500` costs 1002 evaluations while `estimator = "exact"` removes the coalition-sampling error entirely for 1024.
-   When a budget meets or exceeds the exact cost, `$compute()` points this out in a message (once per session).
-   The defaults reflect this: if unset, `n_permutations` defaults to `10` (reduced on small feature sets so it stays at or below half the cost of exact enumeration), and `n_coalitions` to `100 * p` draws (capped at `4096`), which is what the default kernel variant needs for an accuracy comparable to the permutation default on a task like this one.
-   On small feature sets the kernel default exceeds the cost of exact enumeration, and the message points you there.
+   When a budget meets or exceeds the exact cost, `$compute()` points this out in a message (silenced by `xplain_opt(verbose = FALSE)`).
+   The defaults reflect this: if unset, `n_permutations` defaults to `10` and `n_coalitions` to `20 * p` draws (capped at `4096`), which gives the kernel estimator's standard errors five variance blocks; both are reduced on small feature sets so they stay at or below half the cost of exact enumeration.
+   Below about nine features that cap binds, so the kernel default is a cost cap rather than an accuracy target there, and `estimator = "exact"` is the better tool.
 2. **Check the Monte Carlo standard errors after computing.**
    Both sampling estimators report per-feature standard errors for their coalition-sampling error, available via `$importance(ci_method = "montecarlo")` and `$plot_convergence()` (see the [inference article](https://xplainfi.mlr-org.com/articles/inference.html) for interpretation).
-   If the intervals are wide relative to the spread of the importance values, increase the budget (a maximum SE below about 1% of the importance range is the same criterion early stopping uses by default).
+   If the intervals are wide relative to the spread of the importance values, increase the budget (a maximum SE below 2.5% of the importance range is the criterion early stopping uses by default).
    Since a budget is cheap to check and extend, guessing low and doubling until the intervals are narrow enough is a perfectly good strategy.
 
 How large a budget the kernel estimator needs depends on the value function, and the `"original"` and `"unbiased"` variants can differ substantially, so a budget tuned on one task does not transfer automatically to another.
@@ -501,7 +497,7 @@ What differs is the value function underneath them.
 
 ### Two regimes for the same value function
 
-`sage` pairs each coalition draw with a single randomly drawn test observation, averaging model predictions over its full background sample.
+`sage` pairs each coalition draw with a random minibatch of test observations, averaging model predictions over its background sample.
 An individual evaluation is cheap and very noisy, and the noise is averaged away across many thousands of draws.
 xplainfi evaluates each coalition on the *entire* test set, averaging predictions over `n_samples` reference rows.
 An individual evaluation is far more expensive and, given the fixed reference sample, nearly deterministic.
@@ -509,10 +505,10 @@ An individual evaluation is far more expensive and, given the fixed reference sa
 Both target the same quantity, and both spend their compute on model predictions; they differ in how that compute is *allocated*.
 `sage` buys many noisy evaluations, xplainfi buys few precise ones.
 
-The choice follows from what the package has to support:
+The current regime follows from what the package has to support; a minibatch regime for the sampling estimators is planned as a follow-up (see the cross-check below for why):
 
 - **Arbitrary mlr3 measures.** An mlr3 `Measure` scores a whole prediction set. Many useful measures (AUC, for instance) do not decompose into per-observation losses at all, so a value function defined on single observations would restrict SAGE to the handful of measures that do. `sage` correspondingly ships a fixed set of per-observation losses.
-- **Conditional SAGE.** `ConditionalSAGE` draws replacement values from a fitted sampler at every evaluation, which can be orders of magnitude more expensive than the model prediction it feeds. That cost is worth amortizing over the whole test set rather than one observation. `sage` has no sampler-based counterpart; it approximates conditional removal with trained surrogate models instead, which is a different estimand rather than a different budget.
+- **Conditional SAGE.** `ConditionalSAGE` draws replacement values from a fitted sampler at every evaluation, which can be orders of magnitude more expensive than the model prediction it feeds. That cost is worth amortizing over the whole test set rather than one observation. `sage` has no sampler-based counterpart; the approach demonstrated in its repository approximates conditional removal with trained surrogate models (Covert et al., 2021), which is a different estimand rather than a different budget.
 - **The exact estimator.** `estimator = "exact"` enumerates all $2^p$ coalitions and is only meaningful if the value function does not move between evaluations. It is the ground truth the sampling estimators are validated against, and a stochastic value function would leave nothing to be exact about.
 - **The cost of a prediction in R.** Batching many rows into one `predict_newdata()` call amortizes per-call overhead that would dominate if every coalition triggered its own small prediction.
 
@@ -527,8 +523,28 @@ With a near-deterministic value function, coalition sampling is the *only* remai
 How much they cancel depends on the value function: on an exactly additive game the cancellation is complete, and the variant returns that game's Shapley values at any budget.
 Away from that case the two variants can need very different budgets to reach the same accuracy.
 
-So xplainfi ships both, with `"unbiased"` as the default for consistency with `sage`, and `"original"` available where sampling efficiency matters: on the learned value functions this package is typically applied to it reaches a given accuracy at roughly an order of magnitude smaller budgets.
-Neither is universally better, and a budget tuned for one should not be assumed to suffice for the other.
+So xplainfi ships both, with `"original"` as the default (the paper's practical recommendation, and in our benchmarks on learned value functions it reached a given accuracy at roughly an order of magnitude smaller budgets) and `"unbiased"` as a parity check against `sage`.
+A budget tuned for one should not be assumed to suffice for the other.
+
+### Cross-check against `sage`
+
+To verify that the implementations agree, we ran both packages on the same problem: 200 test rows with ten uniform features, the closed-form Friedman function $10 \sin(\pi x_1 x_2) + 20 (x_3 - 0.5)^2 + 10 x_4 + 5 x_5$ (plus standard normal noise on $y$) implemented identically as the model on both sides, the test set itself as the background sample (`n_samples = n`), MSE loss, and the convergence threshold `0.025` for every run that stopped on convergence.
+Errors are the largest absolute deviation from xplainfi's exact enumeration, as a fraction of the spread of the exact values; cost is the number of model rows predicted until the run stopped.
+
+| Run | Model rows | Max error / spread | Converged |
+|---|---|---|---|
+| `sage` kernel (`KernelEstimator`) | 9.3M | 0.025 | yes |
+| `sage` permutation (`PermutationEstimator`) | 12.4M | 0.012 | yes |
+| xplainfi kernel, `"original"`, early stopping | 6.5M | 0.004 | yes (80 draws) |
+| xplainfi permutation, early stopping | 8.4M | 0.009 | yes (21 permutations) |
+| xplainfi kernel, `"unbiased"`, ceiling 4096 draws | 328M | 0.028 | no |
+| xplainfi exact | 41M | 0 | not applicable |
+
+All converged runs agree with exact enumeration to within 3% of the importance spread, and `sage`'s kernel values agree with xplainfi's `"unbiased"` values, which is the same estimator.
+The cost column shows why `"unbiased"` is a parity check rather than the default here.
+Evaluating every coalition on the whole test set is the "expectation" regime that Covert & Lee (2021, Section 5 and Figure 5) report as prohibitively slow for the unbiased estimator, and their remedy, pairing each coalition with a random minibatch of test observations, is what `sage` does and what xplainfi does not implement yet; it is planned as a follow-up.
+The `"original"` variant is unaffected because its coupled sampling errors make the near-deterministic evaluations pay off, and the permutation estimator is on par with `sage` as well.
+The scripts for this comparison are not part of the package; the numbers are from a single run and should be read as a sanity check, not a benchmark.
 
 ### What you can and cannot compare across the packages
 
