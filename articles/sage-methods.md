@@ -244,10 +244,35 @@ kernel_sage$plot_convergence()
 
 For such measures the kernel estimator targets the same SAGE values as
 the permutation estimator, so the two can be compared on
-`$budget$n_rows`, the number of model rows predicted. Standard errors
-and early stopping for the kernel estimator are not available yet, so
-check `$plot_convergence()` and increase `n_coalitions` until the values
-settle.
+`$budget$n_rows`, the number of model rows predicted.
+
+### Convergence is not inference
+
+Both sampling estimators report a standard error per feature in
+`$convergence_history`, summarized for the final estimate by
+`$convergence()`:
+
+``` r
+
+kernel_sage$convergence()
+#>    feature  importance         se      ratio
+#>     <char>       <num>      <num>      <num>
+#> 1:      x1  3.70660937 0.06954240 0.02456035
+#> 2:      x2  0.01462180 0.08695250 0.02456035
+#> 3:      x3  0.95851217 0.07996639 0.02456035
+#> 4:      x4 -0.03940827 0.09200349 0.02456035
+```
+
+These are Monte Carlo standard errors of the *estimator* for the fixed
+trained model, test set, and reference subsample: they say how much the
+values would still move with more sampling, which is what
+`early_stopping` compares against `se_threshold` (Covert & Lee, 2021,
+Section 4.3). They do not quantify uncertainty about feature importance,
+since a fixed model’s SAGE values are fixed numbers, and any nonzero
+value ends up several standard errors from zero once enough coalitions
+are sampled. Inference about feature importance, e.g. across train/test
+splits, is the job of the `ci_method`s of `$importance()`; see the
+inference article.
 
 ### Exact SAGE for verification
 

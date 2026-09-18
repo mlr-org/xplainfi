@@ -29,6 +29,7 @@ Inherited methods
 - [`FeatureImportanceMethod$print()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-print)
 - [`FeatureImportanceMethod$scores()`](https://mlr-org.github.io/xplainfi/reference/FeatureImportanceMethod.html#method-scores)
 - [`SAGE$compute()`](https://mlr-org.github.io/xplainfi/reference/SAGE.html#method-compute)
+- [`SAGE$convergence()`](https://mlr-org.github.io/xplainfi/reference/SAGE.html#method-convergence)
 - [`SAGE$plot_convergence()`](https://mlr-org.github.io/xplainfi/reference/SAGE.html#method-plot_convergence)
 - [`SAGE$reset()`](https://mlr-org.github.io/xplainfi/reference/SAGE.html#method-reset)
 

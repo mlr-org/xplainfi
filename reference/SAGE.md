@@ -20,14 +20,25 @@ feature improves performance. For measures that are maximized
 (`measure$minimize = FALSE`, e.g. `classif.acc`) the scores are negated
 internally, so the sign convention is the same for all measures.
 
-**Standard Error Calculation**: The standard errors (SE) reported in
-`$convergence_history` reflect the uncertainty in Shapley value
-estimation across different random permutations within a single
-resampling iteration. These SEs quantify the Monte Carlo sampling error
-for a fixed trained model and are only valid for inference about the
-importance of features for that specific model. They do not capture
-broader uncertainty from model variability across different train/test
-splits or resampling iterations.
+**Standard errors**: The standard errors reported in
+`$convergence_history` and `$convergence()` are Monte Carlo standard
+errors of the Shapley *estimator*: how much the estimates would still
+move if more permutations or coalitions were sampled, for the fixed
+trained model, the fixed test set, and (for
+[MarginalSAGE](https://mlr-org.github.io/xplainfi/reference/MarginalSAGE.md))
+the fixed reference subsample. They are convergence diagnostics in the
+sense of Covert & Lee (2021, Section 4.3), not inference about feature
+importance: they say nothing about variability across train/test splits
+or refits (see the resampling-based `ci_method`s of `$importance()` for
+that), and a feature's SAGE value being several SEs from zero only means
+the computation has converged, not that the feature matters. For the
+permutation estimator the SE is the sample standard error of the
+per-permutation marginal contributions. For the kernel estimator it
+follows from the multivariate central limit theorem for the estimated
+regression targets, `Cov(phi) = C Cov(b) C^T / n` (their Eqs. 10-13), so
+it covers the coalition draws and the test observations they are paired
+with (both are sampled with replacement from the fixed test set). The
+exact estimator has no coalition-sampling error and reports no SE.
 
 **Estimators**: `estimator = "permutation"` (the default) is the
 permutation-sampling estimator of Covert et al. (2020), budgeted by
@@ -69,16 +80,16 @@ only.
 **Convergence and budget**: With `early_stopping = TRUE`, sampling stops
 once the largest SE, relative to the spread of the SAGE values
 (`max(se) / (max(phi) - min(phi))`), falls below `se_threshold`. This is
-the criterion of the reference Python `sage` package. Early stopping is
-currently available for the permutation estimator only. The budget
-argument (`n_permutations`) then acts as an upper bound rather than a
-planned cost: exhausting it without meeting the criterion returns the
-values with a warning. `$budget` reports what was actually spent and
-whether the criterion was met, and `$plot_convergence()` shows the
-trajectory that led there. Under resampling, only the first iteration
-runs the criterion and the remaining iterations reuse its budget, which
-keeps them comparable and avoids re-deriving the standard errors in
-every iteration.
+the criterion of the reference Python `sage` package. This applies to
+both sampling estimators; the exact estimator has no criterion. The
+budget argument (`n_permutations` or `n_coalitions`) then acts as an
+upper bound rather than a planned cost: exhausting it without meeting
+the criterion returns the values with a warning. `$budget` reports what
+was actually spent and whether the criterion was met, and
+`$plot_convergence()` shows the trajectory that led there. Under
+resampling, only the first iteration runs the criterion and the
+remaining iterations reuse its budget, which keeps them comparable and
+avoids re-deriving the standard errors in every iteration.
 
 ## References
 
@@ -162,6 +173,8 @@ volume 130, 3457–3465.
 
 - [`SAGE$reset()`](#method-SAGE-reset)
 
+- [`SAGE$convergence()`](#method-SAGE-convergence)
+
 - [`SAGE$plot_convergence()`](#method-SAGE-plot_convergence)
 
 - [`SAGE$clone()`](#method-SAGE-clone)
@@ -235,8 +248,8 @@ Creates a new instance of the SAGE class.
   `estimator = "kernel"`. Each draw evaluates a coalition and its
   complement on one test observation, so the cost is
   `2 + 2 * n_coalitions` evaluated coalitions. If unset, defaults to
-  `2048L`. Check whether the budget suffices with `$plot_convergence()`
-  and increase it until the values settle.
+  `2048L`. Check whether the budget suffices with `$convergence()` or
+  `$plot_convergence()`, or let `early_stopping` decide.
 
 - `max_features`:
 
@@ -263,9 +276,11 @@ Creates a new instance of the SAGE class.
 - `early_stopping`:
 
   (`logical(1)`: `FALSE`) Whether to stop once the convergence criterion
-  is met, rather than spending the full budget. The budget then acts as
-  an upper bound: if the criterion is not met within it, the values are
-  returned with a warning and `$budget` reports `converged = FALSE`.
+  is met, rather than spending the full budget. Applies to the
+  permutation and kernel estimators; setting it for
+  `estimator = "exact"` is a warning. The budget then acts as an upper
+  bound: if the criterion is not met within it, the values are returned
+  with a warning and `$budget` reports `converged = FALSE`.
 
 - `se_threshold`:
 
@@ -276,18 +291,22 @@ Creates a new instance of the SAGE class.
   scale-invariant across different loss metrics. The default of `0.025`
   (convergence once the relative SE is below 2.5% of the importance
   range) is the default of the Python `sage` package; the examples in
-  Covert et al. (2020) use `0.01` to `0.02`.
+  Covert et al. (2020) and Covert & Lee (2021) use `0.01` to `0.02`. The
+  same threshold buys different budgets across estimators, since their
+  standard errors are constructed differently (see Details).
 
 - `min_permutations`:
 
   (`integer(1)`: `10L`) Minimum permutations before checking for
   convergence. Convergence is judged based on the standard errors of the
   estimated SAGE values, which requires a sufficiently large number of
-  samples (i.e., evaluated coalitions).
+  samples (i.e., evaluated coalitions). Permutation estimator only; the
+  kernel estimator checks after every chunk of 512 draws.
 
 - `check_interval`:
 
   (`integer(1)`: `1L`) Check convergence every N permutations.
+  Permutation estimator only.
 
 ------------------------------------------------------------------------
 
@@ -350,6 +369,28 @@ convergence tracking (`$convergence_history`, `$converged`, `$budget`).
 #### Usage
 
     SAGE$reset()
+
+------------------------------------------------------------------------
+
+### `SAGE$convergence()`
+
+Monte Carlo standard errors of the final SAGE estimates, i.e. the last
+checkpoint of `$convergence_history`, together with the convergence
+ratio `max(se) / (max(importance) - min(importance))` that
+`early_stopping` compares against `se_threshold`. These quantify how
+converged the computation is for the fixed model, not feature
+importance; see the *Standard errors* section in Details.
+
+#### Usage
+
+    SAGE$convergence()
+
+#### Returns
+
+A [`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html)
+with columns `feature`, `importance`, `se`, and `ratio` (the same value
+in every row), or `NULL` before `$compute()` and for the exact
+estimator.
 
 ------------------------------------------------------------------------
 

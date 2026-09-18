@@ -81,13 +81,21 @@ This is approximated by averaging predictions over a reference dataset.</p>
 <code>score(empty) - score(S)</code>, so that positive values mean the feature improves performance.
 For measures that are maximized (<code>measure$minimize = FALSE</code>, e.g. <code>classif.acc</code>) the scores are
 negated internally, so the sign convention is the same for all measures.</p>
-<p><strong>Standard Error Calculation</strong>: The standard errors (SE) reported in
-<code>$convergence_history</code> reflect the uncertainty in Shapley value estimation
-across different random permutations within a single resampling iteration.
-These SEs quantify the Monte Carlo sampling error for a fixed trained model
-and are only valid for inference about the importance of features for that
-specific model. They do not capture broader uncertainty from model variability
-across different train/test splits or resampling iterations.</p>
+<p><strong>Standard errors</strong>: The standard errors reported in <code>$convergence_history</code> and <code>$convergence()</code> are
+Monte Carlo standard errors of the Shapley <em>estimator</em>: how much the estimates would still move if
+more permutations or coalitions were sampled, for the fixed trained model, the fixed test set, and (for
+<a href="MarginalSAGE.html">MarginalSAGE</a>) the fixed reference subsample.
+They are convergence diagnostics in the sense of Covert &amp; Lee (2021, Section 4.3), not inference about
+feature importance: they say nothing about variability across train/test splits or refits (see the
+resampling-based <code>ci_method</code>s of <code>$importance()</code> for that), and a feature's SAGE value being several
+SEs from zero only means the computation has converged, not that the feature matters.
+For the permutation estimator the SE is the sample standard error of the per-permutation marginal
+contributions.
+For the kernel estimator it follows from the multivariate central limit theorem for the estimated
+regression targets, <code>Cov(phi) = C Cov(b) C^T / n</code> (their Eqs. 10-13), so it covers the coalition draws
+and the test observations they are paired with (both are sampled with replacement from the fixed test
+set).
+The exact estimator has no coalition-sampling error and reports no SE.</p>
 <p><strong>Estimators</strong>: <code>estimator = "permutation"</code> (the default) is the permutation-sampling estimator of
 Covert et al. (2020), budgeted by <code>n_permutations</code>.
 <code>estimator = "kernel"</code> is the regression-based estimator of Covert &amp; Lee (2021), budgeted by
@@ -118,8 +126,8 @@ The kernel estimator is currently available for <a href="MarginalSAGE.html">Marg
 relative to the spread of the SAGE values (<code>max(se) / (max(phi) - min(phi))</code>), falls below
 <code>se_threshold</code>.
 This is the criterion of the reference Python <code>sage</code> package.
-Early stopping is currently available for the permutation estimator only.
-The budget argument (<code>n_permutations</code>) then acts as an upper bound rather than a planned cost:
+This applies to both sampling estimators; the exact estimator has no criterion.
+The budget argument (<code>n_permutations</code> or <code>n_coalitions</code>) then acts as an upper bound rather than a planned cost:
 exhausting it without meeting the criterion returns the values with a warning.
 <code>$budget</code> reports what was actually spent and whether the criterion was met, and
 <code>$plot_convergence()</code> shows the trajectory that led there.
@@ -202,6 +210,7 @@ earlier releases and warns on every access.</p></dd>
 <p></p><ul><li><p><a href="#method-SAGE-initialize"><code>SAGE$new()</code></a></p></li>
 <li><p><a href="#method-SAGE-compute"><code>SAGE$compute()</code></a></p></li>
 <li><p><a href="#method-SAGE-reset"><code>SAGE$reset()</code></a></p></li>
+<li><p><a href="#method-SAGE-convergence"><code>SAGE$convergence()</code></a></p></li>
 <li><p><a href="#method-SAGE-plot_convergence"><code>SAGE$plot_convergence()</code></a></p></li>
 <li><p><a href="#method-SAGE-clone"><code>SAGE$clone()</code></a></p></li>
 </ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="importance"><a href="FeatureImportanceMethod.html#method-importance"><code>FeatureImportanceMethod$importance()</code></a></span></li>
@@ -259,7 +268,8 @@ If unset, defaults to <code>10L</code>.</p></dd>
 Each draw evaluates a coalition and its complement on one test observation, so the cost is
 <code>2 + 2 * n_coalitions</code> evaluated coalitions.
 If unset, defaults to <code>2048L</code>.
-Check whether the budget suffices with <code>$plot_convergence()</code> and increase it until the values settle.</p></dd>
+Check whether the budget suffices with <code>$convergence()</code> or <code>$plot_convergence()</code>, or let
+<code>early_stopping</code> decide.</p></dd>
 
       <dt><code>max_features</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>12L</code>) Cap on the number of features for <code>estimator = "exact"</code>,
@@ -276,6 +286,7 @@ For <a href="ConditionalSAGE.html">ConditionalSAGE</a>, this is the number of co
       <dt><code>early_stopping</code></dt>
 <dd><p>(<code>logical(1)</code>: <code>FALSE</code>) Whether to stop once the convergence criterion is met,
 rather than spending the full budget.
+Applies to the permutation and kernel estimators; setting it for <code>estimator = "exact"</code> is a warning.
 The budget then acts as an upper bound: if the criterion is not met within it, the values are
 returned with a warning and <code>$budget</code> reports <code>converged = FALSE</code>.</p></dd>
 
@@ -285,15 +296,20 @@ Convergence is detected when the maximum relative SE across all features falls b
 Relative SE is calculated as SE divided by the range of importance values (max - min),
 making it scale-invariant across different loss metrics.
 The default of <code>0.025</code> (convergence once the relative SE is below 2.5% of the importance range) is
-the default of the Python <code>sage</code> package; the examples in Covert et al. (2020) use <code>0.01</code> to <code>0.02</code>.</p></dd>
+the default of the Python <code>sage</code> package; the examples in Covert et al. (2020) and Covert &amp; Lee (2021)
+use <code>0.01</code> to <code>0.02</code>.
+The same threshold buys different budgets across estimators, since their standard errors are
+constructed differently (see Details).</p></dd>
 
       <dt><code>min_permutations</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>10L</code>) Minimum permutations before checking for convergence.
 Convergence is judged based on the standard errors of the estimated SAGE values,
-which requires a sufficiently large number of samples (i.e., evaluated coalitions).</p></dd>
+which requires a sufficiently large number of samples (i.e., evaluated coalitions).
+Permutation estimator only; the kernel estimator checks after every chunk of 512 draws.</p></dd>
 
       <dt><code>check_interval</code></dt>
-<dd><p>(<code>integer(1)</code>: <code>1L</code>) Check convergence every N permutations.</p></dd>
+<dd><p>(<code>integer(1)</code>: <code>1L</code>) Check convergence every N permutations.
+Permutation estimator only.</p></dd>
 
 
 </dl><p></p></div>
@@ -353,10 +369,27 @@ estimator is a warning.</p></dd>
 
 </div>
 
+<p></p><hr><a id="method-SAGE-convergence"></a><div class="section">
+<h3 id="sage-convergence-"><code>SAGE$convergence()</code><a class="anchor" aria-label="anchor" href="#sage-convergence-"></a></h3>
+<p>Monte Carlo standard errors of the final SAGE estimates, i.e. the last checkpoint of
+<code>$convergence_history</code>, together with the convergence ratio <code>max(se) / (max(importance) - min(importance))</code>
+that <code>early_stopping</code> compares against <code>se_threshold</code>.
+These quantify how converged the computation is for the fixed model, not feature importance;
+see the <em>Standard errors</em> section in Details.</p><div class="section">
+<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">SAGE</span><span class="op">$</span><span class="fu">convergence</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div><p></p><div class="section">
+<h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
+<p>A <code><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></code> with columns <code>feature</code>, <code>importance</code>, <code>se</code>, and <code>ratio</code>
+(the same value in every row), or <code>NULL</code> before <code>$compute()</code> and for the exact estimator.</p>
+</div>
+
+</div>
+
 <p></p><hr><a id="method-SAGE-plot_convergence"></a><div class="section">
 <h3 id="sage-plot-convergence-"><code>SAGE$plot_convergence()</code><a class="anchor" aria-label="anchor" href="#sage-plot-convergence-"></a></h3>
 <p>Plot convergence history of SAGE values.</p><div class="section">
-<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
+<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">SAGE</span><span class="op">$</span><span class="fu">plot_convergence</span><span class="op">(</span>features <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
@@ -366,7 +399,7 @@ estimator is a warning.</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
+<h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
 <p>A <a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot2</a> object</p>
 </div>
 
@@ -375,7 +408,7 @@ estimator is a warning.</p></dd>
 <p></p><hr><a id="method-SAGE-clone"></a><div class="section">
 <h3 id="sage-clone-"><code>SAGE$clone()</code><a class="anchor" aria-label="anchor" href="#sage-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">SAGE</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
 <h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>

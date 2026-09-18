@@ -311,10 +311,32 @@ is currently available for <code>MarginalSAGE</code> only.</p>
 <p><img src="sage-methods_files/figure-html/estimator-kernel-1.png" class="r-plt" alt="" width="768"></p>
 <p>For such measures the kernel estimator targets the same SAGE values
 as the permutation estimator, so the two can be compared on
-<code>$budget$n_rows</code>, the number of model rows predicted.
-Standard errors and early stopping for the kernel estimator are not
-available yet, so check <code>$plot_convergence()</code> and increase
-<code>n_coalitions</code> until the values settle.</p>
+<code>$budget$n_rows</code>, the number of model rows predicted.</p>
+</div>
+<div class="section level3">
+<h3 id="convergence-is-not-inference">Convergence is not inference<a class="anchor" aria-label="anchor" href="#convergence-is-not-inference"></a>
+</h3>
+<p>Both sampling estimators report a standard error per feature in
+<code>$convergence_history</code>, summarized for the final estimate by
+<code>$convergence()</code>:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">kernel_sage</span><span class="op">$</span><span class="fu">convergence</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    feature  importance         se      ratio</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;       &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      x1  3.70660937 0.06954240 0.02456035</span></span>
+<span><span class="co">#&gt; 2:      x2  0.01462180 0.08695250 0.02456035</span></span>
+<span><span class="co">#&gt; 3:      x3  0.95851217 0.07996639 0.02456035</span></span>
+<span><span class="co">#&gt; 4:      x4 -0.03940827 0.09200349 0.02456035</span></span></code></pre></div>
+<p>These are Monte Carlo standard errors of the <em>estimator</em> for
+the fixed trained model, test set, and reference subsample: they say how
+much the values would still move with more sampling, which is what
+<code>early_stopping</code> compares against <code>se_threshold</code>
+(Covert &amp; Lee, 2021, Section 4.3). They do not quantify uncertainty
+about feature importance, since a fixed model’s SAGE values are fixed
+numbers, and any nonzero value ends up several standard errors from zero
+once enough coalitions are sampled. Inference about feature importance,
+e.g. across train/test splits, is the job of the <code>ci_method</code>s
+of <code>$importance()</code>; see the inference article.</p>
 </div>
 <div class="section level3">
 <h3 id="exact-sage-for-verification">Exact SAGE for verification<a class="anchor" aria-label="anchor" href="#exact-sage-for-verification"></a>
@@ -323,7 +345,7 @@ available yet, so check <code>$plot_convergence()</code> and increase
 sampling entirely and compute the SAGE values <em>exactly</em> with
 <code>estimator = "exact"</code>, which enumerates all <code>2^p</code>
 coalitions:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">task_small</span> <span class="op">=</span> <span class="fu"><a href="../reference/sim_dgp_scenarios.html">sim_dgp_correlated</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">500</span><span class="op">)</span> <span class="co"># four features</span></span>
 <span><span class="va">resampling_s</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">rsmp</a></span><span class="op">(</span><span class="st">"holdout"</span><span class="op">)</span></span>
 <span><span class="va">resampling_s</span><span class="op">$</span><span class="fu">instantiate</span><span class="op">(</span><span class="va">task_small</span><span class="op">)</span></span>
@@ -375,7 +397,7 @@ error.</p>
 marginalize features while preserving dependencies between the remaining
 features. This can provide different insights, especially when features
 are correlated.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create Conditional SAGE instance using a conditional sampler</span></span>
 <span><span class="va">sampler_gaussian</span> <span class="op">=</span> <span class="va"><a href="../reference/ConditionalGaussianSampler.html">ConditionalGaussianSampler</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span>
 <span></span>
@@ -398,7 +420,7 @@ are correlated.</p>
 <span><span class="co">#&gt;   deliberate; see the `estimator` docs).</span></span></code></pre></div>
 <p>Let’s visualize the conditional SAGE results:</p>
 <p><img src="sage-methods_files/figure-html/conditional-sage-plot-1.png" class="r-plt" alt="Bar chart with features on x-axis and SAGE values on y-axis. Bars colored by feature type (causal vs noise)." width="768"></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">conditional_sage</span><span class="op">$</span><span class="fu">plot_convergence</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: Removed 4 rows containing missing values or values outside the scale range</span></span>
 <span><span class="co">#&gt; (`geom_ribbon()`).</span></span></code></pre></div>
@@ -435,7 +457,7 @@ guidance on best practices for different settings.</p>
 </h2>
 <p>For reference, let’s compare SAGE methods with the analogous PFI and
 CFI methods on the same data:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Quick PFI and CFI comparison for context</span></span>
 <span><span class="va">pfi</span> <span class="op">=</span> <span class="va"><a href="../reference/PFI.html">PFI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">task</span>, <span class="va">learner</span>, <span class="va">measure</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> No <span style="color: #0000BB;">&lt;Resampling&gt;</span> provided, using `resampling = rsmp("holdout", ratio = 2/3)`</span></span>

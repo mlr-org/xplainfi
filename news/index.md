@@ -15,8 +15,10 @@
     SAGE game, i.e. every coalition draw is evaluated on a single test
     observation via the measure’s observation-wise loss. It is
     controlled by the new `n_coalitions` budget argument (default
-    `2048L`) and requires a measure with the `"obs_loss"` property.
-    Standard errors and early stopping are planned.
+    `2048L`) and requires a measure with the `"obs_loss"` property. Its
+    standard errors follow the closed-form covariance of Covert & Lee
+    (2021, Eqs. 10-13), and `early_stopping` / `se_threshold` apply to
+    it like to the permutation estimator.
   - `"exact"` enumerates all coalitions on small feature sets (capped by
     the new `max_features` argument) and computes SAGE values without
     coalition-sampling error, useful as a ground-truth reference for the
@@ -29,6 +31,13 @@
   - `$compute()` points out in a message (if `xplain_opt("verbose")`)
     when `n_permutations` costs at least as many coalition evaluations
     as exact enumeration.
+- `SAGE$convergence()` is a new method returning the Monte Carlo
+  standard errors of the final SAGE estimates (the last checkpoint of
+  `$convergence_history`) and the convergence ratio compared against
+  `se_threshold`. These are convergence diagnostics for the fixed model,
+  following Covert & Lee (2021, Section 4.3), and deliberately not a
+  `ci_method` of `$importance()`, which is reserved for inference about
+  feature importance.
 - `SAGE$budget` and `$convergence_history` gain an `n_rows` column, the
   number of model rows predicted, which makes the cost of the estimators
   comparable (a kernel coalition evaluation costs `n_samples` rows, a
