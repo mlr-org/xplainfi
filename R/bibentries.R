@@ -114,6 +114,21 @@ bibentries = c(
     url = "https://pmc.ncbi.nlm.nih.gov/articles/PMC8323609/"
   ),
 
+  covert_2021 = bibentry(
+    "inproceedings",
+    title = "Improving KernelSHAP: Practical Shapley Value Estimation Using Linear Regression",
+    author = c(
+      person("Ian", "Covert"),
+      person("Su-In", "Lee")
+    ),
+    year = "2021",
+    booktitle = "Proceedings of the 24th International Conference on Artificial Intelligence and Statistics",
+    volume = "130",
+    pages = "3457--3465",
+    publisher = "PMLR",
+    url = "https://proceedings.mlr.press/v130/covert21a.html"
+  ),
+
   lundberg_2020 = bibentry(
     "inproceedings",
     title = "Understanding Global Feature Contributions With Additive Importance Measures",

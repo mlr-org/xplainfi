@@ -200,7 +200,7 @@ test_that("MarginalSAGE SE tracking in convergence_history", {
   expect_contains(colnames(sage$convergence_history), "se")
 
   # Check structure of convergence_history
-  expected_cols = c("budget", "n_evals", "feature", "importance", "se")
+  expected_cols = c("budget", "n_evals", "n_rows", "feature", "importance", "se")
   expect_setequal(colnames(sage$convergence_history), expected_cols)
 
   # SE values should be non-negative and finite
@@ -416,6 +416,8 @@ test_that("MarginalSAGE budget accessor and reset", {
   expect_equal(after$used, 4)
   # one empty-coalition baseline plus n_features per permutation
   expect_equal(after$n_evals, 1 + 4 * length(sage$features))
+  n_test = length(sage$resample_result$resampling$test_set(1))
+  expect_equal(after$n_rows, (1 + 4 * length(sage$features)) * n_test * 10)
   expect_false(after$converged)
   expect_equal(sage$convergence_history[, unique(n_evals)], 1 + (1:4) * length(sage$features))
   # a single permutation has no variance information

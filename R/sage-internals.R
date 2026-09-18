@@ -192,7 +192,55 @@ sage_marginal_contributions = function(perm_sublist, losses, baseline, feature_n
 # permutation, or all 2^m for exact enumeration. The currency in which estimators are
 # comparable, unlike their own budget units.
 sage_n_evals = function(estimator, m, budget) {
-  if (identical(estimator, "exact")) 2^m else 1 + budget * m
+  switch(
+    estimator,
+    permutation = 1 + budget * m,
+    kernel = 2 + 2 * budget,
+    exact = 2^m
+  )
+}
+
+# Model rows predicted: every coalition evaluation expands to n_samples rows per test
+# observation; the kernel estimator evaluates its anchors on the test set but each draw on
+# a single observation.
+sage_n_rows = function(estimator, m, budget, n_test, n_samples) {
+  if (is.null(n_test)) {
+    return(NA_real_)
+  }
+  switch(
+    estimator,
+    permutation = (1 + budget * m) * n_test * n_samples,
+    kernel = (2 * n_test + 2 * budget) * n_samples,
+    exact = 2^m * n_test * n_samples
+  )
+}
+
+# Kernel estimator pieces (Covert & Lee 2021). Coalition sizes 1..m-1 are drawn with
+# probability proportional to 1 / (k (m - k)), the Shapley kernel summed over subsets of
+# equal size; `sage_kernel_A` is the closed-form E[z z^T] under that distribution (0.5 on
+# the diagonal), unchanged by paired sampling.
+sage_kernel_size_probs = function(m) {
+  k = seq_len(m - 1L)
+  w = 1 / (k * (m - k))
+  w / sum(w)
+}
+
+sage_kernel_A = function(m) {
+  k = seq_len(m - 1L)
+  p = sage_kernel_size_probs(m)
+  diag_val = sum(p * k / m) # = 0.5
+  off_val = sum(p * k * (k - 1L) / (m * (m - 1L)))
+  A = matrix(off_val, m, m)
+  diag(A) = diag_val
+  A
+}
+
+# Constrained weighted least squares solution (their Eq. 9): the coefficients sum to the
+# total (efficiency), enforced via the Lagrangian correction along A^-1 1.
+sage_kernel_solve_constrained = function(A_inv, b, total) {
+  A_inv_b = as.numeric(A_inv %*% b)
+  A_inv_1 = as.numeric(A_inv %*% rep(1, nrow(A_inv)))
+  A_inv_b - A_inv_1 * ((sum(A_inv_b) - total) / sum(A_inv_1))
 }
 
 sage_assert_exact_budget = function(m, max_features) {
