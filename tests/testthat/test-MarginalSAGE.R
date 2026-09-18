@@ -424,8 +424,13 @@ test_that("MarginalSAGE budget accessor and reset", {
   expect_true(all(is.na(sage$convergence_history[budget == 1, se])))
   expect_false(anyNA(sage$convergence_history[budget > 1, se]))
 
+  conv = sage$convergence()
+  expect_setequal(colnames(conv), c("feature", "importance", "se", "ratio"))
+  expect_equal(conv$se, sage$convergence_history[budget == 4, se])
+
   sage$reset()
   expect_null(sage$convergence_history)
+  expect_null(sage$convergence())
   expect_false(sage$converged)
   expect_identical(sage$budget$used, NA_real_)
 })
