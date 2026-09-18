@@ -68,10 +68,15 @@
 <ul><li>
 <code>"permutation"</code> (the default) is the previous behavior, controlled by <code>n_permutations</code>.</li>
 <li>
-<code>"exact"</code> enumerates all coalitions on small feature sets (capped by the new <code>max_features</code> argument) and computes SAGE values without coalition-sampling error, useful as a ground-truth reference for the sampling estimator. It takes no budget; setting <code>n_permutations</code> with it is an error, and <code>$budget</code> reports <code>converged = NA</code>.</li>
+<code>"kernel"</code> (<code>MarginalSAGE</code> only) is the regression-based estimator of Covert &amp; Lee (2021) as implemented by the Python <code>sage</code> package: unbiased KernelSHAP with paired coalition sampling on the stochastic SAGE game, i.e. every coalition draw is evaluated on a single test observation via the measure’s observation-wise loss. It is controlled by the new <code>n_coalitions</code> budget argument (default <code>2048L</code>) and requires a measure with the <code>"obs_loss"</code> property. Standard errors and early stopping are planned.</li>
+<li>
+<code>"exact"</code> enumerates all coalitions on small feature sets (capped by the new <code>max_features</code> argument) and computes SAGE values without coalition-sampling error, useful as a ground-truth reference for the sampling estimators. It takes no budget; setting <code>n_permutations</code> or <code>n_coalitions</code> with it is an error, and <code>$budget</code> reports <code>converged = NA</code>.</li>
+<li>Setting the budget argument of a different estimator is an error; setting a convergence argument for an estimator that ignores it is a warning.</li>
 <li>
 <code>$compute()</code> points out in a message (if <code>xplain_opt("verbose")</code>) when <code>n_permutations</code> costs at least as many coalition evaluations as exact enumeration.</li>
 </ul></li>
+<li>
+<code>SAGE$budget</code> and <code>$convergence_history</code> gain an <code>n_rows</code> column, the number of model rows predicted, which makes the cost of the estimators comparable (a kernel coalition evaluation costs <code>n_samples</code> rows, a permutation or exact one <code>n_test * n_samples</code>).</li>
 </ul></div>
 <div class="section level3">
 <h3 id="behavior-changes-development-version">Behavior changes<a class="anchor" aria-label="anchor" href="#behavior-changes-development-version"></a></h3>

@@ -196,6 +196,59 @@ If a resampling with multiple iterations (i.e., not holdout) is
 supplied, the budget used by the first iteration is reused for all
 subsequent iterations to avoid some computational overhead.
 
+### Kernel SAGE
+
+`estimator = "kernel"` is the regression-based estimator of Covert & Lee
+(2021), the `KernelEstimator` of the Python `sage` package: Shapley
+values are the solution of a weighted least squares problem with the
+Shapley kernel as weights, approximated from sampled coalitions. Unlike
+the permutation estimator, which evaluates every coalition on the whole
+test set, each coalition draw here is evaluated on a single, randomly
+drawn test observation and enters via the measure’s observation-wise
+loss. A coalition evaluation therefore costs `n_samples` model rows
+instead of `n_test * n_samples`, and the budget `n_coalitions` (paired
+draws, each evaluating a coalition and its complement) is
+correspondingly large. This requires a measure with an observation-wise
+loss (`"obs_loss"` in `measure$properties`, e.g. `regr.mse` or
+`classif.logloss`, but not `classif.auc`), and it is currently available
+for `MarginalSAGE` only.
+
+``` r
+
+kernel_sage = MarginalSAGE$new(
+    task = task,
+    learner = learner,
+    measure = measure,
+    resampling = resampling,
+    estimator = "kernel",
+    n_coalitions = 4096L,
+    n_samples = 50L
+)
+kernel_sage$compute()
+kernel_sage$importance()
+#> Key: <feature>
+#>    feature  importance
+#>     <char>       <num>
+#> 1:      x1  3.70660937
+#> 2:      x2  0.01462180
+#> 3:      x3  0.95851217
+#> 4:      x4 -0.03940827
+kernel_sage$budget
+#>    estimator            unit requested  used n_evals n_rows converged
+#>       <char>          <char>     <num> <num>   <num>  <num>    <lgcl>
+#> 1:    kernel coalition draws      4096  4096    8194 442900     FALSE
+kernel_sage$plot_convergence()
+```
+
+![](sage-methods_files/figure-html/estimator-kernel-1.png)
+
+For such measures the kernel estimator targets the same SAGE values as
+the permutation estimator, so the two can be compared on
+`$budget$n_rows`, the number of model rows predicted. Standard errors
+and early stopping for the kernel estimator are not available yet, so
+check `$plot_convergence()` and increase `n_coalitions` until the values
+settle.
+
 ### Exact SAGE for verification
 
 When the number of features is small, you can sidestep coalition
@@ -221,14 +274,14 @@ sage_exact$importance()
 #> Key: <feature>
 #>    feature   importance
 #>     <char>        <num>
-#> 1:      x1 3.6119327521
-#> 2:      x2 0.9453853599
-#> 3:      x3 1.0162338405
-#> 4:      x4 0.0004490675
+#> 1:      x1  2.636791061
+#> 2:      x2  0.863743216
+#> 3:      x3  0.997765064
+#> 4:      x4 -0.002473804
 sage_exact$budget
-#>    estimator       unit requested  used n_evals converged
-#>       <char>     <char>     <num> <num>   <num>    <lgcl>
-#> 1:     exact coalitions        16    16      16        NA
+#>    estimator       unit requested  used n_evals n_rows converged
+#>       <char>     <char>     <num> <num>   <num>  <num>    <lgcl>
+#> 1:     exact coalitions        16    16      16 133600        NA
 ```
 
 This is guarded by `max_features` (default 12), since the number of

@@ -90,15 +90,35 @@ specific model. They do not capture broader uncertainty from model variability
 across different train/test splits or resampling iterations.</p>
 <p><strong>Estimators</strong>: <code>estimator = "permutation"</code> (the default) is the permutation-sampling estimator of
 Covert et al. (2020), budgeted by <code>n_permutations</code>.
+<code>estimator = "kernel"</code> is the regression-based estimator of Covert &amp; Lee (2021), budgeted by
+<code>n_coalitions</code>: Shapley values are the solution of a weighted least squares problem, approximated from
+sampled coalitions (see below).
 <code>estimator = "exact"</code> enumerates all <code>2^n_features</code> coalitions and computes the Shapley values in closed
 form, so it has no coalition-sampling error and serves as a ground-truth reference for the sampling
-estimator on small feature sets (capped by <code>max_features</code>).
+estimators on small feature sets (capped by <code>max_features</code>).
 "Exact" refers to coalition sampling only: the marginalization error controlled by <code>n_samples</code> remains,
 and for <a href="ConditionalSAGE.html">ConditionalSAGE</a> the value function itself is a Monte Carlo estimate of the sampler.</p>
+<p><strong>Kernel estimator</strong>: This implements the unbiased KernelSHAP estimator of Covert &amp; Lee (2021, Eq. 9)
+for the stochastic cooperative game of SAGE, mirroring the <code>KernelEstimator</code> of the reference Python
+<code>sage</code> package.
+Coalitions are drawn from the Shapley kernel (size <code>k</code> with probability proportional to <code>1 / (k (p - k))</code>,
+uniform within size) together with their complement (paired sampling, their Section 4.2), and each
+draw is paired with a single test observation drawn with replacement, whose observation-wise loss is
+the value-function sample.
+Consequently the kernel estimator requires a measure with an observation-wise loss
+(<code>"obs_loss"</code> in <code>measure$properties</code>, e.g. <code>regr.mse</code> or <code>classif.logloss</code>, but not <code>classif.auc</code>), and
+each coalition evaluation costs <code>n_samples</code> model rows rather than <code>n_test * n_samples</code> as for the other
+estimators, which evaluate every coalition on the whole test set.
+For such measures the kernel estimator targets the same SAGE values as the permutation and exact
+estimators (the Shapley value is linear in the value function, and the test-set loss is the mean of the
+observation-wise losses), so <code>estimator = "exact"</code> remains the reference; <code>$budget$n_rows</code> compares
+their costs in model rows.
+The kernel estimator is currently available for <a href="MarginalSAGE.html">MarginalSAGE</a> only.</p>
 <p><strong>Convergence and budget</strong>: With <code>early_stopping = TRUE</code>, sampling stops once the largest SE,
 relative to the spread of the SAGE values (<code>max(se) / (max(phi) - min(phi))</code>), falls below
 <code>se_threshold</code>.
 This is the criterion of the reference Python <code>sage</code> package.
+Early stopping is currently available for the permutation estimator only.
 The budget argument (<code>n_permutations</code>) then acts as an upper bound rather than a planned cost:
 exhausting it without meeting the criterion returns the values with a warning.
 <code>$budget</code> reports what was actually spent and whether the criterion was met, and
@@ -113,6 +133,10 @@ every iteration.</p>
 “Understanding Global Feature Contributions With Additive Importance Measures.”
 In <em>Advances in Neural Information Processing Systems</em>, volume 33, 17212–17223.
 <a href="https://proceedings.neurips.cc/paper/2020/hash/c7bf0b7c1a86d5eb3be2c722cf2cf746-Abstract.html" class="external-link">https://proceedings.neurips.cc/paper/2020/hash/c7bf0b7c1a86d5eb3be2c722cf2cf746-Abstract.html</a>.</p>
+<p>Covert I, Lee S (2021).
+“Improving KernelSHAP: Practical Shapley Value Estimation Using Linear Regression.”
+In <em>Proceedings of the 24th International Conference on Artificial Intelligence and Statistics</em>, volume 130, 3457–3465.
+<a href="https://proceedings.mlr.press/v130/covert21a.html" class="external-link">https://proceedings.mlr.press/v130/covert21a.html</a>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -126,8 +150,8 @@ In <em>Advances in Neural Information Processing Systems</em>, volume 33, 17212�
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
     <p></p><div class="r6-fields"><dl><dt><code>convergence_history</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></code>) History of SAGE values during computation.
-Columns <code>budget</code> (sampling effort in the estimator's own units, here permutations) and <code>n_evals</code>
-(the corresponding number of evaluated coalitions) index the checkpoints; see <code>$budget</code>.</p></dd>
+Columns <code>budget</code> (sampling effort in the estimator's own units), <code>n_evals</code> (the corresponding
+number of evaluated coalitions), and <code>n_rows</code> (model rows predicted) index the checkpoints; see <code>$budget</code>.</p></dd>
 
 
     <dt><code>converged</code></dt>
@@ -143,10 +167,14 @@ Columns <code>budget</code> (sampling effort in the estimator's own units, here 
 <dd><p>(<code><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></code>) Read-only one-row summary of the sampling
 effort: the <code>estimator</code>, its <code>unit</code> of budget, the <code>requested</code> upper bound, the amount <code>used</code>
 (below the request only with early stopping), the resulting number of coalition evaluations
-<code>n_evals</code> (one empty-coalition baseline plus <code>n_features</code> per permutation; <code>2^n_features</code> for the
-exact estimator), and whether the computation <code>converged</code>.
-<code>used</code> and <code>n_evals</code> are <code>NA</code> before <code>$compute()</code>; <code>converged</code> is <code>NA</code> for the exact estimator,
-which has no criterion to meet.
+<code>n_evals</code> (one empty-coalition baseline plus <code>n_features</code> per permutation; two anchors plus two per
+coalition draw for the kernel estimator; <code>2^n_features</code> for the exact estimator), the number of model
+rows predicted <code>n_rows</code>, and whether the computation <code>converged</code>.
+<code>n_evals</code> counts coalition evaluations, which differ in cost between estimators (the kernel
+estimator evaluates a coalition on one test observation, the others on the whole test set), so
+<code>n_rows</code> is the unit in which estimators are comparable.
+<code>used</code>, <code>n_evals</code>, and <code>n_rows</code> are <code>NA</code> before <code>$compute()</code>; <code>converged</code> is <code>NA</code> for the exact
+estimator, which has no criterion to meet.
 With multiple resampling iterations it describes the first iteration, whose budget the
 remaining ones reuse (see <code>early_stopping</code>).</p></dd>
 
@@ -190,8 +218,9 @@ earlier releases and warns on every access.</p></dd>
 <span>  measure <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  resampling <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  features <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  estimator <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"permutation"</span>, <span class="st">"exact"</span><span class="op">)</span>,</span>
+<span>  estimator <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"permutation"</span>, <span class="st">"kernel"</span>, <span class="st">"exact"</span><span class="op">)</span>,</span>
 <span>  n_permutations <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n_coalitions <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  max_features <span class="op">=</span> <span class="fl">12L</span>,</span>
 <span>  batch_size <span class="op">=</span> <span class="fl">5000L</span>,</span>
 <span>  n_samples <span class="op">=</span> <span class="fl">100L</span>,</span>
@@ -208,11 +237,13 @@ earlier releases and warns on every access.</p></dd>
       <dt><code>estimator</code></dt>
 <dd><p>(<code>character(1)</code>: <code>"permutation"</code>) Shapley-value estimator.
 <code>"permutation"</code> is the permutation-sampling estimator of Covert et al. (2020), budgeted by
-<code>n_permutations</code>; <code>"exact"</code> enumerates all <code>2^n_features</code> coalitions (capped by <code>max_features</code>) and
+<code>n_permutations</code>; <code>"kernel"</code> is the regression-based estimator of Covert &amp; Lee (2021), budgeted by
+<code>n_coalitions</code>; <code>"exact"</code> enumerates all <code>2^n_features</code> coalitions (capped by <code>max_features</code>) and
 takes no budget.
-Both approximate the same SAGE values; setting <code>n_permutations</code> with <code>estimator = "exact"</code> is an error.
-Their costs are comparable through the number of evaluated coalitions,
-<code>1 + n_permutations * n_features</code> and <code>2^n_features</code>, respectively.
+All approximate the same SAGE values; setting the budget argument of a different estimator is an
+error.
+Their costs are comparable through <code>$budget$n_rows</code>, the number of model rows predicted; see Details
+for why the kernel estimator's coalition evaluations are cheaper than the others'.
 <code>$compute()</code> points out in a message (silenced by <code>xplain_opt(verbose = FALSE)</code>) when the sampling
 budget meets or exceeds the exact estimator's cost, since enumeration then removes the
 coalition-sampling error at no extra cost.</p></dd>
@@ -222,6 +253,13 @@ coalition-sampling error at no extra cost.</p></dd>
 Each permutation evaluates one coalition per feature, so the cost is <code>1 + n_permutations * n_features</code>
 evaluated coalitions.
 If unset, defaults to <code>10L</code>.</p></dd>
+
+      <dt><code>n_coalitions</code></dt>
+<dd><p>(<code>integer(1)</code>: <code>NULL</code>) Number of paired coalition draws for <code>estimator = "kernel"</code>.
+Each draw evaluates a coalition and its complement on one test observation, so the cost is
+<code>2 + 2 * n_coalitions</code> evaluated coalitions.
+If unset, defaults to <code>2048L</code>.
+Check whether the budget suffices with <code>$plot_convergence()</code> and increase it until the values settle.</p></dd>
 
       <dt><code>max_features</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>12L</code>) Cap on the number of features for <code>estimator = "exact"</code>,
@@ -296,7 +334,7 @@ detection scale-invariant. Default <code>0.025</code> means convergence when rel
 
       <dt><code>check_interval</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>1L</code>) Check convergence every N permutations.
-The convergence arguments only apply to <code>estimator = "permutation"</code>; passing them for the exact
+The convergence arguments only apply to <code>estimator = "permutation"</code>; passing them for another
 estimator is a warning.</p></dd>
 
 

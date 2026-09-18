@@ -31,19 +31,46 @@ splits or resampling iterations.
 
 **Estimators**: `estimator = "permutation"` (the default) is the
 permutation-sampling estimator of Covert et al. (2020), budgeted by
-`n_permutations`. `estimator = "exact"` enumerates all `2^n_features`
-coalitions and computes the Shapley values in closed form, so it has no
-coalition-sampling error and serves as a ground-truth reference for the
-sampling estimator on small feature sets (capped by `max_features`).
-"Exact" refers to coalition sampling only: the marginalization error
-controlled by `n_samples` remains, and for
+`n_permutations`. `estimator = "kernel"` is the regression-based
+estimator of Covert & Lee (2021), budgeted by `n_coalitions`: Shapley
+values are the solution of a weighted least squares problem,
+approximated from sampled coalitions (see below). `estimator = "exact"`
+enumerates all `2^n_features` coalitions and computes the Shapley values
+in closed form, so it has no coalition-sampling error and serves as a
+ground-truth reference for the sampling estimators on small feature sets
+(capped by `max_features`). "Exact" refers to coalition sampling only:
+the marginalization error controlled by `n_samples` remains, and for
 [ConditionalSAGE](https://mlr-org.github.io/xplainfi/reference/ConditionalSAGE.md)
 the value function itself is a Monte Carlo estimate of the sampler.
+
+**Kernel estimator**: This implements the unbiased KernelSHAP estimator
+of Covert & Lee (2021, Eq. 9) for the stochastic cooperative game of
+SAGE, mirroring the `KernelEstimator` of the reference Python `sage`
+package. Coalitions are drawn from the Shapley kernel (size `k` with
+probability proportional to `1 / (k (p - k))`, uniform within size)
+together with their complement (paired sampling, their Section 4.2), and
+each draw is paired with a single test observation drawn with
+replacement, whose observation-wise loss is the value-function sample.
+Consequently the kernel estimator requires a measure with an
+observation-wise loss (`"obs_loss"` in `measure$properties`, e.g.
+`regr.mse` or `classif.logloss`, but not `classif.auc`), and each
+coalition evaluation costs `n_samples` model rows rather than
+`n_test * n_samples` as for the other estimators, which evaluate every
+coalition on the whole test set. For such measures the kernel estimator
+targets the same SAGE values as the permutation and exact estimators
+(the Shapley value is linear in the value function, and the test-set
+loss is the mean of the observation-wise losses), so
+`estimator = "exact"` remains the reference; `$budget$n_rows` compares
+their costs in model rows. The kernel estimator is currently available
+for
+[MarginalSAGE](https://mlr-org.github.io/xplainfi/reference/MarginalSAGE.md)
+only.
 
 **Convergence and budget**: With `early_stopping = TRUE`, sampling stops
 once the largest SE, relative to the spread of the SAGE values
 (`max(se) / (max(phi) - min(phi))`), falls below `se_threshold`. This is
-the criterion of the reference Python `sage` package. The budget
+the criterion of the reference Python `sage` package. Early stopping is
+currently available for the permutation estimator only. The budget
 argument (`n_permutations`) then acts as an upper bound rather than a
 planned cost: exhausting it without meeting the criterion returns the
 values with a warning. `$budget` reports what was actually spent and
@@ -59,6 +86,12 @@ Covert I, Lundberg S, Lee S (2020). “Understanding Global Feature
 Contributions With Additive Importance Measures.” In *Advances in Neural
 Information Processing Systems*, volume 33, 17212–17223.
 <https://proceedings.neurips.cc/paper/2020/hash/c7bf0b7c1a86d5eb3be2c722cf2cf746-Abstract.html>.
+
+Covert I, Lee S (2021). “Improving KernelSHAP: Practical Shapley Value
+Estimation Using Linear Regression.” In *Proceedings of the 24th
+International Conference on Artificial Intelligence and Statistics*,
+volume 130, 3457–3465.
+<https://proceedings.mlr.press/v130/covert21a.html>.
 
 ## See also
 
@@ -76,9 +109,9 @@ Information Processing Systems*, volume 33, 17212–17223.
 
   ([`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html))
   History of SAGE values during computation. Columns `budget` (sampling
-  effort in the estimator's own units, here permutations) and `n_evals`
-  (the corresponding number of evaluated coalitions) index the
-  checkpoints; see `$budget`.
+  effort in the estimator's own units), `n_evals` (the corresponding
+  number of evaluated coalitions), and `n_rows` (model rows predicted)
+  index the checkpoints; see `$budget`.
 
 - `converged`:
 
@@ -95,12 +128,17 @@ Information Processing Systems*, volume 33, 17212–17223.
   `unit` of budget, the `requested` upper bound, the amount `used`
   (below the request only with early stopping), the resulting number of
   coalition evaluations `n_evals` (one empty-coalition baseline plus
-  `n_features` per permutation; `2^n_features` for the exact estimator),
-  and whether the computation `converged`. `used` and `n_evals` are `NA`
-  before `$compute()`; `converged` is `NA` for the exact estimator,
-  which has no criterion to meet. With multiple resampling iterations it
-  describes the first iteration, whose budget the remaining ones reuse
-  (see `early_stopping`).
+  `n_features` per permutation; two anchors plus two per coalition draw
+  for the kernel estimator; `2^n_features` for the exact estimator), the
+  number of model rows predicted `n_rows`, and whether the computation
+  `converged`. `n_evals` counts coalition evaluations, which differ in
+  cost between estimators (the kernel estimator evaluates a coalition on
+  one test observation, the others on the whole test set), so `n_rows`
+  is the unit in which estimators are comparable. `used`, `n_evals`, and
+  `n_rows` are `NA` before `$compute()`; `converged` is `NA` for the
+  exact estimator, which has no criterion to meet. With multiple
+  resampling iterations it describes the first iteration, whose budget
+  the remaining ones reuse (see `early_stopping`).
 
 - `n_permutations_used`:
 
@@ -149,8 +187,9 @@ Creates a new instance of the SAGE class.
       measure = NULL,
       resampling = NULL,
       features = NULL,
-      estimator = c("permutation", "exact"),
+      estimator = c("permutation", "kernel", "exact"),
       n_permutations = NULL,
+      n_coalitions = NULL,
       max_features = 12L,
       batch_size = 5000L,
       n_samples = 100L,
@@ -170,12 +209,14 @@ Creates a new instance of the SAGE class.
 
   (`character(1)`: `"permutation"`) Shapley-value estimator.
   `"permutation"` is the permutation-sampling estimator of Covert et al.
-  (2020), budgeted by `n_permutations`; `"exact"` enumerates all
-  `2^n_features` coalitions (capped by `max_features`) and takes no
-  budget. Both approximate the same SAGE values; setting
-  `n_permutations` with `estimator = "exact"` is an error. Their costs
-  are comparable through the number of evaluated coalitions,
-  `1 + n_permutations * n_features` and `2^n_features`, respectively.
+  (2020), budgeted by `n_permutations`; `"kernel"` is the
+  regression-based estimator of Covert & Lee (2021), budgeted by
+  `n_coalitions`; `"exact"` enumerates all `2^n_features` coalitions
+  (capped by `max_features`) and takes no budget. All approximate the
+  same SAGE values; setting the budget argument of a different estimator
+  is an error. Their costs are comparable through `$budget$n_rows`, the
+  number of model rows predicted; see Details for why the kernel
+  estimator's coalition evaluations are cheaper than the others'.
   `$compute()` points out in a message (silenced by
   `xplain_opt(verbose = FALSE)`) when the sampling budget meets or
   exceeds the exact estimator's cost, since enumeration then removes the
@@ -187,6 +228,15 @@ Creates a new instance of the SAGE class.
   `estimator = "permutation"`. Each permutation evaluates one coalition
   per feature, so the cost is `1 + n_permutations * n_features`
   evaluated coalitions. If unset, defaults to `10L`.
+
+- `n_coalitions`:
+
+  (`integer(1)`: `NULL`) Number of paired coalition draws for
+  `estimator = "kernel"`. Each draw evaluates a coalition and its
+  complement on one test observation, so the cost is
+  `2 + 2 * n_coalitions` evaluated coalitions. If unset, defaults to
+  `2048L`. Check whether the budget suffices with `$plot_convergence()`
+  and increase it until the values settle.
 
 - `max_features`:
 
@@ -288,7 +338,7 @@ Compute SAGE values.
 
   (`integer(1)`: `1L`) Check convergence every N permutations. The
   convergence arguments only apply to `estimator = "permutation"`;
-  passing them for the exact estimator is a warning.
+  passing them for another estimator is a warning.
 
 ------------------------------------------------------------------------
 

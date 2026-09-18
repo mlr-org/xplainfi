@@ -9,14 +9,30 @@
   ([\#70](https://github.com/mlr-org/xplainfi/issues/70)).
   - `"permutation"` (the default) is the previous behavior, controlled
     by `n_permutations`.
+  - `"kernel"` (`MarginalSAGE` only) is the regression-based estimator
+    of Covert & Lee (2021) as implemented by the Python `sage` package:
+    unbiased KernelSHAP with paired coalition sampling on the stochastic
+    SAGE game, i.e. every coalition draw is evaluated on a single test
+    observation via the measure’s observation-wise loss. It is
+    controlled by the new `n_coalitions` budget argument (default
+    `2048L`) and requires a measure with the `"obs_loss"` property.
+    Standard errors and early stopping are planned.
   - `"exact"` enumerates all coalitions on small feature sets (capped by
     the new `max_features` argument) and computes SAGE values without
     coalition-sampling error, useful as a ground-truth reference for the
-    sampling estimator. It takes no budget; setting `n_permutations`
-    with it is an error, and `$budget` reports `converged = NA`.
+    sampling estimators. It takes no budget; setting `n_permutations` or
+    `n_coalitions` with it is an error, and `$budget` reports
+    `converged = NA`.
+  - Setting the budget argument of a different estimator is an error;
+    setting a convergence argument for an estimator that ignores it is a
+    warning.
   - `$compute()` points out in a message (if `xplain_opt("verbose")`)
     when `n_permutations` costs at least as many coalition evaluations
     as exact enumeration.
+- `SAGE$budget` and `$convergence_history` gain an `n_rows` column, the
+  number of model rows predicted, which makes the cost of the estimators
+  comparable (a kernel coalition evaluation costs `n_samples` rows, a
+  permutation or exact one `n_test * n_samples`).
 
 ### Behavior changes
 

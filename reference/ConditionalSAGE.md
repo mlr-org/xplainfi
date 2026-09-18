@@ -72,7 +72,8 @@ Creates a new instance of the ConditionalSAGE class.
 - `task, learner, measure, resampling, features, estimator, n_permutations, max_features`:
 
   Passed to
-  [SAGE](https://mlr-org.github.io/xplainfi/reference/SAGE.md).
+  [SAGE](https://mlr-org.github.io/xplainfi/reference/SAGE.md). The
+  kernel estimator is not yet available for conditional sampling.
 
 - `sampler`:
 

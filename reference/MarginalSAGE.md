@@ -46,8 +46,9 @@ Creates a new instance of the MarginalSAGE class.
       measure = NULL,
       resampling = NULL,
       features = NULL,
-      estimator = c("permutation", "exact"),
+      estimator = c("permutation", "kernel", "exact"),
       n_permutations = NULL,
+      n_coalitions = NULL,
       max_features = 12L,
       batch_size = 5000L,
       n_samples = 100L,
@@ -59,7 +60,7 @@ Creates a new instance of the MarginalSAGE class.
 
 #### Arguments
 
-- `task, learner, measure, resampling, features, estimator, n_permutations, max_features`:
+- `task, learner, measure, resampling, features, estimator, n_permutations, n_coalitions, max_features`:
 
   Passed to
   [SAGE](https://mlr-org.github.io/xplainfi/reference/SAGE.md).
