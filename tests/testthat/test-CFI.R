@@ -426,3 +426,101 @@ test_that("CFI with CPI warning on problematic resampling", {
   cfi_holdout$compute()
   expect_silent(cfi_holdout$importance(ci_method = "cpi"))
 })
+
+# -----------------------------------------------------------------------------
+# estimator = "weighting"
+# -----------------------------------------------------------------------------
+
+test_that("CFI weighting estimator matches sampling estimator on correlated DGP", {
+  skip_if_not_installed("arf")
+  skip_if_not_installed("ranger")
+  skip_if_not_installed("mlr3learners")
+  set.seed(8086)
+  task = sim_dgp_correlated(n = 600, r = 0.9)
+  learner = lrn("regr.ranger", num.trees = 10L)
+  resampling = rsmp("holdout", ratio = 0.5)$instantiate(task)
+  learner$train(task, row_ids = resampling$train_set(1))
+  sampler = ConditionalARFSampler$new(task, num_trees = 30L, verbose = FALSE)
+
+  cfi_s = CFI$new(task, learner, msr("regr.mse"), resampling = resampling, sampler = sampler, n_repeats = 10L)
+  cfi_w = CFI$new(
+    task,
+    learner,
+    msr("regr.mse"),
+    resampling = resampling,
+    sampler = sampler,
+    n_repeats = 10L,
+    estimator = "weighting"
+  )
+  checkmate::expect_r6(cfi_w$sampler, "MarginalPermutationSampler")
+  checkmate::expect_function(cfi_w$weight_fun)
+  expect_equal(cfi_w$param_set$values$estimator, "weighting")
+
+  cfi_s$compute()
+  cfi_w$compute()
+  imp_s = cfi_s$importance()
+  imp_w = cfi_w$importance()
+  expect_importance_dt(imp_w, features = task$feature_names)
+
+  # Weighted PFI should be far below plain PFI for x1 and close to conditional CFI.
+  pfi = PFI$new(task, learner, msr("regr.mse"), resampling = resampling, n_repeats = 10L)
+  pfi$compute()
+  expect_lt(imp_w[feature == "x1", importance], 0.5 * pfi$importance()[feature == "x1", importance])
+  expect_equal(imp_w$importance, imp_s$importance, tolerance = 0.25)
+  checkmate::expect_numeric(cfi_w$scores()$ess, lower = 1, upper = length(resampling$test_set(1)))
+})
+
+test_that("CFI weighting estimator works for binary and multiclass classification", {
+  skip_if_not_installed("arf")
+  for (gen in c("2dnormals", "cassini")) {
+    set.seed(3301)
+    task = tgen(gen)$generate(n = 150)
+    sampler = ConditionalARFSampler$new(task, num_trees = 10L, verbose = FALSE)
+    cfi = CFI$new(
+      task,
+      lrn("classif.rpart", predict_type = "prob"),
+      msr("classif.logloss"),
+      sampler = sampler,
+      n_repeats = 2L,
+      estimator = "weighting"
+    )
+    cfi$compute()
+    expect_method_output(cfi)
+  }
+})
+
+test_that("CFI weighting estimator requires ConditionalARFSampler", {
+  task = tgen("2dnormals")$generate(n = 50)
+  expect_error(
+    CFI$new(
+      task,
+      lrn("classif.rpart", predict_type = "prob"),
+      msr("classif.ce"),
+      sampler = ConditionalGaussianSampler$new(task),
+      estimator = "weighting"
+    ),
+    "ConditionalARFSampler"
+  )
+})
+
+test_that("CFI weighting estimator: CPI only with per_observation normalization", {
+  skip_if_not_installed("arf")
+  set.seed(19)
+  task = sim_dgp_independent(n = 100)
+  sampler = ConditionalARFSampler$new(task, num_trees = 10L, verbose = FALSE)
+  cfi = CFI$new(
+    task,
+    lrn("regr.rpart"),
+    msr("regr.mse"),
+    resampling = rsmp("holdout"),
+    sampler = sampler,
+    n_repeats = 3L,
+    estimator = "weighting"
+  )
+  cfi$compute()
+  expect_error(cfi$importance(ci_method = "cpi"), "per_observation")
+
+  cfi$reweight(cfi$weight_fun, normalize = "per_observation")
+  expect_warning(cpi_result <- cfi$importance(ci_method = "cpi"), "not been validated")
+  expect_importance_dt(cpi_result, features = cfi$features)
+})
