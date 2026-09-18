@@ -23,7 +23,7 @@ MarginalSAGE = R6Class(
   public = list(
     #' @description
     #' Creates a new instance of the MarginalSAGE class.
-    #' @param task,learner,measure,resampling,features,estimator,n_permutations,max_features Passed to [SAGE].
+    #' @param task,learner,measure,resampling,features,estimator,n_permutations,n_coalitions,max_features Passed to [SAGE].
     #' @param batch_size,n_samples,early_stopping,se_threshold,min_permutations,check_interval Passed to [SAGE].
     initialize = function(
       task,
@@ -31,8 +31,9 @@ MarginalSAGE = R6Class(
       measure = NULL,
       resampling = NULL,
       features = NULL,
-      estimator = c("permutation", "exact"),
+      estimator = c("permutation", "kernel", "exact"),
       n_permutations = NULL,
+      n_coalitions = NULL,
       max_features = 12L,
       batch_size = 5000L,
       n_samples = 100L,
@@ -50,6 +51,7 @@ MarginalSAGE = R6Class(
         features = features,
         estimator = estimator,
         n_permutations = n_permutations,
+        n_coalitions = n_coalitions,
         max_features = max_features,
         batch_size = batch_size,
         n_samples = n_samples,
@@ -104,6 +106,26 @@ MarginalSAGE = R6Class(
       }
 
       rbindlist(all_expanded_data)
+    },
+
+    # One observation per coalition: replicate each row over the reference data and
+    # replace its out-of-coalition features column-wise, so a chunk of draws is expanded
+    # with one masked assignment per feature rather than one per draw.
+    .expand_pairs_data = function(rows_dt, zs) {
+      n_reference = nrow(private$reference_data)
+      n_draws = nrow(zs)
+      expanded = rows_dt[rep(seq_len(n_draws), each = n_reference)]
+      reference_expanded = private$reference_data[rep(seq_len(n_reference), times = n_draws)]
+      expanded[, .coalition_id := rep(seq_len(n_draws), each = n_reference)]
+      expanded[, .test_instance_id := 1L]
+      for (j in seq_along(self$features)) {
+        feature = self$features[j]
+        out = rep(zs[, j] == 0L, each = n_reference)
+        if (any(out)) {
+          expanded[out, (feature) := reference_expanded[out][[feature]]]
+        }
+      }
+      expanded
     }
   )
 )

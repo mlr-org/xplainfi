@@ -46,6 +46,7 @@ ConditionalSAGE = R6Class(
     #' @description
     #' Creates a new instance of the ConditionalSAGE class.
     #' @param task,learner,measure,resampling,features,estimator,n_permutations,max_features Passed to [SAGE].
+    #'   The kernel estimator is not yet available for conditional sampling.
     #' @param batch_size,n_samples,early_stopping,se_threshold,min_permutations,check_interval Passed to [SAGE].
     #' @param sampler ([ConditionalSampler]) Optional custom sampler. Defaults to [ConditionalARFSampler].
     initialize = function(
@@ -65,6 +66,9 @@ ConditionalSAGE = R6Class(
       min_permutations = 10L,
       check_interval = 1L
     ) {
+      # The kernel estimator needs one conditional draw per (coalition, observation) pair,
+      # which the samplers do not support yet, so it is not among the choices here.
+      estimator = match.arg(estimator)
       # Use ConditionalARFSampler by default
       if (is.null(sampler)) {
         sampler = ConditionalARFSampler$new(task)

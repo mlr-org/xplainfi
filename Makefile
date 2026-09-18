@@ -71,7 +71,7 @@ README.md: README.Rmd
 	Rscript -e "rmarkdown::render('README.Rmd')"
 	rm README.html
 
-codemeta.json:
+codemeta.json: DESCRIPTION
 	Rscript -e "codemetar::write_codemeta()"
 
 .PHONY: release

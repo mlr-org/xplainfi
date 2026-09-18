@@ -100,7 +100,8 @@ sage_custom$compute()
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{task, learner, measure, resampling, features, estimator, n_permutations, max_features}}{Passed to \link{SAGE}.}
+      \item{\code{task, learner, measure, resampling, features, estimator, n_permutations, max_features}}{Passed to \link{SAGE}.
+The kernel estimator is not yet available for conditional sampling.}
       \item{\code{sampler}}{(\link{ConditionalSampler}) Optional custom sampler. Defaults to \link{ConditionalARFSampler}.}
       \item{\code{batch_size, n_samples, early_stopping, se_threshold, min_permutations, check_interval}}{Passed to \link{SAGE}.}
     }
