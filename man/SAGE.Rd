@@ -19,13 +19,21 @@ SAGE values are reductions in the measure's score relative to the empty coalitio
 For measures that are maximized (\code{measure$minimize = FALSE}, e.g. \code{classif.acc}) the scores are
 negated internally, so the sign convention is the same for all measures.
 
-\strong{Standard Error Calculation}: The standard errors (SE) reported in
-\verb{$convergence_history} reflect the uncertainty in Shapley value estimation
-across different random permutations within a single resampling iteration.
-These SEs quantify the Monte Carlo sampling error for a fixed trained model
-and are only valid for inference about the importance of features for that
-specific model. They do not capture broader uncertainty from model variability
-across different train/test splits or resampling iterations.
+\strong{Standard errors}: The standard errors reported in \verb{$convergence_history} and \verb{$convergence()} are
+Monte Carlo standard errors of the Shapley \emph{estimator}: how much the estimates would still move if
+more permutations or coalitions were sampled, for the fixed trained model, the fixed test set, and (for
+\link{MarginalSAGE}) the fixed reference subsample.
+They are convergence diagnostics in the sense of Covert & Lee (2021, Section 4.3), not inference about
+feature importance: they say nothing about variability across train/test splits or refits (see the
+resampling-based \code{ci_method}s of \verb{$importance()} for that), and a feature's SAGE value being several
+SEs from zero only means the computation has converged, not that the feature matters.
+For the permutation estimator the SE is the sample standard error of the per-permutation marginal
+contributions.
+For the kernel estimator it follows from the multivariate central limit theorem for the estimated
+regression targets, \verb{Cov(phi) = C Cov(b) C^T / n} (their Eqs. 10-13), so it covers the coalition draws
+and the test observations they are paired with (both are sampled with replacement from the fixed test
+set).
+The exact estimator has no coalition-sampling error and reports no SE.
 
 \strong{Estimators}: \code{estimator = "permutation"} (the default) is the permutation-sampling estimator of
 Covert et al. (2020), budgeted by \code{n_permutations}.
@@ -59,8 +67,8 @@ The kernel estimator is currently available for \link{MarginalSAGE} only.
 relative to the spread of the SAGE values (\code{max(se) / (max(phi) - min(phi))}), falls below
 \code{se_threshold}.
 This is the criterion of the reference Python \code{sage} package.
-Early stopping is currently available for the permutation estimator only.
-The budget argument (\code{n_permutations}) then acts as an upper bound rather than a planned cost:
+This applies to both sampling estimators; the exact estimator has no criterion.
+The budget argument (\code{n_permutations} or \code{n_coalitions}) then acts as an upper bound rather than a planned cost:
 exhausting it without meeting the criterion returns the values with a warning.
 \verb{$budget} reports what was actually spent and whether the criterion was met, and
 \verb{$plot_convergence()} shows the trajectory that led there.
@@ -131,6 +139,7 @@ earlier releases and warns on every access.}
     \item \href{#method-SAGE-initialize}{\code{SAGE$new()}}
     \item \href{#method-SAGE-compute}{\code{SAGE$compute()}}
     \item \href{#method-SAGE-reset}{\code{SAGE$reset()}}
+    \item \href{#method-SAGE-convergence}{\code{SAGE$convergence()}}
     \item \href{#method-SAGE-plot_convergence}{\code{SAGE$plot_convergence()}}
     \item \href{#method-SAGE-clone}{\code{SAGE$clone()}}
   }
@@ -193,7 +202,8 @@ If unset, defaults to \code{10L}.}
 Each draw evaluates a coalition and its complement on one test observation, so the cost is
 \code{2 + 2 * n_coalitions} evaluated coalitions.
 If unset, defaults to \code{2048L}.
-Check whether the budget suffices with \verb{$plot_convergence()} and increase it until the values settle.}
+Check whether the budget suffices with \verb{$convergence()} or \verb{$plot_convergence()}, or let
+\code{early_stopping} decide.}
       \item{\code{max_features}}{(\code{integer(1)}: \code{12L}) Cap on the number of features for \code{estimator = "exact"},
 whose cost grows as \code{2^n_features}; construction aborts above it.}
       \item{\code{batch_size}}{(\code{integer(1)}: \code{5000L}) Maximum number of observations to process in a single prediction call.}
@@ -202,6 +212,7 @@ For \link{MarginalSAGE}, this is the number of marginal data samples ("backgroun
 For \link{ConditionalSAGE}, this is the number of conditional samples per test instance retrieved from \code{sampler}.}
       \item{\code{early_stopping}}{(\code{logical(1)}: \code{FALSE}) Whether to stop once the convergence criterion is met,
 rather than spending the full budget.
+Applies to the permutation and kernel estimators; setting it for \code{estimator = "exact"} is a warning.
 The budget then acts as an upper bound: if the criterion is not met within it, the values are
 returned with a warning and \verb{$budget} reports \code{converged = FALSE}.}
       \item{\code{se_threshold}}{(\code{numeric(1)}: \code{0.025}) Convergence threshold for relative standard error.
@@ -209,11 +220,16 @@ Convergence is detected when the maximum relative SE across all features falls b
 Relative SE is calculated as SE divided by the range of importance values (max - min),
 making it scale-invariant across different loss metrics.
 The default of \code{0.025} (convergence once the relative SE is below 2.5\% of the importance range) is
-the default of the Python \code{sage} package; the examples in Covert et al. (2020) use \code{0.01} to \code{0.02}.}
+the default of the Python \code{sage} package; the examples in Covert et al. (2020) and Covert & Lee (2021)
+use \code{0.01} to \code{0.02}.
+The same threshold buys different budgets across estimators, since their standard errors are
+constructed differently (see Details).}
       \item{\code{min_permutations}}{(\code{integer(1)}: \code{10L}) Minimum permutations before checking for convergence.
 Convergence is judged based on the standard errors of the estimated SAGE values,
-which requires a sufficiently large number of samples (i.e., evaluated coalitions).}
-      \item{\code{check_interval}}{(\code{integer(1)}: \code{1L}) Check convergence every N permutations.}
+which requires a sufficiently large number of samples (i.e., evaluated coalitions).
+Permutation estimator only; the kernel estimator checks after every chunk of 512 draws.}
+      \item{\code{check_interval}}{(\code{integer(1)}: \code{1L}) Check convergence every N permutations.
+Permutation estimator only.}
     }
     \if{html}{\out{</div>}}
   }
@@ -264,6 +280,26 @@ estimator is a warning.}
     \if{html}{\out{<div class="r">}}
     \preformatted{SAGE$reset()}
     \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SAGE-convergence"></a>}}
+\if{latex}{\out{\hypertarget{method-SAGE-convergence}{}}}
+\subsection{\code{SAGE$convergence()}}{
+  Monte Carlo standard errors of the final SAGE estimates, i.e. the last checkpoint of
+\verb{$convergence_history}, together with the convergence ratio \code{max(se) / (max(importance) - min(importance))}
+that \code{early_stopping} compares against \code{se_threshold}.
+These quantify how converged the computation is for the fixed model, not feature importance;
+see the \emph{Standard errors} section in Details.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{SAGE$convergence()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A \code{\link[data.table:data.table]{data.table}} with columns \code{feature}, \code{importance}, \code{se}, and \code{ratio}
+(the same value in every row), or \code{NULL} before \verb{$compute()} and for the exact estimator.
   }
 }
 

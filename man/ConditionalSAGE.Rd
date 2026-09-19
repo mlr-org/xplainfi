@@ -67,6 +67,7 @@ sage_custom$compute()
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>FeatureImportanceMethod$print()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>FeatureImportanceMethod$scores()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="SAGE" data-id="compute"><a href='../../xplainfi/html/SAGE.html#method-SAGE-compute'><code>SAGE$compute()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="SAGE" data-id="convergence"><a href='../../xplainfi/html/SAGE.html#method-SAGE-convergence'><code>SAGE$convergence()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="SAGE" data-id="plot_convergence"><a href='../../xplainfi/html/SAGE.html#method-SAGE-plot_convergence'><code>SAGE$plot_convergence()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="SAGE" data-id="reset"><a href='../../xplainfi/html/SAGE.html#method-SAGE-reset'><code>SAGE$reset()</code></a></span></li>
 </ul>

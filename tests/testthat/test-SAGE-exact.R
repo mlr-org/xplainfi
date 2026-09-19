@@ -133,6 +133,7 @@ test_that("exact estimator guards its arguments", {
   sage = MarginalSAGE$new(sim_dgp_independent(n = 80), learner, estimator = "exact", n_samples = 20L)
   expect_warning(sage$compute(se_threshold = 0.1), "ignored")
   expect_null(sage$convergence_history)
+  expect_null(sage$convergence())
   expect_error(sage$plot_convergence(), "not applicable to the exact estimator")
   expect_error(suppressWarnings(sage$n_permutations <- 5L), "only valid")
 })
