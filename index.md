@@ -76,16 +76,16 @@ pfi$importance()
 #> Key: <feature>
 #>          feature   importance
 #>           <char>        <num>
-#>  1:   important1  8.183995584
-#>  2:   important2  7.481268675
-#>  3:   important3  1.571760349
-#>  4:   important4 12.585739572
-#>  5:   important5  2.810875567
-#>  6: unimportant1  0.030667439
-#>  7: unimportant2 -0.002837696
-#>  8: unimportant3 -0.044922079
-#>  9: unimportant4 -0.060054450
-#> 10: unimportant5  0.060148388
+#>  1:   important1  8.130730121
+#>  2:   important2  7.587050771
+#>  3:   important3  1.603608069
+#>  4:   important4 12.547878920
+#>  5:   important5  2.816002479
+#>  6: unimportant1  0.026536401
+#>  7: unimportant2  0.002251584
+#>  8: unimportant3 -0.039315390
+#>  9: unimportant4 -0.057172791
+#> 10: unimportant5  0.056256867
 ```
 
 If it aids interpretation, importances can also be calculated as the
@@ -98,16 +98,16 @@ pfi$importance(relation = "ratio")
 #> Key: <feature>
 #>          feature importance
 #>           <char>      <num>
-#>  1:   important1  2.6987668
-#>  2:   important2  2.5598945
-#>  3:   important3  1.3294180
-#>  4:   important4  3.6278508
-#>  5:   important5  1.5874860
-#>  6: unimportant1  1.0067957
-#>  7: unimportant2  0.9994507
-#>  8: unimportant3  0.9905990
-#>  9: unimportant4  0.9874657
-#> 10: unimportant5  1.0126572
+#>  1:   important1  2.6880636
+#>  2:   important2  2.5822356
+#>  3:   important3  1.3366899
+#>  4:   important4  3.6191329
+#>  5:   important5  1.5878385
+#>  6: unimportant1  1.0059545
+#>  7: unimportant2  1.0004247
+#>  8: unimportant3  0.9917426
+#>  9: unimportant4  0.9881006
+#> 10: unimportant5  1.0116920
 ```
 
 When PFI is computed based on resampling with multiple iterations, and /
@@ -122,9 +122,9 @@ str(pfi$scores())
 #>  $ iter_rsmp        : int  1 1 1 1 1 1 1 1 1 1 ...
 #>  $ iter_repeat      : int  1 2 3 4 5 6 7 8 9 10 ...
 #>  $ regr.mse_baseline: num  4.56 4.56 4.56 4.56 4.56 ...
-#>  $ regr.mse_post    : num  12.3 11.9 11.3 12.1 13.6 ...
-#>  $ importance       : num  7.77 7.33 6.74 7.56 9.06 ...
-#>  - attr(*, ".internal.selfref")=<externalptr>
+#>  $ regr.mse_post    : num  12.8 12.9 12.6 12.5 11.3 ...
+#>  $ importance       : num  8.28 8.35 8.08 7.96 6.73 ...
+#>  - attr(*, ".internal.selfref")=<pointer: 0x105bd1420>
 ```
 
 Where `iter_rsmp` corresponds to the resampling iteration, i.e., 3 for
@@ -174,23 +174,23 @@ pfi = PFI$new(
     measure = msr("regr.rsq")
 )
 #> ℹ No <Resampling> provided, using `resampling = rsmp("holdout", ratio = 2/3)`
-#>   (test set size: 333)
+#> (test set size: 333)
 
 pfi$compute()
 pfi$importance()
 #> Key: <feature>
-#>          feature   importance
-#>           <char>        <num>
-#>  1:   important1  0.329915393
-#>  2:   important2  0.297695022
-#>  3:   important3  0.063613087
-#>  4:   important4  0.493673768
-#>  5:   important5  0.121794662
-#>  6: unimportant1  0.003972813
-#>  7: unimportant2  0.002157623
-#>  8: unimportant3 -0.002780577
-#>  9: unimportant4  0.001914150
-#> 10: unimportant5  0.001366645
+#>          feature    importance
+#>           <char>         <num>
+#>  1:   important1  0.3144810393
+#>  2:   important2  0.3134162904
+#>  3:   important3  0.0620583655
+#>  4:   important4  0.5415552397
+#>  5:   important5  0.1350006512
+#>  6: unimportant1 -0.0010198832
+#>  7: unimportant2  0.0010749042
+#>  8: unimportant3 -0.0021041761
+#>  9: unimportant4  0.0006529191
+#> 10: unimportant5  0.0009255579
 ```
 
 See
