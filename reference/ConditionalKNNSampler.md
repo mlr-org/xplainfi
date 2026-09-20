@@ -37,11 +37,15 @@ continuity).
 The sampler supports two distance metrics:
 
 - **Euclidean**: For numeric/integer features only. Standardizes
-  features before computing distances.
+  features before computing distances and searches neighbors with a
+  kd-tree via
+  [`FNN::get.knnx()`](https://rdrr.io/pkg/FNN/man/get.knn.html).
 
 - **Gower**: For mixed feature types. Handles numeric, factor, ordered,
   and logical features. Numeric features are range-normalized,
-  categorical features use exact matching (0/1).
+  categorical features use exact matching (0/1). Neighbors are found
+  with
+  [`gower::gower_topn()`](https://rdrr.io/pkg/gower/man/gower_topn.html).
 
 The `distance` parameter controls which metric to use:
 
@@ -122,7 +126,12 @@ Creates a new ConditionalKNNSampler.
 
 #### Usage
 
-    ConditionalKNNSampler$new(task, conditioning_set = NULL, k = 5L)
+    ConditionalKNNSampler$new(
+      task,
+      conditioning_set = NULL,
+      k = 5L,
+      distance = c("auto", "euclidean", "gower")
+    )
 
 #### Arguments
 
@@ -139,6 +148,11 @@ Creates a new ConditionalKNNSampler.
 - `k`:
 
   (`integer(1)`: `5L`) Number of nearest neighbors to sample from.
+
+- `distance`:
+
+  (`character(1)`: `"auto"`) Distance metric, one of `"auto"`,
+  `"euclidean"`, or `"gower"`. See the Distance Metrics section.
 
 ------------------------------------------------------------------------
 

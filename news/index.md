@@ -4,6 +4,10 @@
 
 ### New features
 
+- `ConditionalKNNSampler` gains a `distance` argument (`"auto"`,
+  `"euclidean"`, `"gower"`) to force a distance metric instead of
+  selecting one from the conditioning feature types. It was documented
+  but not implemented.
 - `MarginalSAGE` and `ConditionalSAGE` gain an `estimator` argument
   selecting the Shapley-value estimator
   ([\#70](https://github.com/mlr-org/xplainfi/issues/70)).
@@ -56,6 +60,15 @@
 
 ### Behavior changes
 
+- `ConditionalKNNSampler` finds neighbors with
+  [`FNN::get.knnx()`](https://rdrr.io/pkg/FNN/man/get.knn.html)
+  (kd-tree, numeric conditioning sets) or
+  [`gower::gower_topn()`](https://rdrr.io/pkg/gower/man/gower_topn.html)
+  (mixed types) instead of a per-row R distance loop, which is several
+  times faster and needs constant memory in the number of training rows.
+  `FNN` is a new Suggests dependency. Exactly `k` neighbors are used;
+  ties at the k-th distance are no longer expanded, and sampled values
+  differ from previous versions for the same seed.
 - `SAGE` methods: `se_threshold` now defaults to `0.025` (was `0.01`),
   matching the convergence criterion of the Python `sage` package, and
   `early_stopping` defaults to `FALSE` in the base class as it already

@@ -472,13 +472,13 @@ data.table(
     original_x1 = original_numeric$x1,
     sampled_x1 = sampled_numeric$x1
 )
-#>            x2         x3 original_x1  sampled_x1
-#>         <num>      <num>       <num>       <num>
-#> 1: -0.5272128  1.7361110  -1.0506838 -0.04454979
-#> 2: -1.2991235 -0.8452478  -2.0680921 -1.85485761
-#> 3:  1.3031674 -0.9615715   1.1365600  1.54017968
-#> 4: -1.1771093  1.0174911  -1.6750075 -1.67500747
-#> 5: -0.3692326 -1.4960537  -0.3570559 -0.35705594
+#>            x2         x3 original_x1 sampled_x1
+#>         <num>      <num>       <num>      <num>
+#> 1: -0.5272128  1.7361110  -1.0506838 -0.2194175
+#> 2: -1.2991235 -0.8452478  -2.0680921 -0.4885356
+#> 3:  1.3031674 -0.9615715   1.1365600 -0.3417506
+#> 4: -1.1771093  1.0174911  -1.6750075 -1.6750075
+#> 5: -0.3692326 -1.4960537  -0.3570559 -0.3570559
 ```
 
 #### Example 2: Mixed-type conditioning (Gower distance)
@@ -504,11 +504,11 @@ data.table(
 )
 #>       island body_mass original_bill sampled_bill
 #>       <fctr>     <int>         <num>        <num>
-#> 1: Torgersen      3750          39.1           NA
-#> 2: Torgersen      3800          39.5         36.7
-#> 3: Torgersen      3250          40.3         37.8
-#> 4: Torgersen        NA            NA         37.8
-#> 5: Torgersen      3450          36.7         40.2
+#> 1: Torgersen      3750          39.1         37.3
+#> 2: Torgersen      3800          39.5         39.5
+#> 3: Torgersen      3250          40.3         38.8
+#> 4: Torgersen        NA            NA         44.1
+#> 5: Torgersen      3450          36.7         34.1
 ```
 
 The kNN sampler finds the k most similar observations (based on

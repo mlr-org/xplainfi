@@ -84,9 +84,11 @@ missing data problems. As \(k \to \infty\) and \(k/n \to 0\), the kNN conditiona
 distribution converges to the true conditional distribution under mild regularity
 conditions (Lipschitz continuity).</p>
 <p><strong>Distance Metrics:</strong></p>
-<p>The sampler supports two distance metrics:</p><ul><li><p><strong>Euclidean</strong>: For numeric/integer features only. Standardizes features before computing distances.</p></li>
+<p>The sampler supports two distance metrics:</p><ul><li><p><strong>Euclidean</strong>: For numeric/integer features only.
+Standardizes features before computing distances and searches neighbors with a kd-tree via <code><a href="https://rdrr.io/pkg/FNN/man/get.knn.html" class="external-link">FNN::get.knnx()</a></code>.</p></li>
 <li><p><strong>Gower</strong>: For mixed feature types. Handles numeric, factor, ordered, and logical features.
-Numeric features are range-normalized, categorical features use exact matching (0/1).</p></li>
+Numeric features are range-normalized, categorical features use exact matching (0/1).
+Neighbors are found with <code><a href="https://rdrr.io/pkg/gower/man/gower_topn.html" class="external-link">gower::gower_topn()</a></code>.</p></li>
 </ul><p>The <code>distance</code> parameter controls which metric to use:</p><ul><li><p><code>"auto"</code> (default): Automatically selects Euclidean for all-numeric features, Gower otherwise</p></li>
 <li><p><code>"euclidean"</code>: Forces Euclidean distance (errors if non-numeric features present)</p></li>
 <li><p><code>"gower"</code>: Forces Gower distance (works with any feature types)</p></li>
@@ -137,7 +139,12 @@ ISBN 9780470526798.</p>
 <h3 id="conditionalknnsampler-new-"><code>ConditionalKNNSampler$new()</code><a class="anchor" aria-label="anchor" href="#conditionalknnsampler-new-"></a></h3>
 <p>Creates a new ConditionalKNNSampler.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/ConditionalKNNSampler.html">ConditionalKNNSampler</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">task</span>, conditioning_set <span class="op">=</span> <span class="cn">NULL</span>, k <span class="op">=</span> <span class="fl">5L</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/ConditionalKNNSampler.html">ConditionalKNNSampler</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  <span class="va">task</span>,</span>
+<span>  conditioning_set <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  k <span class="op">=</span> <span class="fl">5L</span>,</span>
+<span>  distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"euclidean"</span>, <span class="st">"gower"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>task</code></dt>
@@ -148,6 +155,10 @@ ISBN 9780470526798.</p>
 
       <dt><code>k</code></dt>
 <dd><p>(<code>integer(1)</code>: <code>5L</code>) Number of nearest neighbors to sample from.</p></dd>
+
+      <dt><code>distance</code></dt>
+<dd><p>(<code>character(1)</code>: <code>"auto"</code>) Distance metric, one of <code>"auto"</code>, <code>"euclidean"</code>, or <code>"gower"</code>.
+See the Distance Metrics section.</p></dd>
 
 
 </dl><p></p></div>

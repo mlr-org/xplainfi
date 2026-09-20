@@ -557,13 +557,13 @@ categorical (factor, ordered, logical)</li>
 <span>    original_x1 <span class="op">=</span> <span class="va">original_numeric</span><span class="op">$</span><span class="va">x1</span>,</span>
 <span>    sampled_x1 <span class="op">=</span> <span class="va">sampled_numeric</span><span class="op">$</span><span class="va">x1</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt;            x2         x3 original_x1  sampled_x1</span></span>
-<span><span class="co">#&gt;         &lt;num&gt;      &lt;num&gt;       &lt;num&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: -0.5272128  1.7361110  -1.0506838 -0.04454979</span></span>
-<span><span class="co">#&gt; 2: -1.2991235 -0.8452478  -2.0680921 -1.85485761</span></span>
-<span><span class="co">#&gt; 3:  1.3031674 -0.9615715   1.1365600  1.54017968</span></span>
-<span><span class="co">#&gt; 4: -1.1771093  1.0174911  -1.6750075 -1.67500747</span></span>
-<span><span class="co">#&gt; 5: -0.3692326 -1.4960537  -0.3570559 -0.35705594</span></span></code></pre></div>
+<span><span class="co">#&gt;            x2         x3 original_x1 sampled_x1</span></span>
+<span><span class="co">#&gt;         &lt;num&gt;      &lt;num&gt;       &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: -0.5272128  1.7361110  -1.0506838 -0.2194175</span></span>
+<span><span class="co">#&gt; 2: -1.2991235 -0.8452478  -2.0680921 -0.4885356</span></span>
+<span><span class="co">#&gt; 3:  1.3031674 -0.9615715   1.1365600 -0.3417506</span></span>
+<span><span class="co">#&gt; 4: -1.1771093  1.0174911  -1.6750075 -1.6750075</span></span>
+<span><span class="co">#&gt; 5: -0.3692326 -1.4960537  -0.3570559 -0.3570559</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="example-2-mixed-type-conditioning-gower-distance">Example 2: Mixed-type conditioning (Gower distance)<a class="anchor" aria-label="anchor" href="#example-2-mixed-type-conditioning-gower-distance"></a>
@@ -588,11 +588,11 @@ categorical (factor, ordered, logical)</li>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;       island body_mass original_bill sampled_bill</span></span>
 <span><span class="co">#&gt;       &lt;fctr&gt;     &lt;int&gt;         &lt;num&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: Torgersen      3750          39.1           NA</span></span>
-<span><span class="co">#&gt; 2: Torgersen      3800          39.5         36.7</span></span>
-<span><span class="co">#&gt; 3: Torgersen      3250          40.3         37.8</span></span>
-<span><span class="co">#&gt; 4: Torgersen        NA            NA         37.8</span></span>
-<span><span class="co">#&gt; 5: Torgersen      3450          36.7         40.2</span></span></code></pre></div>
+<span><span class="co">#&gt; 1: Torgersen      3750          39.1         37.3</span></span>
+<span><span class="co">#&gt; 2: Torgersen      3800          39.5         39.5</span></span>
+<span><span class="co">#&gt; 3: Torgersen      3250          40.3         38.8</span></span>
+<span><span class="co">#&gt; 4: Torgersen        NA            NA         44.1</span></span>
+<span><span class="co">#&gt; 5: Torgersen      3450          36.7         34.1</span></span></code></pre></div>
 <p>The kNN sampler finds the k most similar observations (based on
 conditioning features) and samples from their feature values. The
 distance metric is chosen automatically based on feature types.</p>
