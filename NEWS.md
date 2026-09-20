@@ -2,6 +2,7 @@
 
 ## New features
 
+- `ConditionalKNNSampler` gains a `distance` argument (`"auto"`, `"euclidean"`, `"gower"`) to force a distance metric instead of selecting one from the conditioning feature types. It was documented but not implemented.
 - `MarginalSAGE` and `ConditionalSAGE` gain an `estimator` argument selecting the Shapley-value estimator (#70).
   - `"permutation"` (the default) is the previous behavior, controlled by `n_permutations`.
   - `"kernel"` (`MarginalSAGE` only) is the regression-based estimator of Covert & Lee (2021) as implemented by the Python `sage` package: unbiased KernelSHAP with paired coalition sampling on the stochastic SAGE game, i.e. every coalition draw is evaluated on a single test observation via the measure's observation-wise loss. It is controlled by the new `n_coalitions` budget argument (default `2048L`) and requires a measure with the `"obs_loss"` property. Its standard errors follow the closed-form covariance of Covert & Lee (2021, Eqs. 10-13), and `early_stopping` / `se_threshold` apply to it like to the permutation estimator.
@@ -15,6 +16,7 @@
 
 ## Behavior changes
 
+- `ConditionalKNNSampler` finds neighbors with `FNN::get.knnx()` (kd-tree, numeric conditioning sets) or `gower::gower_topn()` (mixed types) instead of a per-row R distance loop, which is several times faster and needs constant memory in the number of training rows. `FNN` is a new Suggests dependency. Exactly `k` neighbors are used; ties at the k-th distance are no longer expanded, and sampled values differ from previous versions for the same seed.
 - `SAGE` methods: `se_threshold` now defaults to `0.025` (was `0.01`), matching the convergence criterion of the Python `sage` package, and `early_stopping` defaults to `FALSE` in the base class as it already did in `MarginalSAGE` and `ConditionalSAGE`. `min_permutations` consistently defaults to `10L` (the parameter set and `$compute()` fallback previously used `3L`).
 - `SAGE` methods: with `early_stopping = TRUE`, exhausting `n_permutations` without meeting the criterion now warns instead of passing silently.
 - `SAGE$budget` is a new read-only accessor reporting the estimator, its budget unit, the requested and actually used effort, the resulting number of coalition evaluations (`n_evals`), and whether the run converged.

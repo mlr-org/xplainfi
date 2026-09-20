@@ -23,9 +23,11 @@
 #' **Distance Metrics:**
 #'
 #' The sampler supports two distance metrics:
-#' - **Euclidean**: For numeric/integer features only. Standardizes features before computing distances.
+#' - **Euclidean**: For numeric/integer features only.
+#'   Standardizes features before computing distances and searches neighbors with a kd-tree via `FNN::get.knnx()`.
 #' - **Gower**: For mixed feature types. Handles numeric, factor, ordered, and logical features.
 #'   Numeric features are range-normalized, categorical features use exact matching (0/1).
+#'   Neighbors are found with `gower::gower_topn()`.
 #'
 #' The `distance` parameter controls which metric to use:
 #' - `"auto"` (default): Automatically selects Euclidean for all-numeric features, Gower otherwise
@@ -72,15 +74,20 @@ ConditionalKNNSampler = R6Class(
     #' @param task ([mlr3::Task]) Task to sample from.
     #' @param conditioning_set (`character` | `NULL`) Default conditioning set to use in `$sample()`.
     #' @param k (`integer(1)`: `5L`) Number of nearest neighbors to sample from.
-    initialize = function(task, conditioning_set = NULL, k = 5L) {
+    #' @param distance (`character(1)`: `"auto"`) Distance metric, one of `"auto"`, `"euclidean"`, or `"gower"`.
+    #'   See the Distance Metrics section.
+    initialize = function(task, conditioning_set = NULL, k = 5L, distance = c("auto", "euclidean", "gower")) {
       super$initialize(task, conditioning_set = conditioning_set)
+      distance = match.arg(distance)
 
-      # Extend param_set with k parameter
       self$param_set = c(
         self$param_set,
-        paradox::ps(k = paradox::p_int(lower = 1L, default = 5L))
+        paradox::ps(
+          k = paradox::p_int(lower = 1L, default = 5L),
+          distance = paradox::p_fct(levels = c("auto", "euclidean", "gower"), default = "auto")
+        )
       )
-      self$param_set$set_values(k = k)
+      self$param_set$set_values(k = k, distance = distance)
 
       self$label = "k-Nearest Neighbors Conditional Sampler"
     },
@@ -157,50 +164,49 @@ ConditionalKNNSampler = R6Class(
       }
 
       cond_types = self$task$feature_types[id %in% conditioning_set, type]
-      use_gower = !all(cond_types %in% c("numeric", "integer"))
-      if (use_gower) {
-        require_package("gower")
+      all_numeric = all(cond_types %in% c("numeric", "integer"))
+      distance = self$param_set$values$distance
+      if (distance == "euclidean" && !all_numeric) {
+        cli::cli_abort(c(
+          x = "Euclidean distance requires numeric conditioning features.",
+          i = "Non-numeric: {.val {conditioning_set[!cond_types %in% c('numeric', 'integer')]}}.",
+          i = "Use {.code distance = \"gower\"} or {.code \"auto\"}."
+        ))
       }
+      use_gower = distance == "gower" || (distance == "auto" && !all_numeric)
 
       query_cond_dt = data[, .SD, .SDcols = conditioning_set]
       train_cond_dt = training_data[, .SD, .SDcols = conditioning_set]
 
-      if (!use_gower) {
-        query_cond = as.matrix(query_cond_dt)
-        train_cond = as.matrix(train_cond_dt)
-        numeric_cols = sapply(conditioning_set, function(col) is.numeric(training_data[[col]]))
-        if (any(numeric_cols)) {
-          means = colMeans(train_cond[, numeric_cols, drop = FALSE])
-          sds = apply(train_cond[, numeric_cols, drop = FALSE], 2, stats::sd)
-          sds[sds == 0] = 1
-          query_cond[, numeric_cols] = scale(
-            query_cond[, numeric_cols, drop = FALSE],
-            center = means,
-            scale = sds
-          )
-          train_cond[, numeric_cols] = scale(
-            train_cond[, numeric_cols, drop = FALSE],
-            center = means,
-            scale = sds
-          )
-        }
-      }
-
       n = nrow(data)
-      # sampled_idx[d, i] = training row chosen for draw d, evidence row i
-      sampled_idx = matrix(NA_integer_, nrow = samples_per_row, ncol = n)
+      k_actual = min(k, nrow(training_data))
 
-      for (i in seq_len(n)) {
-        if (use_gower) {
-          dists = gower::gower_dist(query_cond_dt[i, ], train_cond_dt)
-        } else {
-          qp = query_cond[i, , drop = FALSE]
-          dists = sqrt(rowSums((sweep(train_cond, 2, qp))^2))
-        }
-        k_actual = min(k, length(dists))
-        neighbors = which(dists <= sort(dists, partial = k_actual)[k_actual])
-        sampled_idx[, i] = sample(neighbors, samples_per_row, replace = TRUE)
+      # neighbors[, i] = the k training rows nearest to evidence row i. Both backends search
+      # in C; exactly k are returned, ties at the k-th distance are not expanded.
+      neighbors = if (use_gower) {
+        require_package("gower")
+        gower::gower_topn(query_cond_dt, train_cond_dt, n = k_actual)$index
+      } else {
+        require_package("FNN")
+        train_cond = as.matrix(train_cond_dt)
+        query_cond = as.matrix(query_cond_dt)
+        # Standardize with training moments so no feature dominates the Euclidean distance
+        means = colMeans(train_cond)
+        sds = apply(train_cond, 2, stats::sd)
+        sds[sds == 0] = 1
+        train_cond = scale(train_cond, center = means, scale = sds)
+        query_cond = scale(query_cond, center = means, scale = sds)
+        t(FNN::get.knnx(train_cond, query_cond, k = k_actual)$nn.index)
       }
+
+      # sampled_idx[d, i] = training row chosen for draw d, evidence row i
+      sampled_idx = matrix(
+        neighbors[cbind(
+          sample.int(k_actual, n * samples_per_row, replace = TRUE),
+          rep(seq_len(n), each = samples_per_row)
+        )],
+        nrow = samples_per_row
+      )
 
       # Draw-major flatten: rows of `t(sampled_idx)` are draws, so as.vector(t(...))
       # gives [draw 1 across all n rows, draw 2 across all n rows, ...].

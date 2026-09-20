@@ -21,6 +21,7 @@ test_that("ConditionalKNNSampler works with default k", {
 })
 
 test_that("ConditionalKNNSampler sampling works", {
+  skip_if_not_installed("FNN")
   task = tgen("friedman1")$generate(n = 100)
   sampler = ConditionalKNNSampler$new(task, k = 5L)
 
@@ -45,6 +46,7 @@ test_that("ConditionalKNNSampler sampling works", {
 })
 
 test_that("ConditionalKNNSampler sample_newdata works", {
+  skip_if_not_installed("FNN")
   task = tgen("friedman1")$generate(n = 100)
   sampler = ConditionalKNNSampler$new(task, k = 5L)
   test_data = task$data(rows = 1:10)
@@ -61,6 +63,7 @@ test_that("ConditionalKNNSampler sample_newdata works", {
 })
 
 test_that("ConditionalKNNSampler handles different k values", {
+  skip_if_not_installed("FNN")
   task = tgen("friedman1")$generate(n = 100)
   test_data = task$data(rows = 1:10)
 
@@ -89,6 +92,7 @@ test_that("ConditionalKNNSampler handles different k values", {
 })
 
 test_that("ConditionalKNNSampler handles k > n_train", {
+  skip_if_not_installed("FNN")
   task = tgen("friedman1")$generate(n = 50)
   sampler = ConditionalKNNSampler$new(task, k = 100L)
   test_data = task$data(rows = 1:5)
@@ -104,6 +108,7 @@ test_that("ConditionalKNNSampler handles k > n_train", {
 })
 
 test_that("ConditionalKNNSampler is reproducible with seed", {
+  skip_if_not_installed("FNN")
   task = tgen("friedman1")$generate(n = 100)
   sampler = ConditionalKNNSampler$new(task, k = 5L)
   test_data = task$data(rows = 1:10)
@@ -128,11 +133,13 @@ test_that("ConditionalKNNSampler is reproducible with seed", {
 })
 
 test_that("ConditionalKNNSampler conditioning_set parameter behavior", {
+  skip_if_not_installed("FNN")
   task = tgen("friedman1")$generate(n = 100)
   test_conditioning_set_behavior(ConditionalKNNSampler, task, k = 5L)
 })
 
 test_that("ConditionalKNNSampler preserves feature types", {
+  skip_if_not_installed("FNN")
   skip_if_not_installed("gower")
   test_sampler_feature_types(ConditionalKNNSampler, k = 5L)
 })
@@ -178,6 +185,7 @@ test_that("ConditionalKNNSampler works with mixed numeric and categorical condit
 })
 
 test_that("ConditionalKNNSampler obeys draw-major order under samples_per_row > 1", {
+  skip_if_not_installed("FNN")
   set.seed(123L)
   n = 20L
   dt = data.table::data.table(
@@ -244,4 +252,27 @@ test_that("ConditionalKNNSampler marginal-fallback branch obeys draw-major order
     tag_column = "tag",
     samples_per_row = 4L
   )
+})
+
+test_that("ConditionalKNNSampler distance parameter", {
+  skip_if_not_installed("gower")
+  skip_if_not_installed("FNN")
+  task = tgen("friedman1")$generate(n = 60)
+  expect_equal(ConditionalKNNSampler$new(task)$param_set$values$distance, "auto")
+
+  set.seed(4181L)
+  forced_gower = ConditionalKNNSampler$new(task, k = 3L, distance = "gower")
+  sampled = forced_gower$sample("important1", conditioning_set = c("important2", "important3"))
+  checkmate::expect_data_table(sampled, nrows = task$nrow)
+  checkmate::expect_subset(sampled$important1, task$data()$important1)
+
+  mixed = tsk("penguins")
+  expect_error(
+    ConditionalKNNSampler$new(mixed, distance = "euclidean")$sample(
+      "bill_length",
+      conditioning_set = c("island", "body_mass")
+    ),
+    "numeric conditioning"
+  )
+  expect_error(ConditionalKNNSampler$new(task, distance = "manhattan"), "should be one of")
 })
