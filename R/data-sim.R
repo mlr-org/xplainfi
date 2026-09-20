@@ -55,8 +55,20 @@ sim_dgp_ewald = function(n = 500) {
 #' strengths and weaknesses of different feature importance methods like PFI, CFI, and RFI.
 #' Each DGP focuses on one primary challenge to make the differences between methods clear.
 #'
+#' The `_nonlinear` variants change only the link functions of a base DGP and keep everything else
+#' (features, roles, noise) identical, so each base/variant pair differs in exactly one respect.
+#' They exist where nonlinearity is methodologically interesting on its own, not for completeness:
+#' the interaction case is already covered by [mlr3::mlr_task_generators_friedman1],
+#' and the confounded and mediated scenarios gain nothing from a nonlinear link.
+#'
 #' @references `r print_bib("ewald_2024")`
 NULL
+
+# Shared by the _nonlinear variants so the two cannot drift apart: the value of having
+# both is that they differ only in feature correlation, not in the outcome model.
+sine_effect = function(x) {
+  2 * sin(2 * x)
+}
 
 #' @describeIn sim_dgp_scenarios Correlated features demonstrating PFI's limitations
 #'
@@ -119,6 +131,54 @@ sim_dgp_correlated = function(n = 500L, r = 0.9) {
     x4 = x4
   ) |>
     mlr3::TaskRegr$new(target = "y", id = paste0("correlated_", n))
+}
+
+#' @describeIn sim_dgp_scenarios Correlated features with a non-monotone causal effect
+#'
+#' @details
+#' **Correlated Nonlinear DGP:**
+#' Identical to the correlated DGP except that the causal effect of `x1` is a sine.
+#' The spurious feature `x2` now proxies a *non-monotone* effect, and a linear learner
+#' recovers little of the signal from either.
+#'
+#' **Mathematical Model:**
+#' \deqn{(X_1, X_2)^T \sim \text{MVN}(0, \Sigma), \quad X_3 \sim N(0,1), \quad X_4 \sim N(0,1)}
+#' \deqn{Y = 2 \cdot \sin(2 X_1) + X_3 + \varepsilon}
+#' where \eqn{\Sigma} has correlation \eqn{r} off the diagonal and \eqn{\varepsilon \sim N(0, 0.2^2)}.
+#'
+#' **Feature Properties:**
+#' - `x1`: Non-monotone causal effect, correlated with `x2`
+#' - `x2`: Correlated with `x1` (correlation = `r`), NO causal effect on y
+#' - `x3`: Independent, linear causal effect (\eqn{\beta = 1.0}), kept as a within-DGP reference
+#' - `x4`: Independent, no effect on y
+#'
+#' **Expected Behavior:**
+#' - As for the correlated DGP, but the size of the spurious `x2` importance now depends on how well the
+#'   learner captures the sine, so it separates learner flexibility from the marginal-vs-conditional question
+#' - A linear learner assigns low importance to `x1` and `x2` alike
+#'
+#' @export
+#' @family simulation
+#' @examples
+#' task = sim_dgp_correlated_nonlinear(200)
+#' task$data()
+sim_dgp_correlated_nonlinear = function(n = 500L, r = 0.9) {
+  x12 = mvtnorm::rmvnorm(n, sigma = stats::toeplitz(r^(0:1)))
+  x1 = x12[, 1]
+  x2 = x12[, 2]
+  x3 = rnorm(n)
+  x4 = rnorm(n)
+
+  y = sine_effect(x1) + x3 + rnorm(n, 0, 0.2)
+
+  data.table::data.table(
+    y = y,
+    x1 = x1,
+    x2 = x2,
+    x3 = x3,
+    x4 = x4
+  ) |>
+    mlr3::TaskRegr$new(target = "y", id = paste0("correlated_nonlinear_", n))
 }
 
 #' @describeIn sim_dgp_scenarios Mediated effects showing direct vs total importance
@@ -349,4 +409,52 @@ sim_dgp_independent = function(n = 500L) {
     unimportant2 = unimportant2
   ) |>
     mlr3::TaskRegr$new(target = "y", id = paste0("independent_", n))
+}
+
+#' @describeIn sim_dgp_scenarios Independent features with nonlinear additive effects
+#'
+#' @details
+#' **Independent Nonlinear DGP:**
+#' Identical to the independent DGP except that two of the three causal effects are nonlinear.
+#' The effects stay additive, so this isolates nonlinearity from interactions
+#' (for which see [mlr3::mlr_task_generators_friedman1]).
+#'
+#' **Mathematical Model:**
+#' \deqn{Y = 2 \cdot \sin(2 X_1) + X_2^2 + 0.5 \cdot X_3 + \varepsilon}
+#' where \eqn{X_j \sim N(0,1)} independently and \eqn{\varepsilon \sim N(0, 0.2^2)}.
+#'
+#' **Feature Properties:**
+#' - `important1`: Non-monotone (sine) effect
+#' - `important2`: Symmetric (quadratic) effect, so its linear correlation with y is zero
+#' - `important3`: Linear effect (\eqn{\beta = 0.5}), kept as a within-DGP reference
+#' - `unimportant1-2`: Independent noise features with no effect
+#'
+#' **Expected Behavior:**
+#' - **Flexible learners** (e.g. random forests): Rank important1 and important2 above important3
+#' - **Linear learners**: Assign important2 essentially zero importance, since a symmetric effect has no
+#'   linear signal; the importance ranking then depends on the learner rather than on the DGP
+#'
+#' @export
+#' @family simulation
+#' @examples
+#' task = sim_dgp_independent_nonlinear(200)
+#' task$data()
+sim_dgp_independent_nonlinear = function(n = 500L) {
+  important1 = rnorm(n)
+  important2 = rnorm(n)
+  important3 = rnorm(n)
+  unimportant1 = rnorm(n)
+  unimportant2 = rnorm(n)
+
+  y = sine_effect(important1) + important2^2 + 0.5 * important3 + rnorm(n, 0, 0.2)
+
+  data.table::data.table(
+    y = y,
+    important1 = important1,
+    important2 = important2,
+    important3 = important3,
+    unimportant1 = unimportant1,
+    unimportant2 = unimportant2
+  ) |>
+    mlr3::TaskRegr$new(target = "y", id = paste0("independent_nonlinear_", n))
 }
