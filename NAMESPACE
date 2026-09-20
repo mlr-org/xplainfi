@@ -25,8 +25,10 @@ export(check_groups)
 export(rsmp_all_test)
 export(sim_dgp_confounded)
 export(sim_dgp_correlated)
+export(sim_dgp_correlated_nonlinear)
 export(sim_dgp_ewald)
 export(sim_dgp_independent)
+export(sim_dgp_independent_nonlinear)
 export(sim_dgp_interactions)
 export(sim_dgp_mediated)
 export(weights_arf)
@@ -37,24 +39,32 @@ import(data.table)
 importFrom(R6,R6Class)
 importFrom(checkmate,"%??%")
 importFrom(cli,cli)
-importFrom(mlr3,PredictionClassif)
-importFrom(mlr3,PredictionRegr)
-importFrom(mlr3,as_resample_result)
-importFrom(mlr3,assert_task)
-importFrom(mlr3,resample)
-importFrom(mlr3,rsmp)
-importFrom(mlr3fselect,fs)
-importFrom(mlr3fselect,fselect)
+importFrom(mlr3,
+  PredictionClassif,
+  PredictionRegr,
+  as_resample_result,
+  assert_task,
+  resample,
+  rsmp
+)
+importFrom(mlr3fselect,
+  fs,
+  fselect
+)
 importFrom(mvtnorm,rmvnorm)
 importFrom(paradox,ps)
-importFrom(stats,binom.test)
-importFrom(stats,qt)
-importFrom(stats,quantile)
-importFrom(stats,rnorm)
-importFrom(stats,runif)
-importFrom(stats,sd)
-importFrom(stats,var)
+importFrom(stats,
+  binom.test,
+  qt,
+  quantile,
+  rnorm,
+  runif,
+  sd,
+  var
+)
 importFrom(tools,toRd)
-importFrom(utils,bibentry)
-importFrom(utils,packageVersion)
-importFrom(utils,person)
+importFrom(utils,
+  bibentry,
+  packageVersion,
+  person
+)

@@ -3,13 +3,17 @@
 \name{sim_dgp_scenarios}
 \alias{sim_dgp_scenarios}
 \alias{sim_dgp_correlated}
+\alias{sim_dgp_correlated_nonlinear}
 \alias{sim_dgp_mediated}
 \alias{sim_dgp_confounded}
 \alias{sim_dgp_interactions}
 \alias{sim_dgp_independent}
+\alias{sim_dgp_independent_nonlinear}
 \title{Simulation DGPs for Feature Importance Method Comparison}
 \usage{
 sim_dgp_correlated(n = 500L, r = 0.9)
+
+sim_dgp_correlated_nonlinear(n = 500L, r = 0.9)
 
 sim_dgp_mediated(n = 500L)
 
@@ -18,6 +22,8 @@ sim_dgp_confounded(n = 500L, hidden = TRUE)
 sim_dgp_interactions(n = 500L)
 
 sim_dgp_independent(n = 500L)
+
+sim_dgp_independent_nonlinear(n = 500L)
 }
 \arguments{
 \item{n}{(\code{integer(1)}: \code{500L}) Number of observations to generate.}
@@ -35,6 +41,12 @@ A regression task (\link[mlr3:TaskRegr]{mlr3::TaskRegr}) with \link[data.table:d
 These data generating processes (DGPs) are designed to illustrate specific
 strengths and weaknesses of different feature importance methods like PFI, CFI, and RFI.
 Each DGP focuses on one primary challenge to make the differences between methods clear.
+
+The \verb{_nonlinear} variants change only the link functions of a base DGP and keep everything else
+(features, roles, noise) identical, so each base/variant pair differs in exactly one respect.
+They exist where nonlinearity is methodologically interesting on its own, not for completeness:
+the interaction case is already covered by \link[mlr3:mlr_task_generators_friedman1]{mlr3::mlr_task_generators_friedman1},
+and the confounded and mediated scenarios gain nothing from a nonlinear link.
 }
 \details{
 \strong{Correlated Features DGP:}
@@ -63,6 +75,31 @@ where \eqn{\varepsilon \sim N(0, 0.2^2)}.
 \item \strong{Marginal methods} (PFI, Marginal SAGE): Should falsely assign importance to x2 due to correlation with x1
 \item \strong{CFI} Should correctly assign near-zero importance to x2
 \item x2 is a "spurious predictor" - correlated with causal feature but not causal itself
+}
+
+\strong{Correlated Nonlinear DGP:}
+Identical to the correlated DGP except that the causal effect of \code{x1} is a sine.
+The spurious feature \code{x2} now proxies a \emph{non-monotone} effect, and a linear learner
+recovers little of the signal from either.
+
+\strong{Mathematical Model:}
+\deqn{(X_1, X_2)^T \sim \text{MVN}(0, \Sigma), \quad X_3 \sim N(0,1), \quad X_4 \sim N(0,1)}
+\deqn{Y = 2 \cdot \sin(2 X_1) + X_3 + \varepsilon}
+where \eqn{\Sigma} has correlation \eqn{r} off the diagonal and \eqn{\varepsilon \sim N(0, 0.2^2)}.
+
+\strong{Feature Properties:}
+\itemize{
+\item \code{x1}: Non-monotone causal effect, correlated with \code{x2}
+\item \code{x2}: Correlated with \code{x1} (correlation = \code{r}), NO causal effect on y
+\item \code{x3}: Independent, linear causal effect (\eqn{\beta = 1.0}), kept as a within-DGP reference
+\item \code{x4}: Independent, no effect on y
+}
+
+\strong{Expected Behavior:}
+\itemize{
+\item As for the correlated DGP, but the size of the spurious \code{x2} importance now depends on how well the
+learner captures the sine, so it separates learner flexibility from the marginal-vs-conditional question
+\item A linear learner assigns low importance to \code{x1} and \code{x2} alike
 }
 
 \strong{Mediated Effects DGP:}
@@ -150,10 +187,36 @@ where \eqn{X_j \sim N(0,1)} independently and \eqn{\varepsilon \sim N(0, 0.2^2)}
 \item \strong{All methods}: Should rank features consistently by their true effect sizes
 \item \strong{Ground truth}: important1 > important2 > important3 > unimportant1,2 (approximately 0)
 }
+
+\strong{Independent Nonlinear DGP:}
+Identical to the independent DGP except that two of the three causal effects are nonlinear.
+The effects stay additive, so this isolates nonlinearity from interactions
+(for which see \link[mlr3:mlr_task_generators_friedman1]{mlr3::mlr_task_generators_friedman1}).
+
+\strong{Mathematical Model:}
+\deqn{Y = 2 \cdot \sin(2 X_1) + X_2^2 + 0.5 \cdot X_3 + \varepsilon}
+where \eqn{X_j \sim N(0,1)} independently and \eqn{\varepsilon \sim N(0, 0.2^2)}.
+
+\strong{Feature Properties:}
+\itemize{
+\item \code{important1}: Non-monotone (sine) effect
+\item \code{important2}: Symmetric (quadratic) effect, so its linear correlation with y is zero
+\item \code{important3}: Linear effect (\eqn{\beta = 0.5}), kept as a within-DGP reference
+\item \code{unimportant1-2}: Independent noise features with no effect
+}
+
+\strong{Expected Behavior:}
+\itemize{
+\item \strong{Flexible learners} (e.g. random forests): Rank important1 and important2 above important3
+\item \strong{Linear learners}: Assign important2 essentially zero importance, since a symmetric effect has no
+linear signal; the importance ranking then depends on the learner rather than on the DGP
+}
 }
 \section{Functions}{
 \itemize{
 \item \code{sim_dgp_correlated()}: Correlated features demonstrating PFI's limitations
+
+\item \code{sim_dgp_correlated_nonlinear()}: Correlated features with a non-monotone causal effect
 
 \item \code{sim_dgp_mediated()}: Mediated effects showing direct vs total importance
 
@@ -163,6 +226,8 @@ where \eqn{X_j \sim N(0,1)} independently and \eqn{\varepsilon \sim N(0, 0.2^2)}
 
 \item \code{sim_dgp_independent()}: Independent features baseline scenario
 
+\item \code{sim_dgp_independent_nonlinear()}: Independent features with nonlinear additive effects
+
 }}
 \examples{
 task = sim_dgp_correlated(200)
@@ -171,6 +236,8 @@ task$data()
 # With different correlation
 task_high_cor = sim_dgp_correlated(200, r = 0.95)
 cor(task_high_cor$data()$x1, task_high_cor$data()$x2)
+task = sim_dgp_correlated_nonlinear(200)
+task$data()
 task = sim_dgp_mediated(200)
 task$data()
 # Hidden confounder scenario (traditional)
@@ -183,6 +250,8 @@ task_observed$feature_names  # both confounder and proxy available
 task = sim_dgp_interactions(200)
 task$data()
 task = sim_dgp_independent(200)
+task$data()
+task = sim_dgp_independent_nonlinear(200)
 task$data()
 }
 \references{

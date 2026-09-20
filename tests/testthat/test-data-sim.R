@@ -33,6 +33,30 @@ test_that("sim_dgp_independent generates correct structure", {
   expect_lt(abs(cor(data$y, data$unimportant2)), 0.3)
 })
 
+test_that("sim_dgp_independent_nonlinear mirrors sim_dgp_independent with nonlinear effects", {
+  set.seed(9137)
+  task = sim_dgp_independent_nonlinear(n = 500)
+  data = task$data()
+
+  expect_s3_class(task, "TaskRegr")
+  expect_equal(nrow(data), 500)
+  expect_setequal(
+    task$feature_names,
+    c("important1", "important2", "important3", "unimportant1", "unimportant2")
+  )
+  expect_true(grepl("^independent_nonlinear_", task$id))
+
+  # The quadratic effect is symmetric: no linear signal, but a clear squared one
+  expect_lt(abs(cor(data$y, data$important2)), 0.15)
+  expect_gt(cor(data$y, data$important2^2), 0.4)
+
+  # The true functional form explains y; an all-linear fit does not
+  r2_true = summary(lm(y ~ sin(2 * important1) + I(important2^2) + important3, data = data))$r.squared
+  r2_linear = summary(lm(y ~ important1 + important2 + important3, data = data))$r.squared
+  expect_gt(r2_true, 0.9)
+  expect_lt(r2_linear, r2_true - 0.3)
+})
+
 test_that("sim_dgp_correlated generates correlated features", {
   task = sim_dgp_correlated(n = 200, r = 0.9)
   data = task$data()
@@ -67,6 +91,24 @@ test_that("sim_dgp_correlated generates correlated features with different stren
     expect_gt(cor_x1_x2, r - 0.1)
     expect_lt(cor_x1_x2, r + 0.1)
   }
+})
+
+test_that("sim_dgp_correlated_nonlinear mirrors sim_dgp_correlated with a sine effect", {
+  set.seed(2731)
+  task = sim_dgp_correlated_nonlinear(n = 500, r = 0.9)
+  data = task$data()
+
+  expect_s3_class(task, "TaskRegr")
+  expect_equal(nrow(data), 500)
+  expect_setequal(task$feature_names, c("x1", "x2", "x3", "x4"))
+  expect_true(grepl("^correlated_nonlinear_", task$id))
+  expect_gt(cor(data$x1, data$x2), 0.8)
+
+  # The true functional form explains y; a linear fit in x1 does not
+  r2_true = summary(lm(y ~ sin(2 * x1) + x3, data = data))$r.squared
+  r2_linear = summary(lm(y ~ x1 + x2 + x3 + x4, data = data))$r.squared
+  expect_gt(r2_true, 0.9)
+  expect_lt(r2_linear, r2_true - 0.2)
 })
 
 

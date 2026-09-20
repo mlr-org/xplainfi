@@ -32,9 +32,11 @@ conditions (Lipschitz continuity).
 
 The sampler supports two distance metrics:
 \itemize{
-\item \strong{Euclidean}: For numeric/integer features only. Standardizes features before computing distances.
+\item \strong{Euclidean}: For numeric/integer features only.
+Standardizes features before computing distances and searches neighbors with a kd-tree via \code{FNN::get.knnx()}.
 \item \strong{Gower}: For mixed feature types. Handles numeric, factor, ordered, and logical features.
 Numeric features are range-normalized, categorical features use exact matching (0/1).
+Neighbors are found with \code{gower::gower_topn()}.
 }
 
 The \code{distance} parameter controls which metric to use:
@@ -116,7 +118,12 @@ Troyanskaya O, Cantor M, Sherlock G, Brown P, Hastie T, Tibshirani R, Botstein D
   Creates a new ConditionalKNNSampler.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{ConditionalKNNSampler$new(task, conditioning_set = NULL, k = 5L)}
+    \preformatted{ConditionalKNNSampler$new(
+  task,
+  conditioning_set = NULL,
+  k = 5L,
+  distance = c("auto", "euclidean", "gower")
+)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -125,6 +132,8 @@ Troyanskaya O, Cantor M, Sherlock G, Brown P, Hastie T, Tibshirani R, Botstein D
       \item{\code{task}}{(\link[mlr3:Task]{mlr3::Task}) Task to sample from.}
       \item{\code{conditioning_set}}{(\code{character} | \code{NULL}) Default conditioning set to use in \verb{$sample()}.}
       \item{\code{k}}{(\code{integer(1)}: \code{5L}) Number of nearest neighbors to sample from.}
+      \item{\code{distance}}{(\code{character(1)}: \code{"auto"}) Distance metric, one of \code{"auto"}, \code{"euclidean"}, or \code{"gower"}.
+See the Distance Metrics section.}
     }
     \if{html}{\out{</div>}}
   }
