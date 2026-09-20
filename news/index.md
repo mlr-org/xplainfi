@@ -42,6 +42,17 @@
   number of model rows predicted, which makes the cost of the estimators
   comparable (a kernel coalition evaluation costs `n_samples` rows, a
   permutation or exact one `n_test * n_samples`).
+- [`sim_dgp_correlated_nonlinear()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
+  is a new simulation DGP: identical to
+  [`sim_dgp_correlated()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
+  except that the causal effect of `x1` is a sine, so the spurious
+  feature proxies a non-monotone effect.
+- [`sim_dgp_independent_nonlinear()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
+  is a new simulation DGP: identical to
+  [`sim_dgp_independent()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
+  except that `important1` has a sine effect and `important2` a
+  quadratic one, isolating nonlinearity from interactions (which
+  `tgen("friedman1")` covers).
 
 ### Behavior changes
 

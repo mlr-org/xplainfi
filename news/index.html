@@ -79,6 +79,10 @@
 <code>SAGE$convergence()</code> is a new method returning the Monte Carlo standard errors of the final SAGE estimates (the last checkpoint of <code>$convergence_history</code>) and the convergence ratio compared against <code>se_threshold</code>. These are convergence diagnostics for the fixed model, following Covert &amp; Lee (2021, Section 4.3), and deliberately not a <code>ci_method</code> of <code>$importance()</code>, which is reserved for inference about feature importance.</li>
 <li>
 <code>SAGE$budget</code> and <code>$convergence_history</code> gain an <code>n_rows</code> column, the number of model rows predicted, which makes the cost of the estimators comparable (a kernel coalition evaluation costs <code>n_samples</code> rows, a permutation or exact one <code>n_test * n_samples</code>).</li>
+<li>
+<code><a href="../reference/sim_dgp_scenarios.html">sim_dgp_correlated_nonlinear()</a></code> is a new simulation DGP: identical to <code><a href="../reference/sim_dgp_scenarios.html">sim_dgp_correlated()</a></code> except that the causal effect of <code>x1</code> is a sine, so the spurious feature proxies a non-monotone effect.</li>
+<li>
+<code><a href="../reference/sim_dgp_scenarios.html">sim_dgp_independent_nonlinear()</a></code> is a new simulation DGP: identical to <code><a href="../reference/sim_dgp_scenarios.html">sim_dgp_independent()</a></code> except that <code>important1</code> has a sine effect and <code>important2</code> a quadratic one, isolating nonlinearity from interactions (which <code>tgen("friedman1")</code> covers).</li>
 </ul></div>
 <div class="section level3">
 <h3 id="behavior-changes-development-version">Behavior changes<a class="anchor" aria-label="anchor" href="#behavior-changes-development-version"></a></h3>

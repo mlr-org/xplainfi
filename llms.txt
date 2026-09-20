@@ -323,10 +323,12 @@ on the fly.
 - [`sim_dgp_ewald()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_ewald.md)
   : Simulate data as in Ewald et al. (2024)
 - [`sim_dgp_correlated()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
+  [`sim_dgp_correlated_nonlinear()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
   [`sim_dgp_mediated()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
   [`sim_dgp_confounded()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
   [`sim_dgp_interactions()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
   [`sim_dgp_independent()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
+  [`sim_dgp_independent_nonlinear()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
   : Simulation DGPs for Feature Importance Method Comparison
 
 # Articles
