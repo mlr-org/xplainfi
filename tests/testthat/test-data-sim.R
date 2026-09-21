@@ -111,6 +111,56 @@ test_that("sim_dgp_correlated_nonlinear mirrors sim_dgp_correlated with a sine e
   expect_lt(r2_linear, r2_true - 0.2)
 })
 
+test_that("sim_dgp_toeplitz has AR(1) correlation and linear effects", {
+  set.seed(4817)
+  task = sim_dgp_toeplitz(n = 2000, p = 5, r = 0.5)
+  data = task$data()
+
+  expect_s3_class(task, "TaskRegr")
+  expect_equal(nrow(data), 2000)
+  expect_equal(task$feature_names, paste0("x", 1:5))
+  expect_equal(task$id, "toeplitz_n2000_p5_r0.5")
+
+  # cor(x_i, x_j) = r^|i-j|
+  cm = cor(data[, .SD, .SDcols = task$feature_names])
+  checkmate::expect_number(cm[1, 2], lower = 0.45, upper = 0.55)
+  checkmate::expect_number(cm[1, 3], lower = 0.2, upper = 0.3)
+  checkmate::expect_number(cm[1, 5], lower = 0.01, upper = 0.11)
+
+  # Recover beta = seq(0, 1, length.out = 5)
+  coefs = coef(lm(y ~ ., data = data))[-1]
+  expect_equal(unname(coefs), seq(0, 1, length.out = 5), tolerance = 0.1)
+})
+
+test_that("sim_dgp_toeplitz accepts custom beta and validates inputs", {
+  set.seed(9124)
+  task = sim_dgp_toeplitz(n = 1000, p = 3, r = 0, beta = c(1, 0, -1))
+  coefs = coef(lm(y ~ ., data = task$data()))[-1]
+  expect_equal(unname(coefs), c(1, 0, -1), tolerance = 0.1)
+
+  expect_error(sim_dgp_toeplitz(n = 100, p = 3, beta = c(1, 2)), "beta")
+  expect_error(sim_dgp_toeplitz(n = 100, p = 1), "p")
+  expect_error(sim_dgp_toeplitz(n = 100, r = 1.5), "r")
+})
+
+test_that("sim_dgp_toeplitz_nonlinear uses a symmetric step effect", {
+  set.seed(6203)
+  task = sim_dgp_toeplitz_nonlinear(n = 2000, p = 4, r = 0.5)
+  data = task$data()
+
+  expect_s3_class(task, "TaskRegr")
+  expect_equal(task$feature_names, paste0("x", 1:4))
+  expect_equal(task$id, "toeplitz_nonlinear_n2000_p4_r0.5")
+  checkmate::expect_number(cor(data$x1, data$x2), lower = 0.45, upper = 0.55)
+
+  # Step effect is symmetric, so no linear signal; the true step recovers it
+  step = function(x) ifelse(abs(x) < qnorm(0.75), 1, -1)
+  r2_linear = summary(lm(y ~ ., data = data))$r.squared
+  r2_true = summary(lm(y ~ step(x2) + step(x3) + step(x4), data = data))$r.squared
+  expect_lt(r2_linear, 0.05)
+  expect_gt(r2_true, r2_linear + 0.2)
+})
+
 
 test_that("sim_dgp_mediated generates mediation structure", {
   task = sim_dgp_mediated(n = 150)

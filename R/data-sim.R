@@ -181,6 +181,102 @@ sim_dgp_correlated_nonlinear = function(n = 500L, r = 0.9) {
     mlr3::TaskRegr$new(target = "y", id = paste0("correlated_nonlinear_", n))
 }
 
+# Shared by the toeplitz DGPs so they differ only in the outcome model.
+sim_toeplitz_x = function(n, p, r) {
+  x = mvtnorm::rmvnorm(n, sigma = stats::toeplitz(r^(0:(p - 1))))
+  colnames(x) = paste0("x", seq_len(p))
+  x
+}
+
+# cARFi's nonlinear effect: +1 inside the interquartile range of N(0, 1), -1 outside.
+# Symmetric, so a linear learner sees no signal at all.
+step_effect = function(x) {
+  ifelse(abs(x) < stats::qnorm(0.75), 1, -1)
+}
+
+sim_toeplitz_task = function(x, y, id) {
+  data.table::data.table(y = y, x) |>
+    mlr3::TaskRegr$new(target = "y", id = id)
+}
+
+#' @describeIn sim_dgp_scenarios Toeplitz-correlated features with graded linear effects
+#'
+#' @details
+#' **Toeplitz DGP:**
+#' A flexible generalization of the correlated DGP to `p` features with an AR(1) correlation
+#' structure, following the proof-of-concept simulation of the cARFi paper.
+#' Correlation decays with distance in the feature index,
+#' so how far spurious importance "leaks" from a causal feature to its neighbors becomes a function of `r`.
+#'
+#' **Mathematical Model:**
+#' \deqn{X \sim \text{MVN}(0, \Sigma), \quad \Sigma_{ij} = r^{|i - j|}}
+#' \deqn{Y = X \beta + \varepsilon}
+#' where \eqn{\varepsilon \sim N(0, 1)}.
+#'
+#' **Feature Properties:**
+#' - `x1`, ..., `xp`: Standard normal marginals, \eqn{\text{cor}(X_i, X_j) = r^{|i-j|}}
+#' - With the default `beta = seq(0, 1, length.out = p)`, `x1` is a null feature correlated `r` with
+#'   the weakest causal feature `x2`, and effects grow with the feature index
+#'
+#' **Expected Behavior:**
+#' - **Marginal methods** (PFI, marginal SAGE): Assign importance to `x1` through its correlation with `x2`
+#' - **CFI**: Should assign near-zero importance to `x1`
+#' - Importance ranking follows `beta` for both, but the gap between neighbors shrinks with `r`
+#'
+#' @param p (`integer(1)`: `4L`) Number of features.
+#' @param beta (`numeric(p)`: `seq(0, 1, length.out = p)`) Linear coefficients of the features.
+#' @export
+#' @family simulation
+#' @examples
+#' task = sim_dgp_toeplitz(200)
+#' cor(task$data(cols = task$feature_names))
+#'
+#' # More features, stronger correlation, custom effects
+#' sim_dgp_toeplitz(200, p = 6, r = 0.8, beta = c(1, 0, 1, 0, 1, 0))
+sim_dgp_toeplitz = function(n = 500L, p = 4L, r = 0.5, beta = seq(0, 1, length.out = p)) {
+  checkmate::assert_int(p, lower = 2L)
+  checkmate::assert_number(r, lower = -1, upper = 1)
+  checkmate::assert_numeric(beta, len = p, any.missing = FALSE)
+
+  x = sim_toeplitz_x(n, p, r)
+  y = as.numeric(x %*% beta + rnorm(n))
+
+  sim_toeplitz_task(x, y, id = glue::glue("toeplitz_n{n}_p{p}_r{r}"))
+}
+
+#' @describeIn sim_dgp_scenarios Toeplitz-correlated features with symmetric step effects
+#'
+#' @details
+#' **Toeplitz Nonlinear DGP:**
+#' Identical to the toeplitz DGP except that each feature enters through a symmetric step function
+#' (the nonlinear variant of the cARFi proof-of-concept simulation).
+#' The step has zero linear correlation with the feature, so a linear learner sees no signal from any feature.
+#'
+#' **Mathematical Model:**
+#' \deqn{Y = g(X) \beta + \varepsilon, \quad g(x) = \begin{cases} 1 & |x| < \Phi^{-1}(0.75) \\ -1 & \text{otherwise} \end{cases}}
+#' applied elementwise, with \eqn{X} and \eqn{\varepsilon} as in the toeplitz DGP.
+#'
+#' **Expected Behavior:**
+#' - As for the toeplitz DGP for flexible learners
+#' - A linear learner assigns near-zero importance to every feature, so this separates learner
+#'   flexibility from the marginal-vs-conditional question
+#'
+#' @export
+#' @family simulation
+#' @examples
+#' task = sim_dgp_toeplitz_nonlinear(200)
+#' task$data()
+sim_dgp_toeplitz_nonlinear = function(n = 500L, p = 4L, r = 0.5, beta = seq(0, 1, length.out = p)) {
+  checkmate::assert_int(p, lower = 2L)
+  checkmate::assert_number(r, lower = -1, upper = 1)
+  checkmate::assert_numeric(beta, len = p, any.missing = FALSE)
+
+  x = sim_toeplitz_x(n, p, r)
+  y = as.numeric(step_effect(x) %*% beta + rnorm(n))
+
+  sim_toeplitz_task(x, y, id = glue::glue("toeplitz_nonlinear_n{n}_p{p}_r{r}"))
+}
+
 #' @describeIn sim_dgp_scenarios Mediated effects showing direct vs total importance
 #'
 #' @details
