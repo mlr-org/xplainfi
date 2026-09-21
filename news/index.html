@@ -84,6 +84,8 @@
 <li>
 <code><a href="../reference/sim_dgp_scenarios.html">sim_dgp_correlated_nonlinear()</a></code> is a new simulation DGP: identical to <code><a href="../reference/sim_dgp_scenarios.html">sim_dgp_correlated()</a></code> except that the causal effect of <code>x1</code> is a sine, so the spurious feature proxies a non-monotone effect.</li>
 <li>
+<code><a href="../reference/sim_dgp_scenarios.html">sim_dgp_toeplitz()</a></code> and <code><a href="../reference/sim_dgp_scenarios.html">sim_dgp_toeplitz_nonlinear()</a></code> are new simulation DGPs generalizing <code><a href="../reference/sim_dgp_scenarios.html">sim_dgp_correlated()</a></code> to <code>p</code> features with AR(1) Toeplitz correlation <code>cor(x_i, x_j) = r^|i-j|</code> and user-supplied linear coefficients <code>beta</code>, following the proof-of-concept simulation of the cARFi paper. The nonlinear variant applies cARFi’s symmetric step effect to every feature, so a linear learner sees no signal.</li>
+<li>
 <code><a href="../reference/sim_dgp_scenarios.html">sim_dgp_independent_nonlinear()</a></code> is a new simulation DGP: identical to <code><a href="../reference/sim_dgp_scenarios.html">sim_dgp_independent()</a></code> except that <code>important1</code> has a sine effect and <code>important2</code> a quadratic one, isolating nonlinearity from interactions (which <code>tgen("friedman1")</code> covers).</li>
 </ul></div>
 <div class="section level3">

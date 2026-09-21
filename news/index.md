@@ -51,6 +51,16 @@
   [`sim_dgp_correlated()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
   except that the causal effect of `x1` is a sine, so the spurious
   feature proxies a non-monotone effect.
+- [`sim_dgp_toeplitz()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
+  and
+  [`sim_dgp_toeplitz_nonlinear()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
+  are new simulation DGPs generalizing
+  [`sim_dgp_correlated()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
+  to `p` features with AR(1) Toeplitz correlation
+  `cor(x_i, x_j) = r^|i-j|` and user-supplied linear coefficients
+  `beta`, following the proof-of-concept simulation of the cARFi paper.
+  The nonlinear variant applies cARFi’s symmetric step effect to every
+  feature, so a linear learner sees no signal.
 - [`sim_dgp_independent_nonlinear()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
   is a new simulation DGP: identical to
   [`sim_dgp_independent()`](https://mlr-org.github.io/xplainfi/reference/sim_dgp_scenarios.md)
