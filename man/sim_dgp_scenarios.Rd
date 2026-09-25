@@ -4,6 +4,8 @@
 \alias{sim_dgp_scenarios}
 \alias{sim_dgp_correlated}
 \alias{sim_dgp_correlated_nonlinear}
+\alias{sim_dgp_toeplitz}
+\alias{sim_dgp_toeplitz_nonlinear}
 \alias{sim_dgp_mediated}
 \alias{sim_dgp_confounded}
 \alias{sim_dgp_interactions}
@@ -14,6 +16,15 @@
 sim_dgp_correlated(n = 500L, r = 0.9)
 
 sim_dgp_correlated_nonlinear(n = 500L, r = 0.9)
+
+sim_dgp_toeplitz(n = 500L, p = 4L, r = 0.5, beta = seq(0, 1, length.out = p))
+
+sim_dgp_toeplitz_nonlinear(
+  n = 500L,
+  p = 4L,
+  r = 0.5,
+  beta = seq(0, 1, length.out = p)
+)
 
 sim_dgp_mediated(n = 500L)
 
@@ -29,6 +40,10 @@ sim_dgp_independent_nonlinear(n = 500L)
 \item{n}{(\code{integer(1)}: \code{500L}) Number of observations to generate.}
 
 \item{r}{(\code{numeric(1)}: \code{0.9}) Correlation between x1 and x2. Must be between -1 and 1.}
+
+\item{p}{(\code{integer(1)}: \code{4L}) Number of features.}
+
+\item{beta}{(\code{numeric(p)}: \code{seq(0, 1, length.out = p)}) Linear coefficients of the features.}
 
 \item{hidden}{(\code{logical(1)}: \code{TRUE}) Whether to hide the confounder from the returned task.
 If \code{FALSE}, the confounder is included as a feature, allowing direct adjustment.
@@ -100,6 +115,47 @@ where \eqn{\Sigma} has correlation \eqn{r} off the diagonal and \eqn{\varepsilon
 \item As for the correlated DGP, but the size of the spurious \code{x2} importance now depends on how well the
 learner captures the sine, so it separates learner flexibility from the marginal-vs-conditional question
 \item A linear learner assigns low importance to \code{x1} and \code{x2} alike
+}
+
+\strong{Toeplitz DGP:}
+A flexible generalization of the correlated DGP to \code{p} features with an AR(1) correlation
+structure, following the proof-of-concept simulation of the cARFi paper.
+Correlation decays with distance in the feature index,
+so how far spurious importance "leaks" from a causal feature to its neighbors becomes a function of \code{r}.
+
+\strong{Mathematical Model:}
+\deqn{X \sim \text{MVN}(0, \Sigma), \quad \Sigma_{ij} = r^{|i - j|}}
+\deqn{Y = X \beta + \varepsilon}
+where \eqn{\varepsilon \sim N(0, 1)}.
+
+\strong{Feature Properties:}
+\itemize{
+\item \code{x1}, ..., \code{xp}: Standard normal marginals, \eqn{\text{cor}(X_i, X_j) = r^{|i-j|}}
+\item With the default \code{beta = seq(0, 1, length.out = p)}, \code{x1} is a null feature correlated \code{r} with
+the weakest causal feature \code{x2}, and effects grow with the feature index
+}
+
+\strong{Expected Behavior:}
+\itemize{
+\item \strong{Marginal methods} (PFI, marginal SAGE): Assign importance to \code{x1} through its correlation with \code{x2}
+\item \strong{CFI}: Should assign near-zero importance to \code{x1}
+\item Importance ranking follows \code{beta} for both, but the gap between neighbors shrinks with \code{r}
+}
+
+\strong{Toeplitz Nonlinear DGP:}
+Identical to the toeplitz DGP except that each feature enters through a symmetric step function
+(the nonlinear variant of the cARFi proof-of-concept simulation).
+The step has zero linear correlation with the feature, so a linear learner sees no signal from any feature.
+
+\strong{Mathematical Model:}
+\deqn{Y = g(X) \beta + \varepsilon, \quad g(x) = \begin{cases} 1 & |x| < \Phi^{-1}(0.75) \\ -1 & \text{otherwise} \end{cases}}
+applied elementwise, with \eqn{X} and \eqn{\varepsilon} as in the toeplitz DGP.
+
+\strong{Expected Behavior:}
+\itemize{
+\item As for the toeplitz DGP for flexible learners
+\item A linear learner assigns near-zero importance to every feature, so this separates learner
+flexibility from the marginal-vs-conditional question
 }
 
 \strong{Mediated Effects DGP:}
@@ -218,6 +274,10 @@ linear signal; the importance ranking then depends on the learner rather than on
 
 \item \code{sim_dgp_correlated_nonlinear()}: Correlated features with a non-monotone causal effect
 
+\item \code{sim_dgp_toeplitz()}: Toeplitz-correlated features with graded linear effects
+
+\item \code{sim_dgp_toeplitz_nonlinear()}: Toeplitz-correlated features with symmetric step effects
+
 \item \code{sim_dgp_mediated()}: Mediated effects showing direct vs total importance
 
 \item \code{sim_dgp_confounded()}: Confounding scenario for conditional sampling
@@ -237,6 +297,13 @@ task$data()
 task_high_cor = sim_dgp_correlated(200, r = 0.95)
 cor(task_high_cor$data()$x1, task_high_cor$data()$x2)
 task = sim_dgp_correlated_nonlinear(200)
+task$data()
+task = sim_dgp_toeplitz(200)
+cor(task$data(cols = task$feature_names))
+
+# More features, stronger correlation, custom effects
+sim_dgp_toeplitz(200, p = 6, r = 0.8, beta = c(1, 0, 1, 0, 1, 0))
+task = sim_dgp_toeplitz_nonlinear(200)
 task$data()
 task = sim_dgp_mediated(200)
 task$data()

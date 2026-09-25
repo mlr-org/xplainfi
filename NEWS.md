@@ -18,6 +18,7 @@
 - `SAGE$convergence()` is a new method returning the Monte Carlo standard errors of the final SAGE estimates (the last checkpoint of `$convergence_history`) and the convergence ratio compared against `se_threshold`. These are convergence diagnostics for the fixed model, following Covert & Lee (2021, Section 4.3), and deliberately not a `ci_method` of `$importance()`, which is reserved for inference about feature importance.
 - `SAGE$budget` and `$convergence_history` gain an `n_rows` column, the number of model rows predicted, which makes the cost of the estimators comparable (a kernel coalition evaluation costs `n_samples` rows, a permutation or exact one `n_test * n_samples`).
 - `sim_dgp_correlated_nonlinear()` is a new simulation DGP: identical to `sim_dgp_correlated()` except that the causal effect of `x1` is a sine, so the spurious feature proxies a non-monotone effect.
+- `sim_dgp_toeplitz()` and `sim_dgp_toeplitz_nonlinear()` are new simulation DGPs generalizing `sim_dgp_correlated()` to `p` features with AR(1) Toeplitz correlation `cor(x_i, x_j) = r^|i-j|` and user-supplied linear coefficients `beta`, following the proof-of-concept simulation of the cARFi paper. The nonlinear variant applies cARFi's symmetric step effect to every feature, so a linear learner sees no signal.
 - `sim_dgp_independent_nonlinear()` is a new simulation DGP: identical to `sim_dgp_independent()` except that `important1` has a sine effect and `important2` a quadratic one, isolating nonlinearity from interactions (which `tgen("friedman1")` covers).
 
 ## Behavior changes
