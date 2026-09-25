@@ -222,12 +222,16 @@ PerturbationImportance = R6Class(
           ) {
             # Load required packages in parallel workers
             if (!is_sequential) {
-              library("data.table")
-              library("mlr3")
-              library("xplainfi")
-              for (pkg in learner_packages) {
-                library(pkg, character.only = TRUE)
-              }
+              # Suppressed because future relays worker conditions to the parent,
+              # so startup messages would surface on every `$compute()`.
+              suppressPackageStartupMessages({
+                library("data.table")
+                library("mlr3")
+                library("xplainfi")
+                for (pkg in learner_packages) {
+                  library(pkg, character.only = TRUE)
+                }
+              })
               # Force sequential forging inside the daemon. The outer mirai layer
               # already parallelizes across features, so letting the sampler's
               # stored `parallel` flag drive nested `arf::forge()` parallelism
