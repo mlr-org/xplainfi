@@ -305,9 +305,9 @@ rfi_conf$importance()
 #> Key: <feature>
 #>        feature importance
 #>         <char>      <num>
-#> 1: independent   1.552055
+#> 1: independent   1.544812
 #> 2:       proxy   0.000000
-#> 3:          x1   1.778557
+#> 3:          x1   1.813913
 ```
 
 #### Also trying CFI for comparison
@@ -331,9 +331,9 @@ cfi_conf$importance()
 #> Key: <feature>
 #>        feature importance
 #>         <char>      <num>
-#> 1: independent  1.5532501
-#> 2:       proxy  0.3167597
-#> 3:          x1  1.7948588
+#> 1: independent  1.5540225
+#> 2:       proxy  0.3013105
+#> 3:          x1  1.8172011
 ```
 
 #### Observable Confounder Scenario
@@ -368,12 +368,12 @@ rfi_conf_obs <- RFI$new(
 rfi_conf_obs$compute()
 rfi_conf_obs$importance()
 #> Key: <feature>
-#>        feature    importance
-#>         <char>         <num>
-#> 1:  confounder  0.0000000000
-#> 2: independent  1.4768314523
-#> 3:       proxy -0.0008442959
-#> 4:          x1  0.5703314676
+#>        feature  importance
+#>         <char>       <num>
+#> 1:  confounder  0.00000000
+#> 2: independent  1.57008110
+#> 3:       proxy -0.00931628
+#> 4:          x1  0.71805333
 
 # Compare with PFI on the same data
 pfi_conf_obs <- PFI$new(
@@ -388,14 +388,14 @@ pfi_conf_obs$importance()
 #> Key: <feature>
 #>        feature importance
 #>         <char>      <num>
-#> 1:  confounder  1.6923050
-#> 2: independent  1.4841120
-#> 3:       proxy  0.1633859
-#> 4:          x1  2.1540069
+#> 1:  confounder 1.50694601
+#> 2: independent 1.56980171
+#> 3:       proxy 0.05018959
+#> 4:          x1 2.73756516
 ```
 
-- **x1 importance**: PFI = 2.154, RFI\|confounder = 0.570
-- **independent importance**: PFI = 1.484, RFI\|confounder = 1.477
+- **x1 importance**: PFI = 2.738, RFI\|confounder = 0.718
+- **independent importance**: PFI = 1.570, RFI\|confounder = 1.570
 
 When conditioning on the true confounder, RFI should show reduced
 importance for x1 (since much of its apparent importance was due to
@@ -435,9 +435,9 @@ conf_summary |>
 
 | feature     | pfi_importance | cfi_importance | rfi_proxy_importance | pfi_rfi_diff |
 |:------------|---------------:|---------------:|---------------------:|-------------:|
-| independent |          1.533 |          1.553 |                1.552 |       -0.019 |
-| proxy       |          1.342 |          0.317 |                0.000 |        1.342 |
-| x1          |          3.842 |          1.795 |                1.779 |        2.063 |
+| independent |          1.533 |          1.554 |                1.545 |       -0.011 |
+| proxy       |          1.342 |          0.301 |                0.000 |        1.342 |
+| x1          |          3.842 |          1.817 |                1.814 |        2.028 |
 
 Effect of Conditioning on Proxy in Confounded Scenario {.table}
 
@@ -500,10 +500,10 @@ pfi_cor$importance()
 #> Key: <feature>
 #>    feature   importance
 #>     <char>        <num>
-#> 1:      x1  5.131952388
-#> 2:      x2  0.472064434
-#> 3:      x3  1.526306835
-#> 4:      x4 -0.003238865
+#> 1:      x1 4.748661e+00
+#> 2:      x2 4.838957e-01
+#> 3:      x3 1.793481e+00
+#> 4:      x4 3.902144e-05
 ```
 
 Expected: PFI will show high importance for BOTH x1 and x2, even though
@@ -532,10 +532,10 @@ cfi_cor$importance()
 #> Key: <feature>
 #>    feature   importance
 #>     <char>        <num>
-#> 1:      x1  1.936754507
-#> 2:      x2  0.056844489
-#> 3:      x3  1.486709633
-#> 4:      x4 -0.001698431
+#> 1:      x1 1.6340493638
+#> 2:      x2 0.0583530983
+#> 3:      x3 1.7448212542
+#> 4:      x4 0.0005155318
 ```
 
 Expected: CFI should show high importance for x1 (the true causal
@@ -572,8 +572,8 @@ rfi_cor_x2 <- RFI$new(
 rfi_cor_x2$compute()
 ```
 
-- **x2 given x1**: 0.055 (How much does x2 add when we already know x1?)
-- **x1 given x2**: 1.958 (How much does x1 add when we already know x2?)
+- **x2 given x1**: 0.045 (How much does x2 add when we already know x1?)
+- **x1 given x2**: 1.701 (How much does x1 add when we already know x2?)
 
 Expected: When conditioning on x1, the importance of x2 should be near
 zero (and vice versa) because they’re almost identical - knowing one
@@ -598,8 +598,8 @@ cor_ratio |>
 
 | feature |   CFI |   PFI | cfi_pfi_ratio |
 |:--------|------:|------:|--------------:|
-| x1      | 1.937 | 5.132 |         0.377 |
-| x2      | 0.057 | 0.472 |         0.120 |
+| x1      | 1.634 | 4.749 |         0.344 |
+| x2      | 0.058 | 0.484 |         0.121 |
 
 CFI vs PFI for Highly Correlated Features {.table}
 
@@ -726,11 +726,11 @@ comp_ind_wide[, .(
 
 | Feature      | Mean Importance | Coef. of Variation | Agreement Level |
 |:-------------|----------------:|-------------------:|:----------------|
-| important1   |           7.177 |              0.033 | High            |
-| important2   |           1.516 |              0.051 | High            |
-| important3   |           0.347 |              0.026 | High            |
-| unimportant1 |          -0.003 |             -0.307 | High            |
-| unimportant2 |          -0.001 |             -2.591 | High            |
+| important1   |           6.669 |              0.033 | High            |
+| important2   |           1.574 |              0.046 | High            |
+| important3   |           0.350 |              0.070 | High            |
+| unimportant1 |           0.001 |              1.520 | Low             |
+| unimportant2 |           0.002 |              1.857 | Low             |
 
 Method Agreement on Independent Features {.table}
 

@@ -110,6 +110,12 @@
 - `FeatureImportanceMethod$importance(standardize = TRUE)` no longer
   permanently modifies the stored scores of SAGE methods by reference;
   repeated calls previously compounded the standardization.
+- `PFI`, `CFI`, and `RFI` no longer report integer positions instead of
+  feature (or group) names in the `feature` column of `$scores()`,
+  `$importance()`, and `$obs_loss()` when a non-sequential
+  [`future::plan()`](https://future.futureverse.org/reference/plan.html)
+  is active. Scores and their order were unaffected, only the labels
+  were lost.
 - `SAGE` methods now negate the scores of measures that are maximized
   (`measure$minimize = FALSE`, e.g. `classif.acc`), so positive SAGE
   values mean “improves performance” for every measure; previously such
