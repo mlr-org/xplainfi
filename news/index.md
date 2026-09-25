@@ -116,6 +116,9 @@
   [`future::plan()`](https://future.futureverse.org/reference/plan.html)
   is active. Scores and their order were unaffected, only the labels
   were lost.
+- `PFI`, `CFI`, and `RFI` no longer relay package startup messages from
+  worker processes on every `$compute()` when a parallel backend is
+  active.
 - `SAGE` methods now negate the scores of measures that are maximized
   (`measure$minimize = FALSE`, e.g. `classif.acc`), so positive SAGE
   values mean “improves performance” for every measure; previously such
