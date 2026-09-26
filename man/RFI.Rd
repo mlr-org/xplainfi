@@ -37,13 +37,14 @@ In \emph{2020 25th International Conference on Pattern Recognition (ICPR)}, 9318
     \item \href{#method-RFI-clone}{\code{RFI$clone()}}
   }
 }
-\if{html}{\out{<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details><summary>Inherited methods</summary>
 <ul>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>FeatureImportanceMethod$obs_loss()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>FeatureImportanceMethod$print()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>FeatureImportanceMethod$reset()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>FeatureImportanceMethod$scores()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="PerturbationImportance" data-id="importance"><a href='../../xplainfi/html/PerturbationImportance.html#method-PerturbationImportance-importance'><code>PerturbationImportance$importance()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="PerturbationImportance" data-id="reset"><a href='../../xplainfi/html/PerturbationImportance.html#method-PerturbationImportance-reset'><code>PerturbationImportance$reset()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="PerturbationImportance" data-id="reweight"><a href='../../xplainfi/html/PerturbationImportance.html#method-PerturbationImportance-reweight'><code>PerturbationImportance$reweight()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}
@@ -64,7 +65,10 @@ In \emph{2020 25th International Conference on Pattern Recognition (ICPR)}, 9318
   relation = "difference",
   n_repeats = 30L,
   batch_size = NULL,
-  sampler = NULL
+  sampler = NULL,
+  weight_fun = NULL,
+  estimator = "sampling",
+  normalize = "global"
 )}
     \if{html}{\out{</div>}}
   }
@@ -75,6 +79,12 @@ In \emph{2020 25th International Conference on Pattern Recognition (ICPR)}, 9318
       \item{\code{conditioning_set}}{(\code{\link[=character]{character()}}) Set of features to condition on. Can be overridden in \verb{$compute()}.
 Default (\code{character(0)}) is equivalent to \code{PFI}. In \code{CFI}, this would be set to all features except that of interest.}
       \item{\code{sampler}}{(\link{ConditionalSampler}) Optional custom sampler. Defaults to \code{ConditionalARFSampler}.}
+      \item{\code{weight_fun}}{(\verb{function(data, feature)} | \code{NULL}: \code{NULL}) Passed to \link{PerturbationImportance}.
+Ignored when \code{estimator = "weighting"}.}
+      \item{\code{estimator}}{(\code{character(1)}: \code{"sampling"}) \code{"sampling"} for conditional sampling with \code{sampler},
+or \code{"weighting"} for marginal permutation with ARF-based importance sampling weights
+\eqn{p(x_j' \mid x_S) / p(x_j')} for the conditioning set \eqn{S}. See \link{CFI} and \code{\link[=weights_arf]{weights_arf()}}.}
+      \item{\code{normalize}}{(\code{character(1)}: \code{"global"}) Weight normalization, passed to \link{PerturbationImportance}.}
     }
     \if{html}{\out{</div>}}
   }

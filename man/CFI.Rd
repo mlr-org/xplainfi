@@ -9,6 +9,24 @@ Implementation of CFI using modular sampling approach
 \details{
 CFI replaces feature values with conditional samples from the distribution of
 the feature given the other features. Any \link{ConditionalSampler} or \link{KnockoffSampler} can be used.
+\subsection{Estimators}{
+\itemize{
+\item \code{estimator = "sampling"} (default): draw \eqn{x_j' \sim p(x_j \mid x_{-j})} with \code{sampler}.
+\item \code{estimator = "weighting"}: permute \eqn{x_j} marginally as in \link{PFI} and weight each perturbed observation
+by the density ratio \eqn{p(x_j' \mid x_{-j}) / p(x_j')}, estimated by the ARF in \code{sampler}
+(see \code{\link[=weights_arf]{weights_arf()}}).
+This is an importance sampling estimator of the same quantity that needs only density evaluations
+(\link[arf:lik]{arf::lik}) instead of conditional draws (\link[arf:forge]{arf::forge}).
+It uses the same perturbed data and predictions as \link{PFI}, and its runtime is comparable to \code{"sampling"}
+(\code{forge} amortizes over \code{n_repeats}, \code{lik} does not).
+Requires a \link{ConditionalARFSampler} (preferably fitted with \code{finite_bounds = "local"}, see \code{\link[=weights_arf]{weights_arf()}})
+and a measure with the \code{"weights"} property.
+The effective sample size of the weights is reported as \code{ess} in \verb{$scores()};
+small values indicate that few observations dominate and \code{"sampling"} should be preferred.
+\code{ci_method = "cpi"} is available only with \code{normalize = "per_observation"} and is not yet validated for it.
+}
+}
+
 \subsection{Statistical Inference}{
 
 Two approaches for statistical inference are primarily supported via
@@ -75,13 +93,14 @@ Blesch K, Koenen N, Kapar J, Golchian P, Burk L, Loecher M, Wright M (2025).
     \item \href{#method-CFI-clone}{\code{CFI$clone()}}
   }
 }
-\if{html}{\out{<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details><summary>Inherited methods</summary>
 <ul>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>FeatureImportanceMethod$obs_loss()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>FeatureImportanceMethod$print()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>FeatureImportanceMethod$reset()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>FeatureImportanceMethod$scores()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="PerturbationImportance" data-id="importance"><a href='../../xplainfi/html/PerturbationImportance.html#method-PerturbationImportance-importance'><code>PerturbationImportance$importance()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="PerturbationImportance" data-id="reset"><a href='../../xplainfi/html/PerturbationImportance.html#method-PerturbationImportance-reset'><code>PerturbationImportance$reset()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="PerturbationImportance" data-id="reweight"><a href='../../xplainfi/html/PerturbationImportance.html#method-PerturbationImportance-reweight'><code>PerturbationImportance$reweight()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}
@@ -101,7 +120,9 @@ Blesch K, Koenen N, Kapar J, Golchian P, Burk L, Loecher M, Wright M (2025).
   relation = "difference",
   n_repeats = 30L,
   batch_size = NULL,
-  sampler = NULL
+  sampler = NULL,
+  estimator = "sampling",
+  normalize = "global"
 )}
     \if{html}{\out{</div>}}
   }
@@ -110,6 +131,10 @@ Blesch K, Koenen N, Kapar J, Golchian P, Burk L, Loecher M, Wright M (2025).
     \describe{
       \item{\code{task, learner, measure, resampling, features, groups, relation, n_repeats, batch_size}}{Passed to \link{PerturbationImportance}.}
       \item{\code{sampler}}{(\link{ConditionalSampler}) Optional custom sampler. Defaults to instantiating \code{ConditionalARFSampler} internally with default parameters.}
+      \item{\code{estimator}}{(\code{character(1)}: \code{"sampling"}) \code{"sampling"} for conditional sampling with \code{sampler},
+or \code{"weighting"} for marginal permutation with ARF-based importance sampling weights. See Details.}
+      \item{\code{normalize}}{(\code{character(1)}: \code{"global"}) Weight normalization for \code{estimator = "weighting"},
+passed to \link{PerturbationImportance}.}
     }
     \if{html}{\out{</div>}}
   }

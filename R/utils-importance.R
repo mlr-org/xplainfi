@@ -443,6 +443,18 @@ importance_cpi = function(
       i = "Ensure {.code measure} has an {.fun $obs_loss} method."
     ))
   }
+  if (!is.null(method_obj$weight_fun)) {
+    if (method_obj$param_set$values$normalize != "per_observation") {
+      # Globally normalized weights give no per-observation quantity to pair.
+      cli::cli_abort(c(
+        x = "CPI with a {.code weight_fun} requires {.code normalize = \"per_observation\"}.",
+        i = "Use {.code $reweight(normalize = \"per_observation\")} or a method-agnostic {.code ci_method}."
+      ))
+    }
+    cli::cli_warn(c(
+      "!" = "CPI on importance-sampling-weighted per-observation losses has not been validated."
+    ))
+  }
   if (class(method_obj)[[1]] != "CFI") {
     cli::cli_warn(c(
       "!" = "CPI is only known to yield valid inference for {.cls CFI}.",
