@@ -10,12 +10,12 @@
 #' Expectation for aggregated importance score tables
 #'
 #' Validates columns:
-#' - `feature` is a character value without missings
+#' - `feature` is a character value without missings and labels exactly `features`
 #' - `importance` is numeric vector without missings or infinite values
 #' - Variance-related columns (se, estimate, conf_lower, conf_upper, statistic, p.value) may contain NA
 #'
 #' @param x (data.table()) Importance result table to validate.
-#' @param features (character()) Feature names used to test names and order of importance scores.
+#' @param features (character()) Expected labels of the `feature` column: features of interest, or group names.
 expect_importance_dt = function(x, features) {
   checkmate::expect_data_table(
     x,
@@ -26,6 +26,7 @@ expect_importance_dt = function(x, features) {
 
   # Core columns must not have missing values
   checkmate::expect_character(x$feature, any.missing = FALSE)
+  expect_setequal(x$feature, features)
   checkmate::expect_numeric(x$importance, any.missing = FALSE)
 
   # Variance-related columns may contain NA (e.g., CPI test statistics can fail for some features)
@@ -45,12 +46,12 @@ expect_importance_dt = function(x, features) {
 #' (PFI, CFI, RFI, WVIM/LOCO, SAGE) despite their different column structures.
 #'
 #' @param x (data.table()) Score result table from $scores().
-#' @param features (character()) Feature names that should appear in the table.
+#' @param features (character()) Expected labels of the `feature` column: features of interest, or group names.
 expect_scores_dt = function(x, features) {
   checkmate::expect_data_table(x, min.rows = length(features), any.missing = FALSE)
   checkmate::expect_character(x$feature, any.missing = FALSE)
   checkmate::expect_numeric(x$importance, any.missing = FALSE)
-  expect_true(all(features %in% x$feature))
+  expect_setequal(x$feature, features)
 }
 
 # -----------------------------------------------------------------------------
@@ -63,13 +64,13 @@ expect_scores_dt = function(x, features) {
 #' decomposable measures (e.g., regr.mse, classif.ce).
 #'
 #' @param x (data.table()) Observation-wise loss table from $obs_loss().
-#' @param features (character()) Feature names that should appear in the table.
+#' @param features (character()) Expected labels of the `feature` column: features of interest, or group names.
 expect_obs_loss_dt = function(x, features) {
   checkmate::expect_data_table(x, min.rows = length(features), any.missing = FALSE)
   checkmate::expect_character(x$feature, any.missing = FALSE)
   expect_true(all(c("row_ids", "loss_baseline", "loss_post", "obs_importance") %in% names(x)))
   checkmate::expect_numeric(x$obs_importance, any.missing = FALSE)
-  expect_true(all(features %in% x$feature))
+  expect_setequal(x$feature, features)
 }
 
 # -----------------------------------------------------------------------------
@@ -85,7 +86,18 @@ expect_obs_loss_dt = function(x, features) {
 #'
 #' @param method A computed FeatureImportanceMethod (must have had $compute() called)
 expect_method_output = function(method) {
-  features = method$features
+  # The `feature` column holds group names when grouped, else the features of
+  # interest, which must themselves be features of the task.
+  if (is.null(method$groups)) {
+    checkmate::expect_subset(method$features, method$task$feature_names)
+    features = method$features
+  } else {
+    checkmate::expect_subset(
+      unlist(method$groups, use.names = FALSE),
+      method$task$feature_names
+    )
+    features = names(method$groups)
+  }
 
   expect_importance_dt(method$importance(), features = features)
   expect_scores_dt(method$scores(), features = features)

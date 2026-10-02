@@ -98,7 +98,8 @@ xplainfi_map = function(n, .f, ..., .args = list()) {
         ...,
         MoreArgs = .args_future,
         SIMPLIFY = FALSE,
-        USE.NAMES = FALSE,
+        # names carry the feature/group ids used as `idcol` by the caller
+        USE.NAMES = TRUE,
         future.globals = FALSE,
         future.packages = character(0), # Packages loaded explicitly in worker
         future.seed = TRUE,

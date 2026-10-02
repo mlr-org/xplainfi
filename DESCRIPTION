@@ -44,6 +44,7 @@ Suggests:
     lgr,
     mlr3data,
     mlr3learners,
+    mlr3pipelines,
     partykit,
     patchwork,
     ranger,
