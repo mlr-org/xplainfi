@@ -13,6 +13,8 @@ Abstract base class for perturbation-based importance methods PFI, CFI, and RFI
   \if{html}{\out{<div class="r6-fields">}}
   \describe{
     \item{\code{sampler}}{(\link{FeatureSampler}) Sampler object for feature perturbation}
+
+    \item{\code{weight_fun}}{(\verb{function(data, feature)} | \code{NULL}) Observation weight function, see \code{initialize()}.}
   }
   \if{html}{\out{</div>}}
 }
@@ -21,6 +23,8 @@ Abstract base class for perturbation-based importance methods PFI, CFI, and RFI
   \itemize{
     \item \href{#method-PerturbationImportance-initialize}{\code{PerturbationImportance$new()}}
     \item \href{#method-PerturbationImportance-importance}{\code{PerturbationImportance$importance()}}
+    \item \href{#method-PerturbationImportance-reweight}{\code{PerturbationImportance$reweight()}}
+    \item \href{#method-PerturbationImportance-reset}{\code{PerturbationImportance$reset()}}
     \item \href{#method-PerturbationImportance-clone}{\code{PerturbationImportance$clone()}}
   }
 }
@@ -29,7 +33,6 @@ Abstract base class for perturbation-based importance methods PFI, CFI, and RFI
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="compute"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-compute'><code>FeatureImportanceMethod$compute()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>FeatureImportanceMethod$obs_loss()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>FeatureImportanceMethod$print()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>FeatureImportanceMethod$reset()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>FeatureImportanceMethod$scores()</code></a></span></li>
 </ul>
 </details>}}
@@ -50,7 +53,9 @@ Abstract base class for perturbation-based importance methods PFI, CFI, and RFI
   sampler = NULL,
   relation = "difference",
   n_repeats = 30L,
-  batch_size = NULL
+  batch_size = NULL,
+  weight_fun = NULL,
+  normalize = "global"
 )}
     \if{html}{\out{</div>}}
   }
@@ -62,6 +67,27 @@ Abstract base class for perturbation-based importance methods PFI, CFI, and RFI
       \item{\code{relation}}{(\code{character(1)}: \code{"difference"}) How to relate perturbed and baseline scores. Can also be \code{"ratio"}.}
       \item{\code{n_repeats}}{(\code{integer(1)}: \code{30L}) Number of permutation/conditional sampling iterations. Can also be overridden in \verb{$compute()}.}
       \item{\code{batch_size}}{(\code{integer(1)} | \code{NULL}: \code{NULL}) Maximum number of rows to predict at once. When \code{NULL}, predicts all \code{test_size * n_repeats} rows in one call. Use smaller values to reduce memory usage at the cost of more prediction calls. Can be overridden in \verb{$compute()}.}
+      \item{\code{weight_fun}}{(\verb{function(data, feature)} | \code{NULL}: \code{NULL}) Optional observation weight function.
+Called once per feature (or group) and resampling iteration with \code{data}, a \link[data.table:data.table]{data.table}
+of the perturbed feature values (all task features, \code{test_size * n_repeats} rows), and \code{feature},
+the perturbed feature(s).
+Must return a non-negative \code{numeric(nrow(data))}.
+Weights are self-normalized and passed to the measure via \link[mlr3:Prediction]{mlr3::Prediction}\verb{$weights},
+so \code{measure} must have the \code{"weights"} property.
+The baseline score stays unweighted.
+See \code{\link[=weights_arf]{weights_arf()}} for importance sampling weights that turn marginal perturbation into a \link{CFI} estimator.
+When set, \verb{$scores()} gains a column \code{ess} with the effective sample size \eqn{(\sum w)^2 / \sum w^2}
+of the weights, and \verb{$obs_loss()} a column \code{weight} (scaled to mean 1 within its normalization group).}
+      \item{\code{normalize}}{(\code{character(1)}: \code{"global"}) How weights from \code{weight_fun} are normalized.
+\code{"global"}: across observations within each repeat (self-normalized importance sampling of the mean loss).
+\code{"per_observation"}: across the \code{n_repeats} draws of each observation, so that
+\eqn{\hat\mu_i = \frac{1}{R}\sum_r \tilde w_{ir} L_{ir}} is a per-observation conditional expectation;
+this is the mode paired-test inference (\code{ci_method = "cpi"}) needs.
+It requires a measure that aggregates as the mean of observation-wise losses
+(e.g. \code{regr.mse}, \code{regr.mae}, \code{classif.ce}, \code{classif.logloss}; \code{regr.rmse} is not),
+and \code{ess} then reports the mean per-observation effective sample size, which is at most \code{n_repeats}.
+Observations whose weights all underflow to zero fall back to uniform weights, with a warning.
+Ignored when \code{weight_fun} is \code{NULL}.}
     }
     \if{html}{\out{</div>}}
   }
@@ -115,6 +141,54 @@ procedures do not have a clean per-comparison alpha for CI construction.}
   }
   \subsection{Returns}{
     (\link[data.table:data.table]{data.table}) Aggregated importance scores.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PerturbationImportance-reweight"></a>}}
+\if{latex}{\out{\hypertarget{method-PerturbationImportance-reweight}{}}}
+\subsection{\code{PerturbationImportance$reweight()}}{
+  Re-score the stored predictions with a different weight function, without perturbing or predicting again.
+The perturbed feature values from \verb{$compute()} are kept, so any weight function can be applied afterwards.
+Since \code{\link[=weights_arf]{weights_arf()}} assumes the stored perturbation is a marginal permutation,
+use this on \link{PFI} or on \link{CFI} / \link{RFI} with \code{estimator = "weighting"}; it lets one prediction pass serve
+PFI, CFI, and any RFI conditioning set:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pfi$compute()
+pfi$importance()                                  # PFI
+pfi$reweight(weights_arf(sampler))$importance()   # CFI
+pfi$reweight(weights_arf(sampler, "x2"))$importance() # RFI given x2
+pfi$reweight(NULL)$importance()                   # back to PFI
+}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PerturbationImportance$reweight(weight_fun = NULL, normalize = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{weight_fun}}{(\verb{function(data, feature)} | \code{NULL}: \code{NULL}) New weight function, see \code{initialize()}.
+\code{NULL} removes weights.}
+      \item{\code{normalize}}{(\code{character(1)} | \code{NULL}: \code{NULL}) Weight normalization, see \code{initialize()}.
+\code{NULL} keeps the stored value.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \code{invisible(self)}, with \verb{$scores()} and \verb{$obs_loss()} updated.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PerturbationImportance-reset"></a>}}
+\if{latex}{\out{\hypertarget{method-PerturbationImportance-reset}{}}}
+\subsection{\code{PerturbationImportance$reset()}}{
+  Resets all stored fields populated by \verb{$compute}, including the perturbed feature values used by \verb{$reweight()}.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PerturbationImportance$reset()}
+    \if{html}{\out{</div>}}
   }
 }
 

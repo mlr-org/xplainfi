@@ -304,7 +304,9 @@ FeatureImportanceMethod = R6Class(
     #'   For `"ratio"`, features whose baseline score is `0` yield `NA` (with a warning) and therefore aggregate to `NA`.
     #'
     #' @return ([data.table][data.table::data.table]) Observation-wise losses and importance scores with columns
-    #'   `"feature"`, `"iter_rsmp"`, `"iter_repeat"` (if applicable), `"row_ids"`, `"loss_baseline"`, `"loss_post"`, and `"obs_importance"`.
+    #'   `"feature"`, `"iter_rsmp"`, `"iter_repeat"` (if applicable), `"row_ids"`, `"loss_baseline"`, `"loss_post"`,
+    #'   `"weight"` (if a `weight_fun` was used; scaled to mean 1 within its normalization group), and `"obs_importance"`,
+    #'   which relates `loss_baseline` to `weight * loss_post` when weights are present.
     obs_loss = function(relation = NULL) {
       if (!has_obs_loss(self$measure)) {
         cli::cli_warn(c(
@@ -339,10 +341,12 @@ FeatureImportanceMethod = R6Class(
         allow.cartesian = TRUE
       ]
 
+      # Weights are scaled to mean 1 within their normalization group, so the weighted loss
+      # aggregates to the score-level importance.
       obs_loss_combined[,
         obs_importance := private$.compute_score(
           loss_baseline,
-          loss_post,
+          if ("weight" %in% names(obs_loss_combined)) weight * loss_post else loss_post,
           relation = relation
         )
       ]
@@ -356,6 +360,7 @@ FeatureImportanceMethod = R6Class(
         "row_ids",
         "loss_baseline",
         "loss_post",
+        "weight",
         "obs_importance"
       )
       names_to_keep = intersect(names_to_keep, colnames(obs_loss_combined))

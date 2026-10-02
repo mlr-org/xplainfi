@@ -58,13 +58,14 @@ Strobl C, Boulesteix A, Kneib T, Augustin T, Zeileis A (2008).
     \item \href{#method-PFI-clone}{\code{PFI$clone()}}
   }
 }
-\if{html}{\out{<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details><summary>Inherited methods</summary>
 <ul>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="obs_loss"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-obs_loss'><code>FeatureImportanceMethod$obs_loss()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="print"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-print'><code>FeatureImportanceMethod$print()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="reset"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-reset'><code>FeatureImportanceMethod$reset()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureImportanceMethod" data-id="scores"><a href='../../xplainfi/html/FeatureImportanceMethod.html#method-FeatureImportanceMethod-scores'><code>FeatureImportanceMethod$scores()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="PerturbationImportance" data-id="importance"><a href='../../xplainfi/html/PerturbationImportance.html#method-PerturbationImportance-importance'><code>PerturbationImportance$importance()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="PerturbationImportance" data-id="reset"><a href='../../xplainfi/html/PerturbationImportance.html#method-PerturbationImportance-reset'><code>PerturbationImportance$reset()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="PerturbationImportance" data-id="reweight"><a href='../../xplainfi/html/PerturbationImportance.html#method-PerturbationImportance-reweight'><code>PerturbationImportance$reweight()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}
@@ -83,14 +84,16 @@ Strobl C, Boulesteix A, Kneib T, Augustin T, Zeileis A (2008).
   groups = NULL,
   relation = "difference",
   n_repeats = 30L,
-  batch_size = NULL
+  batch_size = NULL,
+  weight_fun = NULL,
+  normalize = "global"
 )}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{task, learner, measure, resampling, features, groups, relation, n_repeats, batch_size}}{Passed to \link{PerturbationImportance}}
+      \item{\code{task, learner, measure, resampling, features, groups, relation, n_repeats, batch_size, weight_fun, normalize}}{Passed to \link{PerturbationImportance}}
     }
     \if{html}{\out{</div>}}
   }
