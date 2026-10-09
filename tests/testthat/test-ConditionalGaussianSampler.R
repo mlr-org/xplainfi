@@ -128,3 +128,8 @@ test_that("ConditionalGaussianSampler obeys draw-major order under samples_per_r
     samples_per_row = 4L
   )
 })
+
+test_that("ConditionalGaussianSampler sample_masked conditions each row on its own mask", {
+  set.seed(5521)
+  expect_sample_masked(ConditionalGaussianSampler)
+})

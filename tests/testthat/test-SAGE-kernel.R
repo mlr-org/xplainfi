@@ -149,6 +149,60 @@ test_that("kernel estimator converges to the exact estimator", {
   expect_lt(max(abs(cmp_c$importance.x - cmp_c$importance.y)), 0.05 * diff(range(cmp_c$importance.x)))
 })
 
+test_that("ConditionalSAGE kernel estimator converges to the exact estimator", {
+  set.seed(2903)
+  task = sim_dgp_correlated(300)
+  learner = lrn("regr.ranger", num.trees = 25)
+  resampling = rsmp("holdout")$instantiate(task)
+  sampler = ConditionalGaussianSampler$new(task)
+
+  exact = ConditionalSAGE$new(
+    task,
+    learner,
+    msr("regr.mse"),
+    resampling,
+    sampler = sampler,
+    estimator = "exact",
+    n_samples = 20L
+  )
+  exact$compute()
+  kernel = ConditionalSAGE$new(
+    task,
+    learner,
+    msr("regr.mse"),
+    resampling,
+    sampler = sampler,
+    estimator = "kernel",
+    n_coalitions = 2048L,
+    n_samples = 20L
+  )
+  kernel$compute()
+
+  expect_importance_dt(kernel$importance(), features = kernel$features)
+  checkmate::expect_numeric(kernel$convergence()$se, lower = 0, finite = TRUE)
+  cmp = merge(exact$importance(), kernel$importance(), by = "feature")
+  # Both value functions carry fresh sampler noise, so agreement is up to Monte Carlo error.
+  expect_lt(max(abs(cmp$importance.x - cmp$importance.y)), 0.2 * diff(range(cmp$importance.x)))
+})
+
+test_that("ConditionalSAGE kernel estimator works with the default ARF sampler", {
+  skip_if_not_installed("arf")
+  set.seed(4127)
+  task = tgen("2dnormals")$generate(n = 150)
+  sage = ConditionalSAGE$new(
+    task,
+    lrn("classif.rpart", predict_type = "prob"),
+    msr("classif.logloss"),
+    sampler = ConditionalARFSampler$new(task, verbose = FALSE),
+    estimator = "kernel",
+    n_coalitions = 300L,
+    n_samples = 10L
+  )
+  sage$compute()
+  expect_importance_dt(sage$importance(), features = sage$features)
+  expect_equal(sage$budget$used, 300)
+})
+
 test_that("kernel estimator plots convergence and reuses its budget across resampling iterations", {
   set.seed(99)
   task = sim_dgp_independent(n = 120)
@@ -233,7 +287,16 @@ test_that("kernel estimator guards its arguments", {
   expect_error(MarginalSAGE$new(task, learner, msr("regr.rsq"), estimator = "kernel"), "observation-wise loss")
   expect_warning(MarginalSAGE$new(task, learner, estimator = "kernel", min_permutations = 5L), "ignored")
   expect_no_warning(MarginalSAGE$new(task, learner, estimator = "kernel", early_stopping = TRUE, se_threshold = 0.1))
-  expect_error(ConditionalSAGE$new(task, learner, estimator = "kernel"), "should be one of")
+  expect_error(
+    ConditionalSAGE$new(
+      task,
+      learner,
+      estimator = "kernel",
+      n_permutations = 5L,
+      sampler = ConditionalGaussianSampler$new(task)
+    ),
+    "n_coalitions"
+  )
 
   sage = MarginalSAGE$new(task, learner, estimator = "kernel", n_coalitions = 20L, n_samples = 10L)
   expect_warning(sage$compute(check_interval = 2L), "ignored")

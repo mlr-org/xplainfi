@@ -184,7 +184,8 @@ If a resampling with multiple iterations (i.e., not holdout) is supplied, the bu
 `estimator = "kernel"` is the regression-based estimator of Covert & Lee (2021), the `KernelEstimator` of the Python `sage` package: Shapley values are the solution of a weighted least squares problem with the Shapley kernel as weights, approximated from sampled coalitions.
 Unlike the permutation estimator, which evaluates every coalition on the whole test set, each coalition draw here is evaluated on a single, randomly drawn test observation and enters via the measure's observation-wise loss.
 A coalition evaluation therefore costs `n_samples` model rows instead of `n_test * n_samples`, and the budget `n_coalitions` (paired draws, each evaluating a coalition and its complement) is correspondingly large.
-This requires a measure with an observation-wise loss (`"obs_loss"` in `measure$properties`, e.g. `regr.mse` or `classif.logloss`, but not `classif.auc`), and it is currently available for `MarginalSAGE` only.
+This requires a measure with an observation-wise loss (`"obs_loss"` in `measure$properties`, e.g. `regr.mse` or `classif.logloss`, but not `classif.auc`).
+It is available for both `MarginalSAGE` and `ConditionalSAGE`.
 
 ```{r estimator-kernel}
 kernel_sage = MarginalSAGE$new(

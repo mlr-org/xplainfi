@@ -207,6 +207,56 @@ ConditionalARFSampler = R6Class(
         verbose = verbose,
         parallel = parallel
       )
+    },
+
+    #' @description
+    #' Sample from external data with a row-specific conditioning set, see [ConditionalSampler].
+    #' All rows go through a single [arf::forge()] call, with each row's resampled features passed as missing evidence.
+    #' @param newdata ([`data.table`][data.table::data.table]) External data to use.
+    #' @param mask (`logical` matrix) One row per row of `newdata` and one named column per feature.
+    #' @param samples_per_row (`integer(1)`: `1L`) Number of independent samples per input row.
+    #' @return [data.table][data.table::data.table] with `samples_per_row * nrow(newdata)` rows in draw-major order.
+    sample_masked = function(newdata, mask, samples_per_row = 1L) {
+      # forge needs at least one evidence column per row; the grouped default handles rows without one.
+      if (!all(rowSums(mask) > 0L)) {
+        return(super$sample_masked(newdata, mask, samples_per_row))
+      }
+      newdata = as.data.table(newdata)
+      checkmate::assert_matrix(mask, mode = "logical", any.missing = FALSE, nrows = nrow(newdata), col.names = "unique")
+      checkmate::assert_subset(colnames(mask), self$task$feature_names)
+      checkmate::assert_count(samples_per_row, positive = TRUE)
+
+      n = nrow(newdata)
+      features = colnames(mask)
+      # Only in-mask features are evidence, matching `conditioning_set = coalition` in `$sample_newdata()`.
+      evidence = newdata[, .SD, .SDcols = features]
+      for (j in seq_along(features)) {
+        set(evidence, i = which(!mask[, j]), j = features[j], value = NA)
+      }
+
+      synthetic = arf::forge(
+        params = self$psi,
+        n_synth = samples_per_row,
+        evidence = evidence,
+        evidence_row_mode = "separate",
+        round = self$param_set$values$round %||% TRUE,
+        sample_NAs = FALSE,
+        nomatch = "force",
+        verbose = self$param_set$values$verbose %||% FALSE,
+        stepsize = self$param_set$values$stepsize %||% 0,
+        parallel = self$param_set$values$parallel %||% FALSE
+      )
+      # forge is evidence-major, the sampler contract is draw-major.
+      synthetic = synthetic[order(rep(seq_len(samples_per_row), times = n))]
+
+      out = newdata[rep.int(seq_len(n), times = samples_per_row)]
+      for (j in seq_along(features)) {
+        resample = which(rep(!mask[, j], times = samples_per_row))
+        if (length(resample) > 0L) {
+          set(out, i = resample, j = features[j], value = synthetic[[features[j]]][resample])
+        }
+      }
+      out[, .SD, .SDcols = c(self$task$target_names, self$task$feature_names)]
     }
   ),
   private = list(

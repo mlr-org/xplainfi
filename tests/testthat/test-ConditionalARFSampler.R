@@ -222,3 +222,38 @@ test_that("ConditionalARFSampler calls arf::forge with n_synth > 1, not duplicat
   expect_equal(forge_calls[[1L]]$n_synth, 5L)
   expect_equal(forge_calls[[1L]]$nrow_evidence, 10L)
 })
+
+test_that("ConditionalARFSampler sample_masked conditions each row on its own mask in one forge call", {
+  skip_if_not_installed("arf")
+  set.seed(6043)
+  n_calls = 0L
+  real_forge = arf::forge
+  testthat::with_mocked_bindings(
+    forge = function(...) {
+      n_calls <<- n_calls + 1L
+      real_forge(...)
+    },
+    .package = "arf",
+    expect_sample_masked(ConditionalARFSampler, min_cor = 0.6, verbose = FALSE)
+  )
+  expect_equal(n_calls, 1L)
+})
+
+test_that("ConditionalARFSampler sample_masked with a shared mask reproduces sample_newdata", {
+  skip_if_not_installed("arf")
+  task = tgen("friedman1")$generate(n = 100)
+  sampler = ConditionalARFSampler$new(task, verbose = FALSE)
+  newdata = task$data(rows = 1:15)
+  mask = matrix(FALSE, nrow = 15L, ncol = 3L, dimnames = list(NULL, c("important1", "important2", "important3")))
+  mask[, "important1"] = TRUE
+
+  set.seed(8150)
+  expected = sampler$sample_newdata(
+    c("important2", "important3"),
+    newdata,
+    conditioning_set = "important1",
+    samples_per_row = 3L
+  )
+  set.seed(8150)
+  expect_equal(sampler$sample_masked(newdata, mask, samples_per_row = 3L), expected)
+})

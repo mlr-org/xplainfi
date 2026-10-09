@@ -67,6 +67,7 @@ Will be checked against the provided \link[mlr3:Task]{mlr3::Task} to ensure comp
     \item \href{#method-ConditionalARFSampler-initialize}{\code{ConditionalARFSampler$new()}}
     \item \href{#method-ConditionalARFSampler-sample}{\code{ConditionalARFSampler$sample()}}
     \item \href{#method-ConditionalARFSampler-sample_newdata}{\code{ConditionalARFSampler$sample_newdata()}}
+    \item \href{#method-ConditionalARFSampler-sample_masked}{\code{ConditionalARFSampler$sample_masked()}}
     \item \href{#method-ConditionalARFSampler-clone}{\code{ConditionalARFSampler$clone()}}
   }
 }
@@ -194,6 +195,31 @@ See \link{FeatureSampler}\verb{$sample()} for output shape and ordering.}
   }
   \subsection{Returns}{
     Modified copy with sampled feature(s).
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ConditionalARFSampler-sample_masked"></a>}}
+\if{latex}{\out{\hypertarget{method-ConditionalARFSampler-sample_masked}{}}}
+\subsection{\code{ConditionalARFSampler$sample_masked()}}{
+  Sample from external data with a row-specific conditioning set, see \link{ConditionalSampler}.
+All rows go through a single \code{\link[arf:forge]{arf::forge()}} call, with each row's resampled features passed as missing evidence.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalARFSampler$sample_masked(newdata, mask, samples_per_row = 1L)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{newdata}}{(\code{\link[data.table:data.table]{data.table}}) External data to use.}
+      \item{\code{mask}}{(\code{logical} matrix) One row per row of \code{newdata} and one named column per feature.}
+      \item{\code{samples_per_row}}{(\code{integer(1)}: \code{1L}) Number of independent samples per input row.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \link[data.table:data.table]{data.table} with \code{samples_per_row * nrow(newdata)} rows in draw-major order.
   }
 }
 

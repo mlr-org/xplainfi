@@ -45,8 +45,7 @@ ConditionalSAGE = R6Class(
 
     #' @description
     #' Creates a new instance of the ConditionalSAGE class.
-    #' @param task,learner,measure,resampling,features,estimator,n_permutations,max_features Passed to [SAGE].
-    #'   The kernel estimator is not yet available for conditional sampling.
+    #' @param task,learner,measure,resampling,features,estimator,n_permutations,n_coalitions,max_features Passed to [SAGE].
     #' @param batch_size,n_samples,early_stopping,se_threshold,min_permutations,check_interval Passed to [SAGE].
     #' @param sampler ([ConditionalSampler]) Optional custom sampler. Defaults to [ConditionalARFSampler].
     initialize = function(
@@ -55,8 +54,9 @@ ConditionalSAGE = R6Class(
       measure = NULL,
       resampling = NULL,
       features = NULL,
-      estimator = c("permutation", "exact"),
+      estimator = c("permutation", "kernel", "exact"),
       n_permutations = NULL,
+      n_coalitions = NULL,
       max_features = 12L,
       sampler = NULL,
       batch_size = 5000L,
@@ -66,8 +66,6 @@ ConditionalSAGE = R6Class(
       min_permutations = 10L,
       check_interval = 1L
     ) {
-      # The kernel estimator needs one conditional draw per (coalition, observation) pair,
-      # which the samplers do not support yet, so it is not among the choices here.
       estimator = match.arg(estimator)
       # Use ConditionalARFSampler by default
       if (is.null(sampler)) {
@@ -89,6 +87,7 @@ ConditionalSAGE = R6Class(
         features = features,
         estimator = estimator,
         n_permutations = n_permutations,
+        n_coalitions = n_coalitions,
         max_features = max_features,
         batch_size = batch_size,
         n_samples = n_samples,
@@ -158,6 +157,19 @@ ConditionalSAGE = R6Class(
 
       # Combine all coalitions into single data.table for batch prediction
       rbindlist(all_coalition_data)
+    },
+
+    # One observation per coalition: draw i conditions row i of `rows_dt` on its own
+    # coalition `zs[i, ]`, all draws in a single masked sampler call.
+    .expand_pairs_data = function(rows_dt, zs) {
+      n_samples = self$param_set$values$n_samples
+      mask = zs == 1L
+      colnames(mask) = self$features
+      expanded = self$sampler$sample_masked(rows_dt, mask, samples_per_row = n_samples)
+      # Draw-major sampler output, hence `times`.
+      expanded[, .coalition_id := rep(seq_len(nrow(zs)), times = n_samples)]
+      expanded[, .test_instance_id := 1L]
+      expanded
     }
   )
 )

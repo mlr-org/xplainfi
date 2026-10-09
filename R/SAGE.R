@@ -57,7 +57,8 @@
 #' estimators (the Shapley value is linear in the value function, and the test-set loss is the mean of the
 #' observation-wise losses), so `estimator = "exact"` remains the reference; `$budget$n_rows` compares
 #' their costs in model rows.
-#' The kernel estimator is currently available for [MarginalSAGE] only.
+#' For [ConditionalSAGE], each draw conditions on its own coalition through the sampler's `$sample_masked()`,
+#' which for [ConditionalARFSampler] is a single [arf::forge()] call per chunk of draws.
 #'
 #' **Convergence and budget**: With `early_stopping = TRUE`, sampling stops once the largest SE,
 #' relative to the spread of the SAGE values (`max(se) / (max(phi) - min(phi))`), falls below

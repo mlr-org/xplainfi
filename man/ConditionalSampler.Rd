@@ -17,6 +17,7 @@ that should be extended by concrete implementations.
     \item \href{#method-ConditionalSampler-initialize}{\code{ConditionalSampler$new()}}
     \item \href{#method-ConditionalSampler-sample}{\code{ConditionalSampler$sample()}}
     \item \href{#method-ConditionalSampler-sample_newdata}{\code{ConditionalSampler$sample_newdata()}}
+    \item \href{#method-ConditionalSampler-sample_masked}{\code{ConditionalSampler$sample_masked()}}
     \item \href{#method-ConditionalSampler-clone}{\code{ConditionalSampler$clone()}}
   }
 }
@@ -108,6 +109,36 @@ See \link{FeatureSampler}\verb{$sample()} for output shape and ordering.}
   }
   \subsection{Returns}{
     Modified copy with sampled feature(s).
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ConditionalSampler-sample_masked"></a>}}
+\if{latex}{\out{\hypertarget{method-ConditionalSampler-sample_masked}{}}}
+\subsection{\code{ConditionalSampler$sample_masked()}}{
+  Sample from external data with a row-specific conditioning set.
+Row \code{i} of \code{newdata} resamples the features whose \code{mask[i, ]} is \code{FALSE},
+conditionally on the features whose \code{mask[i, ]} is \code{TRUE}.
+Features that are not columns of \code{mask} are neither resampled nor conditioned on.
+The default groups rows by their mask and calls \verb{$sample_newdata()} once per group;
+subclasses may override it with a single batched call.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ConditionalSampler$sample_masked(newdata, mask, samples_per_row = 1L)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{newdata}}{(\code{\link[data.table:data.table]{data.table}}) External data to use.}
+      \item{\code{mask}}{(\code{logical} matrix) One row per row of \code{newdata} and one named column per feature.}
+      \item{\code{samples_per_row}}{(\code{integer(1)}: \code{1L}) Number of independent samples per input row.
+See \link{FeatureSampler}\verb{$sample()} for output shape and ordering.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \link[data.table:data.table]{data.table} with \code{samples_per_row * nrow(newdata)} rows in draw-major order.
   }
 }
 
