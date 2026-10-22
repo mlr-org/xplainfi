@@ -1,3 +1,36 @@
+#' Predict as a raw list (`response`, `prob`), preferring `$predict_newdata_fast()`
+#'
+#' The fast path hands the learner a stub task without `$positive`/`$negative`
+#' (mlr3 <= 1.8.0), so e.g. `classif.log_reg` returns an unnamed prob matrix with
+#' swapped columns. Prob columns that don't name the task's classes trigger a
+#' fallback to `$predict_newdata()`.
+#'
+#' @param learner mlr3 Learner object
+#' @param newdata data.table to predict on
+#' @param task mlr3 Task object
+#'
+#' @return list with elements `response` and `prob` (prob columns ordered as `task$class_names`)
+#' @keywords internal
+#' @noRd
+predict_raw = function(learner, newdata, task) {
+  if (is.function(learner$predict_newdata_fast)) {
+    pred = learner$predict_newdata_fast(newdata = newdata, task = task)
+    if (is.null(pred$prob) || setequal(colnames(pred$prob), task$class_names)) {
+      if (!is.null(pred$prob)) {
+        pred$prob = pred$prob[, task$class_names, drop = FALSE]
+      }
+      return(pred)
+    }
+    if (xplain_opt("debug")) {
+      cli::cli_inform(
+        "Unnamed prob columns from {.fun predict_newdata_fast} of {.cls {learner$id}}, falling back to {.fun predict_newdata}"
+      )
+    }
+  }
+  pred = learner$predict_newdata(newdata = newdata, task = task)
+  list(response = pred$response, prob = pred$prob)
+}
+
 #' Perform batched predictions with automatic handling of fast vs regular predict methods
 #'
 #' @param learner mlr3 Learner object
@@ -40,7 +73,7 @@ predict_batched = function(learner, data_list, task, test_row_ids, batch_size = 
 
     if (use_fast) {
       # Fast prediction on all data
-      pred_raw = learner$predict_newdata_fast(newdata = combined_data, task = task)
+      pred_raw = predict_raw(learner, combined_data, task)
 
       # Split into n_data predictions
       preds = lapply(seq_len(n_data), function(i) {
@@ -90,7 +123,7 @@ predict_batched = function(learner, data_list, task, test_row_ids, batch_size = 
     batch_data = rbindlist(data_list[data_indices])
 
     if (use_fast) {
-      pred_raw = learner$predict_newdata_fast(newdata = batch_data, task = task)
+      pred_raw = predict_raw(learner, batch_data, task)
 
       # Split back into individual predictions
       for (i in seq_along(data_indices)) {

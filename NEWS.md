@@ -33,6 +33,7 @@
 - `PFI`, `CFI`, and `RFI` no longer report integer positions instead of feature (or group) names in the `feature` column of `$scores()`, `$importance()`, and `$obs_loss()` when a non-sequential `future::plan()` is active. Scores and their order were unaffected, only the labels were lost.
 - `PFI`, `CFI`, and `RFI` no longer relay package startup messages from worker processes on every `$compute()` when a parallel backend is active.
 - `SAGE` methods now negate the scores of measures that are maximized (`measure$minimize = FALSE`, e.g. `classif.acc`), so positive SAGE values mean "improves performance" for every measure; previously such measures yielded sign-flipped values.
+- Perturbation-based methods (`PFI`, `CFI`, `RFI`) and `SAGE` methods no longer return wrong importances for probabilistic classifiers whose `$predict_newdata_fast()` yields unnamed or mislabeled probability columns, such as `classif.log_reg` with mlr3 <= 1.8.0, where every feature received the same importance. Such predictions now fall back to `$predict_newdata()`.
 
 # xplainfi 1.2.0
 
