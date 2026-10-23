@@ -33,11 +33,7 @@ sage_batch_predict = function(learner, combined_data, task, batch_size, task_typ
         )
       }
 
-      pred_result = if (is.function(learner$predict_newdata_fast)) {
-        learner$predict_newdata_fast(newdata = batch_data, task = task)
-      } else {
-        learner$predict_newdata(newdata = batch_data, task = task)
-      }
+      pred_result = predict_raw(learner, batch_data, task)
 
       all_predictions[[batch_idx]] = if (task_type == "classif") {
         pred_result$prob
@@ -58,11 +54,7 @@ sage_batch_predict = function(learner, combined_data, task, batch_size, task_typ
       cli::cli_inform("Predicting on {.val {nrow(combined_data)}} instances at once")
     }
 
-    pred_result = if (is.function(learner$predict_newdata_fast)) {
-      learner$predict_newdata_fast(newdata = combined_data, task = task)
-    } else {
-      learner$predict_newdata(newdata = combined_data, task = task)
-    }
+    pred_result = predict_raw(learner, combined_data, task)
 
     if (task_type == "classif") {
       pred_result$prob
