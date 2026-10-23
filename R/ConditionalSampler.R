@@ -115,6 +115,55 @@ ConditionalSampler = R6Class(
         samples_per_row = samples_per_row,
         ...
       )
+    },
+
+    #' @description
+    #' Sample from external data with a row-specific conditioning set.
+    #' Row `i` of `newdata` resamples the features whose `mask[i, ]` is `FALSE`,
+    #' conditionally on the features whose `mask[i, ]` is `TRUE`.
+    #' Features that are not columns of `mask` are neither resampled nor conditioned on.
+    #' The default groups rows by their mask and calls `$sample_newdata()` once per group;
+    #' subclasses may override it with a single batched call.
+    #' @param newdata ([`data.table`][data.table::data.table]) External data to use.
+    #' @param mask (`logical` matrix) One row per row of `newdata` and one named column per feature.
+    #' @param samples_per_row (`integer(1)`: `1L`) Number of independent samples per input row.
+    #'   See [FeatureSampler]`$sample()` for output shape and ordering.
+    #' @return [data.table][data.table::data.table] with `samples_per_row * nrow(newdata)` rows in draw-major order.
+    sample_masked = function(newdata, mask, samples_per_row = 1L) {
+      newdata = as.data.table(newdata)
+      checkmate::assert_matrix(mask, mode = "logical", any.missing = FALSE, nrows = nrow(newdata), col.names = "unique")
+      checkmate::assert_subset(colnames(mask), self$task$feature_names)
+      checkmate::assert_count(samples_per_row, positive = TRUE)
+
+      n = nrow(newdata)
+      features = colnames(mask)
+      key = apply(mask, 1L, function(row) paste(as.integer(row), collapse = ""))
+      groups = unique(key)
+      out = vector("list", length(groups))
+      positions = vector("list", length(groups))
+      for (g in seq_along(groups)) {
+        idx = which(key == groups[g])
+        keep = mask[idx[1L], ]
+        out[[g]] = if (all(keep)) {
+          newdata[
+            rep.int(idx, times = samples_per_row),
+            .SD,
+            .SDcols = c(self$task$target_names, self$task$feature_names)
+          ]
+        } else {
+          self$sample_newdata(
+            feature = features[!keep],
+            newdata = newdata[idx],
+            conditioning_set = features[keep],
+            samples_per_row = samples_per_row
+          )
+        }
+        # Group output is draw-major over its own rows; map back to draw-major over all rows.
+        positions[[g]] = rep(idx, times = samples_per_row) +
+          rep((seq_len(samples_per_row) - 1L) * n, each = length(idx))
+      }
+      out = rbindlist(out, use.names = TRUE)
+      out[order(unlist(positions))]
     }
   ),
 

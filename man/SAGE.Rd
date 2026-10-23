@@ -61,7 +61,8 @@ For such measures the kernel estimator targets the same SAGE values as the permu
 estimators (the Shapley value is linear in the value function, and the test-set loss is the mean of the
 observation-wise losses), so \code{estimator = "exact"} remains the reference; \verb{$budget$n_rows} compares
 their costs in model rows.
-The kernel estimator is currently available for \link{MarginalSAGE} only.
+For \link{ConditionalSAGE}, each draw conditions on its own coalition through the sampler's \verb{$sample_masked()},
+which for \link{ConditionalARFSampler} is a single \code{\link[arf:forge]{arf::forge()}} call per chunk of draws.
 
 \strong{Convergence and budget}: With \code{early_stopping = TRUE}, sampling stops once the largest SE,
 relative to the spread of the SAGE values (\code{max(se) / (max(phi) - min(phi))}), falls below

@@ -452,3 +452,35 @@ expect_draw_major_row_order = function(
 
   invisible(out)
 }
+
+# Check `$sample_masked()` on a task where x2 is a near-copy of x1: shape and draw-major
+# order, in-mask cells unchanged, out-of-mask cells resampled, and a resampled x2 tracking
+# x1 whenever x1 is conditioned on (each row uses its own conditioning set).
+# `min_cor` is lower for ARF, whose leaf-wise densities smooth the near-copy.
+expect_sample_masked = function(sampler_class, samples_per_row = 3L, min_cor = 0.9, ...) {
+  n = 200L
+  x1 = rnorm(n)
+  dt = data.table::data.table(y = rnorm(n), x1 = x1, x2 = x1 + rnorm(n, sd = 0.05), x3 = rnorm(n))
+  task = mlr3::as_task_regr(dt, target = "y")
+  sampler = sampler_class$new(task, ...)
+
+  newdata = task$data(rows = 1:60)
+  mask = matrix(FALSE, nrow = 60L, ncol = 3L, dimnames = list(NULL, c("x1", "x2", "x3")))
+  mask[1:20, "x1"] = TRUE # x2, x3 | x1
+  mask[21:40, c("x1", "x3")] = TRUE # x2 | x1, x3
+  mask[41:60, "x3"] = TRUE # x1, x2 | x3
+  out = sampler$sample_masked(newdata, mask, samples_per_row = samples_per_row)
+
+  testthat::expect_equal(nrow(out), 60L * samples_per_row)
+  expanded = newdata[rep(seq_len(60L), times = samples_per_row)]
+  mask_expanded = mask[rep(seq_len(60L), times = samples_per_row), ]
+  for (feature in colnames(mask)) {
+    keep = mask_expanded[, feature]
+    testthat::expect_equal(out[[feature]][keep], expanded[[feature]][keep], info = feature)
+    testthat::expect_gt(mean(out[[feature]][!keep] != expanded[[feature]][!keep]), 0.9)
+  }
+  conditioned = mask_expanded[, "x1"] & !mask_expanded[, "x2"]
+  testthat::expect_gt(cor(out$x2[conditioned], expanded$x1[conditioned]), min_cor)
+  testthat::expect_lt(abs(cor(out$x2[!mask_expanded[, "x1"]], expanded$x1[!mask_expanded[, "x1"]])), 0.5)
+  invisible(out)
+}

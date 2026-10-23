@@ -109,6 +109,7 @@ Troyanskaya O, Cantor M, Sherlock G, Brown P, Hastie T, Tibshirani R, Botstein D
 \if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
   <li><span class="pkg-link" data-pkg="xplainfi" data-topic="FeatureSampler" data-id="print"><a href='../../xplainfi/html/FeatureSampler.html#method-FeatureSampler-print'><code>FeatureSampler$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="xplainfi" data-topic="ConditionalSampler" data-id="sample_masked"><a href='../../xplainfi/html/ConditionalSampler.html#method-ConditionalSampler-sample_masked'><code>ConditionalSampler$sample_masked()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}
