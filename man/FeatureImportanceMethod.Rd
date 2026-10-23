@@ -264,7 +264,9 @@ For \code{"ratio"}, features whose baseline score is \code{0} yield \code{NA} (w
   }
   \subsection{Returns}{
     (\link[data.table:data.table]{data.table}) Observation-wise losses and importance scores with columns
-\code{"feature"}, \code{"iter_rsmp"}, \code{"iter_repeat"} (if applicable), \code{"row_ids"}, \code{"loss_baseline"}, \code{"loss_post"}, and \code{"obs_importance"}.
+\code{"feature"}, \code{"iter_rsmp"}, \code{"iter_repeat"} (if applicable), \code{"row_ids"}, \code{"loss_baseline"}, \code{"loss_post"},
+\code{"weight"} (if a \code{weight_fun} was used; scaled to mean 1 within its normalization group), and \code{"obs_importance"},
+which relates \code{loss_baseline} to \code{weight * loss_post} when weights are present.
   }
 }
 

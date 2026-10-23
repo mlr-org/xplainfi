@@ -72,6 +72,7 @@ reference:
       - ConditionalGaussianSampler
       - ConditionalKNNSampler
       - ConditionalCtreeSampler
+      - weights_arf
   - subtitle: Knockoff sampling
     desc: |
       Knockoffs satisfy certain theoretical properties that exceed those of the conditional samplers.

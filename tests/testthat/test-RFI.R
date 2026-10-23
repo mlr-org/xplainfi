@@ -320,3 +320,58 @@ test_that("RFI different conditioning sets produce different results", {
   expect_false(all(abs(result_empty$importance - result_one$importance) < 1e-10))
   expect_false(all(abs(result_one$importance - result_multi$importance) < 1e-10))
 })
+
+# -----------------------------------------------------------------------------
+# estimator = "weighting"
+# -----------------------------------------------------------------------------
+
+test_that("RFI weighting estimator: empty set is PFI, full set is CFI, subset matches sampling", {
+  skip_if_not_installed("arf")
+  skip_if_not_installed("ranger")
+  skip_if_not_installed("mlr3learners")
+  set.seed(6174)
+  task = sim_dgp_correlated(n = 600, r = 0.9)
+  learner = lrn("regr.ranger", num.trees = 10L)
+  resampling = rsmp("holdout", ratio = 0.5)$instantiate(task)
+  learner$train(task, row_ids = resampling$train_set(1))
+  sampler = ConditionalARFSampler$new(task, num_trees = 30L, verbose = FALSE)
+  args = list(task, learner, msr("regr.mse"), resampling = resampling, n_repeats = 10L, features = "x1")
+
+  rfi_w = do.call(RFI$new, c(args, list(sampler = sampler, conditioning_set = "x2", estimator = "weighting")))
+  checkmate::expect_r6(rfi_w$sampler, "MarginalPermutationSampler")
+  expect_equal(rfi_w$param_set$values$estimator, "weighting")
+  rfi_s = do.call(RFI$new, c(args, list(sampler = sampler, conditioning_set = "x2")))
+  rfi_w$compute()
+  rfi_s$compute()
+  expect_equal(rfi_w$importance()$importance, rfi_s$importance()$importance, tolerance = 0.25)
+  checkmate::expect_numeric(rfi_w$scores()$ess, lower = 1, upper = length(resampling$test_set(1)))
+
+  # Empty conditioning set: constant weights, ess = n_test
+  set.seed(1)
+  rfi_w$compute(conditioning_set = character(0))
+  expect_equal(rfi_w$scores()$ess, rep(length(resampling$test_set(1)), 10L))
+  pfi = do.call(PFI$new, args)
+  set.seed(1)
+  pfi$compute()
+  expect_equal(rfi_w$importance()$importance, pfi$importance()$importance)
+
+  # Stored weight function is restored after the override
+  set.seed(2)
+  rfi_w$compute()
+  expect_lt(mean(rfi_w$scores()$ess), length(resampling$test_set(1)))
+})
+
+test_that("RFI weighting estimator requires ConditionalARFSampler", {
+  task = tgen("2dnormals")$generate(n = 50)
+  expect_error(
+    RFI$new(
+      task,
+      lrn("classif.rpart", predict_type = "prob"),
+      msr("classif.ce"),
+      sampler = ConditionalGaussianSampler$new(task),
+      conditioning_set = "x2",
+      estimator = "weighting"
+    ),
+    "ConditionalARFSampler"
+  )
+})
